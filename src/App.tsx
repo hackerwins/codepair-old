@@ -1,13 +1,15 @@
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import { Route } from 'react-router-dom';
-import HomePage from './pages/HomePage';
-
+import { Route, Redirect } from 'react-router-dom';
+import { Provider } from 'react-redux';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { ThemeProvider } from '@material-ui/core/styles';
+
 import configureStore from './store/store';
+import DocPage from './pages/DocPage';
 import theme from './theme';
-import { Provider } from 'react-redux';
+
+import './App.css';
 
 const store = configureStore();
 
@@ -18,7 +20,16 @@ function App() {
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
         <Router>
-          <Route path="/" exact component={HomePage} />
+          <Route
+            path="/"
+            exact
+            render={() => {
+              return (
+                <Redirect to={`/${Math.random().toString(36).substring(7)}`} />
+              );
+            }}
+          />
+          <Route path="/:docKey" exact component={DocPage} />
         </Router>
       </ThemeProvider>
     </Provider>
