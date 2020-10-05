@@ -1,3 +1,28 @@
+# Yorkie CodePair
+
+## Deploying
+
+Deploy our application to GitHub pages.
+
+```
+npm run deploy
+```
+
+For more details:
+[deploying-a-create-react-app-with-routing-to-github-pages](https://medium.com/@bennirus/deploying-a-create-react-app-with-routing-to-github-pages-f386b6ce84c2)
+
+### Layout
+
+Yorkie CodePair is deployed to AWS and the configuration is shown below. This repository is used to distribute static pages.
+
+```
+[Route53] - [ELB] - [EC2]
+
+# EC2
+[nginx] - [yorkie-team.github.io/yorkie-codepair] # for serving static pages
+        ㄴ[grpc-web proxy, envoy] - [yorkie server] - [mongodb]  # for serving API
+```
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 <details>
   <summary>Click to expand details about Create React App</summary>
