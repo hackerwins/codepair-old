@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/yorkie-codepair/precache-manifest.f293972444c1cfeca028181001b7645b.js"
+  "/yorkie-codepair/precache-manifest.7fd715cdb55cfeff661aae9f01f6fa8c.js"
 );
 
 self.addEventListener('message', (event) => {
