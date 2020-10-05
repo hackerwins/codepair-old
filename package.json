@@ -2,6 +2,7 @@
   "name": "yorkie-codepair",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://yorkie-team.github.io/yorkie-codepair",
   "dependencies": {
     "@material-ui/core": "^4.11.0",
     "@material-ui/icons": "^4.9.1",
@@ -32,7 +33,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -63,6 +66,7 @@
     "@types/material-ui": "^0.21.8",
     "@types/react-redux": "^7.1.9",
     "@types/react-router-dom": "^5.1.5",
-    "@types/redux": "^3.6.0"
+    "@types/redux": "^3.6.0",
+    "gh-pages": "^3.1.0"
   }
 }
