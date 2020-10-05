@@ -1,25 +1,25 @@
 {
   "files": {
-    "main.css": "/codepair/static/css/main.65938976.chunk.css",
-    "main.js": "/codepair/static/js/main.251dfad3.chunk.js",
-    "main.js.map": "/codepair/static/js/main.251dfad3.chunk.js.map",
-    "runtime-main.js": "/codepair/static/js/runtime-main.d610c16a.js",
-    "runtime-main.js.map": "/codepair/static/js/runtime-main.d610c16a.js.map",
-    "static/css/2.b2f02b1f.chunk.css": "/codepair/static/css/2.b2f02b1f.chunk.css",
-    "static/js/2.2c5a9dff.chunk.js": "/codepair/static/js/2.2c5a9dff.chunk.js",
-    "static/js/2.2c5a9dff.chunk.js.map": "/codepair/static/js/2.2c5a9dff.chunk.js.map",
-    "index.html": "/codepair/index.html",
-    "precache-manifest.e5ea4f5d10b33dd18c59e76185baf1ad.js": "/codepair/precache-manifest.e5ea4f5d10b33dd18c59e76185baf1ad.js",
-    "service-worker.js": "/codepair/service-worker.js",
-    "static/css/2.b2f02b1f.chunk.css.map": "/codepair/static/css/2.b2f02b1f.chunk.css.map",
-    "static/css/main.65938976.chunk.css.map": "/codepair/static/css/main.65938976.chunk.css.map",
-    "static/js/2.2c5a9dff.chunk.js.LICENSE.txt": "/codepair/static/js/2.2c5a9dff.chunk.js.LICENSE.txt"
+    "main.css": "/yorkie-codepair/static/css/main.65938976.chunk.css",
+    "main.js": "/yorkie-codepair/static/js/main.090ceb51.chunk.js",
+    "main.js.map": "/yorkie-codepair/static/js/main.090ceb51.chunk.js.map",
+    "runtime-main.js": "/yorkie-codepair/static/js/runtime-main.a1586e49.js",
+    "runtime-main.js.map": "/yorkie-codepair/static/js/runtime-main.a1586e49.js.map",
+    "static/css/2.b2f02b1f.chunk.css": "/yorkie-codepair/static/css/2.b2f02b1f.chunk.css",
+    "static/js/2.2c5a9dff.chunk.js": "/yorkie-codepair/static/js/2.2c5a9dff.chunk.js",
+    "static/js/2.2c5a9dff.chunk.js.map": "/yorkie-codepair/static/js/2.2c5a9dff.chunk.js.map",
+    "index.html": "/yorkie-codepair/index.html",
+    "precache-manifest.f293972444c1cfeca028181001b7645b.js": "/yorkie-codepair/precache-manifest.f293972444c1cfeca028181001b7645b.js",
+    "service-worker.js": "/yorkie-codepair/service-worker.js",
+    "static/css/2.b2f02b1f.chunk.css.map": "/yorkie-codepair/static/css/2.b2f02b1f.chunk.css.map",
+    "static/css/main.65938976.chunk.css.map": "/yorkie-codepair/static/css/main.65938976.chunk.css.map",
+    "static/js/2.2c5a9dff.chunk.js.LICENSE.txt": "/yorkie-codepair/static/js/2.2c5a9dff.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "static/js/runtime-main.d610c16a.js",
+    "static/js/runtime-main.a1586e49.js",
     "static/css/2.b2f02b1f.chunk.css",
     "static/js/2.2c5a9dff.chunk.js",
     "static/css/main.65938976.chunk.css",
-    "static/js/main.251dfad3.chunk.js"
+    "static/js/main.090ceb51.chunk.js"
   ]
 }
