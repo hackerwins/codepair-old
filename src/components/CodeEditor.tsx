@@ -91,7 +91,7 @@ export default function CodeEditor(props: CodeEditorProps) {
             }
           }
         });
-
+        editor.setSize('auto', '100vh');
         editor.setValue(root.content.getValue());
       }}
       onBeforeChange={(editor: any, change: any) => {
