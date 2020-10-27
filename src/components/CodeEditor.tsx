@@ -91,7 +91,8 @@ export default function CodeEditor(props: CodeEditorProps) {
             }
           }
         });
-
+        // We need to subtract the height of NavBar.
+        editor.setSize('auto', 'calc(100vh - 64px)');
         editor.setValue(root.content.getValue());
       }}
       onBeforeChange={(editor: any, change: any) => {
