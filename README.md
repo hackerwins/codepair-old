@@ -1,31 +1,26 @@
 # Yorkie CodePair
 
-## Deploying
+## Developing Yorkie CodePair
 
-Deploy our application to GitHub pages.
+### Running CodePair
 
-```
-npm run deploy
-```
-
-For more details:
-[deploying-a-create-react-app-with-routing-to-github-pages](https://medium.com/@bennirus/deploying-a-create-react-app-with-routing-to-github-pages-f386b6ce84c2)
-
-### Layout
-
-Yorkie CodePair is deployed to AWS and the configuration is shown below. This repository is used to distribute static pages.
+Runs CodePair in the development mode.
 
 ```
-[Route53] - [ELB] - [EC2]
-
-# EC2
-[nginx] - [yorkie-team.github.io/yorkie-codepair] # for serving static pages
-        ㄴ[grpc-web proxy, envoy] - [yorkie server] - [mongodb]  # for serving API
+npm start
 ```
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+### Testing CodePair
+
+Launches the test runner in the interactive watch mode.
+
+```
+npm test
+```
+
+Yorkie CodePair was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 <details>
-  <summary>Click to expand details about Create React App</summary>
+  <summary>For more details, click to expand details about Create React App</summary>
 
 ## Available Scripts
 
@@ -71,3 +66,26 @@ You can learn more in the [Create React App documentation](https://facebook.gith
 To learn React, check out the [React documentation](https://reactjs.org/).
 
 </details>
+
+## Deploying
+
+Deploy our application to GitHub pages.
+
+```
+npm run deploy
+```
+
+For more details:
+[deploying-a-create-react-app-with-routing-to-github-pages](https://medium.com/@bennirus/deploying-a-create-react-app-with-routing-to-github-pages-f386b6ce84c2)
+
+### Layout
+
+Yorkie CodePair is deployed to AWS and the configuration is shown below. This repository is used to distribute static pages.
+
+```
+[Route53] - [ELB] - [EC2]
+
+# EC2
+[nginx] - [yorkie-team.github.io/yorkie-codepair] # for serving static pages
+        ㄴ[grpc-web proxy, envoy] - [yorkie server] - [mongodb]  # for serving API
+```
