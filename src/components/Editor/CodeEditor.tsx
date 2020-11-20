@@ -6,8 +6,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import Alert from '@material-ui/lab/Alert';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-import { IAppState } from '../store/store';
-import { AttachDocAction, loadDocAction } from '../actions/docActions';
+import { IAppState } from '../../store/store';
+import { AttachDocAction, loadDocAction } from '../../actions/docActions';
 
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/monokai.css';
@@ -39,9 +39,7 @@ export default function CodeEditor(props: CodeEditorProps) {
   const loading = useSelector((state: IAppState) => state.docState.loading);
   const client = useSelector((state: IAppState) => state.docState.client);
   const doc = useSelector((state: IAppState) => state.docState.doc);
-  const errorMessage = useSelector(
-    (state: IAppState) => state.docState.errorMessage,
-  );
+  const errorMessage = useSelector((state: IAppState) => state.docState.errorMessage);
 
   if (loading) {
     return (
@@ -54,9 +52,7 @@ export default function CodeEditor(props: CodeEditorProps) {
   if (errorMessage || client === null || doc === null) {
     return (
       <div className={classes.root}>
-        <Alert severity="error">
-          {errorMessage || 'fail to attach document'}
-        </Alert>
+        <Alert severity="error">{errorMessage || 'fail to attach document'}</Alert>
       </div>
     );
   }
@@ -75,10 +71,7 @@ export default function CodeEditor(props: CodeEditorProps) {
               const content = change.content || '';
 
               if (actor !== client.getID()) {
-                console.log(
-                  `%c remote: ${from}-${to}: ${content}`,
-                  'color: skyblue',
-                );
+                console.log(`%c remote: ${from}-${to}: ${content}`, 'color: skyblue');
                 const fromIdx = editor.posFromIndex(from);
                 const toIdx = editor.posFromIndex(to);
                 editor.replaceRange(content, fromIdx, toIdx, 'yorkie');
