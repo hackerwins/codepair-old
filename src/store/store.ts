@@ -14,15 +14,18 @@ import { applyMiddleware, combineReducers, createStore, Store } from 'redux';
 import thunk from 'redux-thunk';
 // Import reducers and state type
 import { IDocState, docReducer } from '../reducers/docReducer';
+import { PeerState, peerReducer } from '../reducers/peerReducer';
 
 // Create an interface for the application state
 export interface IAppState {
   docState: IDocState;
+  peerState: PeerState;
 }
 
 // Create the root reducer
 const rootReducer = combineReducers<IAppState>({
   docState: docReducer,
+  peerState: peerReducer,
 });
 
 // Create a configure store function of type `IAppState`
