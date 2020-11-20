@@ -1,13 +1,17 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
 import { Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import Alert from '@material-ui/lab/Alert';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import randomColor from 'randomcolor';
+
+import ClientCursor from './ClientCursor';
 
 import { IAppState } from '../../store/store';
 import { AttachDocAction, loadDocAction } from '../../actions/docActions';
+import { ConnectionStatus, AddPeer, DisconnectPeer} from '../../actions/peerActions';
 
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/monokai.css';
@@ -29,19 +33,68 @@ export default function CodeEditor(props: CodeEditorProps) {
   const dispatch = useDispatch();
   const classes = useStyles();
 
+  const doc = useSelector((state: IAppState) => state.docState.doc);
+  const client = useSelector((state: IAppState) => state.docState.client);
+  const loading = useSelector((state: IAppState) => state.docState.loading);
+  const errorMessage = useSelector((state: IAppState) => state.docState.errorMessage);
+  const peerClients = useSelector((state: IAppState) => state.peerState.peers);
+  const otherClientsCuror = useRef(new Map());
+
+  const disconnectClient = (clientId: string) => {
+    if (otherClientsCuror.current.has(clientId)) {
+      otherClientsCuror.current.get(clientId).removeCursor();
+      otherClientsCuror.current.delete(clientId);
+    }
+    dispatch(DisconnectPeer(clientId));
+  };
+
+  const connectClient = (clientId: string) => {
+    const existedClient = peerClients[clientId];
+
+    let color: string;
+    if (existedClient && existedClient.status === ConnectionStatus.Disconnected) {
+      color = existedClient.color;
+    } else {
+      color = randomColor();
+    }
+
+    const newClient = ClientCursor.of(clientId, color);
+    otherClientsCuror.current.set(clientId, newClient);
+    dispatch(AddPeer(clientId, color));
+  };
+
   useEffect(() => {
     dispatch(loadDocAction(true));
     dispatch(AttachDocAction(props.docKey));
-    // TODO we need to understand more how to use useEffect.
     // eslint-disable-next-line
-  }, []);
+  }, [props.docKey]);
 
-  const loading = useSelector((state: IAppState) => state.docState.loading);
-  const client = useSelector((state: IAppState) => state.docState.client);
-  const doc = useSelector((state: IAppState) => state.docState.doc);
-  const errorMessage = useSelector(
-    (state: IAppState) => state.docState.errorMessage,
-  );
+  useEffect(() => {
+    if (!client || !doc) {
+      return;
+    }
+
+    const unsubscribe = client.subscribe((event: any) => {
+      if (event.name === 'documents-watching-peer-changed') {
+        const newPeerClientsId: string[] = event.value[doc.getKey().toIDString()];
+        const setNewPeerClientsId = new Set(newPeerClientsId);
+        for (const clientId of Object.keys(peerClients)) {
+          if (setNewPeerClientsId.has(clientId) && peerClients[clientId].status === ConnectionStatus.Connected) {
+            setNewPeerClientsId.delete(clientId);
+          } else {
+            disconnectClient(clientId);
+          }
+        }
+
+        Array.from(setNewPeerClientsId).forEach(connectClient);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+    // eslint-disable-next-line
+  }, [client, doc, JSON.stringify(peerClients)]);
 
   if (loading) {
     return (
@@ -75,10 +128,7 @@ export default function CodeEditor(props: CodeEditorProps) {
               const content = change.content || '';
 
               if (actor !== client.getID()) {
-                console.log(
-                  `%c remote: ${from}-${to}: ${content}`,
-                  'color: skyblue',
-                );
+                console.log(`%c remote: ${from}-${to}: ${content}`, 'color: skyblue');
                 const fromIdx = editor.posFromIndex(from);
                 const toIdx = editor.posFromIndex(to);
                 editor.replaceRange(content, fromIdx, toIdx, 'yorkie');
@@ -86,7 +136,14 @@ export default function CodeEditor(props: CodeEditorProps) {
             } else if (change.type === 'selection') {
               const actor = change.actor;
               if (actor !== client.getID()) {
-                // displayRemoteSelection(editor, change);
+                if (change.to === change.from) {
+                  if (otherClientsCuror.current.has(actor)) {
+                    const otherClient = otherClientsCuror.current.get(actor);
+                    otherClient.updateCursor(change.to, editor);
+                  } else {
+                    connectClient(actor);
+                  }
+                }
               }
             }
           }
