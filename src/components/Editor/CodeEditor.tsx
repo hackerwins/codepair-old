@@ -6,8 +6,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import Alert from '@material-ui/lab/Alert';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-import { IAppState } from '../store/store';
-import { AttachDocAction, loadDocAction } from '../actions/docActions';
+import { IAppState } from '../../store/store';
+import { AttachDocAction, loadDocAction } from '../../actions/docActions';
 
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/monokai.css';
