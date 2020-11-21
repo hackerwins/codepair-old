@@ -41,9 +41,9 @@ export default function CodeEditor(props: CodeEditorProps) {
   const otherClientsCursor = useRef<Map<string, ClientCursor>>(new Map());
 
   const disconnectClient = (clientId: string) => {
-    if (otherClientsCuror.current.has(clientId)) {
-      otherClientsCuror.current.get(clientId)!.removeCursor();
-      otherClientsCuror.current.delete(clientId);
+    if (otherClientsCursor.current.has(clientId)) {
+      otherClientsCursor.current.get(clientId)!.removeCursor();
+      otherClientsCursor.current.delete(clientId);
     }
     dispatch(DisconnectPeer(clientId));
   };
@@ -59,7 +59,7 @@ export default function CodeEditor(props: CodeEditorProps) {
     }
 
     const newClientCursor = ClientCursor.of(clientId, color);
-    otherClientsCuror.current.set(clientId, newClientCursor);
+    otherClientsCursor.current.set(clientId, newClientCursor);
     dispatch(AddPeer(clientId, color));
   };
 
@@ -136,10 +136,10 @@ export default function CodeEditor(props: CodeEditorProps) {
               const actor = change.actor;
               if (actor !== client.getID()) {
                 if (change.to === change.from) {
-                  if (!otherClientsCuror.current.has(actor)) {
+                  if (!otherClientsCursor.current.has(actor)) {
                     connectClient(actor);
                   }
-                  const otherClientCursor = otherClientsCuror.current.get(actor);
+                  const otherClientCursor = otherClientsCursor.current.get(actor);
                   otherClientCursor!.updateCursor(change.to, editor);
                 }
               }
