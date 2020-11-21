@@ -140,7 +140,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                     connectClient(actor);
                   }
                   const otherClientCursor = otherClientsCuror.current.get(actor);
-                  otherClientCursor.updateCursor(change.to, editor);
+                  otherClientCursor!.updateCursor(change.to, editor);
                 }
               }
             }
