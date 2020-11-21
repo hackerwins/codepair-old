@@ -38,11 +38,11 @@ export default function CodeEditor(props: CodeEditorProps) {
   const loading = useSelector((state: IAppState) => state.docState.loading);
   const errorMessage = useSelector((state: IAppState) => state.docState.errorMessage);
   const peerClients = useSelector((state: IAppState) => state.peerState.peers);
-  const otherClientsCuror = useRef(new Map());
+  const otherClientsCursor = useRef<Map<string, ClientCursor>>(new Map());
 
   const disconnectClient = (clientId: string) => {
     if (otherClientsCuror.current.has(clientId)) {
-      otherClientsCuror.current.get(clientId).removeCursor();
+      otherClientsCuror.current.get(clientId)!.removeCursor();
       otherClientsCuror.current.delete(clientId);
     }
     dispatch(DisconnectPeer(clientId));
