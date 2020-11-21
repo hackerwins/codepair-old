@@ -137,12 +137,11 @@ export default function CodeEditor(props: CodeEditorProps) {
               const actor = change.actor;
               if (actor !== client.getID()) {
                 if (change.to === change.from) {
-                  if (otherClientsCuror.current.has(actor)) {
-                    const otherClient = otherClientsCuror.current.get(actor);
-                    otherClient.updateCursor(change.to, editor);
-                  } else {
+                  if (!otherClientsCuror.current.has(actor)) {
                     connectClient(actor);
-                  }
+                  } 
+                  const otherClientCursor = otherClientsCuror.current.get(actor);
+                  otherClientCursor.updateCursor(change.to, editor);
                 }
               }
             }
