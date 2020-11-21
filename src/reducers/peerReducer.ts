@@ -12,10 +12,7 @@ const initialPeerState: PeerState = {
   peers: {},
 };
 
-export const peerReducer: Reducer<PeerState, PeerActions> = (
-  state = initialPeerState, 
-  action: PeerActions
-) => {
+export const peerReducer: Reducer<PeerState, PeerActions> = (state = initialPeerState, action: PeerActions) => {
   const existedClient = state.peers[action.id];
   switch (action.type) {
     case PeerActionTypes.CONNECT_PEER: {
@@ -33,8 +30,11 @@ export const peerReducer: Reducer<PeerState, PeerActions> = (
     }
 
     case PeerActionTypes.DISCONNECT_PEER: {
-      const client = { ...existedClient };
-      client.status = ConnectionStatus.Disconnected;
+      const client = {
+        ...existedClient,
+        status: ConnectionStatus.Disconnected,
+      };
+
       return {
         ...state,
         peers: {

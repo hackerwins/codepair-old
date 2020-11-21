@@ -11,7 +11,7 @@ import ClientCursor from './ClientCursor';
 
 import { IAppState } from '../../store/store';
 import { AttachDocAction, loadDocAction } from '../../actions/docActions';
-import { ConnectionStatus, AddPeer, DisconnectPeer} from '../../actions/peerActions';
+import { ConnectionStatus, AddPeer, DisconnectPeer } from '../../actions/peerActions';
 
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/monokai.css';
@@ -58,8 +58,8 @@ export default function CodeEditor(props: CodeEditorProps) {
       color = randomColor();
     }
 
-    const newClient = ClientCursor.of(clientId, color);
-    otherClientsCuror.current.set(clientId, newClient);
+    const newClientCursor = ClientCursor.of(clientId, color);
+    otherClientsCuror.current.set(clientId, newClientCursor);
     dispatch(AddPeer(clientId, color));
   };
 
@@ -78,6 +78,7 @@ export default function CodeEditor(props: CodeEditorProps) {
       if (event.name === 'documents-watching-peer-changed') {
         const newPeerClientsId: string[] = event.value[doc.getKey().toIDString()];
         const setNewPeerClientsId = new Set(newPeerClientsId);
+
         for (const clientId of Object.keys(peerClients)) {
           if (setNewPeerClientsId.has(clientId) && peerClients[clientId].status === ConnectionStatus.Connected) {
             setNewPeerClientsId.delete(clientId);
@@ -107,9 +108,7 @@ export default function CodeEditor(props: CodeEditorProps) {
   if (errorMessage || client === null || doc === null) {
     return (
       <div className={classes.root}>
-        <Alert severity="error">
-          {errorMessage || 'fail to attach document'}
-        </Alert>
+        <Alert severity="error">{errorMessage || 'fail to attach document'}</Alert>
       </div>
     );
   }
@@ -139,7 +138,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                 if (change.to === change.from) {
                   if (!otherClientsCuror.current.has(actor)) {
                     connectClient(actor);
-                  } 
+                  }
                   const otherClientCursor = otherClientsCuror.current.get(actor);
                   otherClientCursor.updateCursor(change.to, editor);
                 }
