@@ -20,8 +20,9 @@ class ClientCursor {
     const cursorCoords = cm.cursorCoords(cursorPos);
     const cursorElement = document.createElement('span');
     const size = cursorCoords.bottom - cursorCoords.top;
+    cursorElement.style.position = 'absolute';
     cursorElement.style.borderLeftStyle = 'solid';
-    cursorElement.style.borderLeftWidth = '2.5px';
+    cursorElement.style.borderLeftWidth = '2px';
     cursorElement.style.borderLeftColor = this.color;
     cursorElement.style.height = `${size}px`;
     cursorElement.style.padding = '0px';
