@@ -15,7 +15,7 @@ import { ConnectionStatus, AddPeer, DisconnectPeer } from '../../actions/peerAct
 
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/monokai.css';
-import './CodeEditor.css'
+import './CodeEditor.css';
 
 type CodeEditorProps = {
   docKey: string;
@@ -169,7 +169,7 @@ export default function CodeEditor(props: CodeEditorProps) {
       }}
       // Notifying other clients to move the cursor
       onSelection={(editor, data) => {
-        if (data.origin !== '*mouse') {
+        if (!data.origin) {
           return;
         }
 
