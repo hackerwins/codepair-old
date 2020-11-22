@@ -15,6 +15,7 @@ import { ConnectionStatus, AddPeer, DisconnectPeer } from '../../actions/peerAct
 
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/monokai.css';
+import './CodeEditor.css'
 
 type CodeEditorProps = {
   docKey: string;
