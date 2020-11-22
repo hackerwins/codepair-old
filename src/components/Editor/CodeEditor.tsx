@@ -40,14 +40,6 @@ export default function CodeEditor(props: CodeEditorProps) {
   const peerClients = useSelector((state: IAppState) => state.peerState.peers);
   const otherClientsCursor = useRef<Map<string, ClientCursor>>(new Map());
 
-  const disconnectClient = (clientId: string) => {
-    if (otherClientsCursor.current.has(clientId)) {
-      otherClientsCursor.current.get(clientId)!.removeCursor();
-      otherClientsCursor.current.delete(clientId);
-    }
-    dispatch(DisconnectPeer(clientId));
-  };
-
   const connectClient = (clientId: string) => {
     const existedClient = peerClients[clientId];
 
@@ -63,16 +55,25 @@ export default function CodeEditor(props: CodeEditorProps) {
     dispatch(AddPeer(clientId, color));
   };
 
+  // Attach document
   useEffect(() => {
     dispatch(loadDocAction(true));
     dispatch(AttachDocAction(props.docKey));
-    // eslint-disable-next-line
-  }, [props.docKey]);
+  }, [props.docKey, dispatch]);
 
+  // Subscribe other client
   useEffect(() => {
     if (!client || !doc) {
       return;
     }
+
+    const disconnectClient = (clientId: string) => {
+      if (otherClientsCursor.current.has(clientId)) {
+        otherClientsCursor.current.get(clientId)!.removeCursor();
+        otherClientsCursor.current.delete(clientId);
+      }
+      dispatch(DisconnectPeer(clientId));
+    };
 
     const unsubscribe = client.subscribe((event: any) => {
       if (event.name === 'documents-watching-peer-changed') {
@@ -81,21 +82,17 @@ export default function CodeEditor(props: CodeEditorProps) {
 
         for (const clientId of Object.keys(peerClients)) {
           if (setNewPeerClientsId.has(clientId) && peerClients[clientId].status === ConnectionStatus.Connected) {
-            setNewPeerClientsId.delete(clientId);
-          } else {
-            disconnectClient(clientId);
+            continue;
           }
+          disconnectClient(clientId);
         }
-
-        Array.from(setNewPeerClientsId).forEach(connectClient);
       }
     });
 
     return () => {
       unsubscribe();
     };
-    // eslint-disable-next-line
-  }, [client, doc, JSON.stringify(peerClients)]);
+  }, [client, doc, peerClients, dispatch]);
 
   if (loading) {
     return (
@@ -117,6 +114,25 @@ export default function CodeEditor(props: CodeEditorProps) {
     <CodeMirror
       options={{ mode: 'xml', theme: 'monokai', lineNumbers: true }}
       editorDidMount={(editor) => {
+        const updateCursor = (clientId: string, pos: number) => {
+          const clientCursor = otherClientsCursor.current.get(clientId);
+          clientCursor!.updateCursor(pos, editor);
+        };
+
+        doc?.subscribe((event: any) => {
+          if (event.name === 'remote-change') {
+            event.value.forEach((change: any) => {
+              const actor = change.id.actor;
+              if (actor !== client.getID()) {
+                if (!otherClientsCursor.current.has(actor)) {
+                  connectClient(actor);
+                  updateCursor(actor, 0);
+                }
+              }
+            });
+          }
+        });
+
         const root = doc.getRootObject() as any;
         root.content.onChanges((changes: any) => {
           for (const change of changes) {
@@ -139,16 +155,29 @@ export default function CodeEditor(props: CodeEditorProps) {
                   if (!otherClientsCursor.current.has(actor)) {
                     connectClient(actor);
                   }
-                  const otherClientCursor = otherClientsCursor.current.get(actor);
-                  otherClientCursor!.updateCursor(change.to, editor);
+                  updateCursor(actor, change.to);
                 }
               }
             }
           }
         });
+
         // We need to subtract the height of NavBar.
         editor.setSize('auto', 'calc(100vh - 64px)');
         editor.setValue(root.content.getValue());
+      }}
+      // Notifying other clients to move the cursor
+      onSelection={(editor, data) => {
+        if (data.origin !== '*mouse') {
+          return;
+        }
+
+        const from = editor.indexFromPos(data.ranges[0].anchor);
+        const to = editor.indexFromPos(data.ranges[0].head);
+
+        doc?.update((root: any) => {
+          root.content.updateSelection(from, to);
+        });
       }}
       onBeforeChange={(editor: any, change: any) => {
         console.log(change.origin, change.text);
@@ -160,7 +189,7 @@ export default function CodeEditor(props: CodeEditorProps) {
         const to = editor.indexFromPos(change.to);
         const content = change.text.join('\n');
 
-        doc.update((root: any) => {
+        doc?.update((root: any) => {
           root.content.edit(from, to, content);
         });
       }}
