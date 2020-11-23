@@ -117,7 +117,12 @@ export default function CodeEditor(props: CodeEditorProps) {
       editorDidMount={(editor) => {
         const updateCursor = (clientId: string, pos: number) => {
           const clientCursor = otherClientsCursor.current.get(clientId);
-          clientCursor!.updateCursor(pos, editor);
+          clientCursor!.updateCursor(editor, pos);
+        };
+
+        const updateLine = (clientId: string, fromIdx: number, toIdx: number) => {
+          const clientCursor = otherClientsCursor.current.get(clientId);
+          clientCursor!.updateLine(editor, fromIdx, toIdx);
         };
 
         doc?.subscribe((event: any) => {
@@ -128,6 +133,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                 if (!otherClientsCursor.current.has(actor)) {
                   connectClient(actor);
                   updateCursor(actor, 0);
+                  // TODO Load user's cursor position
                 }
               }
             });
@@ -137,10 +143,10 @@ export default function CodeEditor(props: CodeEditorProps) {
         const root = doc.getRootObject() as any;
         root.content.onChanges((changes: any) => {
           for (const change of changes) {
+            const actor = change.actor;
+            const from = change.from;
+            const to = change.to;
             if (change.type === 'content') {
-              const actor = change.actor;
-              const from = change.from;
-              const to = change.to;
               const content = change.content || '';
 
               if (actor !== client.getID()) {
@@ -150,14 +156,15 @@ export default function CodeEditor(props: CodeEditorProps) {
                 editor.replaceRange(content, fromIdx, toIdx, 'yorkie');
               }
             } else if (change.type === 'selection') {
-              const actor = change.actor;
               if (actor !== client.getID()) {
-                if (change.to === change.from) {
-                  if (!otherClientsCursor.current.has(actor)) {
-                    connectClient(actor);
-                  }
-                  updateCursor(actor, change.to);
+                if (!otherClientsCursor.current.has(actor)) {
+                  connectClient(actor);
                 }
+
+                const fromIdx = editor.posFromIndex(from);
+                const toIdx = editor.posFromIndex(to);
+                updateCursor(actor, change.to);
+                updateLine(actor, fromIdx, toIdx);
               }
             }
           }
@@ -169,13 +176,18 @@ export default function CodeEditor(props: CodeEditorProps) {
       }}
       // Notifying other clients to move the cursor
       onSelection={(editor, data) => {
-        if (!data.origin) {
+        if (data.origin === undefined) {
           return;
         }
 
-        const from = editor.indexFromPos(data.ranges[0].anchor);
-        const to = editor.indexFromPos(data.ranges[0].head);
+        let from: number;
+        let to: number;
+        from = editor.indexFromPos(data.ranges[0].anchor);
+        to = editor.indexFromPos(data.ranges[0].head);
 
+        if (from > to) {
+          [from, to] = [to, from];
+        }
         doc?.update((root: any) => {
           root.content.updateSelection(from, to);
         });

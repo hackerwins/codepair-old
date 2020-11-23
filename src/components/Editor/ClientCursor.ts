@@ -5,6 +5,7 @@ class ClientCursor {
   id: string;
   color: string;
   marker: any;
+  lineMarker: any;
 
   constructor(id: string, color: string) {
     this.id = id;
@@ -15,7 +16,7 @@ class ClientCursor {
     return new ClientCursor(id, color);
   }
 
-  updateCursor(cursorPos: number, cm: any) {
+  updateCursor(cm: any, cursorPos: number) {
     this.removeCursor();
     const cursorCoords = cm.cursorCoords(cursorPos);
     const cursorElement = document.createElement('span');
@@ -47,10 +48,24 @@ class ClientCursor {
     });
   }
 
+  updateLine(cm: any, fromIdx: number, toIdx: number) {
+    this.removeLine();
+    this.lineMarker = cm.getDoc().markText(fromIdx, toIdx, {
+      css: `background-color : ${this.color}; opacity:0.7`,
+    });
+  }
+
   removeCursor() {
     if (this.marker) {
       this.marker.clear();
       this.marker = null;
+    }
+  }
+
+  removeLine() {
+    if (this.lineMarker) {
+      this.lineMarker.clear();
+      this.lineMarker = null;
     }
   }
 }
