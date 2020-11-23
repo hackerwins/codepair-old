@@ -159,9 +159,14 @@ export default function CodeEditor(props: CodeEditorProps) {
                 if (!otherClientsCursor.current.has(actor)) {
                   connectClient(actor);
                 }
-                const fromPos = editor.posFromIndex(from);
-                const toPos = editor.posFromIndex(to);
+                
+                let fromPos = editor.posFromIndex(from);
+                let toPos = editor.posFromIndex(to);
                 updateCursor(actor, toPos);
+
+                if (from > to) {
+                  [toPos, fromPos] = [fromPos, toPos];
+                }
                 updateLine(actor, fromPos, toPos);
               }
             }
@@ -178,11 +183,8 @@ export default function CodeEditor(props: CodeEditorProps) {
           return;
         }
 
-        let from = editor.indexFromPos(data.ranges[0].anchor);
-        let to = editor.indexFromPos(data.ranges[0].head);
-        if (from > to) {
-          [from, to] = [to, from];
-        }
+        const from = editor.indexFromPos(data.ranges[0].anchor);
+        const to = editor.indexFromPos(data.ranges[0].head);
 
         doc?.update((root: any) => {
           root.content.updateSelection(from, to);
