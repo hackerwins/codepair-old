@@ -39,10 +39,13 @@ class ClientCursor {
     cursorElement.style.padding = '0px';
     cursorElement.style.zIndex = '0';
 
+    const nameBoxElement = document.createElement('span');
+    nameBoxElement.style.position = 'absolute';
+    nameBoxElement.style.top = `-${size}px`;
+
     const nameElement = document.createElement('span');
     nameElement.textContent = this.id;
-    nameElement.style.position = 'absolute';
-    nameElement.style.top = `-${size}px`;
+    nameElement.style.position = 'fixed';
     nameElement.style.backgroundColor = this.color;
     nameElement.style.padding = '1px 4px';
     nameElement.style.borderRadius = '4px';
@@ -51,9 +54,10 @@ class ClientCursor {
     nameElement.style.animationDelay = `${delay}s`;
     nameElement.className = 'text-remove';
 
-    cursorElement.appendChild(nameElement);
+    nameBoxElement.appendChild(nameElement);
+    cursorElement.appendChild(nameBoxElement);
 
-    this.removeNameReserve(nameElement);
+    this.removeNameReserve(nameBoxElement);
     this.marker = cm.setBookmark(cursorPos, {
       widget: cursorElement,
       insertLeft: true,
@@ -68,13 +72,13 @@ class ClientCursor {
   }
 
   // After animate, It should actually be deleted it.
-  removeNameReserve(nameElement: Element) {
+  removeNameReserve(el: Element) {
     if (markerRemoveMap.has(this.id)) {
       clearTimeout(markerRemoveMap.get(this.id));
     }
 
     const timeoutId = window.setTimeout(() => {
-      nameElement.parentNode!.removeChild(nameElement);
+      el.parentNode!.removeChild(el);
       markerRemoveMap.delete(this.id);
     }, REMOVE_TIME);
 

@@ -15,4 +15,6 @@
   animation-direction: alternate;
   animation-iteration-count: 1;
   animation-fill-mode: forwards;
+  user-select: none;
+  cursor: default;
 }
