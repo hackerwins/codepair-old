@@ -4,23 +4,26 @@ import invert from 'invert-color';
 class ClientCursor {
   id: string;
   color: string;
-  marker: any;
-  lineMarker: any;
+  marker: CodeMirror.TextMarker | null;
+  lineMarker: CodeMirror.TextMarker | null;
 
   constructor(id: string, color: string) {
     this.id = id;
     this.color = color;
+    this.marker = null;
+    this.lineMarker = null;
   }
 
   static of(id: string, color: string) {
     return new ClientCursor(id, color);
   }
 
-  updateCursor(cm: any, cursorPos: number) {
+  updateCursor(cm: CodeMirror.Editor, cursorPos: CodeMirror.Position) {
     this.removeCursor();
     const cursorCoords = cm.cursorCoords(cursorPos);
     const cursorElement = document.createElement('span');
     const size = cursorCoords.bottom - cursorCoords.top;
+
     cursorElement.style.position = 'absolute';
     cursorElement.style.borderLeftStyle = 'solid';
     cursorElement.style.borderLeftWidth = '2px';
@@ -41,16 +44,15 @@ class ClientCursor {
 
     cursorElement.appendChild(nameElement);
 
-    const pos = cm.posFromIndex(cursorPos);
-    this.marker = cm.setBookmark(pos, {
+    this.marker = cm.setBookmark(cursorPos, {
       widget: cursorElement,
       insertLeft: true,
     });
   }
 
-  updateLine(cm: any, fromIdx: number, toIdx: number) {
+  updateLine(cm: CodeMirror.Editor, fromPos: CodeMirror.Position, toPos: CodeMirror.Position) {
     this.removeLine();
-    this.lineMarker = cm.getDoc().markText(fromIdx, toIdx, {
+    this.lineMarker = cm.getDoc().markText(fromPos, toPos, {
       css: `background-color : ${this.color}; opacity:0.7`,
     });
   }

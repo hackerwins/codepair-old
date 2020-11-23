@@ -114,15 +114,15 @@ export default function CodeEditor(props: CodeEditorProps) {
   return (
     <CodeMirror
       options={{ mode: 'xml', theme: 'monokai', lineNumbers: true }}
-      editorDidMount={(editor) => {
-        const updateCursor = (clientId: string, pos: number) => {
+      editorDidMount={(editor: CodeMirror.Editor) => {
+        const updateCursor = (clientId: string, pos: CodeMirror.Position) => {
           const clientCursor = otherClientsCursor.current.get(clientId);
           clientCursor!.updateCursor(editor, pos);
         };
 
-        const updateLine = (clientId: string, fromIdx: number, toIdx: number) => {
+        const updateLine = (clientId: string, fromPos: CodeMirror.Position, toPos: CodeMirror.Position) => {
           const clientCursor = otherClientsCursor.current.get(clientId);
-          clientCursor!.updateLine(editor, fromIdx, toIdx);
+          clientCursor!.updateLine(editor, fromPos, toPos);
         };
 
         doc?.subscribe((event: any) => {
@@ -132,7 +132,7 @@ export default function CodeEditor(props: CodeEditorProps) {
               if (actor !== client.getID()) {
                 if (!otherClientsCursor.current.has(actor)) {
                   connectClient(actor);
-                  updateCursor(actor, 0);
+                  updateCursor(actor, editor.posFromIndex(0));
                   // TODO Load user's cursor position
                 }
               }
@@ -150,21 +150,19 @@ export default function CodeEditor(props: CodeEditorProps) {
               const content = change.content || '';
 
               if (actor !== client.getID()) {
-                console.log(`%c remote: ${from}-${to}: ${content}`, 'color: skyblue');
-                const fromIdx = editor.posFromIndex(from);
-                const toIdx = editor.posFromIndex(to);
-                editor.replaceRange(content, fromIdx, toIdx, 'yorkie');
+                const fromPos = editor.posFromIndex(from);
+                const toPos = editor.posFromIndex(to);
+                editor.replaceRange(content, fromPos, toPos, 'yorkie');
               }
             } else if (change.type === 'selection') {
               if (actor !== client.getID()) {
                 if (!otherClientsCursor.current.has(actor)) {
                   connectClient(actor);
                 }
-
-                const fromIdx = editor.posFromIndex(from);
-                const toIdx = editor.posFromIndex(to);
-                updateCursor(actor, change.to);
-                updateLine(actor, fromIdx, toIdx);
+                const fromPos = editor.posFromIndex(from);
+                const toPos = editor.posFromIndex(to);
+                updateCursor(actor, toPos);
+                updateLine(actor, fromPos, toPos);
               }
             }
           }
@@ -175,23 +173,22 @@ export default function CodeEditor(props: CodeEditorProps) {
         editor.setValue(root.content.getValue());
       }}
       // Notifying other clients to move the cursor
-      onSelection={(editor, data) => {
+      onSelection={(editor: CodeMirror.Editor, data: CodeMirror.EditorSelectionChange) => {
         if (data.origin === undefined) {
           return;
         }
 
         let from = editor.indexFromPos(data.ranges[0].anchor);
         let to = editor.indexFromPos(data.ranges[0].head);
-
         if (from > to) {
           [from, to] = [to, from];
         }
+
         doc?.update((root: any) => {
           root.content.updateSelection(from, to);
         });
       }}
-      onBeforeChange={(editor: any, change: any) => {
-        console.log(change.origin, change.text);
+      onBeforeChange={(editor: CodeMirror.Editor, change: CodeMirror.EditorChange) => {
         if (change.origin === 'yorkie' || change.origin === 'setValue') {
           return;
         }
