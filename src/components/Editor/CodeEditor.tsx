@@ -180,10 +180,8 @@ export default function CodeEditor(props: CodeEditorProps) {
           return;
         }
 
-        let from: number;
-        let to: number;
-        from = editor.indexFromPos(data.ranges[0].anchor);
-        to = editor.indexFromPos(data.ranges[0].head);
+        let from = editor.indexFromPos(data.ranges[0].anchor);
+        let to = editor.indexFromPos(data.ranges[0].head);
 
         if (from > to) {
           [from, to] = [to, from];
