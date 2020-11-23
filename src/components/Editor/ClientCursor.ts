@@ -1,5 +1,12 @@
 import invert from 'invert-color';
 
+const markerRemoveMap = new Map<string, number>();
+
+const duration = 0.2;
+const delay = 2;
+const SECOND = 1000;
+const REMOVE_TIME = (duration + delay) * SECOND;
+
 // REF https://github.com/FujitsuLaboratories/cattaz/blob/master/src/AppEnabledWikiEditorCodeMirror.jsx#L24
 class ClientCursor {
   id: string;
@@ -40,10 +47,13 @@ class ClientCursor {
     nameElement.style.padding = '1px 4px';
     nameElement.style.borderRadius = '4px';
     nameElement.style.color = invert(this.color, true);
+    nameElement.style.animationDuration = `${duration}s`;
+    nameElement.style.animationDelay = `${delay}s`;
     nameElement.className = 'text-remove';
 
     cursorElement.appendChild(nameElement);
 
+    this.removeNameReserve(nameElement);
     this.marker = cm.setBookmark(cursorPos, {
       widget: cursorElement,
       insertLeft: true,
@@ -55,6 +65,20 @@ class ClientCursor {
     this.lineMarker = cm.getDoc().markText(fromPos, toPos, {
       css: `background-color : ${this.color}; opacity:0.7`,
     });
+  }
+
+  // After animate, It should actually be deleted it.
+  removeNameReserve(nameElement: Element) {
+    if (markerRemoveMap.has(this.id)) {
+      clearTimeout(markerRemoveMap.get(this.id));
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      nameElement.parentNode!.removeChild(nameElement);
+      markerRemoveMap.delete(this.id);
+    }, REMOVE_TIME);
+
+    markerRemoveMap.set(this.id, timeoutId);
   }
 
   removeCursor() {
