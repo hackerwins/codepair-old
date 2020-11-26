@@ -17,10 +17,7 @@ const initialDocState: IDocState = {
   errorMessage: '',
 };
 
-export const docReducer: Reducer<IDocState, DocActions> = (
-  state = initialDocState,
-  action,
-) => {
+export const docReducer: Reducer<IDocState, DocActions> = (state = initialDocState, action) => {
   switch (action.type) {
     case DocActionTypes.ATTACH_DOC: {
       return {

@@ -24,9 +24,7 @@ function App() {
             path="/"
             exact
             render={() => {
-              return (
-                <Redirect to={`/${Math.random().toString(36).substring(7)}`} />
-              );
+              return <Redirect to={`/${Math.random().toString(36).substring(7)}`} />;
             }}
           />
           <Route path="/:docKey" exact component={DocPage} />
