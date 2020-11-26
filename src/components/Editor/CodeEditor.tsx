@@ -159,7 +159,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                 if (!otherClientsCursor.current.has(actor)) {
                   connectClient(actor);
                 }
-                
+
                 let fromPos = editor.posFromIndex(from);
                 let toPos = editor.posFromIndex(to);
                 updateCursor(actor, toPos);

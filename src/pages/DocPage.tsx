@@ -6,8 +6,8 @@ import NavBar from '../components/NavBar';
 import CodeEditor from '../components/Editor/CodeEditor';
 
 type DocPageProps = {
-  docKey: string
-}
+  docKey: string;
+};
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

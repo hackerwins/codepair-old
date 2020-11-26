@@ -28,17 +28,12 @@ export interface IErrorAction {
 export type DocActions = AttachDocAction | ILoadDocAction | IErrorAction;
 
 /*<Promise<Return Type>, State Interface, Type of Param, Type of Action> */
-export const AttachDocAction: ActionCreator<ThunkAction<
-  Promise<any>,
-  IDocState,
-  null,
-  AttachDocAction
->> = (docKey: string) => {
+export const AttachDocAction: ActionCreator<ThunkAction<Promise<any>, IDocState, null, AttachDocAction>> = (
+  docKey: string,
+) => {
   return async (dispatch: Dispatch) => {
     try {
-      const client = yorkie.createClient(
-        `${process.env.REACT_APP_YORKIE_RPC_ADDR}`,
-      );
+      const client = yorkie.createClient(`${process.env.REACT_APP_YORKIE_RPC_ADDR}`);
       await client.activate();
 
       const doc = yorkie.createDocument('codepairs', docKey);
@@ -61,10 +56,6 @@ export const AttachDocAction: ActionCreator<ThunkAction<
   };
 };
 
-export const loadDocAction: ActionCreator<ThunkAction<
-  any,
-  IDocState,
-  null,
-  ILoadDocAction
->> = (shouldLoad: boolean) => (dispatch: Dispatch) =>
-  dispatch({ type: DocActionTypes.LOAD_DOC, loading: shouldLoad });
+export const loadDocAction: ActionCreator<ThunkAction<any, IDocState, null, ILoadDocAction>> = (
+  shouldLoad: boolean,
+) => (dispatch: Dispatch) => dispatch({ type: DocActionTypes.LOAD_DOC, loading: shouldLoad });
