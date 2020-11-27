@@ -37,27 +37,23 @@ class ClientCursor {
     cursorElement.style.borderLeftColor = this.color;
     cursorElement.style.height = `${size}px`;
     cursorElement.style.padding = '0px';
-    cursorElement.style.zIndex = '0';
-
-    const nameBoxElement = document.createElement('span');
-    nameBoxElement.style.position = 'absolute';
-    nameBoxElement.style.top = `-${size}px`;
 
     const nameElement = document.createElement('span');
     nameElement.textContent = this.id;
-    nameElement.style.position = 'fixed';
+    nameElement.style.position = 'absolute';
+    nameElement.style.top = `-${size}px`;
+    nameElement.style.left = `-2px`;
     nameElement.style.backgroundColor = this.color;
     nameElement.style.padding = '1px 4px';
-    nameElement.style.borderRadius = '4px';
+    nameElement.style.borderRadius = '4px 4px 4px 0px';
     nameElement.style.color = invert(this.color, true);
     nameElement.style.animationDuration = `${duration}s`;
     nameElement.style.animationDelay = `${delay}s`;
     nameElement.className = 'text-remove';
 
-    nameBoxElement.appendChild(nameElement);
-    cursorElement.appendChild(nameBoxElement);
+    cursorElement.appendChild(nameElement);
 
-    this.removeNameReserve(nameBoxElement);
+    this.removeNameReserve(nameElement);
     this.marker = cm.setBookmark(cursorPos, {
       widget: cursorElement,
       insertLeft: true,

@@ -18,3 +18,7 @@
   user-select: none;
   cursor: default;
 }
+
+.CodeMirror-lines {
+  padding-top: 24px;
+}
