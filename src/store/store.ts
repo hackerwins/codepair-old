@@ -9,23 +9,28 @@ import { applyMiddleware, combineReducers, createStore, Store } from 'redux';
 
 /**
  * Thunk
- * Redux Thunk middleware allows you to write action creators that return a function instead of an action. The thunk can be used to delay the dispatch of an action, or to dispatch only if a certain condition is met. The inner function receives the store methods dispatch and getState as parameters.
+ * Redux Thunk middleware allows you to write action creators that return a function instead of an action.
+ * The thunk can be used to delay the dispatch of an action, or to dispatch only if a certain condition is met.
+ * The inner function receives the store methods dispatch and getState as parameters.
  **/
 import thunk from 'redux-thunk';
 // Import reducers and state type
 import { IDocState, docReducer } from '../reducers/docReducer';
 import { PeerState, peerReducer } from '../reducers/peerReducer';
+import { SettingState, settingReducer } from '../reducers/settingReducer';
 
 // Create an interface for the application state
 export interface IAppState {
   docState: IDocState;
   peerState: PeerState;
+  settingState: SettingState;
 }
 
 // Create the root reducer
 const rootReducer = combineReducers<IAppState>({
   docState: docReducer,
   peerState: peerReducer,
+  settingState: settingReducer,
 });
 
 // Create a configure store function of type `IAppState`
