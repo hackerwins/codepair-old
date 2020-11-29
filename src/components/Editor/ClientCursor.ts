@@ -15,7 +15,7 @@ class ClientCursor {
   marker: CodeMirror.TextMarker | null;
   lineMarker: CodeMirror.TextMarker | null;
 
-  constructor(id: string, color: string) {
+  private constructor(id: string, color: string) {
     this.id = id;
     this.color = color;
     this.height = 0;
@@ -59,7 +59,7 @@ class ClientCursor {
   }
 
   // when user's cursor hover, show name
-  showCursorNameReserve(parentEl: Element) {
+  private showCursorNameReserve(parentEl: Element) {
     const nameElement = document.createElement('span');
 
     parentEl.addEventListener('mouseenter', () => {
@@ -86,7 +86,7 @@ class ClientCursor {
   }
 
   // After animate, It should actually be deleted it.
-  removeNameReserve(el: Element) {
+  private removeNameReserve(el: Element) {
     if (markerRemoveMap.has(this.id)) {
       clearTimeout(markerRemoveMap.get(this.id));
     }
