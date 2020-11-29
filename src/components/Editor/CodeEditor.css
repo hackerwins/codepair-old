@@ -19,6 +19,11 @@
   cursor: default;
 }
 
+/* 
+* When the user name needs to be expressed in the mouse cursor, 
+* codemirror's default style marks outgoing doms as hidden, How to solve this.
+* issue ref https://github.com/yorkie-team/yorkie-codepair/issues/16
+*/
 .CodeMirror-lines {
-  padding-top: 24px;
+  padding-top: 18px;
 }

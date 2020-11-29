@@ -125,6 +125,7 @@ export default function CodeEditor(props: CodeEditorProps) {
           clientCursor!.updateLine(editor, fromPos, toPos);
         };
 
+        // When the user first accesses the document, the cursor is displayed.
         doc?.subscribe((event: any) => {
           if (event.name === 'remote-change') {
             event.value.forEach((change: any) => {
@@ -140,6 +141,7 @@ export default function CodeEditor(props: CodeEditorProps) {
           }
         });
 
+        // When there is a document modification connected to the yorkie
         const root = doc.getRootObject() as any;
         root.content.onChanges((changes: any) => {
           for (const change of changes) {
@@ -190,6 +192,7 @@ export default function CodeEditor(props: CodeEditorProps) {
           root.content.updateSelection(from, to);
         });
       }}
+      // Edit the yorkie document
       onBeforeChange={(editor: CodeMirror.Editor, change: CodeMirror.EditorChange) => {
         if (change.origin === 'yorkie' || change.origin === 'setValue') {
           return;
