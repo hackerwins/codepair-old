@@ -1,19 +1,11 @@
 import produce from 'immer';
 
-import {
-  CodeMode,
-  CodeTheme,
-  CodeKeyMap,
-  TabSize,
-  SettingActions,
-  SettingActionTypes,
-} from '../actions/settingActions';
+import { SettingActions, SettingActionTypes } from '../actions/settingActions';
+
+export type MenuKey = 'codeMode' | 'codeTheme' | 'codeKeyMap' | 'tabSize';
 
 export type Menu = {
-  codeMode: ThisType<CodeMode>;
-  codeTheme: ThisType<CodeTheme>;
-  codeKeyMap: ThisType<CodeKeyMap>;
-  tabSize: ThisType<TabSize>;
+  [key in MenuKey]: string;
 };
 
 export interface SettingState {
@@ -26,7 +18,7 @@ const initialState: SettingState = {
     codeMode: 'javascript',
     codeTheme: 'monokai',
     codeKeyMap: 'sublime',
-    tabSize: 4,
+    tabSize: '4',
   },
   isLoading: true, // If network use
 };

@@ -13,8 +13,9 @@ import CodeSetting from './CodeSetting';
 
 import { IAppState } from '../../store/store';
 import { CodeMode, SetCodeMode } from '../../actions/settingActions';
+import { MenuKey } from '../../reducers/settingReducer';
 
-import { LocalStorage, SettingModel } from '../../data/browser-storage';
+import { SettingModel } from '../../data/browser-storage';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -48,7 +49,7 @@ export default function CodeNavBar() {
 
   const handleCodeModeChange = (event: React.ChangeEvent<{ name?: string; value: unknown }>) => {
     const { name = '', value } = event.target;
-
+    SettingModel.setValue(name as MenuKey, value as string);
     dispatch(SetCodeMode(event.target.value as CodeMode));
   };
 

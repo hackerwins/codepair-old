@@ -8,9 +8,10 @@ import FormControl from '@material-ui/core/FormControl';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 import { CodeTheme, CodeKeyMap, TabSize, SetCodeTheme, SetCodeKeyMap, SetTabSize } from '../../actions/settingActions';
+import { MenuKey } from '../../reducers/settingReducer';
 import { IAppState } from '../../store/store';
 
-import { LocalStorage, SettingModel } from '../../data/browser-storage';
+import { SettingModel } from '../../data/browser-storage';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -62,6 +63,7 @@ const CodeSetting = () => {
   const handleChange = (event: React.ChangeEvent<{ name?: string; value: unknown }>) => {
     const { name = '', value } = event.target;
 
+    SettingModel.setValue(name as MenuKey, value as string);
     if ((event.target.name as string) === 'codeTheme') {
       dispatch(SetCodeTheme(event.target.value as CodeTheme));
       return;

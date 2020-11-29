@@ -135,7 +135,7 @@ export default function CodeEditor(props: CodeEditorProps) {
         mode: menu.codeMode as string,
         theme: menu.codeTheme as string,
         keyMap: menu.codeKeyMap as string,
-        tabSize: menu.tabSize as number,
+        tabSize: Number(menu.tabSize) as number,
         lineNumbers: true,
         lineWrapping: true,
         autoCloseTags: true,
