@@ -37,12 +37,9 @@ class ClientCursor {
     const cursorEl = document.createElement('span');
     this.height = cursorCoords.bottom - cursorCoords.top;
 
-    cursorEl.style.position = 'absolute';
-    cursorEl.style.borderLeftStyle = 'solid';
-    cursorEl.style.borderLeftWidth = '2.5px';
+    cursorEl.classList.add('codePair-cursor');
     cursorEl.style.borderLeftColor = this.color;
     cursorEl.style.height = `${this.height}px`;
-    cursorEl.style.padding = '0px';
 
     this.marker = cm.setBookmark(cursorPos, {
       widget: cursorEl,
@@ -63,19 +60,16 @@ class ClientCursor {
   // when user's cursor hover, show name
   private showCursorNameReserve(cursorEl: Element) {
     const nameEl = document.createElement('span');
+    nameEl.classList.add('codePair-name');
 
     cursorEl.addEventListener('mouseenter', () => {
       if (this.nameRemoveTimeMap.has(this.id)) {
         clearTimeout(this.nameRemoveTimeMap.get(this.id)!);
       }
 
-      nameEl.style.position = 'absolute';
       nameEl.textContent = this.id;
       nameEl.style.top = `-${this.height}px`;
-      nameEl.style.left = '-2px';
       nameEl.style.backgroundColor = this.color;
-      nameEl.style.padding = '1px 4px';
-      nameEl.style.borderRadius = '4px 4px 4px 0px';
       nameEl.style.color = invert(this.color, true);
 
       /**
@@ -88,7 +82,7 @@ class ClientCursor {
     });
 
     cursorEl.addEventListener('mouseleave', () => {
-      nameEl.className = 'text-remove';
+      nameEl.classList.add('text-remove');
       nameEl.style.animationDuration = `${this.nameAnimationDuration}s`;
       nameEl.style.animationDelay = `${this.nameAnimationDelay}s`;
 
