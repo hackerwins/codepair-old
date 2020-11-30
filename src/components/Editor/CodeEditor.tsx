@@ -51,7 +51,7 @@ export default function CodeEditor(props: CodeEditorProps) {
       color = randomColor();
     }
 
-    const newClientCursor = ClientCursor.of(clientId, color);
+    const newClientCursor = new ClientCursor(clientId, color);
     otherClientsCursor.current.set(clientId, newClientCursor);
     dispatch(AddPeer(clientId, color));
   };
