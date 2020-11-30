@@ -14,11 +14,11 @@ const useStyles = makeStyles(() =>
   }),
 );
 
-type ModalProps = {
+interface ModalProps {
   open: boolean;
   onClose: (event: object, reason: string) => void;
   children: any;
-};
+}
 
 /**
  * @param {ModalProps} props
