@@ -24,6 +24,6 @@
 * codemirror's default style marks outgoing doms as hidden, How to solve this.
 * issue ref https://github.com/yorkie-team/yorkie-codepair/issues/16
 */
-.CodeMirror-lines {
+.CodeMirror-scroll {
   padding-top: 18px;
 }
