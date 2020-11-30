@@ -14,8 +14,8 @@ object-assign
 /*!
  * 
  * yorkie-js-sdk for building collaborative editing applications.
- *  - Version: v0.0.10
- *  - Date: 2020-10-04T22:22Z
+ *  - Version: v0.1.0
+ *  - Date: 2020-11-06T22:19Z
  *  - Homepage: https://yorkie.dev
  * 
  * Copyright 2020 The Yorkie Authors. All rights reserved.
@@ -64,6 +64,8 @@ object-assign
 
 /*! ../document/json/object */
 
+/*! ../document/json/plain_text */
+
 /*! ../document/json/primitive */
 
 /*! ../document/json/rga_tree_list */
@@ -73,8 +75,6 @@ object-assign
 /*! ../document/json/rht_pq_map */
 
 /*! ../document/json/rich_text */
-
-/*! ../document/json/text */
 
 /*! ../document/key/document_key */
 
@@ -104,13 +104,13 @@ object-assign
 
 /*! ../json/object */
 
+/*! ../json/plain_text */
+
 /*! ../json/primitive */
 
 /*! ../json/rga_tree_split */
 
 /*! ../json/rich_text */
-
-/*! ../json/text */
 
 /*! ../operation/add_operation */
 
@@ -174,9 +174,11 @@ object-assign
 
 /*! ./document/json/object */
 
-/*! ./document/json/rich_text */
+/*! ./document/json/plain_text */
 
-/*! ./document/json/text */
+/*! ./document/json/rga_tree_split */
+
+/*! ./document/json/rich_text */
 
 /*! ./element */
 
@@ -214,6 +216,8 @@ object-assign
 
 /*! ./yorkie_pb.js */
 
+/*! @license https://github.com/onury/invert-color */
+
 /*! base64-js */
 
 /*! exports provided: AddOperation */
@@ -232,9 +236,9 @@ object-assign
 
 /*! exports provided: Checkpoint, InitialCheckpoint */
 
-/*! exports provided: ClientStatus, StreamConnectionStatus, DocumentSyncResultType, ClientEventType, Client */
+/*! exports provided: Client, Document, JSONElement, JSONObject, JSONArray, PlainText, RichText, ChangeType, default */
 
-/*! exports provided: ClientStatus, StreamConnectionStatus, DocumentSyncResultType, ClientEventType, Client, DocEventType, Document, JSONElement, JSONContainer, JSONObject, JSONArray, PlainText, RichTextValue, RichText, default */
+/*! exports provided: ClientStatus, StreamConnectionStatus, DocumentSyncResultType, ClientEventType, Client */
 
 /*! exports provided: Code, YorkieError */
 
@@ -388,10 +392,6 @@ object-assign
         !*** ./src/document/json/root.ts ***!
         \***********************************/
 
-/*!***********************************!*\
-        !*** ./src/document/json/text.ts ***!
-        \***********************************/
-
 /*!************************************!*\
         !*** ./src/document/json/array.ts ***!
         \************************************/
@@ -462,6 +462,10 @@ object-assign
 
 /*!*****************************************!*\
         !*** ./node_modules/base64-js/index.js ***!
+        \*****************************************/
+
+/*!*****************************************!*\
+        !*** ./src/document/json/plain_text.ts ***!
         \*****************************************/
 
 /*!*****************************************!*\
