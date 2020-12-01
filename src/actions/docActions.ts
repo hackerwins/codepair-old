@@ -2,7 +2,12 @@ import { ActionCreator, Dispatch } from 'redux';
 import { ThunkAction } from 'redux-thunk';
 import yorkie, { Client, Document } from 'yorkie-js-sdk';
 
-import { IDocState } from '../reducers/docReducer';
+export interface IDocState {
+  client: Client | null;
+  doc: Document | null;
+  loading: boolean;
+  errorMessage: string;
+}
 
 export enum DocActionTypes {
   ATTACH_DOC = 'ATTACH_DOC',
@@ -27,8 +32,8 @@ export interface IErrorAction {
 }
 export type DocActions = AttachDocAction | ILoadDocAction | IErrorAction;
 
-/*<Promise<Return Type>, State Interface, Type of Param, Type of Action> */
-export const AttachDocAction: ActionCreator<ThunkAction<Promise<any>, IDocState, null, AttachDocAction>> = (
+/** <Promise<Return Type>, State Interface, Type of Param, Type of Action> */
+export const AttachDoc: ActionCreator<ThunkAction<Promise<any>, IDocState, null, AttachDocAction>> = (
   docKey: string,
 ) => {
   return async (dispatch: Dispatch) => {
@@ -48,6 +53,7 @@ export const AttachDocAction: ActionCreator<ThunkAction<Promise<any>, IDocState,
 
       dispatch({ type: DocActionTypes.ATTACH_DOC, doc, client });
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error(err);
       dispatch({ type: DocActionTypes.ERROR, errorMessage: err.message });
     }

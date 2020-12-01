@@ -46,4 +46,7 @@ tags
 # Persistent undo
 [._]*.un~
 
+# lint
+.eslintcache
+
 # End of https://www.toptal.com/developers/gitignore/api/vim

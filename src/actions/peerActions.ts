@@ -1,3 +1,9 @@
+export interface PeerState {
+  peers: {
+    [id: string]: Peer;
+  };
+}
+
 export enum ConnectionStatus {
   Connected = 'connected',
   Disconnected = 'disconnected',
