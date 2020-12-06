@@ -144,9 +144,7 @@ export default function CodeEditor(props: CodeEditorProps) {
         const root = doc.getRootObject() as any;
         root.content.onChanges((changes: any) => {
           changes.forEach((change: any) => {
-            const { actor } = change;
-            const { from } = change;
-            const { to } = change;
+            const { actor, from, to } = change;
             if (change.type === 'content') {
               const content = change.content || '';
 
