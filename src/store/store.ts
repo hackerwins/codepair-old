@@ -15,13 +15,13 @@ import thunk from 'redux-thunk';
 // Import reducers and state type
 import { IDocState } from '../actions/docActions';
 import docReducer from '../reducers/docReducer';
-import { PeerState } from '../actions/peerActions';
+import { IPeerState } from '../actions/peerActions';
 import peerReducer from '../reducers/peerReducer';
 
 // Create an interface for the application state
 export interface IAppState {
   docState: IDocState;
-  peerState: PeerState;
+  peerState: IPeerState;
 }
 
 // Create the root reducer

@@ -15,7 +15,7 @@ export enum DocActionTypes {
   ERROR = 'ERROR',
 }
 
-export interface AttachDocAction {
+export interface IAttachDocAction {
   type: DocActionTypes.ATTACH_DOC;
   client: Client;
   doc: Document;
@@ -30,10 +30,10 @@ export interface IErrorAction {
   type: DocActionTypes.ERROR;
   errorMessage: string;
 }
-export type DocActions = AttachDocAction | ILoadDocAction | IErrorAction;
+export type DocActions = IAttachDocAction | ILoadDocAction | IErrorAction;
 
 /** <Promise<Return Type>, State Interface, Type of Param, Type of Action> */
-export const AttachDoc: ActionCreator<ThunkAction<Promise<any>, IDocState, null, AttachDocAction>> = (
+export const attachDocAction: ActionCreator<ThunkAction<Promise<any>, IDocState, null, IAttachDocAction>> = (
   docKey: string,
 ) => {
   return async (dispatch: Dispatch) => {

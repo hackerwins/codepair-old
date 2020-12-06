@@ -1,12 +1,12 @@
 import { Reducer } from 'redux';
 
-import { PeerState, PeerActionTypes, PeerActions, ConnectionStatus } from '../actions/peerActions';
+import { IPeerState, PeerActionTypes, PeerActions, ConnectionStatus } from '../actions/peerActions';
 
-const initialPeerState: PeerState = {
+const initialPeerState: IPeerState = {
   peers: {},
 };
 
-const peerReducer: Reducer<PeerState, PeerActions> = (state = initialPeerState, action: PeerActions) => {
+const peerReducer: Reducer<IPeerState, PeerActions> = (state = initialPeerState, action: PeerActions) => {
   const existedClient = state.peers[action.id];
   switch (action.type) {
     case PeerActionTypes.CONNECT_PEER: {
