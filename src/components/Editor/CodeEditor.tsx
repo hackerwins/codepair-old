@@ -82,12 +82,12 @@ export default function CodeEditor(props: CodeEditorProps) {
         const newPeerClientsId: string[] = event.value[doc.getKey().toIDString()];
         const setNewPeerClientsId = new Set(newPeerClientsId);
 
-        Object.keys(peerClients).forEach((clientId) => {
+        for (const clientId of Object.keys(peerClients)) {
           if (setNewPeerClientsId.has(clientId) && peerClients[clientId].status === ConnectionStatus.Connected) {
             return;
           }
           disconnectClient(clientId);
-        });
+        }
       }
     });
 
