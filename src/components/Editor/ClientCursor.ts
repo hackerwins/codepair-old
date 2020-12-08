@@ -10,8 +10,11 @@ const REMOVE_TIME = (duration + delay) * SECOND;
 // REF https://github.com/FujitsuLaboratories/cattaz/blob/master/src/AppEnabledWikiEditorCodeMirror.jsx#L24
 class ClientCursor {
   id: string;
+
   color: string;
+
   marker: CodeMirror.TextMarker | null;
+
   lineMarker: CodeMirror.TextMarker | null;
 
   constructor(id: string, color: string) {

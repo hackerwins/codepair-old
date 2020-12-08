@@ -10,8 +10,8 @@ import randomColor from 'randomcolor';
 import ClientCursor from './ClientCursor';
 
 import { IAppState } from '../../store/store';
-import { AttachDocAction, loadDocAction } from '../../actions/docActions';
-import { ConnectionStatus, AddPeer, DisconnectPeer } from '../../actions/peerActions';
+import { attachDocAction, loadDocAction } from '../../actions/docActions';
+import { ConnectionStatus, addPeerAction, disconnectPeerAction } from '../../actions/peerActions';
 
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/monokai.css';
@@ -34,6 +34,7 @@ export default function CodeEditor(props: CodeEditorProps) {
   const dispatch = useDispatch();
   const classes = useStyles();
 
+  const { docKey } = props;
   const doc = useSelector((state: IAppState) => state.docState.doc);
   const client = useSelector((state: IAppState) => state.docState.client);
   const loading = useSelector((state: IAppState) => state.docState.loading);
@@ -53,19 +54,19 @@ export default function CodeEditor(props: CodeEditorProps) {
 
     const newClientCursor = ClientCursor.of(clientId, color);
     otherClientsCursor.current.set(clientId, newClientCursor);
-    dispatch(AddPeer(clientId, color));
+    dispatch(addPeerAction(clientId, color));
   };
 
   // Attach document
   useEffect(() => {
     dispatch(loadDocAction(true));
-    dispatch(AttachDocAction(props.docKey));
-  }, [props.docKey, dispatch]);
+    dispatch(attachDocAction(docKey));
+  }, [docKey, dispatch]);
 
   // Subscribe other client
   useEffect(() => {
     if (!client || !doc) {
-      return;
+      return () => {};
     }
 
     const disconnectClient = (clientId: string) => {
@@ -73,7 +74,7 @@ export default function CodeEditor(props: CodeEditorProps) {
         otherClientsCursor.current.get(clientId)!.removeCursor();
         otherClientsCursor.current.delete(clientId);
       }
-      dispatch(DisconnectPeer(clientId));
+      dispatch(disconnectPeerAction(clientId));
     };
 
     const unsubscribe = client.subscribe((event: any) => {
@@ -83,7 +84,7 @@ export default function CodeEditor(props: CodeEditorProps) {
 
         for (const clientId of Object.keys(peerClients)) {
           if (setNewPeerClientsId.has(clientId) && peerClients[clientId].status === ConnectionStatus.Connected) {
-            continue;
+            return;
           }
           disconnectClient(clientId);
         }
@@ -125,10 +126,10 @@ export default function CodeEditor(props: CodeEditorProps) {
           clientCursor!.updateLine(editor, fromPos, toPos);
         };
 
-        doc?.subscribe((event: any) => {
+        doc.subscribe((event: any) => {
           if (event.name === 'remote-change') {
             event.value.forEach((change: any) => {
-              const actor = change.id.actor;
+              const { actor } = change.id;
               if (actor !== client.getID()) {
                 if (!otherClientsCursor.current.has(actor)) {
                   connectClient(actor);
@@ -142,10 +143,8 @@ export default function CodeEditor(props: CodeEditorProps) {
 
         const root = doc.getRootObject() as any;
         root.content.onChanges((changes: any) => {
-          for (const change of changes) {
-            const actor = change.actor;
-            const from = change.from;
-            const to = change.to;
+          changes.forEach((change: any) => {
+            const { actor, from, to } = change;
             if (change.type === 'content') {
               const content = change.content || '';
 
@@ -170,7 +169,7 @@ export default function CodeEditor(props: CodeEditorProps) {
                 updateLine(actor, fromPos, toPos);
               }
             }
-          }
+          });
         });
 
         // We need to subtract the height of NavBar.
@@ -186,7 +185,7 @@ export default function CodeEditor(props: CodeEditorProps) {
         const from = editor.indexFromPos(data.ranges[0].anchor);
         const to = editor.indexFromPos(data.ranges[0].head);
 
-        doc?.update((root: any) => {
+        doc.update((root: any) => {
           root.content.updateSelection(from, to);
         });
       }}
@@ -199,7 +198,7 @@ export default function CodeEditor(props: CodeEditorProps) {
         const to = editor.indexFromPos(change.to);
         const content = change.text.join('\n');
 
-        doc?.update((root: any) => {
+        doc.update((root: any) => {
           root.content.edit(from, to, content);
         });
       }}
