@@ -1,14 +1,6 @@
 import { Reducer } from 'redux';
-import { Client, Document } from 'yorkie-js-sdk';
 
-import { DocActionTypes, DocActions } from '../actions/docActions';
-
-export interface IDocState {
-  client: Client | null;
-  doc: Document | null;
-  loading: boolean;
-  errorMessage: string;
-}
+import { DocActionTypes, DocActions, IDocState } from '../actions/docActions';
 
 const initialDocState: IDocState = {
   client: null,
@@ -17,10 +9,7 @@ const initialDocState: IDocState = {
   errorMessage: '',
 };
 
-export const docReducer: Reducer<IDocState, DocActions> = (
-  state = initialDocState,
-  action,
-) => {
+const docReducer: Reducer<IDocState, DocActions> = (state = initialDocState, action) => {
   switch (action.type) {
     case DocActionTypes.ATTACH_DOC: {
       return {
@@ -46,3 +35,5 @@ export const docReducer: Reducer<IDocState, DocActions> = (
       return state;
   }
 };
+
+export default docReducer;

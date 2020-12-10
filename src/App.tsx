@@ -1,6 +1,5 @@
 import React from 'react';
-import { HashRouter as Router } from 'react-router-dom';
-import { Route, Redirect } from 'react-router-dom';
+import { HashRouter as Router, Route, Redirect } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { ThemeProvider } from '@material-ui/core/styles';
@@ -24,9 +23,7 @@ function App() {
             path="/"
             exact
             render={() => {
-              return (
-                <Redirect to={`/${Math.random().toString(36).substring(7)}`} />
-              );
+              return <Redirect to={`/${Math.random().toString(36).substring(7)}`} />;
             }}
           />
           <Route path="/:docKey" exact component={DocPage} />

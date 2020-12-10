@@ -52,13 +52,7 @@ export default function MenuAppBar() {
             >
               <SettingsIcon />
             </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorEl}
-              keepMounted
-              open={open}
-              onClose={handleClose}
-            >
+            <Menu id="menu-appbar" anchorEl={anchorEl} keepMounted open={open} onClose={handleClose}>
               <MenuItem onClick={handleClose}>Theme</MenuItem>
               <MenuItem onClick={handleClose}>Editor Mode</MenuItem>
               <MenuItem onClick={handleClose}>Tab Size</MenuItem>
