@@ -1,3 +1,9 @@
+export interface IPeerState {
+  peers: {
+    [id: string]: Peer;
+  };
+}
+
 export enum ConnectionStatus {
   Connected = 'connected',
   Disconnected = 'disconnected',
@@ -25,13 +31,13 @@ export interface DisconnectPeerAction {
   id: string;
 }
 
-export const AddPeer = (id: string, color: string): ConnectPeerAction => ({
+export const addPeerAction = (id: string, color: string): ConnectPeerAction => ({
   type: PeerActionTypes.CONNECT_PEER,
   id,
   color,
 });
 
-export const DisconnectPeer = (id: string): DisconnectPeerAction => ({
+export const disconnectPeerAction = (id: string): DisconnectPeerAction => ({
   type: PeerActionTypes.DISCONNECT_PEER,
   id,
 });
