@@ -1,7 +1,10 @@
 import invert from 'invert-color';
 
-type ActorId = string; // used in yorkie-sdk-js client
-type NameRemoveTimerID = ReturnType<typeof setTimeout>;
+/**
+ * used in yorkie-sdk-js client
+ * If ActorId is provided by yorkie-sdk-js, we should use that
+ */
+type ActorId = string;
 
 // REF https://github.com/FujitsuLaboratories/cattaz/blob/master/src/AppEnabledWikiEditorCodeMirror.jsx#L24
 class ClientCursor {
@@ -15,8 +18,7 @@ class ClientCursor {
 
   lineMarker: CodeMirror.TextMarker | null;
 
-  // Values to display the name on the cursor.
-  nameRemoveTimeMap: Map<ActorId, NameRemoveTimerID>;
+  nameRemoveTimeMap: Map<ActorId, ReturnType<typeof setTimeout>>;
 
   nameAnimationDelay: number;
 
