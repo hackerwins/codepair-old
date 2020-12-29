@@ -1,91 +1,111 @@
 import invert from 'invert-color';
 
-const markerRemoveMap = new Map<string, number>();
-
-const duration = 0.2;
-const delay = 2;
-const SECOND = 1000;
-const REMOVE_TIME = (duration + delay) * SECOND;
+/**
+ * used in yorkie-sdk-js client
+ * If ActorId is provided by yorkie-sdk-js, we should use that
+ */
+type ActorId = string;
 
 // REF https://github.com/FujitsuLaboratories/cattaz/blob/master/src/AppEnabledWikiEditorCodeMirror.jsx#L24
 class ClientCursor {
-  id: string;
+  id: ActorId;
 
   color: string;
+
+  height: number;
 
   marker: CodeMirror.TextMarker | null;
 
   lineMarker: CodeMirror.TextMarker | null;
 
-  constructor(id: string, color: string) {
+  nameRemoveTimeMap: Map<ActorId, ReturnType<typeof setTimeout>>;
+
+  nameAnimationDelay: number;
+
+  nameAnimationDuration: number;
+
+  nameRemoveTime: number;
+
+  constructor(id: ActorId, color: string) {
     this.id = id;
     this.color = color;
+    this.height = 0;
     this.marker = null;
     this.lineMarker = null;
-  }
 
-  static of(id: string, color: string) {
-    return new ClientCursor(id, color);
+    this.nameRemoveTimeMap = new Map();
+    this.nameAnimationDelay = 1;
+    this.nameAnimationDuration = 0.2;
+    this.nameRemoveTime = (this.nameAnimationDuration + this.nameAnimationDelay) * 1000;
   }
 
   updateCursor(cm: CodeMirror.Editor, cursorPos: CodeMirror.Position) {
     this.removeCursor();
     const cursorCoords = cm.cursorCoords(cursorPos);
-    const cursorElement = document.createElement('span');
-    const size = cursorCoords.bottom - cursorCoords.top;
+    const cursorEl = document.createElement('span');
+    this.height = cursorCoords.bottom - cursorCoords.top;
 
-    cursorElement.style.position = 'absolute';
-    cursorElement.style.borderLeftStyle = 'solid';
-    cursorElement.style.borderLeftWidth = '2px';
-    cursorElement.style.borderLeftColor = this.color;
-    cursorElement.style.height = `${size}px`;
-    cursorElement.style.padding = '0px';
-    cursorElement.style.zIndex = '0';
+    cursorEl.classList.add('codePair-cursor');
+    cursorEl.style.borderLeftColor = this.color;
+    cursorEl.style.height = `${this.height}px`;
 
-    const nameBoxElement = document.createElement('span');
-    nameBoxElement.style.position = 'absolute';
-    nameBoxElement.style.top = `-${size}px`;
-
-    const nameElement = document.createElement('span');
-    nameElement.textContent = this.id;
-    nameElement.style.position = 'fixed';
-    nameElement.style.backgroundColor = this.color;
-    nameElement.style.padding = '1px 4px';
-    nameElement.style.borderRadius = '4px';
-    nameElement.style.color = invert(this.color, true);
-    nameElement.style.animationDuration = `${duration}s`;
-    nameElement.style.animationDelay = `${delay}s`;
-    nameElement.className = 'text-remove';
-
-    nameBoxElement.appendChild(nameElement);
-    cursorElement.appendChild(nameBoxElement);
-
-    this.removeNameReserve(nameBoxElement);
     this.marker = cm.setBookmark(cursorPos, {
-      widget: cursorElement,
+      widget: cursorEl,
       insertLeft: true,
     });
+
+    this.showCursorNameReserve(cursorEl);
   }
 
   updateLine(cm: CodeMirror.Editor, fromPos: CodeMirror.Position, toPos: CodeMirror.Position) {
     this.removeLine();
+
     this.lineMarker = cm.getDoc().markText(fromPos, toPos, {
       css: `background-color : ${this.color}; opacity:0.7`,
     });
   }
 
+  // when user's cursor hover, show name
+  private showCursorNameReserve(cursorEl: Element) {
+    const nameEl = document.createElement('span');
+    nameEl.classList.add('codePair-name');
+
+    cursorEl.addEventListener('mouseenter', () => {
+      if (this.nameRemoveTimeMap.has(this.id)) {
+        clearTimeout(this.nameRemoveTimeMap.get(this.id)!);
+      }
+
+      nameEl.textContent = this.id;
+      nameEl.style.top = `-${this.height}px`;
+      nameEl.style.backgroundColor = this.color;
+      nameEl.style.color = invert(this.color, true);
+
+      /**
+       * nameEl is being reused.
+       * In order to keep the name visible while the mouse is hovering,
+       * It need to delete the css class containing animation when it is mouseenter and add it when it is mouseleave.
+       */
+      nameEl.classList.remove('text-remove');
+      cursorEl.appendChild(nameEl);
+    });
+
+    cursorEl.addEventListener('mouseleave', () => {
+      nameEl.classList.add('text-remove');
+      nameEl.style.animationDuration = `${this.nameAnimationDuration}s`;
+      nameEl.style.animationDelay = `${this.nameAnimationDelay}s`;
+
+      this.removeNameReserve(nameEl);
+    });
+  }
+
   // After animate, It should actually be deleted it.
-  removeNameReserve(el: Element) {
-    if (markerRemoveMap.has(this.id)) {
-      clearTimeout(markerRemoveMap.get(this.id));
-    }
+  private removeNameReserve(nameEl: HTMLSpanElement) {
+    const timeoutId = setTimeout(() => {
+      nameEl.parentNode!.removeChild(nameEl);
+      this.nameRemoveTimeMap.delete(this.id);
+    }, this.nameRemoveTime);
 
-    const timeoutId = window.setTimeout(() => {
-      el.parentNode!.removeChild(el);
-      markerRemoveMap.delete(this.id);
-    }, REMOVE_TIME);
-
-    markerRemoveMap.set(this.id, timeoutId);
+    this.nameRemoveTimeMap.set(this.id, timeoutId);
   }
 
   removeCursor() {

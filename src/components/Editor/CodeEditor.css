@@ -18,3 +18,26 @@
   user-select: none;
   cursor: default;
 }
+
+.codePair-cursor {
+  position: absolute;
+  border-left-style: solid;
+  border-left-width: 2.5px;
+  padding: 0px;
+}
+
+.codePair-name {
+  position: absolute;
+  left: -2px;
+  padding: 1px 4px;
+  border-radius: 2px 2px 2px 0px;
+}
+
+/* 
+* When the user name needs to be expressed in the mouse cursor, 
+* codemirror's default style marks outgoing doms as hidden, How to solve this.
+* issue ref https://github.com/yorkie-team/yorkie-codepair/issues/16
+*/
+.CodeMirror-scroll {
+  padding-top: 18px;
+}

@@ -52,7 +52,7 @@ export default function CodeEditor(props: CodeEditorProps) {
       color = randomColor();
     }
 
-    const newClientCursor = ClientCursor.of(clientId, color);
+    const newClientCursor = new ClientCursor(clientId, color);
     otherClientsCursor.current.set(clientId, newClientCursor);
     dispatch(addPeerAction(clientId, color));
   };
@@ -141,6 +141,7 @@ export default function CodeEditor(props: CodeEditorProps) {
           }
         });
 
+        // When there is a document modification connected to the yorkie
         const root = doc.getRootObject() as any;
         root.content.onChanges((changes: any) => {
           changes.forEach((change: any) => {
@@ -189,6 +190,7 @@ export default function CodeEditor(props: CodeEditorProps) {
           root.content.updateSelection(from, to);
         });
       }}
+      // Edit the yorkie document
       onBeforeChange={(editor: CodeMirror.Editor, change: CodeMirror.EditorChange) => {
         if (change.origin === 'yorkie' || change.origin === 'setValue') {
           return;
