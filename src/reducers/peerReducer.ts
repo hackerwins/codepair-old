@@ -1,6 +1,6 @@
 import { Reducer } from 'redux';
 
-import { IPeerState, PeerActionTypes, PeerActions, ConnectionStatus } from '../actions/peerActions';
+import { IPeerState, PeerActionTypes, PeerActions, ConnectionStatus } from 'actions/peerActions';
 
 const initialPeerState: IPeerState = {
   peers: {},
