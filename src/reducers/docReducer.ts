@@ -1,6 +1,6 @@
 import { Reducer } from 'redux';
 
-import { DocActionTypes, DocActions, IDocState } from '../actions/docActions';
+import { DocActionTypes, DocActions, IDocState } from 'actions/docActions';
 
 const initialDocState: IDocState = {
   client: null,

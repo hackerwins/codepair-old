@@ -7,11 +7,11 @@ import Alert from '@material-ui/lab/Alert';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import randomColor from 'randomcolor';
 
-import ClientCursor from './ClientCursor';
+import { IAppState } from 'store/store';
+import { attachDocAction, loadDocAction } from 'actions/docActions';
+import { ConnectionStatus, addPeerAction, disconnectPeerAction } from 'actions/peerActions';
 
-import { IAppState } from '../../store/store';
-import { attachDocAction, loadDocAction } from '../../actions/docActions';
-import { ConnectionStatus, addPeerAction, disconnectPeerAction } from '../../actions/peerActions';
+import ClientCursor from './ClientCursor';
 
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/monokai.css';
