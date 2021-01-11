@@ -53,8 +53,6 @@ export const attachDocAction: ActionCreator<ThunkAction<Promise<any>, IDocState,
 
       dispatch({ type: DocActionTypes.ATTACH_DOC, doc, client });
     } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error(err);
       dispatch({ type: DocActionTypes.ERROR, errorMessage: err.message });
     }
 
