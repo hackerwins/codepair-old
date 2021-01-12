@@ -84,7 +84,7 @@ export default function CodeEditor(props: CodeEditorProps) {
 
         for (const clientId of Object.keys(peerClients)) {
           if (setNewPeerClientsId.has(clientId) && peerClients[clientId].status === ConnectionStatus.Connected) {
-            return;
+            continue;
           }
           disconnectClient(clientId);
         }
