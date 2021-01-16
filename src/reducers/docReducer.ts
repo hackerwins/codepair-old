@@ -2,7 +2,7 @@ import { Reducer } from 'redux';
 
 import { DocActionTypes, DocActions, IDocState } from 'actions/docActions';
 
-const initialDocState: IDocState = {
+export const initialDocState: IDocState = {
   client: null,
   doc: null,
   loading: false,
