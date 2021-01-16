@@ -69,11 +69,7 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 
 ## Deploying
 
-Deploy our application to GitHub pages.
-
-```
-npm run deploy
-```
+When PR is merged into main, it is automatically distributed by GitHub Actions.
 
 For more details:
 [deploying-a-create-react-app-with-routing-to-github-pages](https://medium.com/@bennirus/deploying-a-create-react-app-with-routing-to-github-pages-f386b6ce84c2)
