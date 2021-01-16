@@ -14,8 +14,8 @@ object-assign
 /*!
  * 
  * yorkie-js-sdk for building collaborative editing applications.
- *  - Version: v0.1.0
- *  - Date: 2020-11-06T22:19Z
+ *  - Version: v0.1.1
+ *  - Date: 2021-01-01T11:39Z
  *  - Homepage: https://yorkie.dev
  * 
  * Copyright 2020 The Yorkie Authors. All rights reserved.
@@ -101,6 +101,8 @@ object-assign
 /*! ../json/array */
 
 /*! ../json/counter */
+
+/*! ../json/element */
 
 /*! ../json/object */
 
@@ -321,6 +323,8 @@ object-assign
 /*! grpc-web */
 
 /*! ieee754 */
+
+/*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
 
 /*! isarray */
 
