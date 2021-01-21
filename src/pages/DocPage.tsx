@@ -2,8 +2,8 @@ import React from 'react';
 import { RouteComponentProps } from 'react-router';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 
-import NavBar from '../components/NavBar';
-import CodeEditor from '../components/Editor/CodeEditor';
+import NavBar from 'components/NavBar';
+import CodeEditor from 'components/Editor/CodeEditor';
 
 type DocPageProps = {
   docKey: string;

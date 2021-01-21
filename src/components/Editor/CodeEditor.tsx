@@ -7,11 +7,11 @@ import Alert from '@material-ui/lab/Alert';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import randomColor from 'randomcolor';
 
-import ClientCursor from './ClientCursor';
+import { AppState } from 'reducers/rootReducer';
+import { attachDoc, attachDocLoading } from 'reducers/docReducer';
+import { ConnectionStatus, connectPeer, disconnectPeer } from 'reducers/peerReducer';
 
-import { AppState } from '../../reducers/rootReducer';
-import { attachDoc, attachDocLoading } from '../../reducers/docReducer';
-import { ConnectionStatus, connectPeer, disconnectPeer } from '../../reducers/peerReducer';
+import ClientCursor from './ClientCursor';
 
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/monokai.css';
@@ -88,7 +88,7 @@ export default function CodeEditor(props: CodeEditorProps) {
 
         for (const clientId of Object.keys(peerClients)) {
           if (setNewPeerClientsId.has(clientId) && peerClients[clientId].status === ConnectionStatus.Connected) {
-            return;
+            continue;
           }
           disconnectClient(clientId);
         }
