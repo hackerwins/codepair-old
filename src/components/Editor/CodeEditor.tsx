@@ -9,9 +9,9 @@ import randomColor from 'randomcolor';
 
 import ClientCursor from './ClientCursor';
 
-import { IAppState } from '../../store/store';
-import { attachDocAction, loadDocAction } from '../../actions/docActions';
-import { ConnectionStatus, addPeerAction, disconnectPeerAction } from '../../actions/peerActions';
+import { IAppState } from '../../reducers/rootReducer';
+import { attachDoc, attachDocLoading } from '../../reducers/docReducer';
+import { ConnectionStatus, connectPeer, disconnectPeer } from '../../reducers/peerReducer';
 
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/monokai.css';
@@ -54,13 +54,17 @@ export default function CodeEditor(props: CodeEditorProps) {
 
     const newClientCursor = new ClientCursor(clientId, color);
     otherClientsCursor.current.set(clientId, newClientCursor);
-    dispatch(addPeerAction(clientId, color));
+    dispatch(connectPeer({id: clientId, color, status: ConnectionStatus.Connected }));
   };
 
   // Attach document
   useEffect(() => {
-    dispatch(loadDocAction(true));
-    dispatch(attachDocAction(docKey));
+    async function attachDocAsync() {
+      dispatch(attachDocLoading(true));
+      await dispatch(attachDoc(docKey));
+      dispatch(attachDocLoading(false));
+    }
+    attachDocAsync();
   }, [docKey, dispatch]);
 
   // Subscribe other client
@@ -74,7 +78,7 @@ export default function CodeEditor(props: CodeEditorProps) {
         otherClientsCursor.current.get(clientId)!.removeCursor();
         otherClientsCursor.current.delete(clientId);
       }
-      dispatch(disconnectPeerAction(clientId));
+      dispatch(disconnectPeer(clientId));
     };
 
     const unsubscribe = client.subscribe((event: any) => {

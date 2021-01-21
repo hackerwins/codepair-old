@@ -1,46 +1,44 @@
-import { Reducer } from 'redux';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { IPeerState, PeerActionTypes, PeerActions, ConnectionStatus } from '../actions/peerActions';
+export enum ConnectionStatus {
+  Connected = 'connected',
+  Disconnected = 'disconnected',
+}
+
+export interface Peer {
+  id: string;
+  color: string;
+  status: ConnectionStatus;
+}
+
+export interface IPeerState {
+  peers: {
+    [id: string]: Peer;
+  };
+}
+
 
 const initialPeerState: IPeerState = {
   peers: {},
 };
 
-const peerReducer: Reducer<IPeerState, PeerActions> = (state = initialPeerState, action: PeerActions) => {
-  const existedClient = state.peers[action.id];
-  switch (action.type) {
-    case PeerActionTypes.CONNECT_PEER: {
-      return {
-        ...state,
-        peers: {
-          ...state.peers,
-          [action.id]: {
-            id: action.id,
-            color: action.color,
-            status: ConnectionStatus.Connected,
-          },
-        },
+const peerSlice = createSlice({
+  name: 'peer',
+  initialState: initialPeerState,
+  reducers: {
+    connectPeer(state, action: PayloadAction<{id: string, color: string, status: ConnectionStatus}>) {
+      const { id, color, status } = action.payload;
+      state.peers[id] = {
+        id,
+        color,
+        status,
       };
-    }
+    },
+    disconnectPeer(state, action: PayloadAction<string>) {
+      state.peers[action.payload].status = ConnectionStatus.Disconnected;
+    },
+  },
+});
 
-    case PeerActionTypes.DISCONNECT_PEER: {
-      const client = {
-        ...existedClient,
-        status: ConnectionStatus.Disconnected,
-      };
-
-      return {
-        ...state,
-        peers: {
-          ...state.peers,
-          [action.id]: client,
-        },
-      };
-    }
-
-    default:
-      return state;
-  }
-};
-
-export default peerReducer;
+export const { connectPeer, disconnectPeer } = peerSlice.actions;
+export default peerSlice.reducer;
