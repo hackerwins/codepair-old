@@ -9,7 +9,7 @@ import randomColor from 'randomcolor';
 
 import ClientCursor from './ClientCursor';
 
-import { IAppState } from '../../reducers/rootReducer';
+import { AppState } from '../../reducers/rootReducer';
 import { attachDoc, attachDocLoading } from '../../reducers/docReducer';
 import { ConnectionStatus, connectPeer, disconnectPeer } from '../../reducers/peerReducer';
 
@@ -35,11 +35,11 @@ export default function CodeEditor(props: CodeEditorProps) {
   const classes = useStyles();
 
   const { docKey } = props;
-  const doc = useSelector((state: IAppState) => state.docState.doc);
-  const client = useSelector((state: IAppState) => state.docState.client);
-  const loading = useSelector((state: IAppState) => state.docState.loading);
-  const errorMessage = useSelector((state: IAppState) => state.docState.errorMessage);
-  const peerClients = useSelector((state: IAppState) => state.peerState.peers);
+  const doc = useSelector((state: AppState) => state.docState.doc);
+  const client = useSelector((state: AppState) => state.docState.client);
+  const loading = useSelector((state: AppState) => state.docState.loading);
+  const errorMessage = useSelector((state: AppState) => state.docState.errorMessage);
+  const peerClients = useSelector((state: AppState) => state.peerState.peers);
   const otherClientsCursor = useRef<Map<string, ClientCursor>>(new Map());
 
   const connectClient = (clientId: string) => {
@@ -54,7 +54,7 @@ export default function CodeEditor(props: CodeEditorProps) {
 
     const newClientCursor = new ClientCursor(clientId, color);
     otherClientsCursor.current.set(clientId, newClientCursor);
-    dispatch(connectPeer({id: clientId, color, status: ConnectionStatus.Connected }));
+    dispatch(connectPeer({ id: clientId, color, status: ConnectionStatus.Connected }));
   };
 
   // Attach document

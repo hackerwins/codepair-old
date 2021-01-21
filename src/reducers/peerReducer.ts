@@ -11,14 +11,13 @@ export interface Peer {
   status: ConnectionStatus;
 }
 
-export interface IPeerState {
+export interface PeerState {
   peers: {
     [id: string]: Peer;
   };
 }
 
-
-const initialPeerState: IPeerState = {
+const initialPeerState: PeerState = {
   peers: {},
 };
 
@@ -26,7 +25,7 @@ const peerSlice = createSlice({
   name: 'peer',
   initialState: initialPeerState,
   reducers: {
-    connectPeer(state, action: PayloadAction<{id: string, color: string, status: ConnectionStatus}>) {
+    connectPeer(state, action: PayloadAction<{ id: string; color: string; status: ConnectionStatus }>) {
       const { id, color, status } = action.payload;
       state.peers[id] = {
         id,

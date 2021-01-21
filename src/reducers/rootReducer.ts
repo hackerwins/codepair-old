@@ -8,6 +8,6 @@ const rootReducer = combineReducers({
   peerState: peerReducer,
 });
 
-export type IAppState = ReturnType<typeof rootReducer>;
+export type AppState = ReturnType<typeof rootReducer>;
 
 export default rootReducer;

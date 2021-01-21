@@ -1,21 +1,21 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import yorkie, { Client, Document } from 'yorkie-js-sdk';
 
-export interface IDocState {
+export interface DocState {
   client: Client | null;
   doc: Document | null;
   loading: boolean;
   errorMessage: string;
 }
 
-const initialState: IDocState = {
+const initialState: DocState = {
   client: null,
   doc: null,
   loading: false,
   errorMessage: '',
 };
 
-export const attachDoc = createAsyncThunk<AttachDocResult, string, {rejectValue: string}>(
+export const attachDoc = createAsyncThunk<AttachDocResult, string, { rejectValue: string }>(
   'docs/attach',
   async (docKey: string, thunkApi) => {
     try {
@@ -46,13 +46,13 @@ const docSlice = createSlice({
       state.loading = action.payload;
     },
   },
-  extraReducers: builder => {
+  extraReducers: (builder) => {
     builder.addCase(attachDoc.fulfilled, (state, { payload }) => {
       state.doc = payload.document;
       state.client = payload.client;
     });
     builder.addCase(attachDoc.rejected, (state, { payload }) => {
-      state.errorMessage = payload!; 
+      state.errorMessage = payload!;
     });
   },
 });
@@ -60,5 +60,4 @@ const docSlice = createSlice({
 export const { attachDocLoading } = docSlice.actions;
 export default docSlice.reducer;
 
-type AttachDocResult = {document: Document, client: Client};
-
+type AttachDocResult = { document: Document; client: Client };
