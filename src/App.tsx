@@ -4,13 +4,11 @@ import { Provider } from 'react-redux';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { ThemeProvider } from '@material-ui/core/styles';
 
-import configureStore from 'store/store';
+import store from 'store/store';
 import DocPage from 'pages/DocPage';
 import theme from 'theme';
 
 import './App.css';
-
-const store = configureStore();
 
 function App() {
   return (

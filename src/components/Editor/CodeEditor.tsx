@@ -7,9 +7,9 @@ import Alert from '@material-ui/lab/Alert';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import randomColor from 'randomcolor';
 
-import { IAppState } from 'store/store';
-import { attachDocAction, loadDocAction } from 'actions/docActions';
-import { ConnectionStatus, addPeerAction, disconnectPeerAction } from 'actions/peerActions';
+import { AppState } from 'reducers/rootReducer';
+import { attachDoc, attachDocLoading } from 'reducers/docReducer';
+import { ConnectionStatus, connectPeer, disconnectPeer } from 'reducers/peerReducer';
 
 import ClientCursor from './ClientCursor';
 
@@ -35,11 +35,11 @@ export default function CodeEditor(props: CodeEditorProps) {
   const classes = useStyles();
 
   const { docKey } = props;
-  const doc = useSelector((state: IAppState) => state.docState.doc);
-  const client = useSelector((state: IAppState) => state.docState.client);
-  const loading = useSelector((state: IAppState) => state.docState.loading);
-  const errorMessage = useSelector((state: IAppState) => state.docState.errorMessage);
-  const peerClients = useSelector((state: IAppState) => state.peerState.peers);
+  const doc = useSelector((state: AppState) => state.docState.doc);
+  const client = useSelector((state: AppState) => state.docState.client);
+  const loading = useSelector((state: AppState) => state.docState.loading);
+  const errorMessage = useSelector((state: AppState) => state.docState.errorMessage);
+  const peerClients = useSelector((state: AppState) => state.peerState.peers);
   const otherClientsCursor = useRef<Map<string, ClientCursor>>(new Map());
 
   const connectClient = (clientId: string) => {
@@ -54,13 +54,17 @@ export default function CodeEditor(props: CodeEditorProps) {
 
     const newClientCursor = new ClientCursor(clientId, color);
     otherClientsCursor.current.set(clientId, newClientCursor);
-    dispatch(addPeerAction(clientId, color));
+    dispatch(connectPeer({ id: clientId, color, status: ConnectionStatus.Connected }));
   };
 
   // Attach document
   useEffect(() => {
-    dispatch(loadDocAction(true));
-    dispatch(attachDocAction(docKey));
+    async function attachDocAsync() {
+      dispatch(attachDocLoading(true));
+      await dispatch(attachDoc(docKey));
+      dispatch(attachDocLoading(false));
+    }
+    attachDocAsync();
   }, [docKey, dispatch]);
 
   // Subscribe other client
@@ -74,7 +78,7 @@ export default function CodeEditor(props: CodeEditorProps) {
         otherClientsCursor.current.get(clientId)!.removeCursor();
         otherClientsCursor.current.delete(clientId);
       }
-      dispatch(disconnectPeerAction(clientId));
+      dispatch(disconnectPeer(clientId));
     };
 
     const unsubscribe = client.subscribe((event: any) => {

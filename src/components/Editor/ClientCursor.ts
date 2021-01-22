@@ -1,32 +1,29 @@
 import invert from 'invert-color';
 
-/**
- * used in yorkie-sdk-js client
- * If ActorId is provided by yorkie-sdk-js, we should use that
- */
-type ActorId = string;
+// TODO(hackerwins): Replace with ActorID from yorkie-js-sdk
+type ActorID = string;
 
 // REF https://github.com/FujitsuLaboratories/cattaz/blob/master/src/AppEnabledWikiEditorCodeMirror.jsx#L24
 class ClientCursor {
-  id: ActorId;
+  private id: ActorID;
 
-  color: string;
+  private color: string;
 
-  height: number;
+  private height: number;
 
-  marker: CodeMirror.TextMarker | null;
+  private marker: CodeMirror.TextMarker | null;
 
-  lineMarker: CodeMirror.TextMarker | null;
+  private lineMarker: CodeMirror.TextMarker | null;
 
-  nameRemoveTimeMap: Map<ActorId, ReturnType<typeof setTimeout>>;
+  private nameRemoveTimeMap: Map<ActorID, ReturnType<typeof setTimeout>>;
 
-  nameAnimationDelay: number;
+  private nameAnimationDelay: number;
 
-  nameAnimationDuration: number;
+  private nameAnimationDuration: number;
 
-  nameRemoveTime: number;
+  private nameRemoveTime: number;
 
-  constructor(id: ActorId, color: string) {
+  constructor(id: ActorID, color: string) {
     this.id = id;
     this.color = color;
     this.height = 0;
@@ -42,19 +39,19 @@ class ClientCursor {
   updateCursor(cm: CodeMirror.Editor, cursorPos: CodeMirror.Position) {
     this.removeCursor();
     const cursorCoords = cm.cursorCoords(cursorPos);
-    const cursorEl = document.createElement('span');
+    const cursorHolder = document.createElement('span');
     this.height = cursorCoords.bottom - cursorCoords.top;
 
-    cursorEl.classList.add('codePair-cursor');
-    cursorEl.style.borderLeftColor = this.color;
-    cursorEl.style.height = `${this.height}px`;
+    cursorHolder.classList.add('codePair-cursor');
+    cursorHolder.style.borderLeftColor = this.color;
+    cursorHolder.style.height = `${this.height}px`;
 
     this.marker = cm.setBookmark(cursorPos, {
-      widget: cursorEl,
+      widget: cursorHolder,
       insertLeft: true,
     });
 
-    this.showCursorNameReserve(cursorEl);
+    this.showCursorNameReserve(cursorHolder);
   }
 
   updateLine(cm: CodeMirror.Editor, fromPos: CodeMirror.Position, toPos: CodeMirror.Position) {
@@ -66,42 +63,42 @@ class ClientCursor {
   }
 
   // when user's cursor hover, show name
-  private showCursorNameReserve(cursorEl: Element) {
-    const nameEl = document.createElement('span');
-    nameEl.classList.add('codePair-name');
+  private showCursorNameReserve(cursorHolder: Element) {
+    const nameHolder = document.createElement('span');
+    nameHolder.classList.add('codePair-name');
 
-    cursorEl.addEventListener('mouseenter', () => {
+    cursorHolder.addEventListener('mouseenter', () => {
       if (this.nameRemoveTimeMap.has(this.id)) {
         clearTimeout(this.nameRemoveTimeMap.get(this.id)!);
       }
 
-      nameEl.textContent = this.id;
-      nameEl.style.top = `-${this.height}px`;
-      nameEl.style.backgroundColor = this.color;
-      nameEl.style.color = invert(this.color, true);
+      nameHolder.textContent = this.id;
+      nameHolder.style.top = `-${this.height}px`;
+      nameHolder.style.backgroundColor = this.color;
+      nameHolder.style.color = invert(this.color, true);
 
       /**
        * nameEl is being reused.
        * In order to keep the name visible while the mouse is hovering,
        * It need to delete the css class containing animation when it is mouseenter and add it when it is mouseleave.
        */
-      nameEl.classList.remove('text-remove');
-      cursorEl.appendChild(nameEl);
+      nameHolder.classList.remove('text-remove');
+      cursorHolder.appendChild(nameHolder);
     });
 
-    cursorEl.addEventListener('mouseleave', () => {
-      nameEl.classList.add('text-remove');
-      nameEl.style.animationDuration = `${this.nameAnimationDuration}s`;
-      nameEl.style.animationDelay = `${this.nameAnimationDelay}s`;
+    cursorHolder.addEventListener('mouseleave', () => {
+      nameHolder.classList.add('text-remove');
+      nameHolder.style.animationDuration = `${this.nameAnimationDuration}s`;
+      nameHolder.style.animationDelay = `${this.nameAnimationDelay}s`;
 
-      this.removeNameReserve(nameEl);
+      this.removeNameReserve(nameHolder);
     });
   }
 
   // After animate, It should actually be deleted it.
-  private removeNameReserve(nameEl: HTMLSpanElement) {
+  private removeNameReserve(nameHolder: HTMLSpanElement) {
     const timeoutId = setTimeout(() => {
-      nameEl.parentNode!.removeChild(nameEl);
+      nameHolder.parentNode!.removeChild(nameHolder);
       this.nameRemoveTimeMap.delete(this.id);
     }, this.nameRemoveTime);
 
