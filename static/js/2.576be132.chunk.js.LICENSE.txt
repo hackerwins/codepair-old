@@ -15,7 +15,7 @@ object-assign
  * 
  * yorkie-js-sdk for building collaborative editing applications.
  *  - Version: v0.1.1
- *  - Date: 2021-01-01T11:39Z
+ *  - Date: 2021-01-22T15:38Z
  *  - Homepage: https://yorkie.dev
  * 
  * Copyright 2020 The Yorkie Authors. All rights reserved.
