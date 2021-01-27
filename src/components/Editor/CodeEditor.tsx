@@ -82,12 +82,11 @@ export default function CodeEditor(props: CodeEditorProps) {
     };
 
     const unsubscribe = client.subscribe((event: any) => {
-      if (event.name === 'documents-watching-peer-changed') {
-        const newPeerClientsId: string[] = event.value[doc.getKey().toIDString()];
-        const setNewPeerClientsId = new Set(newPeerClientsId);
+      if (event.name === 'peers-changed') {
+        const newPeerClients = event.value[doc.getKey().toIDString()];
 
         for (const clientId of Object.keys(peerClients)) {
-          if (setNewPeerClientsId.has(clientId) && peerClients[clientId].status === ConnectionStatus.Connected) {
+          if (newPeerClients[clientId] && peerClients[clientId].status === ConnectionStatus.Connected) {
             continue;
           }
           disconnectClient(clientId);
@@ -120,6 +119,7 @@ export default function CodeEditor(props: CodeEditorProps) {
     <CodeMirror
       options={{ mode: 'xml', theme: 'monokai', lineNumbers: true }}
       editorDidMount={(editor: CodeMirror.Editor) => {
+        editor.focus();
         const updateCursor = (clientId: string, pos: CodeMirror.Position) => {
           const clientCursor = otherClientsCursor.current.get(clientId);
           clientCursor!.updateCursor(editor, pos);
@@ -133,7 +133,7 @@ export default function CodeEditor(props: CodeEditorProps) {
         doc.subscribe((event: any) => {
           if (event.name === 'remote-change') {
             event.value.forEach((change: any) => {
-              const { actor } = change.id;
+              const { actor } = change.getID();
               if (actor !== client.getID()) {
                 if (!otherClientsCursor.current.has(actor)) {
                   connectClient(actor);
