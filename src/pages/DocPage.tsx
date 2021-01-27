@@ -3,6 +3,7 @@ import { RouteComponentProps } from 'react-router';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 
 import NavBar from 'components/NavBar';
+import CodeNavBar from 'components/Editor/CodeNavBar';
 import CodeEditor from 'components/Editor/CodeEditor';
 
 type DocPageProps = {
@@ -27,6 +28,7 @@ export default function DocPage(props: RouteComponentProps<DocPageProps>) {
   return (
     <div className={classes.root}>
       <NavBar />
+      <CodeNavBar />
       <CodeEditor docKey={docKey} />
     </div>
   );

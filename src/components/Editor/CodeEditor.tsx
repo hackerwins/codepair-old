@@ -13,8 +13,20 @@ import { ConnectionStatus, connectPeer, disconnectPeer } from 'reducers/peerRedu
 
 import ClientCursor from './ClientCursor';
 
+import 'codemirror/addon/edit/closebrackets';
+import 'codemirror/addon/edit/closetag';
+
+import 'codemirror/mode/go/go';
+import 'codemirror/mode/dart/dart';
+import 'codemirror/mode/ruby/ruby';
+import 'codemirror/mode/rust/rust';
+import 'codemirror/mode/python/python';
+import 'codemirror/mode/clojure/clojure';
+import 'codemirror/mode/javascript/javascript';
+
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/monokai.css';
+import 'codemirror/theme/material.css';
 import './CodeEditor.css';
 
 type CodeEditorProps = {
@@ -40,6 +52,7 @@ export default function CodeEditor(props: CodeEditorProps) {
   const loading = useSelector((state: AppState) => state.docState.loading);
   const errorMessage = useSelector((state: AppState) => state.docState.errorMessage);
   const peerClients = useSelector((state: AppState) => state.peerState.peers);
+  const menu = useSelector((state: AppState) => state.settingState.menu);
   const otherClientsCursor = useRef<Map<string, ClientCursor>>(new Map());
 
   const connectClient = (clientId: string) => {
@@ -118,7 +131,14 @@ export default function CodeEditor(props: CodeEditorProps) {
 
   return (
     <CodeMirror
-      options={{ mode: 'xml', theme: 'monokai', lineNumbers: true }}
+      options={{
+        mode: menu.codeMode,
+        theme: menu.codeTheme,
+        lineNumbers: true,
+        lineWrapping: true,
+        autoCloseTags: true,
+        autoCloseBrackets: true,
+      }}
       editorDidMount={(editor: CodeMirror.Editor) => {
         const updateCursor = (clientId: string, pos: CodeMirror.Position) => {
           const clientCursor = otherClientsCursor.current.get(clientId);
