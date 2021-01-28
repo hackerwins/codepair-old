@@ -55,7 +55,7 @@ const settingSlice = createSlice({
     },
 
     setCodeTheme(state, action: PayloadAction<CodeTheme>) {
-      state.menu.codeMode = action.payload;
+      state.menu. codeTheme = action.payload;
     },
 
     setCodeKeyMap(state, action: PayloadAction<CodeKeyMap>) {
