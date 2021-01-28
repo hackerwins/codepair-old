@@ -14,14 +14,11 @@ import { AppState } from 'features/rootSlices';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      color: theme.palette.text.primary,
-      backgroundColor: theme.palette.primary.light,
       width: '400px',
       minWidth: '320px',
       borderRadius: '4px',
     },
     header: {
-      backgroundColor: theme.palette.primary.main,
       borderBottom: `1px solid ${theme.palette.text.disabled}`,
     },
     title: {
@@ -45,7 +42,6 @@ const useStyles = makeStyles((theme: Theme) =>
     itemInfo: {
       minWidth: 140,
       paddingLeft: '12px',
-      backgroundColor: 'transparent',
       border: '1px solid #aaa',
       borderRadius: '4px',
       textAlign: 'left',
@@ -53,7 +49,7 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-const EditorSettings = () => {
+const Settings = () => {
   const dispatch = useDispatch();
   const classes = useStyles();
   const menu = useSelector((state: AppState) => state.settingState.menu);
@@ -68,12 +64,9 @@ const EditorSettings = () => {
     <div className={classes.root}>
       <Box>
         <header className={classes.header}>
-          <Typography className={classes.title} variant="h6">
-            Editor Settings
-          </Typography>
+          <Typography className={classes.title} variant="h6">Settings</Typography>
         </header>
       </Box>
-
       <div className={classes.list}>
         <div className={classes.item}>
           <div className={classes.itemTitle}>Theme</div>
@@ -89,7 +82,6 @@ const EditorSettings = () => {
             </Select>
           </FormControl>
         </div>
-
         <div className={classes.item}>
           <div className={classes.itemTitle}>Key binding</div>
           <FormControl className={classes.itemInfo}>
@@ -104,7 +96,6 @@ const EditorSettings = () => {
             </Select>
           </FormControl>
         </div>
-
         <div className={classes.item}>
           <div className={classes.itemTitle}>Tab Size</div>
           <FormControl className={classes.itemInfo}>
@@ -124,4 +115,4 @@ const EditorSettings = () => {
   );
 };
 
-export default EditorSettings;
+export default Settings;
