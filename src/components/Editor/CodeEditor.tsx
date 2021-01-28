@@ -25,6 +25,10 @@ import 'codemirror/mode/python/python';
 import 'codemirror/mode/clojure/clojure';
 import 'codemirror/mode/javascript/javascript';
 
+import 'codemirror/keymap/sublime';
+import 'codemirror/keymap/emacs';
+import 'codemirror/keymap/vim';
+
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/monokai.css';
 import 'codemirror/theme/material.css';
@@ -136,6 +140,8 @@ export default function CodeEditor(props: CodeEditorProps) {
       options={{
         mode: menu.codeMode,
         theme: menu.codeTheme,
+        keyMap: menu.codeKeyMap,
+        tabSize: Number(menu.tabSize),
         lineNumbers: true,
         lineWrapping: true,
         autoCloseTags: true,

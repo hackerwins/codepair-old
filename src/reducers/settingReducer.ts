@@ -55,15 +55,15 @@ const settingSlice = createSlice({
     },
 
     setCodeTheme(state, action: PayloadAction<CodeTheme>) {
-      state.menu. codeTheme = action.payload;
+      state.menu.codeTheme = action.payload;
     },
 
     setCodeKeyMap(state, action: PayloadAction<CodeKeyMap>) {
-      state.menu. codeKeyMap = action.payload;
+      state.menu.codeKeyMap = action.payload;
     },
 
     setTabSize(state, action: PayloadAction<TabSize>) {
-      state.menu. tabSize = action.payload;
+      state.menu.tabSize = action.payload;
     },
   },
 });
