@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
 import Grid from '@material-ui/core/Grid';
@@ -34,17 +34,16 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-export default function CodeNavBar() {
-  const dispatch = useDispatch();
+export default function Toolbar() {
   const classes = useStyles();
-
+  const dispatch = useDispatch();
   const menu = useSelector((state: AppState) => state.settingState.menu);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleCodeModeChange = (event: React.ChangeEvent<{ name?: string; value: unknown }>) => {
+  const handleCodeModeChange = useCallback((event: React.ChangeEvent<{ name?: string; value: unknown }>) => {
     dispatch(setCodeMode(event.target.value as CodeMode));
-  };
+  }, [dispatch]);
 
   return (
     <div className={classes.root}>
@@ -69,12 +68,10 @@ export default function CodeNavBar() {
             </Select>
           </FormControl>
         </Grid>
-
         <Grid item>
           <SettingsIcon onClick={() => setIsModalOpen(true)} />
         </Grid>
       </Grid>
-
       <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <CodeSetting />
       </Modal>
