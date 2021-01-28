@@ -8,8 +8,8 @@ import Typography from '@material-ui/core/Typography';
 import FormControl from '@material-ui/core/FormControl';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
-import { CodeTheme, CodeKeyMap, TabSize, setCodeTheme, setCodeKeyMap, setTabSize } from 'reducers/settingReducer';
-import { AppState } from 'reducers/rootReducer';
+import { CodeTheme, CodeKeyMap, TabSize, setCodeTheme, setCodeKeyMap, setTabSize } from 'features/settingSlices';
+import { AppState } from 'features/rootSlices';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -53,7 +53,7 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-const CodeSetting = () => {
+const EditorSettings = () => {
   const dispatch = useDispatch();
   const classes = useStyles();
   const menu = useSelector((state: AppState) => state.settingState.menu);
@@ -124,4 +124,4 @@ const CodeSetting = () => {
   );
 };
 
-export default CodeSetting;
+export default EditorSettings;

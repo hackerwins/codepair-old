@@ -4,7 +4,7 @@ import { createStyles, makeStyles } from '@material-ui/core/styles';
 
 import NavBar from 'components/NavBar';
 import Toolbar from 'components/Toolbar';
-import CodeEditor from 'components/Editor/CodeEditor';
+import Editor from 'components/Editor';
 
 type DocPageProps = {
   docKey: string;
@@ -29,7 +29,7 @@ export default function DocPage(props: RouteComponentProps<DocPageProps>) {
     <div className={classes.root}>
       <NavBar />
       <Toolbar />
-      <CodeEditor docKey={docKey} />
+      <Editor docKey={docKey} />
     </div>
   );
 }

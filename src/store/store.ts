@@ -1,7 +1,7 @@
 import { configureStore, Action, getDefaultMiddleware } from '@reduxjs/toolkit';
 import { ThunkAction } from 'redux-thunk';
 
-import rootReducer, { AppState } from 'reducers/rootReducer';
+import rootReducer, { AppState } from 'features/rootSlices';
 
 const store = configureStore({
   reducer: rootReducer,

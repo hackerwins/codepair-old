@@ -4,7 +4,7 @@ import invert from 'invert-color';
 type ActorID = string;
 
 // REF https://github.com/FujitsuLaboratories/cattaz/blob/master/src/AppEnabledWikiEditorCodeMirror.jsx#L24
-class ClientCursor {
+export default class Cursor {
   private id: ActorID;
 
   private color: string;
@@ -120,4 +120,3 @@ class ClientCursor {
   }
 }
 
-export default ClientCursor;

@@ -1,18 +1,18 @@
 import React, { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
+import randomColor from 'randomcolor';
 import { Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import randomColor from 'randomcolor';
 
-import { AppState } from 'reducers/rootReducer';
-import { attachDoc, attachDocLoading } from 'reducers/docReducer';
-import { ConnectionStatus, connectPeer, disconnectPeer } from 'reducers/peerReducer';
+import { AppState } from 'features/rootSlices';
+import { attachDoc, attachDocLoading } from 'features/docSlices';
+import { ConnectionStatus, connectPeer, disconnectPeer } from 'features/peerSlices';
 
-import ClientCursor from './ClientCursor';
+import Cursor from './Cursor';
 
 import 'codemirror/addon/edit/closebrackets';
 import 'codemirror/addon/edit/closetag';
@@ -32,11 +32,7 @@ import 'codemirror/keymap/vim';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/monokai.css';
 import 'codemirror/theme/material.css';
-import './CodeEditor.css';
-
-type CodeEditorProps = {
-  docKey: string;
-};
+import './editor.css';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -47,7 +43,9 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-export default function CodeEditor(props: CodeEditorProps) {
+export default function Editor(props: {
+  docKey: string;
+}) {
   const dispatch = useDispatch();
   const classes = useStyles();
 
@@ -58,7 +56,7 @@ export default function CodeEditor(props: CodeEditorProps) {
   const errorMessage = useSelector((state: AppState) => state.docState.errorMessage);
   const peerClients = useSelector((state: AppState) => state.peerState.peers);
   const menu = useSelector((state: AppState) => state.settingState.menu);
-  const otherClientsCursor = useRef<Map<string, ClientCursor>>(new Map());
+  const cursorMapRef = useRef<Map<string, Cursor>>(new Map());
 
   const connectClient = (clientId: string) => {
     const existedClient = peerClients[clientId];
@@ -70,8 +68,7 @@ export default function CodeEditor(props: CodeEditorProps) {
       color = randomColor();
     }
 
-    const newClientCursor = new ClientCursor(clientId, color);
-    otherClientsCursor.current.set(clientId, newClientCursor);
+    cursorMapRef.current.set(clientId, new Cursor(clientId, color));
     dispatch(connectPeer({ id: clientId, color, status: ConnectionStatus.Connected }));
   };
 
@@ -92,9 +89,9 @@ export default function CodeEditor(props: CodeEditorProps) {
     }
 
     const disconnectClient = (clientId: string) => {
-      if (otherClientsCursor.current.has(clientId)) {
-        otherClientsCursor.current.get(clientId)!.removeCursor();
-        otherClientsCursor.current.delete(clientId);
+      if (cursorMapRef.current.has(clientId)) {
+        cursorMapRef.current.get(clientId)!.removeCursor();
+        cursorMapRef.current.delete(clientId);
       }
       dispatch(disconnectPeer(clientId));
     };
@@ -150,13 +147,13 @@ export default function CodeEditor(props: CodeEditorProps) {
       editorDidMount={(editor: CodeMirror.Editor) => {
         editor.focus();
         const updateCursor = (clientId: string, pos: CodeMirror.Position) => {
-          const clientCursor = otherClientsCursor.current.get(clientId);
-          clientCursor!.updateCursor(editor, pos);
+          const cursor = cursorMapRef.current.get(clientId);
+          cursor!.updateCursor(editor, pos);
         };
 
         const updateLine = (clientId: string, fromPos: CodeMirror.Position, toPos: CodeMirror.Position) => {
-          const clientCursor = otherClientsCursor.current.get(clientId);
-          clientCursor!.updateLine(editor, fromPos, toPos);
+          const cursor = cursorMapRef.current.get(clientId);
+          cursor!.updateLine(editor, fromPos, toPos);
         };
 
         doc.subscribe((event: any) => {
@@ -164,7 +161,7 @@ export default function CodeEditor(props: CodeEditorProps) {
             event.value.forEach((change: any) => {
               const { actor } = change.getID();
               if (actor !== client.getID()) {
-                if (!otherClientsCursor.current.has(actor)) {
+                if (!cursorMapRef.current.has(actor)) {
                   connectClient(actor);
                   updateCursor(actor, editor.posFromIndex(0));
                   // TODO Load user's cursor position
@@ -189,7 +186,7 @@ export default function CodeEditor(props: CodeEditorProps) {
               }
             } else if (change.type === 'selection') {
               if (actor !== client.getID()) {
-                if (!otherClientsCursor.current.has(actor)) {
+                if (!cursorMapRef.current.has(actor)) {
                   connectClient(actor);
                 }
 

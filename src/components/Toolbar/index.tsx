@@ -9,9 +9,9 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 import Modal from 'components/Modal';
-import { AppState } from 'reducers/rootReducer';
-import { CodeMode, setCodeMode } from 'reducers/settingReducer';
-import CodeSetting from './CodeSetting';
+import { AppState } from 'features/rootSlices';
+import { CodeMode, setCodeMode } from 'features/settingSlices';
+import EditorSettings from './EditorSettings';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -73,7 +73,7 @@ export default function Toolbar() {
         </Grid>
       </Grid>
       <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <CodeSetting />
+        <EditorSettings />
       </Modal>
     </div>
   );
