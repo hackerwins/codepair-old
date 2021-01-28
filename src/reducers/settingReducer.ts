@@ -63,7 +63,7 @@ const settingSlice = createSlice({
     },
 
     setTabSize(state, action: PayloadAction<TabSize>) {
-      state.menu.codeMode = action.payload;
+      state.menu. tabSize = action.payload;
     },
   },
 });
