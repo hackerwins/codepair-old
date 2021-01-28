@@ -1,14 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
 import Grid from '@material-ui/core/Grid';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
+import SettingsIcon from '@material-ui/icons/Settings';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
+import Modal from 'components/Modal';
 import { AppState } from 'reducers/rootReducer';
 import { CodeMode, setCodeMode } from 'reducers/settingReducer';
+import CodeSetting from './CodeSetting';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -37,6 +40,8 @@ export default function CodeNavBar() {
 
   const menu = useSelector((state: AppState) => state.settingState.menu);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const handleCodeModeChange = (event: React.ChangeEvent<{ name?: string; value: unknown }>) => {
     dispatch(setCodeMode(event.target.value as CodeMode));
   };
@@ -64,7 +69,15 @@ export default function CodeNavBar() {
             </Select>
           </FormControl>
         </Grid>
+
+        <Grid item>
+          <SettingsIcon onClick={() => setIsModalOpen(true)} />
+        </Grid>
       </Grid>
+
+      <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <CodeSetting />
+      </Modal>
     </div>
   );
 }
