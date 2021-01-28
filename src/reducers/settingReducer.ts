@@ -59,7 +59,7 @@ const settingSlice = createSlice({
     },
 
     setCodeKeyMap(state, action: PayloadAction<CodeKeyMap>) {
-      state.menu.codeMode = action.payload;
+      state.menu. codeKeyMap = action.payload;
     },
 
     setTabSize(state, action: PayloadAction<TabSize>) {
