@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
 import { Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import randomColor from 'randomcolor';
@@ -33,12 +34,12 @@ type CodeEditorProps = {
   docKey: string;
 };
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
-    width: '100%',
-    '& > * + *': {
-      marginTop: theme.spacing(2),
-    },
+    display: 'flex',
+    height: 'calc(100vh - 110px)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 }));
 
@@ -114,8 +115,8 @@ export default function CodeEditor(props: CodeEditorProps) {
 
   if (loading) {
     return (
-      <Box height="100%">
-        <CircularProgress color="secondary" />
+      <Box className={classes.root}>
+        <CircularProgress color="inherit" />
       </Box>
     );
   }
@@ -123,7 +124,9 @@ export default function CodeEditor(props: CodeEditorProps) {
   if (errorMessage || client === null || doc === null) {
     return (
       <div className={classes.root}>
-        <Alert severity="error">{errorMessage || 'fail to attach document'}</Alert>
+        <Snackbar open anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+          <Alert severity="warning">{errorMessage || 'fail to attach document'}</Alert>
+        </Snackbar>
       </div>
     );
   }

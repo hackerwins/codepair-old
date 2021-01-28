@@ -22,9 +22,9 @@ export enum CodeKeyMap {
 }
 
 export enum TabSize {
-  TWO = '2',
-  FOUR = '4',
-  EIGHT = '8',
+  Two = '2',
+  Four = '4',
+  Eight = '8',
 }
 
 export type MenuKey = 'codeMode' | 'codeTheme' | 'codeKeyMap' | 'tabSize';
@@ -39,10 +39,10 @@ export interface SettingState {
 
 const initialState: SettingState = {
   menu: {
-    codeMode: 'javascript',
-    codeTheme: 'monokai',
-    codeKeyMap: 'sublime',
-    tabSize: '4',
+    codeMode: CodeMode.Go,
+    codeTheme: CodeTheme.Monokai,
+    codeKeyMap: CodeKeyMap.Sublime,
+    tabSize: TabSize.Two,
   },
 };
 

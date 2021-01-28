@@ -13,13 +13,11 @@ import { CodeMode, setCodeMode } from 'reducers/settingReducer';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      backgroundColor: theme.palette.grey['800'],
       padding: '6px',
       position: 'relative',
     },
     formControl: {
       minWidth: 140,
-      backgroundColor: 'transparent',
       border: `1px solid ${theme.palette.grey['800']}`,
       borderRadius: '4px',
     },
