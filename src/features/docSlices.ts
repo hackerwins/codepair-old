@@ -16,7 +16,7 @@ const initialState: DocState = {
 };
 
 export const attachDoc = createAsyncThunk<AttachDocResult, string, { rejectValue: string }>(
-  'docs/attach',
+  'doc/attach',
   async (docKey: string, thunkApi) => {
     try {
       const client = yorkie.createClient(`${process.env.REACT_APP_YORKIE_RPC_ADDR}`);

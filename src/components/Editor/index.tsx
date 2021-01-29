@@ -8,7 +8,7 @@ import Snackbar from '@material-ui/core/Snackbar';
 import Alert from '@material-ui/lab/Alert';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-import { AppState } from 'features/rootSlices';
+import { AppState } from 'app/rootReducer';
 import { attachDoc, attachDocLoading } from 'features/docSlices';
 import { ConnectionStatus, connectPeer, disconnectPeer } from 'features/peerSlices';
 
@@ -88,14 +88,6 @@ export default function Editor(props: {
       return () => {};
     }
 
-    const disconnectClient = (clientId: string) => {
-      if (cursorMapRef.current.has(clientId)) {
-        cursorMapRef.current.get(clientId)!.removeCursor();
-        cursorMapRef.current.delete(clientId);
-      }
-      dispatch(disconnectPeer(clientId));
-    };
-
     const unsubscribe = client.subscribe((event: any) => {
       if (event.name === 'peers-changed') {
         const newPeerClients = event.value[doc.getKey().toIDString()];
@@ -104,7 +96,11 @@ export default function Editor(props: {
           if (newPeerClients[clientId] && peerClients[clientId].status === ConnectionStatus.Connected) {
             continue;
           }
-          disconnectClient(clientId);
+          if (cursorMapRef.current.has(clientId)) {
+            cursorMapRef.current.get(clientId)!.removeCursor();
+            cursorMapRef.current.delete(clientId);
+          }
+          dispatch(disconnectPeer(clientId));
         }
       }
     });

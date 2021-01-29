@@ -1,10 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export enum CodeMode {
+  Go = 'go',
   Javascript = 'javascript',
   Clojure = 'clojure',
   Dart = 'dart',
-  Go = 'go',
   Python = 'python',
   Ruby = 'ruby',
   Rust = 'rust',

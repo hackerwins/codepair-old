@@ -9,7 +9,7 @@ import FormControl from '@material-ui/core/FormControl';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 import { CodeTheme, CodeKeyMap, TabSize, setCodeTheme, setCodeKeyMap, setTabSize } from 'features/settingSlices';
-import { AppState } from 'features/rootSlices';
+import { AppState } from 'app/rootReducer';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

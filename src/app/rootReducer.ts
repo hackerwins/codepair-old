@@ -1,8 +1,8 @@
 import { combineReducers } from 'redux';
 
-import docReducer from './docSlices';
-import peerReducer from './peerSlices';
-import settingReducer from './settingSlices';
+import docReducer from 'features/docSlices';
+import peerReducer from 'features/peerSlices';
+import settingReducer from 'features/settingSlices';
 
 const rootReducer = combineReducers({
   docState: docReducer,

@@ -10,7 +10,7 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import Popover from '@material-ui/core/Popover';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
-import { AppState } from 'features/rootSlices';
+import { AppState } from 'app/rootReducer';
 import { CodeMode, setCodeMode } from 'features/settingSlices';
 import Settings from './Settings';
 

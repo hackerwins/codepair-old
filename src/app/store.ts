@@ -1,13 +1,13 @@
 import { configureStore, Action, getDefaultMiddleware } from '@reduxjs/toolkit';
 import { ThunkAction } from 'redux-thunk';
 
-import rootReducer, { AppState } from 'features/rootSlices';
+import rootReducer, { AppState } from './rootReducer';
 
 const store = configureStore({
   reducer: rootReducer,
   middleware: getDefaultMiddleware({
     serializableCheck: {
-      ignoredActions: ['docs/attach/fulfilled'],
+      ignoredActions: ['doc/attach/fulfilled'],
       ignoredPaths: ['docState.client', 'docState.doc'],
     },
     immutableCheck: {
