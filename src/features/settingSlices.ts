@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import BrowserStorage from 'utils/storage';
 
 export enum CodeMode {
   Go = 'go',
@@ -37,14 +38,17 @@ export interface SettingState {
   menu: Menu;
 }
 
-const initialState: SettingState = {
+const SettingModel = new BrowserStorage<SettingState>('$$codepair$$setting');
+
+// TODO(hackerwins): We need to store code mode in the document, not the user's local storage.
+const initialState: SettingState = SettingModel.getValue({
   menu: {
     codeMode: CodeMode.Go,
     codeTheme: CodeTheme.Monokai,
     codeKeyMap: CodeKeyMap.Sublime,
     tabSize: TabSize.Two,
   },
-};
+});
 
 const settingSlice = createSlice({
   name: 'setting',
@@ -52,18 +56,22 @@ const settingSlice = createSlice({
   reducers: {
     setCodeMode(state, action: PayloadAction<CodeMode>) {
       state.menu.codeMode = action.payload;
+      SettingModel.setValue(state);
     },
 
     setCodeTheme(state, action: PayloadAction<CodeTheme>) {
       state.menu.codeTheme = action.payload;
+      SettingModel.setValue(state);
     },
 
     setCodeKeyMap(state, action: PayloadAction<CodeKeyMap>) {
       state.menu.codeKeyMap = action.payload;
+      SettingModel.setValue(state);
     },
 
     setTabSize(state, action: PayloadAction<TabSize>) {
       state.menu.tabSize = action.payload;
+      SettingModel.setValue(state);
     },
   },
 });
