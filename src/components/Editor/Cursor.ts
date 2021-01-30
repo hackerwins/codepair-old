@@ -11,9 +11,9 @@ export default class Cursor {
 
   private height: number;
 
-  private marker: CodeMirror.TextMarker | null;
+  private marker?: CodeMirror.TextMarker;
 
-  private lineMarker: CodeMirror.TextMarker | null;
+  private lineMarker?: CodeMirror.TextMarker;
 
   private nameRemoveTimeMap: Map<ActorID, ReturnType<typeof setTimeout>>;
 
@@ -27,8 +27,6 @@ export default class Cursor {
     this.id = id;
     this.color = color;
     this.height = 0;
-    this.marker = null;
-    this.lineMarker = null;
 
     this.nameRemoveTimeMap = new Map();
     this.nameAnimationDelay = 1;
@@ -108,14 +106,14 @@ export default class Cursor {
   removeCursor() {
     if (this.marker) {
       this.marker.clear();
-      this.marker = null;
+      this.marker = undefined;
     }
   }
 
   removeLine() {
     if (this.lineMarker) {
       this.lineMarker.clear();
-      this.lineMarker = null;
+      this.lineMarker = undefined;
     }
   }
 }

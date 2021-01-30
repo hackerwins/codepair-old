@@ -1,4 +1,4 @@
-import React, { useState, useCallback, MouseEvent, ChangeEvent } from 'react';
+import React, { useState, useEffect, useCallback, MouseEvent, ChangeEvent } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
 import Select from '@material-ui/core/Select';
@@ -11,7 +11,7 @@ import Popover from '@material-ui/core/Popover';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 import { AppState } from 'app/rootReducer';
-import { CodeMode, setCodeMode } from 'features/settingSlices';
+import { CodeMode, setCodeMode } from 'features/docSlices';
 import Settings from './Settings';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -38,13 +38,37 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function Toolbar() {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const menu = useSelector((state: AppState) => state.settingState.menu);
 
+  const doc = useSelector((state: AppState) => state.docState.doc);
+  const codeMode = useSelector((state:AppState) => state.docState.mode);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | undefined>();
 
+  useEffect(() => {
+    if (!doc) {
+      return () => {};
+    }
+
+    const unsubscribe = doc.subscribe((event: any) => {
+      if (event.name === 'remote-change') {
+        dispatch(setCodeMode(doc.getRootObject().mode || CodeMode.PlainText));
+      }
+    });
+
+    return () => { unsubscribe(); };
+  }, [doc]);
+
   const handleCodeModeChange = useCallback((event: ChangeEvent<{ name?: string; value: unknown }>) => {
-    dispatch(setCodeMode(event.target.value as CodeMode));
-  }, [dispatch]);
+    if (!doc) {
+      return;
+    }
+    const mode = event.target.value as CodeMode;
+    doc.update((root: any) => {
+      // eslint-disable-next-line no-param-reassign
+      root.mode = mode;
+    });
+
+    dispatch(setCodeMode(mode));
+  }, [doc, dispatch]);
 
   const handleSettingsClick = useCallback((event: MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -60,7 +84,7 @@ export default function Toolbar() {
         <Tooltip title="Syntax">
           <Select
             name="codeMode"
-            value={menu.codeMode}
+            value={codeMode}
             onChange={handleCodeModeChange}
             className={classes.selectEmpty}
             disableUnderline

@@ -1,16 +1,27 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import yorkie, { Client, Document } from 'yorkie-js-sdk';
 
+export enum CodeMode {
+  PlainText = 'text/plain',
+  Go = 'go',
+  Javascript = 'javascript',
+  Clojure = 'clojure',
+  Dart = 'dart',
+  Python = 'python',
+  Ruby = 'ruby',
+  Rust = 'rust',
+}
+
 export interface DocState {
-  client: Client | null;
-  doc: Document | null;
+  client?: Client;
+  doc?: Document;
+  mode: CodeMode;
   loading: boolean;
   errorMessage: string;
 }
 
 const initialState: DocState = {
-  client: null,
-  doc: null,
+  mode: CodeMode.PlainText,
   loading: false,
   errorMessage: '',
 };
@@ -45,6 +56,9 @@ const docSlice = createSlice({
     attachDocLoading(state, action: PayloadAction<boolean>) {
       state.loading = action.payload;
     },
+    setCodeMode(state, action: PayloadAction<CodeMode>) {
+      state.mode = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(attachDoc.fulfilled, (state, { payload }) => {
@@ -57,7 +71,7 @@ const docSlice = createSlice({
   },
 });
 
-export const { attachDocLoading } = docSlice.actions;
+export const { attachDocLoading, setCodeMode } = docSlice.actions;
 export default docSlice.reducer;
 
 type AttachDocResult = { document: Document; client: Client };

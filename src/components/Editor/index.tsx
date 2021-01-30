@@ -9,7 +9,7 @@ import Alert from '@material-ui/lab/Alert';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import { AppState } from 'app/rootReducer';
-import { attachDoc, attachDocLoading } from 'features/docSlices';
+import { attachDoc, attachDocLoading, CodeMode, setCodeMode } from 'features/docSlices';
 import { ConnectionStatus, connectPeer, disconnectPeer } from 'features/peerSlices';
 
 import Cursor from './Cursor';
@@ -43,14 +43,13 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-export default function Editor(props: {
-  docKey: string;
-}) {
+export default function Editor(props: { docKey: string }) {
   const dispatch = useDispatch();
   const classes = useStyles();
 
   const { docKey } = props;
   const doc = useSelector((state: AppState) => state.docState.doc);
+  const codeMode = useSelector((state: AppState) => state.docState.mode);
   const client = useSelector((state: AppState) => state.docState.client);
   const loading = useSelector((state: AppState) => state.docState.loading);
   const errorMessage = useSelector((state: AppState) => state.docState.errorMessage);
@@ -76,7 +75,8 @@ export default function Editor(props: {
   useEffect(() => {
     async function attachDocAsync() {
       dispatch(attachDocLoading(true));
-      await dispatch(attachDoc(docKey));
+      const result = (await dispatch(attachDoc(docKey))) as any;
+      dispatch(setCodeMode(result.payload.document.getRootObject().mode || CodeMode.PlainText));
       dispatch(attachDocLoading(false));
     }
     attachDocAsync();
@@ -118,7 +118,7 @@ export default function Editor(props: {
     );
   }
 
-  if (errorMessage || client === null || doc === null) {
+  if (errorMessage || !client || !doc) {
     return (
       <div className={classes.root}>
         <Snackbar open anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
@@ -131,7 +131,7 @@ export default function Editor(props: {
   return (
     <CodeMirror
       options={{
-        mode: menu.codeMode,
+        mode: codeMode,
         theme: menu.codeTheme,
         keyMap: menu.codeKeyMap,
         tabSize: Number(menu.tabSize),
