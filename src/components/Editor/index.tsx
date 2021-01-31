@@ -71,40 +71,44 @@ export default function Editor(props: { docKey: string }) {
     dispatch(connectPeer({ id: clientId, color, status: ConnectionStatus.Connected }));
   };
 
-  // Attach document
+  // 1. Attach document
   useEffect(() => {
-    async function attachDocAsync() {
-      dispatch(attachDocLoading(true));
-      const result = (await dispatch(attachDoc(docKey))) as any;
-      dispatch(setCodeMode(result.payload.document.getRootObject().mode || CodeMode.PlainText));
-      dispatch(attachDocLoading(false));
-    }
-    attachDocAsync();
+    dispatch(attachDocLoading(true));
+    dispatch(attachDoc(docKey));
   }, [docKey, dispatch]);
 
-  // Subscribe other client
+  // 2. Subscribe other client
   useEffect(() => {
-    if (!client || !doc) {
-      return () => {};
+    let unsubscribe = () => {};
+
+    async function syncClient() {
+      if (!client || !doc) {
+        return;
+      }
+
+      unsubscribe = client.subscribe((event: any) => {
+        if (event.name === 'peers-changed') {
+          const newPeerClients = event.value[doc.getKey().toIDString()];
+
+          for (const clientId of Object.keys(peerClients)) {
+            if (newPeerClients[clientId] && peerClients[clientId].status === ConnectionStatus.Connected) {
+              continue;
+            }
+            if (cursorMapRef.current.has(clientId)) {
+              cursorMapRef.current.get(clientId)!.removeCursor();
+              cursorMapRef.current.delete(clientId);
+            }
+            dispatch(disconnectPeer(clientId));
+          }
+        }
+      });
+
+      await client.sync();
+      dispatch(setCodeMode(doc.getRootObject().mode || CodeMode.PlainText));
+      dispatch(attachDocLoading(false));
     }
 
-    const unsubscribe = client.subscribe((event: any) => {
-      if (event.name === 'peers-changed') {
-        const newPeerClients = event.value[doc.getKey().toIDString()];
-
-        for (const clientId of Object.keys(peerClients)) {
-          if (newPeerClients[clientId] && peerClients[clientId].status === ConnectionStatus.Connected) {
-            continue;
-          }
-          if (cursorMapRef.current.has(clientId)) {
-            cursorMapRef.current.get(clientId)!.removeCursor();
-            cursorMapRef.current.delete(clientId);
-          }
-          dispatch(disconnectPeer(clientId));
-        }
-      }
-    });
-
+    syncClient();
     return () => {
       unsubscribe();
     };
