@@ -7,8 +7,8 @@ import FormControl from '@material-ui/core/FormControl';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import SettingsIcon from '@material-ui/icons/Settings';
-import Popover from '@material-ui/core/Popover';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import Popover from 'components/Popover';
 
 import { AppState } from 'app/rootReducer';
 import { CodeMode, setCodeMode } from 'features/docSlices';
@@ -81,7 +81,6 @@ export default function Toolbar() {
   const handleSettingsClose = useCallback(() => {
     setAnchorEl(undefined);
   }, []);
-  const isOpen = Boolean(anchorEl);
 
   return (
     <div className={classes.root}>
@@ -110,20 +109,7 @@ export default function Toolbar() {
           <SettingsIcon fontSize="small" />
         </IconButton>
       </Tooltip>
-      <Popover
-        id={isOpen ? 'simple-popover' : undefined}
-        open={isOpen}
-        anchorEl={anchorEl}
-        onClose={handleSettingsClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'center',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'center',
-        }}
-      >
+      <Popover anchorEl={anchorEl} onClose={handleSettingsClose}>
         <Settings />
       </Popover>
     </div>
