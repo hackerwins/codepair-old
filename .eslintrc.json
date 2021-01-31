@@ -6,7 +6,8 @@
   "extends": ["airbnb-typescript", "prettier", "plugin:@typescript-eslint/eslint-recommended"],
   "rules": {
     "no-restricted-syntax": 0,
-    "no-continue": 0
+    "no-continue": 0,
+    "react/jsx-one-expression-per-line": 0
   },
   "plugins": ["@typescript-eslint"]
 }
