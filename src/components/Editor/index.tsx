@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
 import randomColor from 'randomcolor';
@@ -53,23 +53,34 @@ export default function Editor(props: { docKey: string }) {
   const client = useSelector((state: AppState) => state.docState.client);
   const loading = useSelector((state: AppState) => state.docState.loading);
   const errorMessage = useSelector((state: AppState) => state.docState.errorMessage);
-  const peerClients = useSelector((state: AppState) => state.peerState.peers);
+  const peers = useSelector((state: AppState) => state.peerState.peers);
   const menu = useSelector((state: AppState) => state.settingState.menu);
   const cursorMapRef = useRef<Map<string, Cursor>>(new Map());
 
-  const connectClient = (clientId: string) => {
-    const existedClient = peerClients[clientId];
+  const connectPeerWithCursor = useCallback(
+    (clientId: string) => {
+      const existedClient = peers[clientId];
 
-    let color: string;
-    if (existedClient && existedClient.status === ConnectionStatus.Disconnected) {
-      color = existedClient.color;
-    } else {
-      color = randomColor();
+      let color: string;
+      if (existedClient && existedClient.status === ConnectionStatus.Disconnected) {
+        color = existedClient.color;
+      } else {
+        color = randomColor();
+      }
+
+      cursorMapRef.current.set(clientId, new Cursor(clientId, color));
+      dispatch(connectPeer({ id: clientId, color, status: ConnectionStatus.Connected }));
+    },
+    [peers],
+  );
+
+  const disconnectPeerWithCursor = useCallback((clientId: string) => {
+    if (cursorMapRef.current.has(clientId)) {
+      cursorMapRef.current.get(clientId)!.removeCursor();
+      cursorMapRef.current.delete(clientId);
     }
-
-    cursorMapRef.current.set(clientId, new Cursor(clientId, color));
-    dispatch(connectPeer({ id: clientId, color, status: ConnectionStatus.Connected }));
-  };
+    dispatch(disconnectPeer(clientId));
+  }, []);
 
   // 1. Attach document
   useEffect(() => {
@@ -88,17 +99,18 @@ export default function Editor(props: { docKey: string }) {
 
       unsubscribe = client.subscribe((event: any) => {
         if (event.name === 'peers-changed') {
-          const newPeerClients = event.value[doc.getKey().toIDString()];
+          const newPeers = event.value[doc.getKey().toIDString()];
 
-          for (const clientId of Object.keys(peerClients)) {
-            if (newPeerClients[clientId] && peerClients[clientId].status === ConnectionStatus.Connected) {
-              continue;
+          for (const clientId of Object.keys(peers)) {
+            if (!newPeers[clientId]) {
+              disconnectPeerWithCursor(clientId);
             }
-            if (cursorMapRef.current.has(clientId)) {
-              cursorMapRef.current.get(clientId)!.removeCursor();
-              cursorMapRef.current.delete(clientId);
+          }
+
+          for (const clientId of Object.keys(newPeers)) {
+            if (!peers[clientId] || peers[clientId].status === ConnectionStatus.Disconnected) {
+              connectPeerWithCursor(clientId);
             }
-            dispatch(disconnectPeer(clientId));
           }
         }
       });
@@ -112,7 +124,7 @@ export default function Editor(props: { docKey: string }) {
     return () => {
       unsubscribe();
     };
-  }, [client, doc, peerClients, dispatch]);
+  }, [client, doc, peers, dispatch]);
 
   if (loading) {
     return (
@@ -147,25 +159,37 @@ export default function Editor(props: { docKey: string }) {
       editorDidMount={(editor: CodeMirror.Editor) => {
         editor.focus();
         const updateCursor = (clientId: string, pos: CodeMirror.Position) => {
+          if (!cursorMapRef.current.has(clientId)) {
+            return;
+          }
           const cursor = cursorMapRef.current.get(clientId);
           cursor!.updateCursor(editor, pos);
         };
 
         const updateLine = (clientId: string, fromPos: CodeMirror.Position, toPos: CodeMirror.Position) => {
+          if (!cursorMapRef.current.has(clientId)) {
+            return;
+          }
           const cursor = cursorMapRef.current.get(clientId);
           cursor!.updateLine(editor, fromPos, toPos);
         };
 
+        // TODO Load user's cursor position
         doc.subscribe((event: any) => {
           if (event.name === 'remote-change') {
             event.value.forEach((change: any) => {
               const { actor } = change.getID();
               if (actor !== client.getID()) {
                 if (!cursorMapRef.current.has(actor)) {
-                  connectClient(actor);
-                  updateCursor(actor, editor.posFromIndex(0));
-                  // TODO Load user's cursor position
+                  return;
                 }
+
+                const cursor = cursorMapRef.current.get(actor);
+                if (cursor!.isActive()) {
+                  return;
+                }
+
+                updateCursor(actor, editor.posFromIndex(0));
               }
             });
           }
@@ -186,10 +210,6 @@ export default function Editor(props: { docKey: string }) {
               }
             } else if (change.type === 'selection') {
               if (actor !== client.getID()) {
-                if (!cursorMapRef.current.has(actor)) {
-                  connectClient(actor);
-                }
-
                 let fromPos = editor.posFromIndex(from);
                 let toPos = editor.posFromIndex(to);
                 updateCursor(actor, toPos);

@@ -3,6 +3,11 @@ import invert from 'invert-color';
 // TODO(hackerwins): Replace with ActorID from yorkie-js-sdk
 type ActorID = string;
 
+enum CursorStatus {
+  Deactivated = 'deactivated',
+  Activated = 'activated',
+}
+
 // REF https://github.com/FujitsuLaboratories/cattaz/blob/master/src/AppEnabledWikiEditorCodeMirror.jsx#L24
 export default class Cursor {
   private id: ActorID;
@@ -14,6 +19,8 @@ export default class Cursor {
   private marker?: CodeMirror.TextMarker;
 
   private lineMarker?: CodeMirror.TextMarker;
+
+  private status: CursorStatus;
 
   private nameRemoveTimeMap: Map<ActorID, ReturnType<typeof setTimeout>>;
 
@@ -27,6 +34,7 @@ export default class Cursor {
     this.id = id;
     this.color = color;
     this.height = 0;
+    this.status = CursorStatus.Deactivated;
 
     this.nameRemoveTimeMap = new Map();
     this.nameAnimationDelay = 1;
@@ -36,6 +44,7 @@ export default class Cursor {
 
   updateCursor(cm: CodeMirror.Editor, cursorPos: CodeMirror.Position) {
     this.removeCursor();
+    this.status = CursorStatus.Activated;
     const cursorCoords = cm.cursorCoords(cursorPos);
     const cursorHolder = document.createElement('span');
     this.height = cursorCoords.bottom - cursorCoords.top;
@@ -54,6 +63,7 @@ export default class Cursor {
 
   updateLine(cm: CodeMirror.Editor, fromPos: CodeMirror.Position, toPos: CodeMirror.Position) {
     this.removeLine();
+    this.status = CursorStatus.Activated;
 
     this.lineMarker = cm.getDoc().markText(fromPos, toPos, {
       css: `background-color : ${this.color}; opacity:0.7`,
@@ -116,5 +126,8 @@ export default class Cursor {
       this.lineMarker = undefined;
     }
   }
-}
 
+  isActive() {
+    return this.status === CursorStatus.Activated;
+  }
+}
