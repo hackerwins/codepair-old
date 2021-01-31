@@ -40,7 +40,7 @@ export default function Toolbar() {
   const dispatch = useDispatch();
 
   const doc = useSelector((state: AppState) => state.docState.doc);
-  const codeMode = useSelector((state:AppState) => state.docState.mode);
+  const codeMode = useSelector((state: AppState) => state.docState.mode);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | undefined>();
 
   useEffect(() => {
@@ -54,21 +54,26 @@ export default function Toolbar() {
       }
     });
 
-    return () => { unsubscribe(); };
+    return () => {
+      unsubscribe();
+    };
   }, [doc]);
 
-  const handleCodeModeChange = useCallback((event: ChangeEvent<{ name?: string; value: unknown }>) => {
-    if (!doc) {
-      return;
-    }
-    const mode = event.target.value as CodeMode;
-    doc.update((root: any) => {
-      // eslint-disable-next-line no-param-reassign
-      root.mode = mode;
-    });
+  const handleCodeModeChange = useCallback(
+    (event: ChangeEvent<{ name?: string; value: unknown }>) => {
+      if (!doc) {
+        return;
+      }
+      const mode = event.target.value as CodeMode;
+      doc.update((root: any) => {
+        // eslint-disable-next-line no-param-reassign
+        root.mode = mode;
+      });
 
-    dispatch(setCodeMode(mode));
-  }, [doc, dispatch]);
+      dispatch(setCodeMode(mode));
+    },
+    [doc, dispatch],
+  );
 
   const handleSettingsClick = useCallback((event: MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
