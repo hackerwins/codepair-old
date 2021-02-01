@@ -7,8 +7,8 @@ import FormControl from '@material-ui/core/FormControl';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import SettingsIcon from '@material-ui/icons/Settings';
-import Popover from '@material-ui/core/Popover';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import Popover from 'components/Popover';
 
 import { AppState } from 'app/rootReducer';
 import { CodeMode, setCodeMode } from 'features/docSlices';
@@ -40,7 +40,7 @@ export default function Toolbar() {
   const dispatch = useDispatch();
 
   const doc = useSelector((state: AppState) => state.docState.doc);
-  const codeMode = useSelector((state:AppState) => state.docState.mode);
+  const codeMode = useSelector((state: AppState) => state.docState.mode);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | undefined>();
 
   useEffect(() => {
@@ -54,21 +54,26 @@ export default function Toolbar() {
       }
     });
 
-    return () => { unsubscribe(); };
+    return () => {
+      unsubscribe();
+    };
   }, [doc]);
 
-  const handleCodeModeChange = useCallback((event: ChangeEvent<{ name?: string; value: unknown }>) => {
-    if (!doc) {
-      return;
-    }
-    const mode = event.target.value as CodeMode;
-    doc.update((root: any) => {
-      // eslint-disable-next-line no-param-reassign
-      root.mode = mode;
-    });
+  const handleCodeModeChange = useCallback(
+    (event: ChangeEvent<{ name?: string; value: unknown }>) => {
+      if (!doc) {
+        return;
+      }
+      const mode = event.target.value as CodeMode;
+      doc.update((root: any) => {
+        // eslint-disable-next-line no-param-reassign
+        root.mode = mode;
+      });
 
-    dispatch(setCodeMode(mode));
-  }, [doc, dispatch]);
+      dispatch(setCodeMode(mode));
+    },
+    [doc, dispatch],
+  );
 
   const handleSettingsClick = useCallback((event: MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -76,12 +81,11 @@ export default function Toolbar() {
   const handleSettingsClose = useCallback(() => {
     setAnchorEl(undefined);
   }, []);
-  const isOpen = Boolean(anchorEl);
 
   return (
     <div className={classes.root}>
       <FormControl className={classes.formControl}>
-        <Tooltip title="Syntax">
+        <Tooltip title="Syntax" arrow>
           <Select
             name="codeMode"
             value={codeMode}
@@ -100,25 +104,12 @@ export default function Toolbar() {
           </Select>
         </Tooltip>
       </FormControl>
-      <Tooltip title="Settings">
+      <Tooltip title="Settings" arrow>
         <IconButton className={classes.settingsButton} aria-label="settings" onClick={handleSettingsClick}>
           <SettingsIcon fontSize="small" />
         </IconButton>
       </Tooltip>
-      <Popover
-        id={isOpen ? 'simple-popover' : undefined}
-        open={isOpen}
-        anchorEl={anchorEl}
-        onClose={handleSettingsClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'center',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'center',
-        }}
-      >
+      <Popover anchorEl={anchorEl} onClose={handleSettingsClose}>
         <Settings />
       </Popover>
     </div>

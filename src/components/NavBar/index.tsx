@@ -4,6 +4,8 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 
+import PeerGroup from 'components/NavBar/PeerGroup';
+
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -28,6 +30,7 @@ export default function MenuAppBar() {
           <Typography variant="h6" className={classes.title}>
             Yorkie CodePair
           </Typography>
+          <PeerGroup />
         </Toolbar>
       </AppBar>
     </div>
