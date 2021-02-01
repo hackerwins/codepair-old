@@ -41,7 +41,6 @@ export const attachDoc = createAsyncThunk<AttachDocResult, string, { rejectValue
           root.createText('content');
         }
       });
-      await client.sync();
       return { document, client };
     } catch (err) {
       return thunkApi.rejectWithValue(err);
