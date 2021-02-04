@@ -9,7 +9,15 @@ import Alert from '@material-ui/lab/Alert';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import { AppState } from 'app/rootReducer';
-import { attachDoc, attachDocLoading, CodeMode, setCodeMode } from 'features/docSlices';
+import {
+  attachDoc,
+  detachDoc,
+  createClient,
+  createDocument,
+  attachDocLoading,
+  CodeMode,
+  setCodeMode,
+} from 'features/docSlices';
 import { ConnectionStatus, connectPeer, disconnectPeer } from 'features/peerSlices';
 
 import Cursor from './Cursor';
@@ -84,45 +92,55 @@ export default function Editor(props: { docKey: string }) {
 
   useEffect(() => {
     dispatch(attachDocLoading(true));
-    dispatch(attachDoc(docKey));
-  }, [docKey, dispatch]);
+    dispatch(createClient());
+    dispatch(createDocument(docKey));
+
+    return () => {
+      dispatch(detachDoc());
+      dispatch(attachDocLoading(false));
+    };
+  }, [docKey]);
 
   useEffect(() => {
-    let unsubscribe = () => {};
-
-    async function subscribeAndSync() {
-      if (!client || !doc) {
-        return;
-      }
-
-      unsubscribe = client.subscribe((event: any) => {
-        if (event.name === 'peers-changed') {
-          const changedPeers = event.value[doc.getKey().toIDString()];
-
-          for (const clientId of Object.keys(peers)) {
-            if (!changedPeers[clientId]) {
-              disconnectPeerWithCursor(clientId);
-            }
-          }
-
-          for (const clientId of Object.keys(changedPeers)) {
-            if (!peers[clientId] || peers[clientId].status === ConnectionStatus.Disconnected) {
-              connectPeerWithCursor(clientId);
-            }
-          }
-        }
-      });
-
-      await client.sync();
-      dispatch(setCodeMode(doc.getRootObject().mode || CodeMode.PlainText));
-      dispatch(attachDocLoading(false));
+    if (!client || !doc) {
+      return () => {};
     }
 
-    subscribeAndSync();
+    const unsubscribe = client.subscribe((event: any) => {
+      if (event.name === 'peers-changed') {
+        const changedPeers = event.value[doc.getKey().toIDString()];
+
+        for (const clientId of Object.keys(peers)) {
+          if (!changedPeers[clientId]) {
+            disconnectPeerWithCursor(clientId);
+          }
+        }
+
+        for (const clientId of Object.keys(changedPeers)) {
+          if (!peers[clientId] || peers[clientId].status === ConnectionStatus.Disconnected) {
+            connectPeerWithCursor(clientId);
+          }
+        }
+      }
+    });
+
     return () => {
       unsubscribe();
     };
-  }, [client, doc, peers, dispatch]);
+  }, [client, doc, peers]);
+
+  useEffect(() => {
+    if (!client || !doc) {
+      return;
+    }
+
+    const attachDocAsync = async () => {
+      await dispatch(attachDoc({ client, document: doc }));
+      dispatch(setCodeMode(doc.getRootObject().mode || CodeMode.PlainText));
+      dispatch(attachDocLoading(false));
+    };
+    attachDocAsync();
+  }, [client, doc]);
 
   if (loading) {
     return (
@@ -157,19 +175,13 @@ export default function Editor(props: { docKey: string }) {
       editorDidMount={(editor: CodeMirror.Editor) => {
         editor.focus();
         const updateCursor = (clientId: string, pos: CodeMirror.Position) => {
-          if (!cursorMapRef.current.has(clientId)) {
-            return;
-          }
           const cursor = cursorMapRef.current.get(clientId);
-          cursor!.updateCursor(editor, pos);
+          cursor?.updateCursor(editor, pos);
         };
 
         const updateLine = (clientId: string, fromPos: CodeMirror.Position, toPos: CodeMirror.Position) => {
-          if (!cursorMapRef.current.has(clientId)) {
-            return;
-          }
           const cursor = cursorMapRef.current.get(clientId);
-          cursor!.updateLine(editor, fromPos, toPos);
+          cursor?.updateLine(editor, fromPos, toPos);
         };
 
         // TODO Load user's cursor position
