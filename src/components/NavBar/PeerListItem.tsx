@@ -5,18 +5,18 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Peer } from 'features/peerSlices';
 
 interface PeerListItemProps {
-  clientInfo: Peer;
+  peer: Peer;
 }
 
 const useStyles = makeStyles(() => ({
   root: (props: PeerListItemProps) => ({
-    color: props.clientInfo.color,
+    color: props.peer.color,
   }),
 }));
 
 export default function PeerListItem(props: PeerListItemProps) {
   const classes = useStyles(props);
-  const { clientInfo } = props;
+  const { peer } = props;
 
-  return <ListItem className={classes.root}>{clientInfo.id}</ListItem>;
+  return <ListItem className={classes.root}>{peer.username}</ListItem>;
 }

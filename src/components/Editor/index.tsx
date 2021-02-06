@@ -65,29 +65,31 @@ export default function Editor(props: { docKey: string }) {
   const menu = useSelector((state: AppState) => state.settingState.menu);
   const cursorMapRef = useRef<Map<string, Cursor>>(new Map());
 
-  const connectPeerWithCursor = useCallback(
-    (clientId: string) => {
-      const existedClient = peers[clientId];
+  const connectPeerWithCursor = useCallback((clientID: string, username: string) => {
+    const existedClient = peers[clientID];
 
-      let color: string;
-      if (existedClient && existedClient.status === ConnectionStatus.Disconnected) {
-        color = existedClient.color;
-      } else {
-        color = randomColor();
-      }
-
-      cursorMapRef.current.set(clientId, new Cursor(clientId, color));
-      dispatch(connectPeer({ id: clientId, color, status: ConnectionStatus.Connected }));
-    },
-    [peers],
-  );
-
-  const disconnectPeerWithCursor = useCallback((clientId: string) => {
-    if (cursorMapRef.current.has(clientId)) {
-      cursorMapRef.current.get(clientId)!.removeCursor();
-      cursorMapRef.current.delete(clientId);
+    let color: string;
+    if (existedClient && existedClient.status === ConnectionStatus.Disconnected) {
+      color = existedClient.color;
+    } else {
+      color = randomColor();
     }
-    dispatch(disconnectPeer(clientId));
+
+    cursorMapRef.current.set(clientID, new Cursor(clientID, color));
+    dispatch(connectPeer({
+      id: clientID,
+      username,
+      color,
+      status: ConnectionStatus.Connected,
+    }));
+  }, [peers]);
+
+  const disconnectPeerWithCursor = useCallback((clientID: string) => {
+    if (cursorMapRef.current.has(clientID)) {
+      cursorMapRef.current.get(clientID)!.removeCursor();
+      cursorMapRef.current.delete(clientID);
+    }
+    dispatch(disconnectPeer(clientID));
   }, []);
 
   useEffect(() => {
@@ -110,15 +112,17 @@ export default function Editor(props: { docKey: string }) {
       if (event.name === 'peers-changed') {
         const changedPeers = event.value[doc.getKey().toIDString()];
 
-        for (const clientId of Object.keys(peers)) {
-          if (!changedPeers[clientId]) {
-            disconnectPeerWithCursor(clientId);
+        for (const clientID of Object.keys(peers)) {
+          if (!changedPeers[clientID]) {
+            disconnectPeerWithCursor(clientID);
           }
         }
 
-        for (const clientId of Object.keys(changedPeers)) {
-          if (!peers[clientId] || peers[clientId].status === ConnectionStatus.Disconnected) {
-            connectPeerWithCursor(clientId);
+        for (const [clientID, metadata] of Object.entries(changedPeers)) {
+          // TODO(hackerwins): remove below type casting.
+          const peer = metadata as { [key: string]: string };
+          if (!peers[clientID] || peers[clientID].status === ConnectionStatus.Disconnected) {
+            connectPeerWithCursor(clientID, peer.username);
           }
         }
       }
@@ -174,13 +178,13 @@ export default function Editor(props: { docKey: string }) {
       }}
       editorDidMount={(editor: CodeMirror.Editor) => {
         editor.focus();
-        const updateCursor = (clientId: string, pos: CodeMirror.Position) => {
-          const cursor = cursorMapRef.current.get(clientId);
+        const updateCursor = (clientID: string, pos: CodeMirror.Position) => {
+          const cursor = cursorMapRef.current.get(clientID);
           cursor?.updateCursor(editor, pos);
         };
 
-        const updateLine = (clientId: string, fromPos: CodeMirror.Position, toPos: CodeMirror.Position) => {
-          const cursor = cursorMapRef.current.get(clientId);
+        const updateLine = (clientID: string, fromPos: CodeMirror.Position, toPos: CodeMirror.Position) => {
+          const cursor = cursorMapRef.current.get(clientID);
           cursor?.updateLine(editor, fromPos, toPos);
         };
 

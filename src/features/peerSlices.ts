@@ -7,6 +7,7 @@ export enum ConnectionStatus {
 
 export interface Peer {
   id: string;
+  username: string;
   color: string;
   status: ConnectionStatus;
 }
@@ -25,10 +26,11 @@ const peerSlice = createSlice({
   name: 'peer',
   initialState: initialPeerState,
   reducers: {
-    connectPeer(state, action: PayloadAction<{ id: string; color: string; status: ConnectionStatus }>) {
-      const { id, color, status } = action.payload;
+    connectPeer(state, action: PayloadAction<{ id: string; username: string, color: string; status: ConnectionStatus }>) {
+      const { id, username, color, status } = action.payload;
       state.peers[id] = {
         id,
+        username,
         color,
         status,
       };

@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import yorkie, { Client, Document } from 'yorkie-js-sdk';
 import { AppState } from 'app/rootReducer';
+import createRandomName from 'utils/createRandomName';
 
 export enum CodeMode {
   PlainText = 'text/plain',
@@ -72,7 +73,11 @@ const docSlice = createSlice({
   initialState,
   reducers: {
     createClient(state) {
-      const client = yorkie.createClient(`${process.env.REACT_APP_YORKIE_RPC_ADDR}`);
+      const client = yorkie.createClient(`${process.env.REACT_APP_YORKIE_RPC_ADDR}`, {
+        metadata: {
+          username: createRandomName(1),
+        },
+      });
       state.client = client;
     },
     createDocument(state, action: PayloadAction<string>) {

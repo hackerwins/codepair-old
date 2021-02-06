@@ -13,8 +13,8 @@ export default function usePeer() {
   const activePeers = useMemo(() => {
     return client
       ? Object.entries(peers)
-          .filter(([clientId, clientInfo]) => {
-            if (client.getID() === clientId) {
+          .filter(([clientID, clientInfo]) => {
+            if (client.getID() === clientID) {
               return false;
             }
             return clientInfo.status === ConnectionStatus.Connected;
