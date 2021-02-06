@@ -14,8 +14,8 @@ export default function PeerList() {
       <ListItem>
         <Typography>Total {activePeers.length}</Typography>
       </ListItem>
-      {activePeers.map((clientInfo) => {
-        return <PeerListItem key={clientInfo.id} peer={clientInfo} />;
+      {activePeers.map((peer) => {
+        return <PeerListItem key={peer.id} peer={peer} />;
       })}
     </List>
   );

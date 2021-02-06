@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { ActorID } from 'yorkie-js-sdk';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
 import randomColor from 'randomcolor';
 import { Box } from '@material-ui/core';
@@ -63,9 +64,9 @@ export default function Editor(props: { docKey: string }) {
   const errorMessage = useSelector((state: AppState) => state.docState.errorMessage);
   const peers = useSelector((state: AppState) => state.peerState.peers);
   const menu = useSelector((state: AppState) => state.settingState.menu);
-  const cursorMapRef = useRef<Map<string, Cursor>>(new Map());
+  const cursorMapRef = useRef<Map<ActorID, Cursor>>(new Map());
 
-  const connectPeerWithCursor = useCallback((clientID: string, username: string) => {
+  const connectPeerWithCursor = useCallback((clientID: ActorID, username: string) => {
     const existedClient = peers[clientID];
 
     let color: string;
@@ -84,7 +85,7 @@ export default function Editor(props: { docKey: string }) {
     }));
   }, [peers]);
 
-  const disconnectPeerWithCursor = useCallback((clientID: string) => {
+  const disconnectPeerWithCursor = useCallback((clientID: ActorID) => {
     if (cursorMapRef.current.has(clientID)) {
       cursorMapRef.current.get(clientID)!.removeCursor();
       cursorMapRef.current.delete(clientID);
@@ -108,7 +109,7 @@ export default function Editor(props: { docKey: string }) {
       return () => {};
     }
 
-    const unsubscribe = client.subscribe((event: any) => {
+    const unsubscribe = client.subscribe((event) => {
       if (event.name === 'peers-changed') {
         const changedPeers = event.value[doc.getKey().toIDString()];
 
@@ -178,12 +179,12 @@ export default function Editor(props: { docKey: string }) {
       }}
       editorDidMount={(editor: CodeMirror.Editor) => {
         editor.focus();
-        const updateCursor = (clientID: string, pos: CodeMirror.Position) => {
+        const updateCursor = (clientID: ActorID, pos: CodeMirror.Position) => {
           const cursor = cursorMapRef.current.get(clientID);
           cursor?.updateCursor(editor, pos);
         };
 
-        const updateLine = (clientID: string, fromPos: CodeMirror.Position, toPos: CodeMirror.Position) => {
+        const updateLine = (clientID: ActorID, fromPos: CodeMirror.Position, toPos: CodeMirror.Position) => {
           const cursor = cursorMapRef.current.get(clientID);
           cursor?.updateLine(editor, fromPos, toPos);
         };
@@ -210,7 +211,7 @@ export default function Editor(props: { docKey: string }) {
         });
 
         // When there is a document modification connected to the yorkie
-        const root = doc.getRootObject() as any;
+        const root = doc.getRootObject();
         root.content.onChanges((changes: any) => {
           changes.forEach((change: any) => {
             const { actor, from, to } = change;
@@ -250,7 +251,7 @@ export default function Editor(props: { docKey: string }) {
         const from = editor.indexFromPos(data.ranges[0].anchor);
         const to = editor.indexFromPos(data.ranges[0].head);
 
-        doc.update((root: any) => {
+        doc.update((root) => {
           root.content.updateSelection(from, to);
         });
       }}
@@ -264,7 +265,7 @@ export default function Editor(props: { docKey: string }) {
         const to = editor.indexFromPos(change.to);
         const content = change.text.join('\n');
 
-        doc.update((root: any) => {
+        doc.update((root) => {
           root.content.edit(from, to, content);
         });
       }}

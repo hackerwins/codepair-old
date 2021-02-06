@@ -48,7 +48,7 @@ export default function Toolbar() {
       return () => {};
     }
 
-    const unsubscribe = doc.subscribe((event: any) => {
+    const unsubscribe = doc.subscribe((event) => {
       if (event.name === 'remote-change') {
         dispatch(setCodeMode(doc.getRootObject().mode || CodeMode.PlainText));
       }
@@ -65,7 +65,7 @@ export default function Toolbar() {
         return;
       }
       const mode = event.target.value as CodeMode;
-      doc.update((root: any) => {
+      doc.update((root) => {
         // eslint-disable-next-line no-param-reassign
         root.mode = mode;
       });

@@ -35,7 +35,7 @@ export const attachDoc = createAsyncThunk<AttachDocResult, AttachDocArgs, { reje
       await client.activate();
       await client.attach(document);
 
-      document.update((root: any) => {
+      document.update((root) => {
         if (!root.content) {
           root.createText('content');
         }

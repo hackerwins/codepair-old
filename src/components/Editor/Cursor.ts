@@ -1,9 +1,6 @@
+import { ActorID } from 'yorkie-js-sdk';
 import invert from 'invert-color';
 
-// TODO(hackerwins): Replace with ActorID from yorkie-js-sdk
-type ActorID = string;
-
-// TODO(hackerwins): Replace with ClientStatus from yorkie-js-sdk
 enum CursorStatus {
   Deactivated = 'deactivated',
   Activated = 'activated',

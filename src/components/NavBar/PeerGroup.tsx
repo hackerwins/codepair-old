@@ -48,12 +48,12 @@ export default function PeerGroup() {
   return (
     <>
       <AvatarGroup className={classes.group} max={MAX_PEER_VIEW} onClick={handleViewList}>
-        {activePeers.map((clientInfo) => {
+        {activePeers.map((peer) => {
           return (
-            <Tooltip key={clientInfo.id} title={clientInfo.username} data-id={clientInfo.id} arrow>
+            <Tooltip key={peer.id} title={peer.username} data-id={peer.id} arrow>
               <Avatar
                 alt="Peer Image"
-                style={{ backgroundColor: clientInfo.color }}
+                style={{ backgroundColor: peer.color }}
               />
             </Tooltip>
           );
