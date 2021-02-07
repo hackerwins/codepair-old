@@ -1,23 +1,23 @@
 {
   "files": {
-    "main.css": "/yorkie-codepair/static/css/main.083559c4.chunk.css",
-    "main.js": "/yorkie-codepair/static/js/main.f3d4c3fb.chunk.js",
-    "main.js.map": "/yorkie-codepair/static/js/main.f3d4c3fb.chunk.js.map",
+    "main.css": "/yorkie-codepair/static/css/main.1ffa4728.chunk.css",
+    "main.js": "/yorkie-codepair/static/js/main.1c75bfea.chunk.js",
+    "main.js.map": "/yorkie-codepair/static/js/main.1c75bfea.chunk.js.map",
     "runtime-main.js": "/yorkie-codepair/static/js/runtime-main.89d250b4.js",
     "runtime-main.js.map": "/yorkie-codepair/static/js/runtime-main.89d250b4.js.map",
     "static/css/2.fd30058e.chunk.css": "/yorkie-codepair/static/css/2.fd30058e.chunk.css",
-    "static/js/2.ef4b0e40.chunk.js": "/yorkie-codepair/static/js/2.ef4b0e40.chunk.js",
-    "static/js/2.ef4b0e40.chunk.js.map": "/yorkie-codepair/static/js/2.ef4b0e40.chunk.js.map",
+    "static/js/2.3f60cac4.chunk.js": "/yorkie-codepair/static/js/2.3f60cac4.chunk.js",
+    "static/js/2.3f60cac4.chunk.js.map": "/yorkie-codepair/static/js/2.3f60cac4.chunk.js.map",
     "index.html": "/yorkie-codepair/index.html",
     "static/css/2.fd30058e.chunk.css.map": "/yorkie-codepair/static/css/2.fd30058e.chunk.css.map",
-    "static/css/main.083559c4.chunk.css.map": "/yorkie-codepair/static/css/main.083559c4.chunk.css.map",
-    "static/js/2.ef4b0e40.chunk.js.LICENSE.txt": "/yorkie-codepair/static/js/2.ef4b0e40.chunk.js.LICENSE.txt"
+    "static/css/main.1ffa4728.chunk.css.map": "/yorkie-codepair/static/css/main.1ffa4728.chunk.css.map",
+    "static/js/2.3f60cac4.chunk.js.LICENSE.txt": "/yorkie-codepair/static/js/2.3f60cac4.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.89d250b4.js",
     "static/css/2.fd30058e.chunk.css",
-    "static/js/2.ef4b0e40.chunk.js",
-    "static/css/main.083559c4.chunk.css",
-    "static/js/main.f3d4c3fb.chunk.js"
+    "static/js/2.3f60cac4.chunk.js",
+    "static/css/main.1ffa4728.chunk.css",
+    "static/js/main.1c75bfea.chunk.js"
   ]
 }
