@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { ActorID } from 'yorkie-js-sdk';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
-import randomColor from 'randomcolor';
+
 import { Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import Snackbar from '@material-ui/core/Snackbar';
@@ -19,7 +19,7 @@ import {
   CodeMode,
   setCodeMode,
 } from 'features/docSlices';
-import { ConnectionStatus, connectPeer, disconnectPeer } from 'features/peerSlices';
+import { Peer, Metadata, ConnectionStatus, connectPeer, disconnectPeer } from 'features/peerSlices';
 
 import Cursor from './Cursor';
 
@@ -66,24 +66,19 @@ export default function Editor(props: { docKey: string }) {
   const menu = useSelector((state: AppState) => state.settingState.menu);
   const cursorMapRef = useRef<Map<ActorID, Cursor>>(new Map());
 
-  const connectPeerWithCursor = useCallback((clientID: ActorID, username: string) => {
-    const existedClient = peers[clientID];
+  const connectPeerWithCursor = useCallback(
+    (clientID: ActorID, metadata: Metadata) => {
+      cursorMapRef.current.set(clientID, new Cursor(clientID, metadata.color));
 
-    let color: string;
-    if (existedClient && existedClient.status === ConnectionStatus.Disconnected) {
-      color = existedClient.color;
-    } else {
-      color = randomColor();
-    }
-
-    cursorMapRef.current.set(clientID, new Cursor(clientID, color));
-    dispatch(connectPeer({
-      id: clientID,
-      username,
-      color,
-      status: ConnectionStatus.Connected,
-    }));
-  }, [peers]);
+      const peer: Peer = {
+        id: clientID,
+        status: ConnectionStatus.Connected,
+        metadata,
+      };
+      dispatch(connectPeer(peer));
+    },
+    [peers],
+  );
 
   const disconnectPeerWithCursor = useCallback((clientID: ActorID) => {
     if (cursorMapRef.current.has(clientID)) {
@@ -120,10 +115,8 @@ export default function Editor(props: { docKey: string }) {
         }
 
         for (const [clientID, metadata] of Object.entries(changedPeers)) {
-          // TODO(hackerwins): remove below type casting.
-          const peer = metadata as { [key: string]: string };
           if (!peers[clientID] || peers[clientID].status === ConnectionStatus.Disconnected) {
-            connectPeerWithCursor(clientID, peer.username);
+            connectPeerWithCursor(clientID, metadata as Metadata);
           }
         }
       }
