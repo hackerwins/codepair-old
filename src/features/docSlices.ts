@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import yorkie, { Client, Document } from 'yorkie-js-sdk';
 import anonymous from 'anonymous-animals-gen';
+import randomColor from 'randomcolor';
 import { AppState } from 'app/rootReducer';
 
 export enum CodeMode {
@@ -78,6 +79,7 @@ const docSlice = createSlice({
         metadata: {
           username: name,
           image: animal,
+          color: randomColor(),
         },
       });
       state.client = client;

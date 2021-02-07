@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { ActorID } from 'yorkie-js-sdk';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
-import randomColor from 'randomcolor';
+
 import { Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import Snackbar from '@material-ui/core/Snackbar';
@@ -68,24 +68,12 @@ export default function Editor(props: { docKey: string }) {
 
   const connectPeerWithCursor = useCallback(
     (clientID: ActorID, metadata: Metadata) => {
-      const existedClient = peers[clientID];
-
-      let color: string;
-      if (existedClient && existedClient.status === ConnectionStatus.Disconnected) {
-        color = existedClient.metadata.color;
-      } else {
-        color = randomColor();
-      }
-
-      cursorMapRef.current.set(clientID, new Cursor(clientID, color));
+      cursorMapRef.current.set(clientID, new Cursor(clientID, metadata.color));
 
       const peer: Peer = {
         id: clientID,
         status: ConnectionStatus.Connected,
-        metadata: {
-          ...metadata,
-          color,
-        },
+        metadata,
       };
       dispatch(connectPeer(peer));
     },
