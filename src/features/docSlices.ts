@@ -7,7 +7,7 @@ import { AppState } from 'app/rootReducer';
 export enum CodeMode {
   PlainText = 'text/plain',
   Go = 'go',
-  Javascript = 'javascript',
+  JavaScript = 'javascript',
   Clojure = 'clojure',
   Dart = 'dart',
   Python = 'python',
