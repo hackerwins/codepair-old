@@ -68,7 +68,7 @@ export default function Editor(props: { docKey: string }) {
 
   const connectPeerWithCursor = useCallback(
     (clientID: ActorID, metadata: Metadata) => {
-      cursorMapRef.current.set(clientID, new Cursor(clientID, metadata.color));
+      cursorMapRef.current.set(clientID, new Cursor(clientID, metadata));
 
       const peer: Peer = {
         id: clientID,

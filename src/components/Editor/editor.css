@@ -27,6 +27,7 @@
 }
 
 .codePair-name {
+  white-space: nowrap;
   position: absolute;
   left: -2px;
   padding: 1px 4px;

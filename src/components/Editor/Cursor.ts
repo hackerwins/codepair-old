@@ -1,5 +1,6 @@
 import { ActorID } from 'yorkie-js-sdk';
 import invert from 'invert-color';
+import { Metadata } from 'features/peerSlices';
 
 enum CursorStatus {
   Deactivated = 'deactivated',
@@ -9,6 +10,8 @@ enum CursorStatus {
 // REF https://github.com/FujitsuLaboratories/cattaz/blob/master/src/AppEnabledWikiEditorCodeMirror.jsx#L24
 export default class Cursor {
   private id: ActorID;
+
+  private username: string;
 
   private color: string;
 
@@ -28,9 +31,10 @@ export default class Cursor {
 
   private nameRemoveTime: number;
 
-  constructor(id: ActorID, color: string) {
+  constructor(id: ActorID, metadata: Metadata) {
     this.id = id;
-    this.color = color;
+    this.username = metadata.username;
+    this.color = metadata.color;
     this.height = 0;
     this.status = CursorStatus.Deactivated;
 
@@ -78,7 +82,7 @@ export default class Cursor {
         clearTimeout(this.nameRemoveTimeMap.get(this.id)!);
       }
 
-      nameHolder.textContent = this.id;
+      nameHolder.textContent = this.username;
       nameHolder.style.top = `-${this.height}px`;
       nameHolder.style.backgroundColor = this.color;
       nameHolder.style.color = invert(this.color, true);
