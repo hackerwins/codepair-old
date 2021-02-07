@@ -4,6 +4,7 @@ import Avatar from '@material-ui/core/Avatar';
 import AvatarGroup from '@material-ui/lab/AvatarGroup';
 import Tooltip from '@material-ui/core/Tooltip';
 import { makeStyles } from '@material-ui/core/styles';
+import anonymous from 'anonymous-animals-gen';
 
 import Popover from 'components/Popover';
 import PeerList from 'components/NavBar/PeerList';
@@ -49,12 +50,10 @@ export default function PeerGroup() {
     <>
       <AvatarGroup className={classes.group} max={MAX_PEER_VIEW} onClick={handleViewList}>
         {activePeers.map((peer) => {
+          const { username, color, image } = peer.metadata;
           return (
-            <Tooltip key={peer.id} title={peer.username} data-id={peer.id} arrow>
-              <Avatar
-                alt="Peer Image"
-                style={{ backgroundColor: peer.color }}
-              />
+            <Tooltip key={peer.id} title={username} data-id={peer.id} arrow>
+              <Avatar alt="Peer Image" style={{ backgroundColor: color }} src={anonymous.getImage(image)} />
             </Tooltip>
           );
         })}

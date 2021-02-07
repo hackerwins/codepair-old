@@ -19,7 +19,7 @@ import {
   CodeMode,
   setCodeMode,
 } from 'features/docSlices';
-import { ConnectionStatus, connectPeer, disconnectPeer } from 'features/peerSlices';
+import { Peer, Metadata, ConnectionStatus, connectPeer, disconnectPeer } from 'features/peerSlices';
 
 import Cursor from './Cursor';
 
@@ -66,24 +66,31 @@ export default function Editor(props: { docKey: string }) {
   const menu = useSelector((state: AppState) => state.settingState.menu);
   const cursorMapRef = useRef<Map<ActorID, Cursor>>(new Map());
 
-  const connectPeerWithCursor = useCallback((clientID: ActorID, username: string) => {
-    const existedClient = peers[clientID];
+  const connectPeerWithCursor = useCallback(
+    (clientID: ActorID, metadata: Metadata) => {
+      const existedClient = peers[clientID];
 
-    let color: string;
-    if (existedClient && existedClient.status === ConnectionStatus.Disconnected) {
-      color = existedClient.color;
-    } else {
-      color = randomColor();
-    }
+      let color: string;
+      if (existedClient && existedClient.status === ConnectionStatus.Disconnected) {
+        color = existedClient.metadata.color;
+      } else {
+        color = randomColor();
+      }
 
-    cursorMapRef.current.set(clientID, new Cursor(clientID, color));
-    dispatch(connectPeer({
-      id: clientID,
-      username,
-      color,
-      status: ConnectionStatus.Connected,
-    }));
-  }, [peers]);
+      cursorMapRef.current.set(clientID, new Cursor(clientID, color));
+
+      const peer: Peer = {
+        id: clientID,
+        status: ConnectionStatus.Connected,
+        metadata: {
+          ...metadata,
+          color,
+        },
+      };
+      dispatch(connectPeer(peer));
+    },
+    [peers],
+  );
 
   const disconnectPeerWithCursor = useCallback((clientID: ActorID) => {
     if (cursorMapRef.current.has(clientID)) {
@@ -120,10 +127,8 @@ export default function Editor(props: { docKey: string }) {
         }
 
         for (const [clientID, metadata] of Object.entries(changedPeers)) {
-          // TODO(hackerwins): remove below type casting.
-          const peer = metadata as { [key: string]: string };
           if (!peers[clientID] || peers[clientID].status === ConnectionStatus.Disconnected) {
-            connectPeerWithCursor(clientID, peer.username);
+            connectPeerWithCursor(clientID, metadata as Metadata);
           }
         }
       }

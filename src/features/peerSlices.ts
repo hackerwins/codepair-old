@@ -1,6 +1,12 @@
 import { ActorID } from 'yorkie-js-sdk';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+export interface Metadata {
+  username: string;
+  color: string;
+  image: string; // Currently all anonymous images
+}
+
 export enum ConnectionStatus {
   Connected = 'connected',
   Disconnected = 'disconnected',
@@ -8,9 +14,8 @@ export enum ConnectionStatus {
 
 export interface Peer {
   id: ActorID;
-  username: string;
-  color: string;
   status: ConnectionStatus;
+  metadata: Metadata;
 }
 
 export interface PeerState {
@@ -28,14 +33,9 @@ const peerSlice = createSlice({
   name: 'peer',
   initialState: initialPeerState,
   reducers: {
-    connectPeer(state, action: PayloadAction<{ id: ActorID; username: string, color: string; status: ConnectionStatus }>) {
-      const { id, username, color, status } = action.payload;
-      state.peers[id] = {
-        id,
-        username,
-        color,
-        status,
-      };
+    connectPeer(state, action: PayloadAction<Peer>) {
+      const peer = action.payload;
+      state.peers[peer.id] = peer;
     },
     disconnectPeer(state, action: PayloadAction<ActorID>) {
       state.peers[action.payload].status = ConnectionStatus.Disconnected;
