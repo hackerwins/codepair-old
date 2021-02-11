@@ -7,7 +7,7 @@ const store = configureStore({
   reducer: rootReducer,
   middleware: getDefaultMiddleware({
     serializableCheck: {
-      ignoredActions: ['doc/attach/fulfilled'],
+      ignoredActions: ['doc/attach/fulfilled', 'doc/activate/fulfilled'],
       ignoredPaths: ['docState.client', 'docState.doc'],
     },
     immutableCheck: {

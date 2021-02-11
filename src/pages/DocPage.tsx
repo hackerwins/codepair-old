@@ -4,7 +4,7 @@ import { createStyles, makeStyles } from '@material-ui/core/styles';
 
 import NavBar from 'components/NavBar';
 import Toolbar from 'components/Toolbar';
-import Editor from 'components/Editor/CodeEditor';
+import Editor from 'components/Editor';
 
 type DocPageProps = {
   docKey: string;
