@@ -33,15 +33,29 @@ const peerSlice = createSlice({
   name: 'peer',
   initialState: initialPeerState,
   reducers: {
-    connectPeer(state, action: PayloadAction<Peer>) {
-      const peer = action.payload;
-      state.peers[peer.id] = peer;
-    },
-    disconnectPeer(state, action: PayloadAction<ActorID>) {
-      state.peers[action.payload].status = ConnectionStatus.Disconnected;
+    syncPeer(state, action: PayloadAction<any>) {
+      const changedPeers = action.payload;
+      const { peers } = state;
+
+      for (const clientID of Object.keys(peers)) {
+        if (!changedPeers[clientID]) {
+          peers[clientID].status = ConnectionStatus.Disconnected;
+        }
+      }
+
+      for (const [clientID, metadata] of Object.entries(changedPeers)) {
+        if (!peers[clientID] || peers[clientID].status === ConnectionStatus.Disconnected) {
+          const peer = {
+            id: clientID,
+            status: ConnectionStatus.Connected,
+            metadata: metadata as Metadata,
+          };
+          state.peers[clientID] = peer;
+        }
+      }
     },
   },
 });
 
-export const { connectPeer, disconnectPeer } = peerSlice.actions;
+export const { syncPeer } = peerSlice.actions;
 export default peerSlice.reducer;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-export default function MenuAppBar() {
+function MenuAppBar() {
   const classes = useStyles();
 
   return (
@@ -36,3 +36,5 @@ export default function MenuAppBar() {
     </div>
   );
 }
+
+export default memo(MenuAppBar);

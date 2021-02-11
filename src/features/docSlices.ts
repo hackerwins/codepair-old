@@ -2,7 +2,6 @@ import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import yorkie, { Client, Document } from 'yorkie-js-sdk';
 import anonymous from 'anonymous-animals-gen';
 import randomColor from 'randomcolor';
-import { AppState } from 'app/rootReducer';
 
 export enum CodeMode {
   PlainText = 'text/plain',
@@ -24,45 +23,47 @@ export interface DocState {
 }
 
 const initialState: DocState = {
+  client: undefined,
+  doc: undefined,
   mode: CodeMode.PlainText,
-  loading: false,
+  loading: true,
   errorMessage: '',
 };
 
-export const attachDoc = createAsyncThunk<AttachDocResult, AttachDocArgs, { rejectValue: string }>(
-  'doc/attach',
-  async ({ client, document }, thunkApi) => {
+export const activateClient = createAsyncThunk<ActivateClientResult, undefined, { rejectValue: string }>(
+  'doc/activate',
+  async (_: undefined, thunkApi) => {
     try {
-      await client.activate();
-      await client.attach(document);
-
-      document.update((root) => {
-        if (!root.content) {
-          root.createText('content');
-        }
+      const { name, animal } = anonymous.generate();
+      const client = yorkie.createClient(`${process.env.REACT_APP_YORKIE_RPC_ADDR}`, {
+        metadata: {
+          username: name,
+          image: animal,
+          color: randomColor(),
+        },
       });
-      await client.sync();
-      return { document, client };
+
+      await client.activate();
+      return { client };
     } catch (err) {
       return thunkApi.rejectWithValue(err.message);
     }
   },
 );
 
-// If it manages multiple documents, separate the client and document
-export const detachDoc = createAsyncThunk<Object, undefined, { rejectValue: string }>(
-  'doc/detach',
-  async (_: undefined, thunkApi) => {
+export const attachDoc = createAsyncThunk<AttachDocResult, AttachDocArgs, { rejectValue: string }>(
+  'doc/attach',
+  async ({ client, doc }, thunkApi) => {
     try {
-      const { docState } = thunkApi.getState() as AppState;
-      const { client, doc } = docState;
+      await client.attach(doc);
 
-      if (client && doc) {
-        await client.detach(doc);
-        await client.deactivate();
-      }
-
-      return {};
+      doc.update((root) => {
+        if (!root.content) {
+          root.createText('content');
+        }
+      });
+      await client.sync();
+      return { doc, client };
     } catch (err) {
       return thunkApi.rejectWithValue(err.message);
     }
@@ -73,20 +74,18 @@ const docSlice = createSlice({
   name: 'doc',
   initialState,
   reducers: {
-    createClient(state) {
-      const { name, animal } = anonymous.generate();
-      const client = yorkie.createClient(`${process.env.REACT_APP_YORKIE_RPC_ADDR}`, {
-        metadata: {
-          username: name,
-          image: animal,
-          color: randomColor(),
-        },
-      });
-      state.client = client;
+    deactivateClient(state) {
+      const { client } = state;
+      state.client = undefined;
+      client?.deactivate();
     },
     createDocument(state, action: PayloadAction<string>) {
-      const document = yorkie.createDocument('codepairs', action.payload);
-      state.doc = document;
+      state.doc = yorkie.createDocument('codepairs', action.payload);
+    },
+    detachDocument(state) {
+      const { doc, client } = state;
+      state.doc = undefined;
+      client?.detach(doc as Document);
     },
     attachDocLoading(state, action: PayloadAction<boolean>) {
       state.loading = action.payload;
@@ -96,8 +95,14 @@ const docSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    builder.addCase(activateClient.fulfilled, (state, { payload }) => {
+      state.client = payload.client;
+    });
+    builder.addCase(activateClient.rejected, (state, { payload }) => {
+      state.errorMessage = payload!;
+    });
     builder.addCase(attachDoc.fulfilled, (state, { payload }) => {
-      state.doc = payload.document;
+      state.doc = payload.doc;
       state.client = payload.client;
     });
     builder.addCase(attachDoc.rejected, (state, { payload }) => {
@@ -106,8 +111,9 @@ const docSlice = createSlice({
   },
 });
 
-export const { createClient, createDocument, attachDocLoading, setCodeMode } = docSlice.actions;
+export const { deactivateClient, createDocument, detachDocument, attachDocLoading, setCodeMode } = docSlice.actions;
 export default docSlice.reducer;
 
-type AttachDocArgs = { document: Document; client: Client };
-type AttachDocResult = { document: Document; client: Client };
+type ActivateClientResult = { client: Client };
+type AttachDocArgs = { doc: Document; client: Client };
+type AttachDocResult = { doc: Document; client: Client };
