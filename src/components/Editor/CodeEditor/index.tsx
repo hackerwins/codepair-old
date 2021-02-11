@@ -19,7 +19,7 @@ import {
   CodeMode,
   setCodeMode,
 } from 'features/docSlices';
-import { Peer, Metadata, ConnectionStatus, connectPeer, disconnectPeer } from 'features/peerSlices';
+import { Metadata, ConnectionStatus, syncPeer } from 'features/peerSlices';
 
 import Cursor from './Cursor';
 
@@ -66,26 +66,18 @@ export default function CodeEditor(props: { docKey: string }) {
   const menu = useSelector((state: AppState) => state.settingState.menu);
   const cursorMapRef = useRef<Map<ActorID, Cursor>>(new Map());
 
-  const connectPeerWithCursor = useCallback(
+  const connectCursor = useCallback(
     (clientID: ActorID, metadata: Metadata) => {
       cursorMapRef.current.set(clientID, new Cursor(clientID, metadata));
-
-      const peer: Peer = {
-        id: clientID,
-        status: ConnectionStatus.Connected,
-        metadata,
-      };
-      dispatch(connectPeer(peer));
     },
     [peers],
   );
 
-  const disconnectPeerWithCursor = useCallback((clientID: ActorID) => {
+  const disconnectCursor = useCallback((clientID: ActorID) => {
     if (cursorMapRef.current.has(clientID)) {
       cursorMapRef.current.get(clientID)!.clear();
       cursorMapRef.current.delete(clientID);
     }
-    dispatch(disconnectPeer(clientID));
   }, []);
 
   useEffect(() => {
@@ -106,19 +98,9 @@ export default function CodeEditor(props: { docKey: string }) {
 
     const unsubscribe = client.subscribe((event) => {
       if (event.name === 'peers-changed') {
-        const changedPeers = event.value[doc.getKey().toIDString()];
-
-        for (const clientID of Object.keys(peers)) {
-          if (!changedPeers[clientID]) {
-            disconnectPeerWithCursor(clientID);
-          }
-        }
-
-        for (const [clientID, metadata] of Object.entries(changedPeers)) {
-          if (!peers[clientID] || peers[clientID].status === ConnectionStatus.Disconnected) {
-            connectPeerWithCursor(clientID, metadata as Metadata);
-          }
-        }
+        const documentKey = doc.getKey().toIDString();
+        const changedPeers = event.value[documentKey];
+        dispatch(syncPeer(changedPeers));
       }
     });
 
@@ -126,6 +108,16 @@ export default function CodeEditor(props: { docKey: string }) {
       unsubscribe();
     };
   }, [client, doc, peers]);
+
+  useEffect(() => {
+    for (const [id, peer] of Object.entries(peers)) {
+      if (cursorMapRef.current.has(id) && peer.status === ConnectionStatus.Disconnected) {
+        disconnectCursor(id);
+      } else if (!cursorMapRef.current.has(id) && peer.status === ConnectionStatus.Connected) {
+        connectCursor(id, peer.metadata);
+      }
+    }
+  }, [peers]);
 
   useEffect(() => {
     if (!client || !doc) {
