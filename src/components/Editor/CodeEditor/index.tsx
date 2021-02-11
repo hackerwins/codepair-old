@@ -82,7 +82,7 @@ export default function CodeEditor(props: { docKey: string }) {
 
   const disconnectPeerWithCursor = useCallback((clientID: ActorID) => {
     if (cursorMapRef.current.has(clientID)) {
-      cursorMapRef.current.get(clientID)!.removeCursor();
+      cursorMapRef.current.get(clientID)!.clear();
       cursorMapRef.current.delete(clientID);
     }
     dispatch(disconnectPeer(clientID));

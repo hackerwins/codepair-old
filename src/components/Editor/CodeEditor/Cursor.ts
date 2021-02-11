@@ -129,6 +129,11 @@ export default class Cursor {
     }
   }
 
+  clear() {
+    this.removeCursor();
+    this.removeLine();
+  }
+
   isActive() {
     return this.status === CursorStatus.Activated;
   }
