@@ -41,7 +41,7 @@ import 'codemirror/keymap/vim';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/monokai.css';
 import 'codemirror/theme/material.css';
-import './editor.css';
+import './index.css';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -52,7 +52,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-export default function Editor(props: { docKey: string }) {
+export default function CodeEditor(props: { docKey: string }) {
   const dispatch = useDispatch();
   const classes = useStyles();
 
