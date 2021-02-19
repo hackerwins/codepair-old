@@ -1,11 +1,19 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+
+export enum Tool {
+  Line,
+}
 
 export interface BoardState {
   isOpen: boolean;
+
+  tool: Tool;
 }
 
 const initialBoardState: BoardState = {
   isOpen: true,
+
+  tool: Tool.Line,
 };
 
 const boardSlice = createSlice({
@@ -16,8 +24,12 @@ const boardSlice = createSlice({
     toggleBoard(state) {
       state.isOpen = !state.isOpen;
     },
+
+    setTool(state, action: PayloadAction<Tool>) {
+      state.tool = action.payload;
+    },
   },
 });
 
-export const { toggleBoard } = boardSlice.actions;
+export const { toggleBoard, setTool } = boardSlice.actions;
 export default boardSlice.reducer;
