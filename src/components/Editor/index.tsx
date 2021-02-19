@@ -9,6 +9,7 @@ import { createStyles, makeStyles } from '@material-ui/core/styles';
 
 import { AppState } from 'app/rootReducer';
 import CodeEditor from 'components/Editor/CodeEditor';
+import Board from 'components/Editor/Board';
 
 import {
   activateClient,
@@ -24,6 +25,10 @@ import { syncPeer } from 'features/peerSlices';
 
 const useStyles = makeStyles(() =>
   createStyles({
+    root: {
+      flexGrow: 1,
+      display: 'flex',
+    },
     loading: {
       display: 'flex',
       height: 'calc(100vh - 110px)',
@@ -41,6 +46,10 @@ export default function Editor(props: { docKey: string }) {
   const doc = useSelector((state: AppState) => state.docState.doc);
   const loading = useSelector((state: AppState) => state.docState.loading);
   const errorMessage = useSelector((state: AppState) => state.docState.errorMessage);
+  const isOpen = useSelector((state: AppState) => state.boardState.isOpen);
+
+  const boardWidth = isOpen ? '650px' : '0px';
+  const editorWidth = `calc( 100% - ${boardWidth} )`;
 
   useEffect(() => {
     dispatch(activateClient());
@@ -110,5 +119,16 @@ export default function Editor(props: { docKey: string }) {
     );
   }
 
-  return <CodeEditor />;
+  return (
+    <div className={classes.root}>
+      <div style={{ width: editorWidth }}>
+        <CodeEditor />
+      </div>
+      {isOpen && (
+        <div style={{ width: boardWidth }}>
+          <Board />
+        </div>
+      )}
+    </div>
+  );
 }
