@@ -92,18 +92,6 @@ export default function Editor(props: { docKey: string }) {
     };
   }, [docKey, client, doc]);
 
-  if (!client || !doc) {
-    return null;
-  }
-
-  if (loading) {
-    return (
-      <Box className={classes.loading}>
-        <CircularProgress color="inherit" />
-      </Box>
-    );
-  }
-
   if (errorMessage) {
     return (
       <div>
@@ -111,6 +99,14 @@ export default function Editor(props: { docKey: string }) {
           <Alert severity="warning">{errorMessage || 'fail to attach document'}</Alert>
         </Snackbar>
       </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <Box className={classes.loading}>
+        <CircularProgress color="inherit" />
+      </Box>
     );
   }
 
