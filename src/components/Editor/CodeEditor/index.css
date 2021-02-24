@@ -36,6 +36,7 @@
 
 .CodeMirror {
   font-size: 16px;
+  height: 100%;
 }
 
 /* 
@@ -45,4 +46,5 @@
 */
 .CodeMirror-scroll {
   padding-top: 18px;
+  padding-bottom: 18px;
 }

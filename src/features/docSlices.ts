@@ -58,8 +58,13 @@ export const attachDoc = createAsyncThunk<AttachDocResult, AttachDocArgs, { reje
       await client.attach(doc);
 
       doc.update((root) => {
+        // codeEditor
         if (!root.content) {
           root.createText('content');
+        }
+        // board
+        if (!root.shapes) {
+          root.shapes = [];
         }
       });
       await client.sync();
