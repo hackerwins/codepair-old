@@ -13,7 +13,7 @@ const useStyles = makeStyles(() =>
   createStyles({
     root: {
       display: 'flex',
-      height: '100vh',
+      height: '100%',
     },
     sidebar: {
       width: SIDEBAR_WIDTH,

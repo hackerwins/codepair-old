@@ -66,6 +66,7 @@ export default function CodeEditor() {
 
   return (
     <CodeMirror
+      className="CodeMirror"
       options={{
         mode: codeMode,
         theme: menu.codeTheme,
@@ -137,8 +138,6 @@ export default function CodeEditor() {
           });
         });
 
-        // We need to subtract the height of NavBar.
-        editor.setSize('auto', 'calc(100vh - 110px)');
         editor.setValue(root.content.getValue());
       }}
       // Notifying other clients to move the cursor
