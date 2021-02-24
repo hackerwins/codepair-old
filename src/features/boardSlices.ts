@@ -11,7 +11,7 @@ export interface BoardState {
 }
 
 const initialBoardState: BoardState = {
-  isOpen: true,
+  isOpen: false,
 
   tool: Tool.Line,
 };

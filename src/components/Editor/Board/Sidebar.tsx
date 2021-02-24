@@ -16,7 +16,7 @@ const useStyles = makeStyles(() =>
       flexDirection: 'column',
     },
     select: {
-      color: indigo[500],
+      color: indigo[300],
     },
   }),
 );

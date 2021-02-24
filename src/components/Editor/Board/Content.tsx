@@ -37,10 +37,8 @@ export default function Content() {
       canvasRef.current.width = width;
       canvasRef.current.height = height;
 
-      containerRef.current = new Container(canvasRef.current);
-      // containerRef.current.drawAll(doc.getRootObject().shapes);
-      // containerRef.current.onmousedown(doc.update.bind(doc));
-      // containerRef.current.onmousemove(doc.update.bind(doc));
+      containerRef.current = new Container(canvasRef.current, doc.update.bind(doc));
+      containerRef.current.drawAll(doc.getRootObject().shapes);
     };
 
     onResize();
@@ -57,7 +55,7 @@ export default function Content() {
 
     const unsubscribe = doc.subscribe((event) => {
       if (event.name === 'remote-change') {
-        // containerRef.current?.drawAll(doc.getRootObject().shapes);
+        containerRef.current?.drawAll(doc.getRootObject().shapes);
       }
     });
 

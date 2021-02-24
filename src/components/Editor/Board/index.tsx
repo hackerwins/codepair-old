@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { createStyles, makeStyles } from '@material-ui/core/styles';
+import grey from '@material-ui/core/colors/grey';
 
 import Sidebar from './Sidebar';
 import Content from './Content';
@@ -15,10 +16,10 @@ const useStyles = makeStyles(() =>
     },
     sidebar: {
       width: SIDEBAR_WIDTH,
-      border: '1px solid #ccc',
+      border: `1px solid ${grey[700]}`,
     },
     content: {
-      borderTop: '1px solid #ccc',
+      borderTop: `1px solid ${grey[700]}`,
       width: `calc( 100% - ${SIDEBAR_WIDTH} )`,
     },
   }),
