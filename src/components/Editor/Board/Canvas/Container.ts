@@ -4,6 +4,10 @@ import Canvas from './Canvas';
 import { Root, Line, Shapes, Shape, TimeTicket } from './Shape';
 import { drawLine, createLine } from './utils';
 
+interface Options {
+  color: string;
+}
+
 enum DragStatus {
   Drag,
   Stop,
@@ -28,11 +32,14 @@ export default class Container {
 
   update: Function;
 
-  constructor(el: HTMLCanvasElement, update: Function) {
+  options: Options;
+
+  constructor(el: HTMLCanvasElement, update: Function, options: Options) {
     this.pointY = 0;
     this.pointX = 0;
     this.tool = Tool.Line;
     this.update = update;
+    this.options = options;
     this.scene = new Canvas(el);
 
     const { y, x } = this.scene.getCanvas().getBoundingClientRect();
@@ -43,13 +50,25 @@ export default class Container {
   }
 
   init() {
+    this.scene.getContext().strokeStyle = this.options.color;
+
     this.scene.getCanvas().onmouseup = this.onmouseup.bind(this);
     this.scene.getCanvas().onmousedown = this.onmousedown.bind(this);
     this.scene.getCanvas().onmousemove = this.onmousemove.bind(this);
   }
 
   setTool(tool: Tool) {
+    this.setMouseClass(this.tool);
+
     this.tool = tool;
+  }
+
+  setMouseClass(tool: Tool) {
+    this.scene.getCanvas().className = '';
+
+    if (tool === Tool.Line) {
+      this.scene.getCanvas().classList.add('crosshair');
+    }
   }
 
   getMouse(evt: MouseEvent) {

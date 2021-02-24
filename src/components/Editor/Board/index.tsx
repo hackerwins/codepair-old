@@ -5,6 +5,7 @@ import grey from '@material-ui/core/colors/grey';
 
 import Sidebar from './Sidebar';
 import Content from './Content';
+import './index.css';
 
 const SIDEBAR_WIDTH = '40px';
 

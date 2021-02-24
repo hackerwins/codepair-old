@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
+import grey from '@material-ui/core/colors/grey';
 
 import { AppState } from 'app/rootReducer';
 
@@ -24,10 +25,6 @@ export default function Content() {
   const tool = useSelector((state: AppState) => state.boardState.tool);
 
   useEffect(() => {
-    containerRef.current?.setTool(tool);
-  }, [tool]);
-
-  useEffect(() => {
     const onResize = () => {
       if (!divRef.current || !canvasRef.current || !doc) {
         return;
@@ -37,7 +34,11 @@ export default function Content() {
       canvasRef.current.width = width;
       canvasRef.current.height = height;
 
-      containerRef.current = new Container(canvasRef.current, doc.update.bind(doc));
+      const options = {
+        color: grey[50],
+      };
+
+      containerRef.current = new Container(canvasRef.current, doc.update.bind(doc), options);
       containerRef.current.drawAll(doc.getRootObject().shapes);
     };
 
@@ -63,6 +64,10 @@ export default function Content() {
       unsubscribe();
     };
   }, [doc]);
+
+  useEffect(() => {
+    containerRef.current?.setTool(tool);
+  }, [doc, tool]);
 
   return (
     <div className={classes.root} ref={divRef}>
