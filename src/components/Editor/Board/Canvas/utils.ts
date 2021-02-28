@@ -1,4 +1,4 @@
-import { Line } from './Shape';
+import { Line, Point } from './Shape';
 
 export function drawLine(context: CanvasRenderingContext2D, line: Line) {
   context.beginPath();
@@ -15,14 +15,9 @@ export function drawLine(context: CanvasRenderingContext2D, line: Line) {
   context.stroke();
 }
 
-export function createLine(pointY: number, pointX: number): Line {
+export function createLine(point: Point): Line {
   return {
     type: 'line',
-    points: [
-      {
-        x: pointX,
-        y: pointY,
-      },
-    ],
+    points: [point],
   } as Line;
 }

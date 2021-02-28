@@ -1,7 +1,7 @@
 import { Tool } from 'features/boardSlices';
 import Canvas from './Canvas';
 
-import { Root, Line, Shapes, Shape, TimeTicket } from './Shape';
+import { Root, Point, Line, Shapes, Shape, TimeTicket } from './Shape';
 import { drawLine, createLine } from './utils';
 
 interface Options {
@@ -71,14 +71,16 @@ export default class Container {
     }
   }
 
-  getMouse(evt: MouseEvent) {
-    this.pointY = evt.pageY - this.offsetY;
-    this.pointX = evt.pageX - this.offsetX;
+  getMouse(evt: MouseEvent): Point {
+    return {
+      y: evt.pageY - this.offsetY,
+      x: evt.pageX - this.offsetX,
+    };
   }
 
   onmousedown(evt: MouseEvent) {
-    this.getMouse(evt);
-    if (this.isOutSide()) {
+    const point = this.getMouse(evt);
+    if (this.isOutSide(point)) {
       return;
     }
 
@@ -86,7 +88,7 @@ export default class Container {
 
     this.update((root: Root) => {
       if (this.tool === Tool.Line) {
-        const shape = createLine(this.pointY, this.pointX);
+        const shape = createLine(point);
         root.shapes.push(shape);
         const lastShape = root.shapes.getLast();
         this.createId = lastShape.getID();
@@ -95,8 +97,8 @@ export default class Container {
   }
 
   onmousemove(evt: MouseEvent) {
-    this.getMouse(evt);
-    if (this.isOutSide()) {
+    const point = this.getMouse(evt);
+    if (this.isOutSide(point)) {
       return;
     }
 
@@ -107,10 +109,7 @@ export default class Container {
     this.update((root: Root) => {
       if (this.tool === Tool.Line) {
         const lastShape = root.shapes.getElementByID(this.createId) as Line;
-        lastShape.points.push({
-          x: this.pointX,
-          y: this.pointY,
-        });
+        lastShape.points.push(point);
         this.drawAll(root.shapes);
       }
     });
@@ -121,13 +120,8 @@ export default class Container {
     this.createId = undefined;
   }
 
-  isOutSide() {
-    if (
-      this.pointY < 0 ||
-      this.pointX < 0 ||
-      this.pointY > this.scene.getHeight() ||
-      this.pointX > this.scene.getWidth()
-    ) {
+  isOutSide(point: Point) {
+    if (point.y < 0 || point.x < 0 || point.y > this.scene.getHeight() || point.x > this.scene.getWidth()) {
       this.onmouseup();
       return true;
     }
