@@ -2,7 +2,7 @@ import { Tool } from 'features/boardSlices';
 import Canvas from './Canvas';
 
 import { Root, Point, Line, Shapes, Shape, TimeTicket } from './Shape';
-import { drawLine, createLine } from './utils';
+import { drawLine, createLine, compressPoints } from './utils';
 import * as schedule from './schedule';
 
 interface Options {
@@ -104,7 +104,7 @@ export default class Container {
           const points = tasks.map((task) => task.point);
           const lastShape = root.shapes.getElementByID(this.createId) as Line;
 
-          lastShape.points.push(...points);
+          lastShape.points.push(...compressPoints(points));
           this.drawAll(root.shapes);
         }
       });
