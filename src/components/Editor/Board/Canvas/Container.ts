@@ -1,8 +1,9 @@
 import { Tool } from 'features/boardSlices';
 import Canvas from './Canvas';
 
-import { Root, Line, Shapes, Shape, TimeTicket } from './Shape';
-import { drawLine, createLine } from './utils';
+import { Root, Point, Line, Shapes, Shape, TimeTicket } from './Shape';
+import { drawLine, createLine, compressPoints } from './utils';
+import * as schedule from './schedule';
 
 interface Options {
   color: string;
@@ -12,8 +13,6 @@ enum DragStatus {
   Drag,
   Stop,
 }
-
-let dragStatus = DragStatus.Stop;
 
 export default class Container {
   pointY: number;
@@ -30,6 +29,8 @@ export default class Container {
 
   createId?: TimeTicket;
 
+  dragStatus: DragStatus;
+
   update: Function;
 
   options: Options;
@@ -38,6 +39,7 @@ export default class Container {
     this.pointY = 0;
     this.pointX = 0;
     this.tool = Tool.Line;
+    this.dragStatus = DragStatus.Stop;
     this.update = update;
     this.options = options;
     this.scene = new Canvas(el);
@@ -53,6 +55,7 @@ export default class Container {
     this.scene.getContext().strokeStyle = this.options.color;
 
     this.scene.getCanvas().onmouseup = this.onmouseup.bind(this);
+    this.scene.getCanvas().onmouseout = this.onmouseup.bind(this);
     this.scene.getCanvas().onmousedown = this.onmousedown.bind(this);
     this.scene.getCanvas().onmousemove = this.onmousemove.bind(this);
   }
@@ -71,63 +74,67 @@ export default class Container {
     }
   }
 
-  getMouse(evt: MouseEvent) {
-    this.pointY = evt.pageY - this.offsetY;
-    this.pointX = evt.pageX - this.offsetX;
+  getMouse(evt: MouseEvent): Point {
+    return {
+      y: evt.pageY - this.offsetY,
+      x: evt.pageX - this.offsetX,
+    };
   }
 
   onmousedown(evt: MouseEvent) {
-    this.getMouse(evt);
-    if (this.isOutSide()) {
+    const point = this.getMouse(evt);
+    if (this.isOutSide(point)) {
       return;
     }
 
-    dragStatus = DragStatus.Drag;
+    this.dragStatus = DragStatus.Drag;
 
     this.update((root: Root) => {
       if (this.tool === Tool.Line) {
-        const shape = createLine(this.pointY, this.pointX);
+        const shape = createLine(point);
         root.shapes.push(shape);
         const lastShape = root.shapes.getLast();
         this.createId = lastShape.getID();
       }
     });
+
+    schedule.requestHostCallback((tasks) => {
+      this.update((root: Root) => {
+        if (this.tool === Tool.Line) {
+          const points = tasks.map((task) => task.point);
+          const lastShape = root.shapes.getElementByID(this.createId) as Line;
+
+          lastShape.points.push(...compressPoints(points));
+          this.drawAll(root.shapes);
+        }
+      });
+    });
   }
 
   onmousemove(evt: MouseEvent) {
-    this.getMouse(evt);
-    if (this.isOutSide()) {
+    const point = this.getMouse(evt);
+    if (this.isOutSide(point)) {
       return;
     }
 
-    if (dragStatus === DragStatus.Stop) {
+    if (this.dragStatus === DragStatus.Stop) {
       return;
     }
 
-    this.update((root: Root) => {
-      if (this.tool === Tool.Line) {
-        const lastShape = root.shapes.getElementByID(this.createId) as Line;
-        lastShape.points.push({
-          x: this.pointX,
-          y: this.pointY,
-        });
-        this.drawAll(root.shapes);
-      }
+    schedule.reserveTask({
+      point,
     });
   }
 
   onmouseup() {
-    dragStatus = DragStatus.Stop;
+    this.dragStatus = DragStatus.Stop;
+
+    schedule.requestHostWorkFlush();
     this.createId = undefined;
   }
 
-  isOutSide() {
-    if (
-      this.pointY < 0 ||
-      this.pointX < 0 ||
-      this.pointY > this.scene.getHeight() ||
-      this.pointX > this.scene.getWidth()
-    ) {
+  isOutSide(point: Point) {
+    if (point.y < 0 || point.x < 0 || point.y > this.scene.getHeight() || point.x > this.scene.getWidth()) {
       this.onmouseup();
       return true;
     }
