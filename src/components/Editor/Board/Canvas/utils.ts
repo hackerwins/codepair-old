@@ -1,4 +1,4 @@
-import { Point } from './Shape';
+import { Point, Box } from './Shape';
 
 /**
  * square distance between 2 points
@@ -102,4 +102,13 @@ function simplifyRadialDist(points: Array<Point>, tolerance: number) {
  */
 export function compressPoints(points: Array<Point>, tolerance: number = 10): Array<Point> {
   return douglasPeucker(simplifyRadialDist(points, tolerance), tolerance);
+}
+
+export function cloneBox(box: Box): Box {
+  return {
+    y: box.y,
+    x: box.x,
+    width: box.width,
+    height: box.height,
+  };
 }

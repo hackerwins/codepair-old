@@ -6,8 +6,19 @@ export type Point = {
   x: number;
 };
 
+/**
+ * The box has the information surrounding the shape.
+ */
+export interface Box {
+  y: number;
+  x: number;
+  width: number;
+  height: number;
+}
+
 // TODO(ppeeou) refer to yorkie-sdk-js ArrayProxy
 export interface BaseShape {
+  box: Box;
   getID(): TimeTicket;
 }
 

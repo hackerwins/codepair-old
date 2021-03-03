@@ -3,7 +3,7 @@ import Canvas from './Canvas';
 
 import { Root, Point, Line, Shapes, Shape, TimeTicket } from './Shape';
 import { compressPoints } from './utils';
-import { drawLine, createLine } from './Line';
+import { drawLine, createLine, adjustLineBox } from './Line';
 import * as schedule from './schedule';
 
 interface Options {
@@ -102,10 +102,12 @@ export default class Container {
     schedule.requestHostCallback((tasks) => {
       this.update((root: Root) => {
         if (this.tool === Tool.Line) {
-          const points = tasks.map((task) => task.point);
+          const points = compressPoints(tasks.map((task) => task.point));
           const lastShape = root.shapes.getElementByID(this.createId) as Line;
+          const box = adjustLineBox(lastShape, points);
 
-          lastShape.points.push(...compressPoints(points));
+          lastShape.box = box;
+          lastShape.points.push(...points);
           this.drawAll(root.shapes);
         }
       });
