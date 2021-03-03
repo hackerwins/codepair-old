@@ -27,7 +27,12 @@ export interface Line extends BaseShape {
   points: Array<Point>;
 }
 
-export type Shape = Line;
+export interface Rect extends BaseShape {
+  type: 'rect';
+  pin: Point;
+}
+
+export type Shape = Line | Rect;
 
 // TODO(ppeeou) refer to yorkie-sdk-js ArrayProxy
 export interface Shapes {
@@ -35,6 +40,7 @@ export interface Shapes {
 
   getLast(): Shape;
   getElementByID(createdAt: TimeTicket): Shape;
+  deleteByID(createdAt: TimeTicket): Shape;
   length: number;
   [index: number]: Shape;
   [Symbol.iterator](): IterableIterator<Shape>;

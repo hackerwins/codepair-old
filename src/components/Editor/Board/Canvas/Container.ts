@@ -1,13 +1,15 @@
 import { Tool } from 'features/boardSlices';
 import Canvas from './Canvas';
 
-import { Root, Point, Line, Shapes, Shape, TimeTicket } from './Shape';
+import { Root, Point, Line, Shapes, Shape, TimeTicket, Rect } from './Shape';
 import { compressPoints } from './utils';
 import { drawLine, createLine, adjustLineBox } from './Line';
+import { drawRect, createRect, adjustRectBox } from './Rect';
 import * as schedule from './schedule';
 
 interface Options {
   color: string;
+  selectedColor: string;
 }
 
 enum DragStatus {
@@ -62,7 +64,7 @@ export default class Container {
   }
 
   setTool(tool: Tool) {
-    this.setMouseClass(this.tool);
+    this.setMouseClass(tool);
 
     this.tool = tool;
   }
@@ -72,6 +74,8 @@ export default class Container {
 
     if (tool === Tool.Line) {
       this.scene.getCanvas().classList.add('crosshair');
+    } else if (tool === Tool.Selector) {
+      this.scene.getCanvas().classList.add('default');
     }
   }
 
@@ -94,9 +98,13 @@ export default class Container {
       if (this.tool === Tool.Line) {
         const shape = createLine(point);
         root.shapes.push(shape);
-        const lastShape = root.shapes.getLast();
-        this.createId = lastShape.getID();
+      } else if (this.tool === Tool.Selector) {
+        const shape = createRect(point);
+        root.shapes.push(shape);
       }
+
+      const lastShape = root.shapes.getLast();
+      this.createId = lastShape.getID();
     });
 
     schedule.requestHostCallback((tasks) => {
@@ -108,6 +116,13 @@ export default class Container {
 
           lastShape.box = box;
           lastShape.points.push(...points);
+          this.drawAll(root.shapes);
+        } else if (this.tool === Tool.Selector) {
+          const lastPoint = tasks[tasks.length - 1].point;
+          const lastShape = root.shapes.getElementByID(this.createId) as Rect;
+          const box = adjustRectBox(lastShape, lastPoint);
+
+          lastShape.box = box;
           this.drawAll(root.shapes);
         }
       });
@@ -133,6 +148,18 @@ export default class Container {
     this.dragStatus = DragStatus.Stop;
 
     schedule.requestHostWorkFlush();
+
+    if (!this.createId) {
+      return;
+    }
+
+    if (this.tool === Tool.Selector) {
+      this.update((root: Root) => {
+        root.shapes.deleteByID(this.createId);
+        this.drawAll(root.shapes);
+      });
+    }
+
     this.createId = undefined;
   }
 
@@ -154,6 +181,8 @@ export default class Container {
   draw(shape: Shape, canvas: Canvas = this.scene) {
     if (shape.type === 'line') {
       drawLine(canvas.getContext(), shape as Line);
+    } else if (shape.type === 'rect') {
+      drawRect(canvas.getContext(), shape as Rect, this.options.selectedColor);
     }
   }
 

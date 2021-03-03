@@ -112,3 +112,14 @@ export function cloneBox(box: Box): Box {
     height: box.height,
   };
 }
+
+/**
+ * @see {@link https://stackoverflow.com/a/39077686}
+ */
+export const hexToRgb = (hex: string) => {
+  return hex
+    .replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, (_, r, g, b) => `#${r}${r}${g}${g}${b}${b}`)
+    .substring(1)
+    .match(/.{2}/g)!
+    .map((x) => parseInt(x, 16));
+};
