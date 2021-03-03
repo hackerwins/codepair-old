@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import IconButton from '@material-ui/core/IconButton';
 import EditIcon from '@material-ui/icons/Edit';
+import MouseIcon from '@material-ui/icons/Mouse';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import indigo from '@material-ui/core/colors/indigo';
 
@@ -33,7 +34,15 @@ export default function Sidebar() {
   return (
     <div className={classes.root}>
       <IconButton
-        aria-label="edit"
+        aria-label="selector"
+        className={tool === Tool.Selector ? classes.select : ''}
+        onClick={handleSelectTool(Tool.Selector)}
+      >
+        <MouseIcon fontSize="small" />
+      </IconButton>
+
+      <IconButton
+        aria-label="line"
         className={tool === Tool.Line ? classes.select : ''}
         onClick={handleSelectTool(Tool.Line)}
       >

@@ -39,6 +39,7 @@ export default function Content() {
       };
 
       containerRef.current = new Container(canvasRef.current, doc.update.bind(doc), options);
+      containerRef.current.setTool(tool);
       containerRef.current.drawAll(doc.getRootObject().shapes);
     };
 
