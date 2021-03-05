@@ -3,10 +3,10 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import IconButton from '@material-ui/core/IconButton';
 import EditIcon from '@material-ui/icons/Edit';
-import MouseIcon from '@material-ui/icons/Mouse';
+import OpenWithIcon from '@material-ui/icons/OpenWith';
+
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import indigo from '@material-ui/core/colors/indigo';
-
 import { AppState } from 'app/rootReducer';
 import { Tool, setTool } from 'features/boardSlices';
 
@@ -38,7 +38,7 @@ export default function Sidebar() {
         className={tool === Tool.Selector ? classes.select : ''}
         onClick={handleSelectTool(Tool.Selector)}
       >
-        <MouseIcon fontSize="small" />
+        <OpenWithIcon fontSize="small" />
       </IconButton>
 
       <IconButton
