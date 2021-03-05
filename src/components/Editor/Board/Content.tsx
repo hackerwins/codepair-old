@@ -6,7 +6,7 @@ import blue from '@material-ui/core/colors/blue';
 
 import { AppState } from 'app/rootReducer';
 
-import Container from './Canvas/Container';
+import Container, { DragStatus } from './Canvas/Container';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -24,6 +24,21 @@ export default function Content() {
   const containerRef = useRef<Container | null>(null);
   const doc = useSelector((state: AppState) => state.docState.doc);
   const tool = useSelector((state: AppState) => state.boardState.tool);
+
+  useEffect(() => {
+    const onBeforeunload = (event: BeforeUnloadEvent) => {
+      if (containerRef.current?.getDragStatus() === DragStatus.Drag) {
+        containerRef.current?.onmouseup();
+        // eslint-disable-next-line no-param-reassign
+        event.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', onBeforeunload);
+
+    return () => {
+      window.removeEventListener('beforeunload', onBeforeunload);
+    };
+  });
 
   useEffect(() => {
     const onResize = () => {
@@ -50,7 +65,7 @@ export default function Content() {
     return () => {
       window.removeEventListener('resize', onResize);
     };
-  }, [doc]);
+  }, [doc, tool]);
 
   useEffect(() => {
     if (!doc) {

@@ -12,7 +12,7 @@ interface Options {
   selectedColor: string;
 }
 
-enum DragStatus {
+export enum DragStatus {
   Drag,
   Stop,
 }
@@ -77,6 +77,10 @@ export default class Container {
     } else if (tool === Tool.Selector) {
       this.scene.getCanvas().classList.add('default');
     }
+  }
+
+  getDragStatus() {
+    return this.dragStatus;
   }
 
   getMouse(evt: MouseEvent): Point {
