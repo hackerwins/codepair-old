@@ -2,7 +2,8 @@ import { Tool } from 'features/boardSlices';
 import Canvas from './Canvas';
 
 import { Root, Point, Line, Shapes, Shape, TimeTicket } from './Shape';
-import { drawLine, createLine, compressPoints } from './utils';
+import { compressPoints } from './utils';
+import { drawLine, createLine } from './line';
 import * as schedule from './schedule';
 
 interface Options {
