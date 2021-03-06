@@ -1,10 +1,9 @@
 import { Tool } from 'features/boardSlices';
 import Canvas from './Canvas';
 
-import { Root, Point, Line, Shapes, Shape, TimeTicket } from './Shape';
-import { compressPoints } from './utils';
-import { drawLine, createLine } from './line';
-import * as schedule from './schedule';
+import { Point, Line, Shapes, Shape, TimeTicket } from './Shape';
+import { drawLine } from './line';
+import Worker from './worker';
 
 interface Options {
   color: string;
@@ -36,6 +35,8 @@ export default class Container {
 
   options: Options;
 
+  worker: Worker;
+
   constructor(el: HTMLCanvasElement, update: Function, options: Options) {
     this.pointY = 0;
     this.pointX = 0;
@@ -50,11 +51,14 @@ export default class Container {
     this.offsetX = x;
 
     this.init();
+
+    this.worker = new Worker(this.update);
   }
 
   init() {
     this.scene.getContext().strokeStyle = this.options.color;
 
+    this.drawAll = this.drawAll.bind(this);
     this.scene.getCanvas().onmouseup = this.onmouseup.bind(this);
     this.scene.getCanvas().onmouseout = this.onmouseup.bind(this);
     this.scene.getCanvas().onmousedown = this.onmousedown.bind(this);
@@ -90,26 +94,10 @@ export default class Container {
 
     this.dragStatus = DragStatus.Drag;
 
-    this.update((root: Root) => {
-      if (this.tool === Tool.Line) {
-        const shape = createLine(point);
-        root.shapes.push(shape);
-        const lastShape = root.shapes.getLast();
-        this.createId = lastShape.getID();
-      }
-    });
-
-    schedule.requestHostCallback((tasks) => {
-      this.update((root: Root) => {
-        if (this.tool === Tool.Line) {
-          const points = tasks.map((task) => task.point);
-          const lastShape = root.shapes.getElementByID(this.createId) as Line;
-
-          lastShape.points.push(...compressPoints(points));
-          this.drawAll(root.shapes);
-        }
-      });
-    });
+    if (this.worker.isRecordWork(this.tool)) {
+      this.createId = this.worker.createShape(this.tool, point);
+      this.worker.executeTask(this.createId, this.tool, this.drawAll);
+    }
   }
 
   onmousemove(evt: MouseEvent) {
@@ -122,16 +110,20 @@ export default class Container {
       return;
     }
 
-    schedule.reserveTask({
-      point,
-    });
+    if (this.worker.isRecordWork(this.tool)) {
+      this.worker.reserveTask({
+        point,
+      });
+    }
   }
 
   onmouseup() {
     this.dragStatus = DragStatus.Stop;
 
-    schedule.requestHostWorkFlush();
-    this.createId = undefined;
+    if (this.worker.isRecordWork(this.tool)) {
+      this.worker.flushTask();
+      this.createId = undefined;
+    }
   }
 
   isOutSide(point: Point) {
