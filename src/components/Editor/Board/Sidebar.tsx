@@ -5,7 +5,7 @@ import IconButton from '@material-ui/core/IconButton';
 import EditIcon from '@material-ui/icons/Edit';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import indigo from '@material-ui/core/colors/indigo';
-
+import EraserIcon from 'assets/icons/Eraser';
 import { AppState } from 'app/rootReducer';
 import { Tool, setTool } from 'features/boardSlices';
 
@@ -38,6 +38,14 @@ export default function Sidebar() {
         onClick={handleSelectTool(Tool.Line)}
       >
         <EditIcon fontSize="small" />
+      </IconButton>
+
+      <IconButton
+        aria-label="eraser"
+        className={tool === Tool.Eraser ? classes.select : ''}
+        onClick={handleSelectTool(Tool.Eraser)}
+      >
+        <EraserIcon />
       </IconButton>
     </div>
   );

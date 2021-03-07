@@ -1,12 +1,13 @@
 import { Tool } from 'features/boardSlices';
 import Canvas from './Canvas';
 
-import { Point, Line, Shapes, Shape, TimeTicket } from './Shape';
-import { drawLine } from './line';
+import { Point, Line, Shapes, Shape, TimeTicket, EraserLine } from './Shape';
+import { drawLine, drawEraserLine } from './line';
 import Worker from './worker';
 
 interface Options {
   color: string;
+  eraserColor: string;
 }
 
 enum DragStatus {
@@ -66,7 +67,7 @@ export default class Container {
   }
 
   setTool(tool: Tool) {
-    this.setMouseClass(this.tool);
+    this.setMouseClass(tool);
 
     this.tool = tool;
   }
@@ -76,6 +77,8 @@ export default class Container {
 
     if (tool === Tool.Line) {
       this.scene.getCanvas().classList.add('crosshair');
+    } else if (tool === Tool.Eraser) {
+      this.scene.getCanvas().classList.add('eraser');
     }
   }
 
@@ -121,7 +124,7 @@ export default class Container {
     this.dragStatus = DragStatus.Stop;
 
     if (this.worker.isRecordWork(this.tool)) {
-      this.worker.flushTask();
+      this.worker.flushTask(this.createId, this.tool, this.drawAll);
       this.createId = undefined;
     }
   }
@@ -144,6 +147,8 @@ export default class Container {
   draw(shape: Shape, canvas: Canvas = this.scene) {
     if (shape.type === 'line') {
       drawLine(canvas.getContext(), shape as Line);
+    } else if (shape.type === 'eraser') {
+      drawEraserLine(canvas.getContext(), this.options.eraserColor, shape as EraserLine);
     }
   }
 

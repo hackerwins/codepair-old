@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import grey from '@material-ui/core/colors/grey';
+import deepOrange from '@material-ui/core/colors/deepOrange';
 
 import { AppState } from 'app/rootReducer';
 
@@ -36,9 +37,11 @@ export default function Content() {
 
       const options = {
         color: grey[50],
+        eraserColor: deepOrange[400],
       };
 
       containerRef.current = new Container(canvasRef.current, doc.update.bind(doc), options);
+      containerRef.current.setTool(tool);
       containerRef.current.drawAll(doc.getRootObject().shapes);
     };
 
@@ -47,7 +50,7 @@ export default function Content() {
     return () => {
       window.removeEventListener('resize', onResize);
     };
-  }, [doc]);
+  }, [doc, tool]);
 
   useEffect(() => {
     if (!doc) {
