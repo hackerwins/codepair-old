@@ -94,7 +94,7 @@ export default function Editor(props: { docKey: string }) {
 
       dispatch(attachDocLoading(true));
       await dispatch(attachDoc({ client, doc }));
-      dispatch(setCodeMode(doc.getRootObject().mode || CodeMode.PlainText));
+      dispatch(setCodeMode(doc.getRootObject().mode || CodeMode.Markdown));
       dispatch(attachDocLoading(false));
     }
 

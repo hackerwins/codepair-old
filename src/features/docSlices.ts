@@ -4,7 +4,7 @@ import anonymous from 'anonymous-animals-gen';
 import randomColor from 'randomcolor';
 
 export enum CodeMode {
-  PlainText = 'text/plain',
+  Markdown = 'gfm',
   Go = 'go',
   JavaScript = 'javascript',
   Clojure = 'clojure',
@@ -25,7 +25,7 @@ export interface DocState {
 const initialState: DocState = {
   client: undefined,
   doc: undefined,
-  mode: CodeMode.PlainText,
+  mode: CodeMode.Markdown,
   loading: true,
   errorMessage: '',
 };
