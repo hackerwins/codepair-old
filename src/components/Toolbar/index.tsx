@@ -56,7 +56,7 @@ export default function Toolbar() {
 
     const unsubscribe = doc.subscribe((event) => {
       if (event.name === 'remote-change') {
-        dispatch(setCodeMode(doc.getRootObject().mode || CodeMode.PlainText));
+        dispatch(setCodeMode(doc.getRootObject().mode || CodeMode.Markdown));
       }
     });
 
