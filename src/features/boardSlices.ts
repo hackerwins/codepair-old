@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export enum Tool {
   Line,
+  Eraser,
 }
 
 export interface BoardState {
