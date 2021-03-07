@@ -36,7 +36,7 @@ export default function Content() {
       canvasRef.current.height = height;
 
       const options = {
-        color: grey[50],
+        color: grey[500],
         eraserColor: deepOrange[400],
       };
 
