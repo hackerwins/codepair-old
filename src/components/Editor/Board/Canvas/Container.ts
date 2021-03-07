@@ -2,7 +2,7 @@ import { Tool } from 'features/boardSlices';
 import Canvas from './Canvas';
 
 import { Point, Line, Shapes, Shape, TimeTicket, EraserLine } from './Shape';
-import { drawLine, drawEraserLine } from './line';
+import { drawLine } from './line';
 import Worker from './worker';
 
 interface Options {
@@ -146,9 +146,9 @@ export default class Container {
 
   draw(shape: Shape, canvas: Canvas = this.scene) {
     if (shape.type === 'line') {
-      drawLine(canvas.getContext(), shape as Line);
+      drawLine(canvas.getContext(), this.options.color, shape as Line);
     } else if (shape.type === 'eraser') {
-      drawEraserLine(canvas.getContext(), this.options.eraserColor, shape as EraserLine);
+      drawLine(canvas.getContext(), this.options.eraserColor, shape as EraserLine);
     }
   }
 

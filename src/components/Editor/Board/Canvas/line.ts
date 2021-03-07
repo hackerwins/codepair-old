@@ -23,8 +23,11 @@ export function createEraserLine(point: Point): EraserLine {
 /**
  * Draw a line on the canvas.
  */
-export function drawLine(context: CanvasRenderingContext2D, line: Line) {
+export function drawLine(context: CanvasRenderingContext2D, color: string, line: Line | EraserLine) {
   context.beginPath();
+
+  const originColor = context.strokeStyle;
+  context.strokeStyle = color;
   let isMoved = false;
   for (const p of line.points) {
     if (isMoved === false) {
@@ -35,20 +38,6 @@ export function drawLine(context: CanvasRenderingContext2D, line: Line) {
     }
   }
   context.lineWidth = 3;
-  context.stroke();
-}
-
-/**
- * Draw a eraser line on the canvas.
- */
-export function drawEraserLine(context: CanvasRenderingContext2D, color: string, line: EraserLine) {
-  context.beginPath();
-  const originColor = context.strokeStyle;
-  const [startPoint, endPoint] = line.points;
-  context.moveTo(startPoint.x, startPoint.y);
-  context.lineTo(endPoint.x, endPoint.y);
-  context.lineWidth = 5;
-  context.strokeStyle = color;
   context.stroke();
   context.strokeStyle = originColor;
 }
