@@ -1,7 +1,9 @@
+import { TimeTicket } from 'yorkie-js-sdk';
 import { Tool } from 'features/boardSlices';
+import { Shape } from 'features/docSlices';
 import Canvas from './Canvas';
 
-import { Point, Line, Shapes, Shape, TimeTicket, EraserLine } from './Shape';
+import { Point, Line, EraserLine } from './Shape';
 import { drawLine } from './line';
 import Worker from './worker';
 
@@ -124,7 +126,7 @@ export default class Container {
     this.dragStatus = DragStatus.Stop;
 
     if (this.worker.isRecordWork(this.tool)) {
-      this.worker.flushTask(this.createId, this.tool, this.drawAll);
+      this.worker.flushTask(this.createId!, this.tool, this.drawAll);
       this.createId = undefined;
     }
   }
@@ -137,7 +139,7 @@ export default class Container {
     return false;
   }
 
-  drawAll(shapes: Shapes, canvas: Canvas = this.scene) {
+  drawAll(shapes: Array<Shape>, canvas: Canvas = this.scene) {
     canvas.clear();
     for (const shape of shapes) {
       this.draw(shape, canvas);

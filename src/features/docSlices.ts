@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
-import yorkie, { Client, Document } from 'yorkie-js-sdk';
+import yorkie, { Client, Document, PlainText } from 'yorkie-js-sdk';
 import anonymous from 'anonymous-animals-gen';
 import randomColor from 'randomcolor';
 
@@ -14,17 +14,31 @@ export enum CodeMode {
   Rust = 'rust',
 }
 
+export type Point = {
+  y: number;
+  x: number;
+};
+
+export type Shape = {
+  type: string;
+  points: Array<Point>;
+};
+
+export type PairDoc = {
+  mode: CodeMode;
+  content: PlainText;
+  shapes: Array<Shape>;
+};
+
 export interface DocState {
   client?: Client;
-  doc?: Document;
+  doc?: Document<PairDoc>;
   mode: CodeMode;
   loading: boolean;
   errorMessage: string;
 }
 
 const initialState: DocState = {
-  client: undefined,
-  doc: undefined,
   mode: CodeMode.Markdown,
   loading: true,
   errorMessage: '',
@@ -85,12 +99,12 @@ const docSlice = createSlice({
       client?.deactivate();
     },
     createDocument(state, action: PayloadAction<string>) {
-      state.doc = yorkie.createDocument('codepairs', action.payload);
+      state.doc = yorkie.createDocument<PairDoc>('codepairs', action.payload);
     },
     detachDocument(state) {
       const { doc, client } = state;
       state.doc = undefined;
-      client?.detach(doc as Document);
+      client?.detach(doc as Document<PairDoc>);
     },
     attachDocLoading(state, action: PayloadAction<boolean>) {
       state.loading = action.payload;
@@ -120,5 +134,5 @@ export const { deactivateClient, createDocument, detachDocument, attachDocLoadin
 export default docSlice.reducer;
 
 type ActivateClientResult = { client: Client };
-type AttachDocArgs = { doc: Document; client: Client };
-type AttachDocResult = { doc: Document; client: Client };
+type AttachDocArgs = { doc: Document<PairDoc>; client: Client };
+type AttachDocResult = { doc: Document<PairDoc>; client: Client };

@@ -91,7 +91,7 @@ export default function CodeEditor() {
         };
 
         // TODO(ppeeou) Load user's cursor position
-        doc.subscribe((event: any) => {
+        doc.subscribe((event) => {
           if (event.name === 'remote-change') {
             event.value.forEach((change: any) => {
               const { actor } = change.getID();
