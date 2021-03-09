@@ -1,9 +1,9 @@
 import React from 'react';
-import SvgIcon from '@material-ui/core/SvgIcon';
+import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
 
-export default function Eraser() {
+export default function Eraser({ fontSize }: SvgIconProps) {
   return (
-    <SvgIcon>
+    <SvgIcon fontSize={fontSize}>
       <svg version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 480.001 480.001">
         <g>
           <g>
