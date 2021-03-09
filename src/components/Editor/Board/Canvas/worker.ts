@@ -1,6 +1,8 @@
+import { TimeTicket } from 'yorkie-js-sdk';
+
 import { Tool } from 'features/boardSlices';
 
-import { Root, Point, Line, TimeTicket } from './Shape';
+import { Root, Point, Line } from './Shape';
 import { compressPoints, checkLineIntersection } from './utils';
 import { createLine, createEraserLine, fixEraserPoint } from './line';
 import * as schedule from './schedule';
@@ -26,7 +28,7 @@ export default class Worker {
    * Create shape according to tool
    */
   createShape(tool: Tool, point: Point): TimeTicket {
-    let createId;
+    let createId: TimeTicket;
 
     this.update((root: Root) => {
       if (tool === Tool.Line) {
@@ -41,7 +43,7 @@ export default class Worker {
       createId = lastShape.getID();
     });
 
-    return createId;
+    return createId!;
   }
 
   /**

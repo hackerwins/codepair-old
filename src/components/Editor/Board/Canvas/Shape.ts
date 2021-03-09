@@ -1,5 +1,4 @@
-// TODO(ppeeou) refer to yorkie-sdk-js TimeTicket
-export type TimeTicket = any;
+import { TimeTicket } from 'yorkie-js-sdk';
 
 export type Point = {
   y: number;
