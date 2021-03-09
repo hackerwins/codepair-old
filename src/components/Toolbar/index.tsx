@@ -7,7 +7,6 @@ import FormControl from '@material-ui/core/FormControl';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import SettingsIcon from '@material-ui/icons/Settings';
-import ChromeReaderModeIcon from '@material-ui/icons/ChromeReaderMode';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 import Popover from 'components/Popover';
@@ -15,7 +14,6 @@ import Settings from 'components/Toolbar/Settings';
 
 import { AppState } from 'app/rootReducer';
 import { CodeMode, setCodeMode } from 'features/docSlices';
-import { toggleBoard } from 'features/boardSlices';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -84,12 +82,9 @@ export default function Toolbar() {
   const handleSettingsClick = useCallback((event: MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   }, []);
+
   const handleSettingsClose = useCallback(() => {
     setAnchorEl(undefined);
-  }, []);
-
-  const handleBoardClick = useCallback(() => {
-    dispatch(toggleBoard());
   }, []);
 
   return (
@@ -116,11 +111,6 @@ export default function Toolbar() {
       </FormControl>
 
       <div className={classes.rightButtonControl}>
-        <Tooltip className={classes.rightButton} title="Board" arrow>
-          <IconButton aria-label="board" onClick={handleBoardClick}>
-            <ChromeReaderModeIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
         <Tooltip className={classes.rightButton} title="Settings" arrow>
           <IconButton aria-label="settings" onClick={handleSettingsClick}>
             <SettingsIcon fontSize="small" />
