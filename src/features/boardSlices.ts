@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export enum Tool {
+  None,
   Line,
   Eraser,
 }
@@ -14,7 +15,7 @@ export interface BoardState {
 const initialBoardState: BoardState = {
   isOpen: false,
 
-  tool: Tool.Line,
+  tool: Tool.None,
 };
 
 const boardSlice = createSlice({
