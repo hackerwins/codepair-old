@@ -11,11 +11,14 @@ import PeerList from 'components/NavBar/PeerList';
 import { AppState } from 'app/rootReducer';
 import usePeer from 'hooks/usePeer';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   group: {
     '& > *': {
       cursor: 'pointer',
     },
+  },
+  myAvatar: {
+    borderColor: theme.palette.secondary.main,
   },
 }));
 
@@ -52,8 +55,18 @@ export default function PeerGroup() {
         {activePeers.map((peer) => {
           const { username, color, image } = peer.metadata;
           return (
-            <Tooltip key={peer.id} title={username} data-id={peer.id} arrow>
-              <Avatar alt="Peer Image" style={{ backgroundColor: color }} src={anonymous.getImage(image)} />
+            <Tooltip
+              key={peer.id}
+              title={peer.isMine ? `[ME] ${username}` : username}
+              data-id={peer.id}
+              arrow
+            >
+              <Avatar
+                alt="Peer Image"
+                className={peer.isMine ? classes.myAvatar : ''}
+                style={{ backgroundColor: color }}
+                src={anonymous.getImage(image)}
+              />
             </Tooltip>
           );
         })}

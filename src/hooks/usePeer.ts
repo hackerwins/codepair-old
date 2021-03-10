@@ -11,16 +11,12 @@ export default function usePeer() {
   const peers = useSelector((state: AppState) => state.peerState.peers);
 
   const activePeers = useMemo(() => {
-    return client
-      ? Object.entries(peers)
-          .filter(([peerID, peer]) => {
-            if (client.getID() === peerID) {
-              return false;
-            }
-            return peer.status === ConnectionStatus.Connected;
-          })
-          .map(([_, clientInfo]) => clientInfo)
-      : [];
+    if (!client) {
+      return [];
+    }
+    return Object
+      .values(peers)
+      .filter((peer) => peer.status === ConnectionStatus.Connected);
   }, [client, peers]);
 
   return { activePeers };

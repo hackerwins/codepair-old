@@ -58,7 +58,10 @@ export default function (props: { docKey: string }) {
       if (event.name === 'peers-changed') {
         const documentKey = doc.getKey().toIDString();
         const changedPeers = event.value[documentKey];
-        dispatch(syncPeer(changedPeers));
+        dispatch(syncPeer({
+          myClientID: client.getID(),
+          changedPeers,
+        }));
       }
     });
 

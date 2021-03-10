@@ -16,6 +16,7 @@ export interface Peer {
   id: ActorID;
   status: ConnectionStatus;
   metadata: Metadata;
+  isMine: boolean;
 }
 
 export interface PeerState {
@@ -34,7 +35,7 @@ const peerSlice = createSlice({
   initialState: initialPeerState,
   reducers: {
     syncPeer(state, action: PayloadAction<any>) {
-      const changedPeers = action.payload;
+      const { myClientID, changedPeers } = action.payload;
       const { peers } = state;
 
       for (const clientID of Object.keys(peers)) {
@@ -49,6 +50,7 @@ const peerSlice = createSlice({
             id: clientID,
             status: ConnectionStatus.Connected,
             metadata: metadata as Metadata,
+            isMine: myClientID === clientID,
           };
           state.peers[clientID] = peer;
         }
