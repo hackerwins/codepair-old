@@ -4,9 +4,9 @@ export default class Canvas {
   // eslint-disable-next-line react/static-property-placement
   private context: CanvasRenderingContext2D;
 
-  width = 0;
+  private width = 0;
 
-  height = 0;
+  private height = 0;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -30,21 +30,21 @@ export default class Canvas {
     return this.height;
   }
 
-  setWidth(width: number) {
-    this.canvas.width = width;
+  setWidth(width: number, devicePixelRatio?: number) {
     this.width = width;
+    this.canvas.width = devicePixelRatio ? width * devicePixelRatio : width;
     this.canvas.style.width = `${width}px`;
   }
 
-  setHeight(height: number) {
-    this.canvas.height = height;
+  setHeight(height: number, devicePixelRatio?: number) {
     this.height = height;
+    this.canvas.height = devicePixelRatio ? height * devicePixelRatio : height;
     this.canvas.style.height = `${height}px`;
   }
 
-  setSize(width: number, height: number) {
-    this.setWidth(width);
-    this.setHeight(height);
+  setSize(width: number, height: number, devicePixelRatio?: number) {
+    this.setWidth(width, devicePixelRatio);
+    this.setHeight(height, devicePixelRatio);
   }
 
   clear() {
@@ -52,6 +52,12 @@ export default class Canvas {
   }
 
   resize() {
-    this.setSize(this.canvas.width, this.canvas.height);
+    const { devicePixelRatio } = window;
+    if (devicePixelRatio) {
+      this.setSize(this.canvas.width, this.canvas.height, devicePixelRatio);
+      this.context.scale(devicePixelRatio, devicePixelRatio);
+    } else {
+      this.setSize(this.canvas.width, this.canvas.height);
+    }
   }
 }
