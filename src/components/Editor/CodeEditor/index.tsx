@@ -92,7 +92,7 @@ export default function CodeEditor() {
 
         // TODO(ppeeou) Load user's cursor position
         doc.subscribe((event) => {
-          if (event.name === 'remote-change') {
+          if (event.type === 'remote-change') {
             event.value.forEach((change: any) => {
               const { actor } = change.getID();
               if (actor !== client.getID()) {
@@ -112,7 +112,7 @@ export default function CodeEditor() {
         });
 
         // When there is a document modification connected to the yorkie
-        const root = doc.getRootObject();
+        const root = doc.getRoot();
         root.content.onChanges((changes: any) => {
           changes.forEach((change: any) => {
             const { actor, from, to } = change;

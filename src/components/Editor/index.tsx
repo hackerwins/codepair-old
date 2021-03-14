@@ -55,7 +55,7 @@ export default function (props: { docKey: string }) {
     }
 
     const unsubscribe = client.subscribe((event) => {
-      if (event.name === 'peers-changed') {
+      if (event.type === 'peers-changed') {
         const documentKey = doc.getKey().toIDString();
         const changedPeers = event.value[documentKey];
         dispatch(syncPeer({
@@ -85,7 +85,7 @@ export default function (props: { docKey: string }) {
 
       dispatch(attachDocLoading(true));
       await dispatch(attachDoc({ client, doc }));
-      dispatch(setCodeMode(doc.getRootObject().mode || CodeMode.Markdown));
+      dispatch(setCodeMode(doc.getRoot().mode || CodeMode.Markdown));
       dispatch(attachDocLoading(false));
     }
 

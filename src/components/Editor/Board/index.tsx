@@ -28,7 +28,7 @@ export default function Board({ width, height }: { width: number; height: number
     canvasRef.current.height = height;
     containerRef.current = new Container(canvasRef.current, doc.update.bind(doc), options);
     containerRef.current.setTool(tool);
-    containerRef.current.drawAll(doc.getRootObject().shapes);
+    containerRef.current.drawAll(doc.getRoot().shapes);
   }, [width, height, doc, tool]);
 
   useEffect(() => {
@@ -37,8 +37,8 @@ export default function Board({ width, height }: { width: number; height: number
     }
 
     const unsubscribe = doc.subscribe((event) => {
-      if (event.name === 'remote-change') {
-        containerRef.current?.drawAll(doc.getRootObject().shapes);
+      if (event.type === 'remote-change') {
+        containerRef.current?.drawAll(doc.getRoot().shapes);
       }
     });
 
