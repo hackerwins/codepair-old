@@ -6,6 +6,7 @@ import Canvas from './Canvas';
 import { Point, Line, EraserLine } from './Shape';
 import { drawLine } from './line';
 import Worker from './worker';
+import { addEvent, removeEvent } from './dom';
 
 interface Options {
   color: string;
@@ -62,10 +63,13 @@ export default class Container {
     this.scene.getContext().strokeStyle = this.options.color;
 
     this.drawAll = this.drawAll.bind(this);
-    this.scene.getCanvas().onmouseup = this.onmouseup.bind(this);
-    this.scene.getCanvas().onmouseout = this.onmouseup.bind(this);
-    this.scene.getCanvas().onmousedown = this.onmousedown.bind(this);
-    this.scene.getCanvas().onmousemove = this.onmousemove.bind(this);
+    this.onmousemove = this.onmousemove.bind(this);
+    this.onmousedown = this.onmousedown.bind(this);
+    this.onmouseup = this.onmouseup.bind(this);
+
+    this.scene.getCanvas().onmouseup = this.onmouseup;
+    this.scene.getCanvas().onmouseout = this.onmouseup;
+    this.scene.getCanvas().onmousedown = this.onmousedown;
   }
 
   setTool(tool: Tool) {
@@ -97,6 +101,7 @@ export default class Container {
       return;
     }
 
+    addEvent(this.scene.getCanvas(), 'mousemove', this.onmousemove as EventListener);
     this.dragStatus = DragStatus.Drag;
 
     if (this.worker.isRecordWork(this.tool)) {
@@ -123,6 +128,7 @@ export default class Container {
   }
 
   onmouseup() {
+    removeEvent(this.scene.getCanvas(), 'mousemove', this.onmousemove as EventListener);
     this.dragStatus = DragStatus.Stop;
 
     if (this.worker.isRecordWork(this.tool)) {
