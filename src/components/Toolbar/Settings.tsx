@@ -14,7 +14,6 @@ import { AppState } from 'app/rootReducer';
 const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
-      width: '400px',
       minWidth: '320px',
       borderRadius: '4px',
     },
@@ -64,7 +63,9 @@ const Settings = () => {
     <div className={classes.root}>
       <Box>
         <header className={classes.header}>
-          <Typography className={classes.title} variant="h6">Settings</Typography>
+          <Typography className={classes.title} variant="h6">
+            Settings
+          </Typography>
         </header>
       </Box>
       <div className={classes.list}>
