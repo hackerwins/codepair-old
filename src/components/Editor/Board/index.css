@@ -1,3 +1,7 @@
+.canvas-touch-none {
+  touch-action: none;
+}
+
 /* mouse css */
 .auto {
   cursor: auto;

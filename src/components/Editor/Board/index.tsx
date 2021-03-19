@@ -16,7 +16,7 @@ export default function Board({ width, height }: { width: number; height: number
 
   useEffect(() => {
     if (!canvasRef.current || !doc) {
-      return;
+      return () => {};
     }
 
     const options = {
@@ -26,9 +26,15 @@ export default function Board({ width, height }: { width: number; height: number
 
     canvasRef.current.width = width;
     canvasRef.current.height = height;
-    containerRef.current = new Container(canvasRef.current, doc.update.bind(doc), options);
+
+    const container = new Container(canvasRef.current, doc.update.bind(doc), options);
+    containerRef.current = container;
     containerRef.current.setTool(tool);
     containerRef.current.drawAll(doc.getRoot().shapes);
+
+    return () => {
+      container.destroy();
+    };
   }, [width, height, doc, tool]);
 
   useEffect(() => {

@@ -6,7 +6,7 @@ import Canvas from './Canvas';
 import { Point, Line, EraserLine } from './Shape';
 import { drawLine } from './line';
 import Worker from './worker';
-import { addEvent, removeEvent } from './dom';
+import { addEvent, removeEvent, touchy } from './dom';
 
 interface Options {
   color: string;
@@ -61,15 +61,20 @@ export default class Container {
 
   init() {
     this.scene.getContext().strokeStyle = this.options.color;
-
     this.drawAll = this.drawAll.bind(this);
-    this.onmousemove = this.onmousemove.bind(this);
-    this.onmousedown = this.onmousedown.bind(this);
     this.onmouseup = this.onmouseup.bind(this);
+    this.onmousedown = this.onmousedown.bind(this);
+    this.onmousemove = this.onmousemove.bind(this);
 
-    this.scene.getCanvas().onmouseup = this.onmouseup;
-    this.scene.getCanvas().onmouseout = this.onmouseup;
-    this.scene.getCanvas().onmousedown = this.onmousedown;
+    touchy(this.scene.getCanvas(), addEvent, 'mouseup', this.onmouseup as EventListener);
+    touchy(this.scene.getCanvas(), addEvent, 'mouseout', this.onmouseup as EventListener);
+    touchy(this.scene.getCanvas(), addEvent, 'mousedown', this.onmousedown as EventListener);
+  }
+
+  destroy() {
+    touchy(this.scene.getCanvas(), removeEvent, 'mouseup', this.onmouseup as EventListener);
+    touchy(this.scene.getCanvas(), removeEvent, 'mouseout', this.onmouseup as EventListener);
+    touchy(this.scene.getCanvas(), removeEvent, 'mousedown', this.onmousedown as EventListener);
   }
 
   setTool(tool: Tool) {
@@ -82,28 +87,35 @@ export default class Container {
     this.scene.getCanvas().className = '';
 
     if (tool === Tool.Line) {
-      this.scene.getCanvas().classList.add('crosshair');
+      this.scene.getCanvas().classList.add('crosshair', 'canvas-touch-none');
     } else if (tool === Tool.Eraser) {
-      this.scene.getCanvas().classList.add('eraser');
+      this.scene.getCanvas().classList.add('eraser', 'canvas-touch-none');
     }
   }
 
-  getMouse(evt: MouseEvent): Point {
+  getMouse(evt: MouseEvent | TouchEvent): Point {
+    let originY;
+    let originX;
+    if (evt instanceof TouchEvent) {
+      originY = evt.touches[0].clientY;
+      originX = evt.touches[0].clientX;
+    } else {
+      originY = evt.clientY;
+      originX = evt.clientX;
+    }
+    originY += window.scrollY;
+    originX += window.scrollX;
     return {
-      y: evt.pageY - this.offsetY,
-      x: evt.pageX - this.offsetX,
+      y: originY - this.offsetY,
+      x: originX - this.offsetX,
     };
   }
 
   onmousedown(evt: MouseEvent) {
-    const point = this.getMouse(evt);
-    if (this.isOutSide(point)) {
-      return;
-    }
-
-    addEvent(this.scene.getCanvas(), 'mousemove', this.onmousemove as EventListener);
+    touchy(this.scene.getCanvas(), addEvent, 'mousemove', this.onmousemove as EventListener);
     this.dragStatus = DragStatus.Drag;
 
+    const point = this.getMouse(evt);
     if (this.worker.isRecordWork(this.tool)) {
       this.createId = this.worker.createShape(this.tool, point);
       this.worker.executeTask(this.createId, this.tool, this.drawAll);
@@ -128,7 +140,7 @@ export default class Container {
   }
 
   onmouseup() {
-    removeEvent(this.scene.getCanvas(), 'mousemove', this.onmousemove as EventListener);
+    touchy(this.scene.getCanvas(), removeEvent, 'mousemove', this.onmousemove as EventListener);
     this.dragStatus = DragStatus.Stop;
 
     if (this.worker.isRecordWork(this.tool)) {
