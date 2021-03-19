@@ -34,7 +34,7 @@
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
     "typescript": "^3.7.5",
-    "yorkie-js-sdk": "yorkie-team/yorkie-js-sdk#main"
+    "yorkie-js-sdk": "yorkie-team/yorkie-js-sdk#fix-divergence-text"
   },
   "scripts": {
     "start": "react-scripts start",

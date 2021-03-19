@@ -93,8 +93,8 @@ export default function CodeEditor() {
         // TODO(ppeeou) Load user's cursor position
         doc.subscribe((event) => {
           if (event.type === 'remote-change') {
-            event.value.forEach((change: any) => {
-              const { actor } = change.getID();
+            for (const { change } of event.value) {
+              const actor = change.getID().getActorID()!;
               if (actor !== client.getID()) {
                 if (!cursorMapRef.current.has(actor)) {
                   return;
@@ -107,14 +107,14 @@ export default function CodeEditor() {
 
                 updateCursor(actor, editor.posFromIndex(0));
               }
-            });
+            }
           }
         });
 
         // When there is a document modification connected to the yorkie
         const root = doc.getRoot();
-        root.content.onChanges((changes: any) => {
-          changes.forEach((change: any) => {
+        root.content.onChanges((changes) => {
+          changes.forEach((change) => {
             const { actor, from, to } = change;
             if (change.type === 'content') {
               const content = change.content || '';
@@ -143,7 +143,7 @@ export default function CodeEditor() {
       }}
       // Notifying other clients to move the cursor
       onSelection={(editor: CodeMirror.Editor, data: CodeMirror.EditorSelectionChange) => {
-        if (data.origin === undefined) {
+        if (!data.origin) {
           return;
         }
 
