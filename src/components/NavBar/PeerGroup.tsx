@@ -6,7 +6,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { makeStyles } from '@material-ui/core/styles';
 import anonymous from 'anonymous-animals-gen';
 
-import Popover from 'components/Popover';
+import Popover from 'components/commons/Popover';
 import PeerList from 'components/NavBar/PeerList';
 import { AppState } from 'app/rootReducer';
 import usePeer from 'hooks/usePeer';
@@ -55,12 +55,7 @@ export default function PeerGroup() {
         {activePeers.map((peer) => {
           const { username, color, image } = peer.metadata;
           return (
-            <Tooltip
-              key={peer.id}
-              title={peer.isMine ? `[ME] ${username}` : username}
-              data-id={peer.id}
-              arrow
-            >
+            <Tooltip key={peer.id} title={peer.isMine ? `[ME] ${username}` : username} data-id={peer.id} arrow>
               <Avatar
                 alt="Peer Image"
                 className={peer.isMine ? classes.myAvatar : ''}

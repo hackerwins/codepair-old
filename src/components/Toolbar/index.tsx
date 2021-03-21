@@ -9,7 +9,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
-import Popover from 'components/Popover';
+import Popover from 'components/commons/Popover';
 import Settings from 'components/Toolbar/Settings';
 
 import { AppState } from 'app/rootReducer';
