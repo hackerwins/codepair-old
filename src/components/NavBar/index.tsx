@@ -5,6 +5,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 
 import PeerGroup from 'components/NavBar/PeerGroup';
+import ShareButton from 'components/NavBar/ShareButton';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -14,8 +15,11 @@ const useStyles = makeStyles((theme: Theme) =>
     appBar: {
       backgroundColor: 'black',
     },
-    menuButton: {
-      marginRight: theme.spacing(2),
+    items: {
+      display: 'flex',
+      '& > *': {
+        margin: theme.spacing(1),
+      },
     },
     title: {
       flexGrow: 1,
@@ -27,7 +31,6 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function MenuAppBar() {
   const classes = useStyles();
-
   return (
     <div className={classes.root}>
       <AppBar position="static" className={classes.appBar}>
@@ -35,7 +38,10 @@ function MenuAppBar() {
           <Typography variant="h6" className={classes.title}>
             Yorkie CodePair
           </Typography>
-          <PeerGroup />
+          <div className={classes.items}>
+            <ShareButton />
+            <PeerGroup />
+          </div>
         </Toolbar>
       </AppBar>
     </div>
