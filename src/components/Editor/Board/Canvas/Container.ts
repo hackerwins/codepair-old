@@ -8,6 +8,8 @@ import { drawLine } from './line';
 import Worker from './worker';
 import { addEvent, removeEvent, touchy } from './dom';
 
+type TouchyEvent = MouseEvent & TouchEvent;
+
 interface Options {
   color: string;
   eraserColor: string;
@@ -93,10 +95,10 @@ export default class Container {
     }
   }
 
-  getMouse(evt: MouseEvent | TouchEvent): Point {
+  getMouse(evt: TouchyEvent): Point {
     let originY;
     let originX;
-    if (evt instanceof TouchEvent) {
+    if (window.TouchEvent && evt instanceof TouchEvent) {
       originY = evt.touches[0].clientY;
       originX = evt.touches[0].clientX;
     } else {
@@ -111,7 +113,7 @@ export default class Container {
     };
   }
 
-  onmousedown(evt: MouseEvent) {
+  onmousedown(evt: TouchyEvent) {
     touchy(this.scene.getCanvas(), addEvent, 'mousemove', this.onmousemove as EventListener);
     this.dragStatus = DragStatus.Drag;
 
@@ -122,7 +124,7 @@ export default class Container {
     }
   }
 
-  onmousemove(evt: MouseEvent) {
+  onmousemove(evt: TouchyEvent) {
     const point = this.getMouse(evt);
     if (this.isOutSide(point)) {
       return;
