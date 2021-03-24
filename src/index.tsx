@@ -10,6 +10,7 @@ import * as serviceWorker from 'serviceWorker';
 
 Sentry.init({
   dsn: 'https://d287d6df8c6f423189266360055e6ca7@o553194.ingest.sentry.io/5680102',
+  release: `yorkie-codepair@${process.env.REACT_APP_GIT_HASH}`,
   integrations: [new Integrations.BrowserTracing()],
 
   // Set tracesSampleRate to 1.0 to capture 100%
