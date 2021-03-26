@@ -1,5 +1,7 @@
 import React, { useState, useCallback, useRef } from 'react';
+import { useSelector } from 'react-redux';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
+
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
@@ -10,6 +12,8 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import Dialog, { DialogTitle, DialogContent, DialogActions, DialogContentText } from 'components/commons/Dialog';
 import Fade from 'components/commons/Fade';
+import { AppState } from 'app/rootReducer';
+import { DocStatus } from 'features/docSlices';
 
 const useStyles = makeStyles(() => ({
   dialog: {
@@ -27,6 +31,7 @@ const useStyles = makeStyles(() => ({
 
 export default function ShareButton() {
   const classes = useStyles();
+  const status = useSelector((state: AppState) => state.docState.status);
   const [open, setOpen] = useState(false);
   const [showCopyText, setShowCopyText] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -50,7 +55,14 @@ export default function ShareButton() {
 
   return (
     <>
-      <Button size="small" color="primary" variant="contained" startIcon={<GroupIcon />} onClick={openModal}>
+      <Button
+        size="small"
+        color="primary"
+        variant="contained"
+        startIcon={<GroupIcon />}
+        onClick={openModal}
+        disabled={status === DocStatus.Disconnect}
+      >
         Share
       </Button>
       <Dialog open={open} onClose={closeModal} className={classes.dialog}>

@@ -30,18 +30,25 @@ export type PairDoc = {
   shapes: Array<Shape>;
 };
 
+export enum DocStatus {
+  Disconnect = 'disconnect',
+  Connect = 'connect',
+}
+
 export interface DocState {
   client?: Client;
   doc?: Document<PairDoc>;
   mode: CodeMode;
   loading: boolean;
   errorMessage: string;
+  status: DocStatus;
 }
 
 const initialState: DocState = {
   mode: CodeMode.Markdown,
   loading: true,
   errorMessage: '',
+  status: DocStatus.Connect,
 };
 
 export const activateClient = createAsyncThunk<ActivateClientResult, undefined, { rejectValue: string }>(
@@ -112,6 +119,9 @@ const docSlice = createSlice({
     setCodeMode(state, action: PayloadAction<CodeMode>) {
       state.mode = action.payload;
     },
+    setStatus(state, action: PayloadAction<DocStatus>) {
+      state.status = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(activateClient.fulfilled, (state, { payload }) => {
@@ -130,7 +140,14 @@ const docSlice = createSlice({
   },
 });
 
-export const { deactivateClient, createDocument, detachDocument, attachDocLoading, setCodeMode } = docSlice.actions;
+export const {
+  deactivateClient,
+  createDocument,
+  detachDocument,
+  attachDocLoading,
+  setCodeMode,
+  setStatus,
+} = docSlice.actions;
 export default docSlice.reducer;
 
 type ActivateClientResult = { client: Client };
