@@ -16,6 +16,8 @@ import {
   attachDocLoading,
   CodeMode,
   setCodeMode,
+  DocStatus,
+  setStatus,
 } from 'features/docSlices';
 import { syncPeer } from 'features/peerSlices';
 import Editor, { NAVBAR_HEIGHT } from './Editor';
@@ -38,6 +40,7 @@ export default function (props: { docKey: string }) {
   const dispatch = useDispatch();
   const client = useSelector((state: AppState) => state.docState.client);
   const doc = useSelector((state: AppState) => state.docState.doc);
+  const status = useSelector((state: AppState) => state.docState.status);
   const tool = useSelector((state: AppState) => state.boardState.tool);
   const loading = useSelector((state: AppState) => state.docState.loading);
   const errorMessage = useSelector((state: AppState) => state.docState.errorMessage);
@@ -58,17 +61,37 @@ export default function (props: { docKey: string }) {
       if (event.type === 'peers-changed') {
         const documentKey = doc.getKey().toIDString();
         const changedPeers = event.value[documentKey];
-        dispatch(syncPeer({
-          myClientID: client.getID(),
-          changedPeers,
-        }));
+        dispatch(
+          syncPeer({
+            myClientID: client.getID(),
+            changedPeers,
+          }),
+        );
+      }
+
+      if (
+        status === DocStatus.Connect &&
+        ((event.type === 'status-changed' && event.value === 'deactivated') ||
+          (event.type === 'stream-connection-status-changed' && event.value === 'disconnected') ||
+          (event.type === 'document-sync-result' && event.value === 'sync-failed'))
+      ) {
+        dispatch(setStatus(DocStatus.Disconnect));
+      } else if (
+        status === DocStatus.Disconnect &&
+        (event.type === 'peers-changed' ||
+          event.type === 'documents-changed' ||
+          (event.type === 'status-changed' && event.value === 'activated') ||
+          (event.type === 'stream-connection-status-changed' && event.value === 'connected') ||
+          (event.type === 'document-sync-result' && event.value === 'synced'))
+      ) {
+        dispatch(setStatus(DocStatus.Connect));
       }
     });
 
     return () => {
       unsubscribe();
     };
-  }, [client, doc]);
+  }, [client, doc, status]);
 
   useEffect(() => {
     dispatch(createDocument(docKey));
