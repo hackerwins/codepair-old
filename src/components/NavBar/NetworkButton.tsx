@@ -52,8 +52,9 @@ function NetworkAlert({ title, subTitle, content }: NetworkAlertProps) {
   );
 }
 
-function NetworkDisconnect() {
+function NetworkDisconnect(props: { hasLocalChanges: boolean }) {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | undefined>();
+  const { hasLocalChanges } = props;
   const handleOpen = useCallback((event: MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   }, []);
@@ -81,7 +82,7 @@ function NetworkDisconnect() {
         }}
       >
         <NetworkAlert
-          title="There are changes that couldn't be sent to Server"
+          title={hasLocalChanges ? "There are changes that couldn't be sent to Server" : 'All Changes saved to Server'}
           subTitle="This document is ready for offline use"
           content="Looks like you're offline. Changes will save to this memory now, and save to Server once reconnected."
         />
@@ -130,9 +131,12 @@ function NetworkConnect() {
 
 export default function NetworkButton() {
   const status = useSelector((state: AppState) => state.docState.status);
+  const hasLocalChanges = useSelector((state: AppState) => {
+    return state.docState.doc ? state.docState.doc.hasLocalChanges() : false;
+  });
 
   if (status === DocStatus.Connect) {
     return <NetworkConnect />;
   }
-  return <NetworkDisconnect />;
+  return <NetworkDisconnect hasLocalChanges={hasLocalChanges} />;
 }
