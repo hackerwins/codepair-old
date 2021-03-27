@@ -151,7 +151,7 @@ export default function CodeEditor() {
         const to = editor.indexFromPos(data.ranges[0].head);
 
         doc.update((root) => {
-          root.content.updateSelection(from, to);
+          root.content.select(from, to);
         });
       }}
       // Edit the yorkie document
