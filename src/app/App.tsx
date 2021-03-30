@@ -1,19 +1,21 @@
 import React, { useMemo, useCallback } from 'react';
+import { useSelector } from 'react-redux';
 import { HashRouter as Router, Route, Redirect } from 'react-router-dom';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+import { AppState } from 'app/rootReducer';
+import { Theme } from 'features/settingSlices';
 
 import DocPage from 'pages/DocPage';
 import './App.css';
 
 function App() {
-  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  const menu = useSelector((state: AppState) => state.settingState.menu);
   const theme = useMemo(
     () =>
       createMuiTheme({
         palette: {
-          type: prefersDarkMode ? 'dark' : 'light',
+          type: menu.theme === Theme.Dark ? 'dark' : 'light',
           primary: {
             main: '#d8b01a',
           },
@@ -22,7 +24,7 @@ function App() {
           },
         },
       }),
-    [prefersDarkMode],
+    [menu],
   );
 
   const handleRender = useCallback(() => {

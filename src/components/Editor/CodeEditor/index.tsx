@@ -5,6 +5,7 @@ import { UnControlled as CodeMirror } from 'react-codemirror2';
 
 import { AppState } from 'app/rootReducer';
 import { ConnectionStatus, Metadata } from 'features/peerSlices';
+import { Theme } from 'features/settingSlices';
 
 import Cursor from './Cursor';
 
@@ -26,7 +27,7 @@ import 'codemirror/keymap/vim';
 
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/monokai.css';
-import 'codemirror/theme/material.css';
+import 'codemirror/theme/xq-light.css';
 import './index.css';
 
 export default function CodeEditor() {
@@ -70,7 +71,7 @@ export default function CodeEditor() {
       className="CodeMirror"
       options={{
         mode: codeMode,
-        theme: menu.codeTheme,
+        theme: menu.theme === Theme.Dark ? 'monokai' : 'xq-light',
         keyMap: menu.codeKeyMap,
         tabSize: Number(menu.tabSize),
         lineNumbers: true,
