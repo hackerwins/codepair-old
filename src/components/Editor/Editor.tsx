@@ -7,7 +7,7 @@ import Sidebar from 'components/Editor/Sidebar';
 import { Tool } from 'features/boardSlices';
 
 export const NAVBAR_HEIGHT = 110;
-const SIDEBAR_WIDTH = 48;
+const SIDEBAR_WIDTH = 45;
 
 interface EditorProps {
   tool: Tool;

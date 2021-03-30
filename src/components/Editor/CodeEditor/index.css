@@ -39,6 +39,10 @@
   height: 100%;
 }
 
+.CodeMirror .cm-s-xq-light {
+  background-color: #eee;
+}
+
 /* 
 * When the user name needs to be expressed in the mouse cursor, 
 * codemirror's default style marks outgoing doms as hidden, How to solve this.

@@ -29,7 +29,6 @@ const useStyles = makeStyles((theme: Theme) =>
     selectEmpty: {
       paddingLeft: '12px',
     },
-
     rightButtonControl: {
       float: 'right',
     },
