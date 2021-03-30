@@ -40,7 +40,7 @@ function MenuAppBar() {
       <AppBar position="static" className={classes.appBar}>
         <Toolbar>
           <Typography variant="h6" className={classes.title}>
-            Yorkie CodePair
+            CodePair
           </Typography>
           <NetworkButton />
           <div className={classes.grow} />

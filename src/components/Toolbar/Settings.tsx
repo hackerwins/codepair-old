@@ -8,7 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import FormControl from '@material-ui/core/FormControl';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 
-import { CodeTheme, CodeKeyMap, TabSize, setCodeTheme, setCodeKeyMap, setTabSize } from 'features/settingSlices';
+import { Theme, CodeKeyMap, TabSize, setTheme, setCodeKeyMap, setTabSize } from 'features/settingSlices';
 import { AppState } from 'app/rootReducer';
 
 const useStyles = makeStyles((theme) =>
@@ -72,8 +72,8 @@ const Settings = () => {
         <div className={classes.item}>
           <div className={classes.itemTitle}>Theme</div>
           <FormControl className={classes.itemInfo}>
-            <Select value={menu.codeTheme} onChange={handleChange(setCodeTheme)} disableUnderline displayEmpty>
-              {Object.entries(CodeTheme).map(([display, theme]: [string, string]) => {
+            <Select value={menu.theme} onChange={handleChange(setTheme)} disableUnderline displayEmpty>
+              {Object.entries(Theme).map(([display, theme]: [string, string]) => {
                 return (
                   <MenuItem value={theme} key={theme}>
                     {display}

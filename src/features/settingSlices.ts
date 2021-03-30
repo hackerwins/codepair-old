@@ -1,9 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import BrowserStorage from 'utils/storage';
 
-export enum CodeTheme {
-  Material = 'material',
-  Monokai = 'monokai',
+export enum Theme {
+  Dark = 'dark',
+  Light = 'light',
 }
 
 export enum CodeKeyMap {
@@ -18,7 +18,7 @@ export enum TabSize {
   Eight = '8',
 }
 
-export type MenuKey = 'codeTheme' | 'codeKeyMap' | 'tabSize';
+export type MenuKey = 'theme' | 'codeKeyMap' | 'tabSize';
 
 export type Menu = {
   [key in MenuKey]: string;
@@ -32,7 +32,7 @@ const SettingModel = new BrowserStorage<SettingState>('$$codepair$$setting');
 
 const initialState: SettingState = SettingModel.getValue({
   menu: {
-    codeTheme: CodeTheme.Monokai,
+    theme: Theme.Dark,
     codeKeyMap: CodeKeyMap.Sublime,
     tabSize: TabSize.Two,
   },
@@ -42,9 +42,8 @@ const settingSlice = createSlice({
   name: 'setting',
   initialState,
   reducers: {
-
-    setCodeTheme(state, action: PayloadAction<CodeTheme>) {
-      state.menu.codeTheme = action.payload;
+    setTheme(state, action: PayloadAction<Theme>) {
+      state.menu.theme = action.payload;
       SettingModel.setValue(state);
     },
 
@@ -60,5 +59,5 @@ const settingSlice = createSlice({
   },
 });
 
-export const { setCodeTheme, setCodeKeyMap, setTabSize } = settingSlice.actions;
+export const { setTheme, setCodeKeyMap, setTabSize } = settingSlice.actions;
 export default settingSlice.reducer;
