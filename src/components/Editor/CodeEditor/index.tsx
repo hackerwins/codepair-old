@@ -30,7 +30,11 @@ import 'codemirror/theme/monokai.css';
 import 'codemirror/theme/xq-light.css';
 import './index.css';
 
-export default function CodeEditor() {
+interface CodeEditorProps {
+  forwardedRef: React.MutableRefObject<CodeMirror.Editor | null>;
+}
+
+export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
   const doc = useSelector((state: AppState) => state.docState.doc);
   const codeMode = useSelector((state: AppState) => state.docState.mode);
   const client = useSelector((state: AppState) => state.docState.client);
@@ -38,12 +42,9 @@ export default function CodeEditor() {
   const menu = useSelector((state: AppState) => state.settingState.menu);
   const cursorMapRef = useRef<Map<ActorID, Cursor>>(new Map());
 
-  const connectCursor = useCallback(
-    (clientID: ActorID, metadata: Metadata) => {
-      cursorMapRef.current.set(clientID, new Cursor(clientID, metadata));
-    },
-    [peers],
-  );
+  const connectCursor = useCallback((clientID: ActorID, metadata: Metadata) => {
+    cursorMapRef.current.set(clientID, new Cursor(clientID, metadata));
+  }, []);
 
   const disconnectCursor = useCallback((clientID: ActorID) => {
     if (cursorMapRef.current.has(clientID)) {
@@ -80,6 +81,9 @@ export default function CodeEditor() {
         autoCloseBrackets: true,
       }}
       editorDidMount={(editor: CodeMirror.Editor) => {
+        // eslint-disable-next-line no-param-reassign
+        forwardedRef.current = editor;
+
         editor.focus();
         const updateCursor = (clientID: ActorID, pos: CodeMirror.Position) => {
           const cursor = cursorMapRef.current.get(clientID);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 
 import CodeEditor from 'components/Editor/CodeEditor';
@@ -48,6 +48,13 @@ export default function Editor({ tool }: EditorProps) {
   const [height, setHeight] = useState(0);
 
   const divRef = useRef<HTMLDivElement>(null);
+  const codeEditorRef = useRef<CodeMirror.Editor>(null);
+
+  const onClickEditor = useCallback(() => {
+    if (tool === Tool.None) {
+      codeEditorRef.current?.focus();
+    }
+  }, [tool]);
 
   useEffect(() => {
     const onResize = () => {
@@ -68,10 +75,10 @@ export default function Editor({ tool }: EditorProps) {
   }, []);
 
   return (
-    <div className={classes.root}>
+    <div className={classes.root} onClick={onClickEditor} aria-hidden="true">
       <div className={classes.editor} ref={divRef}>
         <div className={classes.codeEditor}>
-          <CodeEditor />
+          <CodeEditor forwardedRef={codeEditorRef} />
         </div>
         <div className={classes.canvas}>
           <Board width={width} height={height} />
