@@ -2,7 +2,7 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import IconButton from '@material-ui/core/IconButton';
-import EditIcon from '@material-ui/icons/Edit';
+import BrushIcon from '@material-ui/icons/Brush';
 import CodeIcon from '@material-ui/icons/Code';
 import Tooltip from '@material-ui/core/Tooltip';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
@@ -45,9 +45,9 @@ export default function Sidebar() {
           <CodeIcon fontSize="small" />
         </IconButton>
       </Tooltip>
-      <Tooltip title="Pencel" arrow className={tool === Tool.Line ? classes.select : classes.button}>
-        <IconButton aria-label="Pencel" onClick={handleSelectTool(Tool.Line)}>
-          <EditIcon fontSize="small" />
+      <Tooltip title="Brush" arrow className={tool === Tool.Line ? classes.select : classes.button}>
+        <IconButton aria-label="Brush" onClick={handleSelectTool(Tool.Line)}>
+          <BrushIcon fontSize="small" />
         </IconButton>
       </Tooltip>
       <Tooltip title="Eraser" arrow className={tool === Tool.Eraser ? classes.select : classes.button}>
