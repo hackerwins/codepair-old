@@ -11,6 +11,7 @@ import Cursor from './Cursor';
 
 import 'codemirror/addon/edit/closebrackets';
 import 'codemirror/addon/edit/closetag';
+import 'codemirror/addon/comment/comment';
 
 import 'codemirror/mode/gfm/gfm';
 import 'codemirror/mode/go/go';
