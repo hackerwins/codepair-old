@@ -5,8 +5,17 @@ export type Point = {
   x: number;
 };
 
+export interface Box {
+  y: number;
+  x: number;
+  width: number;
+  height: number;
+}
+
 // TODO(ppeeou) refer to yorkie-sdk-js ArrayProxy
 export interface BaseShape {
+  type: string;
+  box?: Box;
   getID(): TimeTicket;
 }
 
@@ -20,7 +29,13 @@ export interface EraserLine extends BaseShape {
   points: Array<Point>;
 }
 
-export type Shape = Line | EraserLine;
+export interface Rect extends BaseShape {
+  type: 'rect';
+  points: Array<Point>;
+  box: Box;
+}
+
+export type Shape = Line | EraserLine | Rect;
 
 // TODO(ppeeou) refer to yorkie-sdk-js ArrayProxy
 export interface Shapes {

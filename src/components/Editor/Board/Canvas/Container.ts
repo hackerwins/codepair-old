@@ -3,12 +3,11 @@ import { Tool } from 'features/boardSlices';
 import { Shape } from 'features/docSlices';
 import Canvas from './Canvas';
 
-import { Point, Line, EraserLine } from './Shape';
+import { Point, Line, EraserLine, Rect } from './Shape';
 import { drawLine } from './line';
+import { drawRect } from './rect';
 import Worker from './worker';
-import { addEvent, removeEvent, touchy } from './dom';
-
-type TouchyEvent = MouseEvent & TouchEvent;
+import { addEvent, removeEvent, touchy, TouchyEvent } from './dom';
 
 interface Options {
   color: string;
@@ -68,15 +67,15 @@ export default class Container {
     this.onmousedown = this.onmousedown.bind(this);
     this.onmousemove = this.onmousemove.bind(this);
 
-    touchy(this.scene.getCanvas(), addEvent, 'mouseup', this.onmouseup as EventListener);
-    touchy(this.scene.getCanvas(), addEvent, 'mouseout', this.onmouseup as EventListener);
-    touchy(this.scene.getCanvas(), addEvent, 'mousedown', this.onmousedown as EventListener);
+    touchy(this.scene.getCanvas(), addEvent, 'mouseup', this.onmouseup);
+    touchy(this.scene.getCanvas(), addEvent, 'mouseout', this.onmouseup);
+    touchy(this.scene.getCanvas(), addEvent, 'mousedown', this.onmousedown);
   }
 
   destroy() {
-    touchy(this.scene.getCanvas(), removeEvent, 'mouseup', this.onmouseup as EventListener);
-    touchy(this.scene.getCanvas(), removeEvent, 'mouseout', this.onmouseup as EventListener);
-    touchy(this.scene.getCanvas(), removeEvent, 'mousedown', this.onmousedown as EventListener);
+    touchy(this.scene.getCanvas(), removeEvent, 'mouseup', this.onmouseup);
+    touchy(this.scene.getCanvas(), removeEvent, 'mouseout', this.onmouseup);
+    touchy(this.scene.getCanvas(), removeEvent, 'mousedown', this.onmousedown);
   }
 
   setTool(tool: Tool) {
@@ -88,7 +87,7 @@ export default class Container {
   setMouseClass(tool: Tool) {
     this.scene.getCanvas().className = '';
 
-    if (tool === Tool.Line) {
+    if (tool === Tool.Line || tool === Tool.Rect) {
       this.scene.getCanvas().classList.add('crosshair', 'canvas-touch-none');
     } else if (tool === Tool.Eraser) {
       this.scene.getCanvas().classList.add('eraser', 'canvas-touch-none');
@@ -114,13 +113,18 @@ export default class Container {
   }
 
   onmousedown(evt: TouchyEvent) {
-    touchy(this.scene.getCanvas(), addEvent, 'mousemove', this.onmousemove as EventListener);
+    touchy(this.scene.getCanvas(), addEvent, 'mousemove', this.onmousemove);
     this.dragStatus = DragStatus.Drag;
 
     const point = this.getMouse(evt);
-    if (this.worker.isRecordWork(this.tool)) {
+    if (this.tool === Tool.Line || this.tool === Tool.Eraser || this.tool === Tool.Rect) {
       this.createId = this.worker.createShape(this.tool, point);
       this.worker.executeTask(this.createId, this.tool, this.drawAll);
+    } else if (this.tool === Tool.Selector) {
+      const shape = this.worker.selectShape(point);
+      if (shape) {
+        this.worker.executeTask(shape.getID(), this.tool, this.drawAll);
+      }
     }
   }
 
@@ -134,7 +138,12 @@ export default class Container {
       return;
     }
 
-    if (this.worker.isRecordWork(this.tool)) {
+    if (
+      this.tool === Tool.Line ||
+      this.tool === Tool.Eraser ||
+      this.tool === Tool.Rect ||
+      this.tool === Tool.Selector
+    ) {
       this.worker.reserveTask({
         point,
       });
@@ -142,13 +151,19 @@ export default class Container {
   }
 
   onmouseup() {
-    touchy(this.scene.getCanvas(), removeEvent, 'mousemove', this.onmousemove as EventListener);
+    touchy(this.scene.getCanvas(), removeEvent, 'mousemove', this.onmousemove);
     this.dragStatus = DragStatus.Stop;
 
-    if (this.worker.isRecordWork(this.tool)) {
+    if (
+      this.tool === Tool.Line ||
+      this.tool === Tool.Eraser ||
+      this.tool === Tool.Rect ||
+      this.tool === Tool.Selector
+    ) {
       this.worker.flushTask(this.createId!, this.tool, this.drawAll);
-      this.createId = undefined;
     }
+
+    this.createId = undefined;
   }
 
   isOutSide(point: Point) {
@@ -168,9 +183,11 @@ export default class Container {
 
   draw(shape: Shape, canvas: Canvas = this.scene) {
     if (shape.type === 'line') {
-      drawLine(canvas.getContext(), this.options.color, shape as Line);
+      drawLine(canvas.getContext(), shape as Line, this.options.color);
     } else if (shape.type === 'eraser') {
-      drawLine(canvas.getContext(), this.options.eraserColor, shape as EraserLine);
+      drawLine(canvas.getContext(), shape as EraserLine, this.options.eraserColor);
+    } else if (shape.type === 'rect') {
+      drawRect(canvas.getContext(), shape as Rect);
     }
   }
 

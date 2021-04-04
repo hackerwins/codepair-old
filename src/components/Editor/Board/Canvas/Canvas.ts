@@ -11,7 +11,10 @@ export default class Canvas {
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     this.context = canvas.getContext('2d')!;
+
     this.resize();
+    this.context.lineWidth = 3;
+    this.context.lineCap = 'round';
   }
 
   getCanvas() {

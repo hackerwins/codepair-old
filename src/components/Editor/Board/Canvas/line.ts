@@ -23,7 +23,7 @@ export function createEraserLine(point: Point): EraserLine {
 /**
  * Draw a line on the canvas.
  */
-export function drawLine(context: CanvasRenderingContext2D, color: string, line: Line | EraserLine) {
+export function drawLine(context: CanvasRenderingContext2D, line: Line | EraserLine, color: string) {
   context.beginPath();
 
   const originColor = context.strokeStyle;
@@ -37,17 +37,16 @@ export function drawLine(context: CanvasRenderingContext2D, color: string, line:
       context.lineTo(p.x, p.y);
     }
   }
-  context.lineWidth = 3;
   context.stroke();
   context.strokeStyle = originColor;
 }
 
-const eraserOffsetXSize = 8;
-const eraserOffsetYSize = 6;
 /**
  * Match the mouse point position for eraser
  */
 export function fixEraserPoint(point: Point) {
+  const eraserOffsetXSize = 8;
+  const eraserOffsetYSize = 6;
   return {
     y: point.y + eraserOffsetXSize,
     x: point.x + eraserOffsetYSize,
