@@ -4,6 +4,8 @@ export enum Tool {
   None,
   Line,
   Eraser,
+  Rect,
+  Selector,
 }
 
 export interface BoardState {

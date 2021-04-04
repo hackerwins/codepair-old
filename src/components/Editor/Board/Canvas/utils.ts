@@ -1,4 +1,4 @@
-import { Point } from './Shape';
+import { Point, Box, Shapes } from './Shape';
 
 /**
  * square distance between 2 points
@@ -151,4 +151,44 @@ export function checkLineIntersection(point1Start: Point, point1End: Point, poin
   }
   // if line1 and line2 are segments, they intersect if both of the above are true
   return result;
+}
+
+export function cloneBox(box: Box): Box {
+  return {
+    y: box.y,
+    x: box.x,
+    width: box.width,
+    height: box.height,
+  };
+}
+
+/**
+ * Check if the point is contained inside the box.
+ */
+export function isInnerBox(box: Box, point: Point): boolean {
+  const offsetY = box.y + box.height;
+  const offsetX = box.x + box.width;
+
+  if (box.height > 0 ? offsetY < point.y : offsetY > point.y) {
+    return false;
+  }
+  if (box.y > point.y) {
+    return false;
+  }
+
+  if (box.height > 0 ? offsetX < point.x : offsetX > point.x) {
+    return false;
+  }
+  if (box.x > point.x) {
+    return false;
+  }
+  return true;
+}
+
+export function* reverseIter(arr: Shapes) {
+  let l = arr.length - 1;
+  while (l >= 0) {
+    yield arr[l];
+    l -= 1;
+  }
 }

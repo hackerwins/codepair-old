@@ -8,6 +8,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 
 import EraserIcon from 'assets/icons/Eraser';
+import MouseIcon from 'assets/icons/Mouse';
+import RectIcon from 'assets/icons/Rect';
 import { AppState } from 'app/rootReducer';
 import { Tool, setTool } from 'features/boardSlices';
 
@@ -53,6 +55,16 @@ export default function Sidebar() {
       <Tooltip title="Eraser" arrow className={tool === Tool.Eraser ? classes.select : classes.button}>
         <IconButton aria-label="eraser" onClick={handleSelectTool(Tool.Eraser)}>
           <EraserIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="Selector" arrow className={tool === Tool.Selector ? classes.select : classes.button}>
+        <IconButton aria-label="selector" onClick={handleSelectTool(Tool.Selector)}>
+          <MouseIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="Rect" arrow className={tool === Tool.Rect ? classes.select : classes.button}>
+        <IconButton aria-label="rect" onClick={handleSelectTool(Tool.Rect)}>
+          <RectIcon fontSize="small" />
         </IconButton>
       </Tooltip>
     </div>
