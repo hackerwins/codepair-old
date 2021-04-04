@@ -3,7 +3,7 @@ import { TimeTicket } from 'yorkie-js-sdk';
 import { Tool } from 'features/boardSlices';
 
 import { Root, Shape, Point, Line, Rect } from './Shape';
-import { compressPoints, checkLineIntersection, reverseIter, isInnerBox, cloneBox } from './utils';
+import { compressPoints, checkLineIntersection, isInnerBox, cloneBox } from './utils';
 import { createLine, createEraserLine, fixEraserPoint } from './line';
 import { createRect, adjustRectBox } from './rect';
 import * as schedule from './schedule';
@@ -53,7 +53,7 @@ export default class Worker {
    */
   selectShape(point: Point): Shape | undefined {
     this.update((root: Root) => {
-      for (const shape of reverseIter(root.shapes)) {
+      for (const shape of root.shapes) {
         if (shape?.box && isInnerBox(shape.box, point)) {
           this.selectedShape = {
             shape,

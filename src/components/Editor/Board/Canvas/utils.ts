@@ -1,4 +1,4 @@
-import { Point, Box, Shapes } from './Shape';
+import { Point, Box } from './Shape';
 
 /**
  * square distance between 2 points
@@ -183,12 +183,4 @@ export function isInnerBox(box: Box, point: Point): boolean {
     return false;
   }
   return true;
-}
-
-export function* reverseIter(arr: Shapes) {
-  let l = arr.length - 1;
-  while (l >= 0) {
-    yield arr[l];
-    l -= 1;
-  }
 }
