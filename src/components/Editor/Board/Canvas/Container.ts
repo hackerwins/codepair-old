@@ -1,12 +1,13 @@
 import { TimeTicket } from 'yorkie-js-sdk';
 import { Tool } from 'features/boardSlices';
 import { Shape } from 'features/docSlices';
-import Canvas from './Canvas';
+import EventDispatcher from 'utils/eventDispatcher';
 
+import Canvas from './Canvas';
+import Worker from './worker';
 import { Point, Line, EraserLine, Rect } from './Shape';
 import { drawLine } from './line';
 import { drawRect } from './rect';
-import Worker from './worker';
 import { addEvent, removeEvent, touchy, TouchyEvent } from './dom';
 
 interface Options {
@@ -42,6 +43,8 @@ export default class Container {
 
   worker: Worker;
 
+  eventDispatcher: EventDispatcher;
+
   constructor(el: HTMLCanvasElement, update: Function, options: Options) {
     this.pointY = 0;
     this.pointX = 0;
@@ -50,6 +53,7 @@ export default class Container {
     this.update = update;
     this.options = options;
     this.scene = new Canvas(el);
+    this.eventDispatcher = new EventDispatcher();
 
     const { y, x } = this.scene.getCanvas().getBoundingClientRect();
     this.offsetY = y;
@@ -164,6 +168,7 @@ export default class Container {
     }
 
     this.createId = undefined;
+    this.emit('mouseup');
   }
 
   isOutSide(point: Point) {
@@ -193,5 +198,17 @@ export default class Container {
 
   clear() {
     this.scene.clear();
+  }
+
+  emit(name: string, ...args: Array<unknown>) {
+    this.eventDispatcher.emit(name, ...args);
+  }
+
+  on(name: string, cb: Function) {
+    this.eventDispatcher.addEventListener(name, cb);
+  }
+
+  off(name: string, cb: Function) {
+    this.eventDispatcher.removeEventListener(name, cb);
   }
 }
