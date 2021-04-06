@@ -42,8 +42,8 @@ const settingSlice = createSlice({
   name: 'setting',
   initialState,
   reducers: {
-    setTheme(state, action: PayloadAction<Theme>) {
-      state.menu.theme = action.payload;
+    setDarkMode(state, action: PayloadAction<boolean>) {
+      state.menu.theme = action.payload ? Theme.Dark : Theme.Light;
       SettingModel.setValue(state);
     },
 
@@ -59,5 +59,5 @@ const settingSlice = createSlice({
   },
 });
 
-export const { setTheme, setCodeKeyMap, setTabSize } = settingSlice.actions;
+export const { setDarkMode, setCodeKeyMap, setTabSize } = settingSlice.actions;
 export default settingSlice.reducer;

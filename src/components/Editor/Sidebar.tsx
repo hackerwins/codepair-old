@@ -5,6 +5,7 @@ import IconButton from '@material-ui/core/IconButton';
 import BrushIcon from '@material-ui/icons/Brush';
 import CodeIcon from '@material-ui/icons/Code';
 import Tooltip from '@material-ui/core/Tooltip';
+import Divider from '@material-ui/core/Divider';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 
 import EraserIcon from 'assets/icons/Eraser';
@@ -19,13 +20,19 @@ const useStyles = makeStyles((theme) =>
       display: 'flex',
       flexDirection: 'column',
     },
+    divider: {
+      marginTop: 5,
+      marginBottom: 5,
+    },
     button: {
-      marginLeft: 5,
-      padding: 7,
+      marginLeft: 3,
+      marginRight: 3,
+      padding: 8,
     },
     select: {
-      marginLeft: 5,
-      padding: 7,
+      marginLeft: 3,
+      marginRight: 3,
+      padding: 8,
       color: theme.palette.primary.main,
     },
   }),
@@ -47,14 +54,15 @@ export default function Sidebar() {
           <CodeIcon fontSize="small" />
         </IconButton>
       </Tooltip>
+      <Divider className={classes.divider} />
       <Tooltip title="Brush" arrow className={tool === Tool.Line ? classes.select : classes.button}>
         <IconButton aria-label="Brush" onClick={handleSelectTool(Tool.Line)}>
           <BrushIcon fontSize="small" />
         </IconButton>
       </Tooltip>
-      <Tooltip title="Eraser" arrow className={tool === Tool.Eraser ? classes.select : classes.button}>
-        <IconButton aria-label="eraser" onClick={handleSelectTool(Tool.Eraser)}>
-          <EraserIcon fontSize="small" />
+      <Tooltip title="Rect" arrow className={tool === Tool.Rect ? classes.select : classes.button}>
+        <IconButton aria-label="rect" onClick={handleSelectTool(Tool.Rect)}>
+          <RectIcon fontSize="small" />
         </IconButton>
       </Tooltip>
       <Tooltip title="Selector" arrow className={tool === Tool.Selector ? classes.select : classes.button}>
@@ -62,9 +70,9 @@ export default function Sidebar() {
           <MouseIcon fontSize="small" />
         </IconButton>
       </Tooltip>
-      <Tooltip title="Rect" arrow className={tool === Tool.Rect ? classes.select : classes.button}>
-        <IconButton aria-label="rect" onClick={handleSelectTool(Tool.Rect)}>
-          <RectIcon fontSize="small" />
+      <Tooltip title="Eraser" arrow className={tool === Tool.Eraser ? classes.select : classes.button}>
+        <IconButton aria-label="eraser" onClick={handleSelectTool(Tool.Eraser)}>
+          <EraserIcon fontSize="small" />
         </IconButton>
       </Tooltip>
     </div>
