@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { HashRouter as Router, Route, Redirect } from 'react-router-dom';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+import RouteChangeTracker from 'app/RouteChangeTracker';
 import { AppState } from 'app/rootReducer';
 import { Theme } from 'features/settingSlices';
 
@@ -36,6 +37,7 @@ function App() {
       {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
       <CssBaseline />
       <Router>
+        <RouteChangeTracker />
         <Route path="/" exact render={handleRender} />
         <Route path="/:docKey" exact component={DocPage} />
       </Router>
