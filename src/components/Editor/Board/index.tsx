@@ -1,9 +1,10 @@
 import React, { useEffect, useRef } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import grey from '@material-ui/core/colors/grey';
 import deepOrange from '@material-ui/core/colors/deepOrange';
 
 import { AppState } from 'app/rootReducer';
+import { Tool, setTool } from 'features/boardSlices';
 
 import Container from './Canvas/Container';
 import './index.css';
@@ -11,6 +12,7 @@ import './index.css';
 export default function Board({ width, height }: { width: number; height: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<Container | null>(null);
+  const dispatch = useDispatch();
   const doc = useSelector((state: AppState) => state.docState.doc);
   const tool = useSelector((state: AppState) => state.boardState.tool);
 
@@ -32,7 +34,16 @@ export default function Board({ width, height }: { width: number; height: number
     containerRef.current.setTool(tool);
     containerRef.current.drawAll(doc.getRoot().shapes);
 
+    const handleMouseup = () => {
+      if (tool === Tool.Rect) {
+        dispatch(setTool(Tool.Selector));
+      }
+    };
+
+    containerRef.current.on('mouseup', handleMouseup);
+
     return () => {
+      containerRef.current?.off('mouseup', handleMouseup);
       container.destroy();
     };
   }, [width, height, doc, tool]);
