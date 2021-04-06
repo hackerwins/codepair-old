@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { RouteComponentProps } from 'react-router';
+import { useLocation } from 'react-router-dom';
+import ReactGA from 'react-ga';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 
 import NavBar from 'components/NavBar';
@@ -20,10 +22,16 @@ const useStyles = makeStyles(() =>
 
 export default function DocPage(props: RouteComponentProps<DocPageProps>) {
   const classes = useStyles();
+  const location = useLocation();
   const {
     match: { params },
   } = props;
   const { docKey } = params;
+
+  useEffect(() => {
+    ReactGA.set({ page: location.pathname });
+    ReactGA.pageview(location.pathname);
+  }, [location]);
 
   return (
     <div className={classes.root}>

@@ -9,7 +9,7 @@ import store from 'app/store';
 
 import * as serviceWorker from 'serviceWorker';
 
-ReactGA.initialize('G-9SK7H0LVER');
+ReactGA.initialize('UA-42438082-5');
 
 Sentry.init({
   dsn: 'https://d287d6df8c6f423189266360055e6ca7@o553194.ingest.sentry.io/5680102',
