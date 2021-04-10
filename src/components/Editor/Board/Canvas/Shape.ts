@@ -21,6 +21,7 @@ export interface BaseShape {
 
 export interface Line extends BaseShape {
   type: 'line';
+  color: string;
   points: Array<Point>;
 }
 

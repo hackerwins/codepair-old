@@ -1,11 +1,18 @@
+import { Color } from 'features/boardSlices';
+
 import { Line, Point, EraserLine } from './Shape';
+
+export interface LineOption {
+  color: Color;
+}
 
 /**
  * Create the basic object of the line with point.
  */
-export function createLine(point: Point): Line {
+export function createLine(point: Point, options: LineOption): Line {
   return {
     type: 'line',
+    color: options.color,
     points: [point],
   } as Line;
 }
@@ -23,11 +30,15 @@ export function createEraserLine(point: Point): EraserLine {
 /**
  * Draw a line on the canvas.
  */
-export function drawLine(context: CanvasRenderingContext2D, line: Line | EraserLine, color: string) {
+export function drawLine(context: CanvasRenderingContext2D, line: Line | EraserLine) {
   context.beginPath();
 
   const originColor = context.strokeStyle;
-  context.strokeStyle = color;
+  context.strokeStyle =
+    line.type === 'eraser'
+      ? '#ff7043' // eraser color
+      : line.color;
+
   let isMoved = false;
   for (const p of line.points) {
     if (isMoved === false) {

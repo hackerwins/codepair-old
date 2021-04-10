@@ -1,5 +1,5 @@
 import { TimeTicket } from 'yorkie-js-sdk';
-import { Tool } from 'features/boardSlices';
+import { Tool, Color } from 'features/boardSlices';
 import { Shape } from 'features/docSlices';
 import EventDispatcher from 'utils/eventDispatcher';
 
@@ -9,11 +9,6 @@ import { Point, Line, EraserLine, Rect } from './Shape';
 import { drawLine } from './line';
 import { drawRect } from './rect';
 import { addEvent, removeEvent, touchy, TouchyEvent } from './dom';
-
-interface Options {
-  color: string;
-  eraserColor: string;
-}
 
 enum DragStatus {
   Drag,
@@ -33,25 +28,25 @@ export default class Container {
 
   tool: Tool;
 
+  color: Color;
+
   createId?: TimeTicket;
 
   dragStatus: DragStatus;
 
   update: Function;
 
-  options: Options;
-
   worker: Worker;
 
   eventDispatcher: EventDispatcher;
 
-  constructor(el: HTMLCanvasElement, update: Function, options: Options) {
+  constructor(el: HTMLCanvasElement, update: Function) {
     this.pointY = 0;
     this.pointX = 0;
     this.tool = Tool.Line;
+    this.color = Color.Black;
     this.dragStatus = DragStatus.Stop;
     this.update = update;
-    this.options = options;
     this.scene = new Canvas(el);
     this.eventDispatcher = new EventDispatcher();
 
@@ -65,7 +60,7 @@ export default class Container {
   }
 
   init() {
-    this.scene.getContext().strokeStyle = this.options.color;
+    this.scene.getContext().strokeStyle = this.color;
     this.drawAll = this.drawAll.bind(this);
     this.onmouseup = this.onmouseup.bind(this);
     this.onmousedown = this.onmousedown.bind(this);
@@ -80,6 +75,10 @@ export default class Container {
     touchy(this.scene.getCanvas(), removeEvent, 'mouseup', this.onmouseup);
     touchy(this.scene.getCanvas(), removeEvent, 'mouseout', this.onmouseup);
     touchy(this.scene.getCanvas(), removeEvent, 'mousedown', this.onmousedown);
+  }
+
+  setColor(color: Color) {
+    this.color = color;
   }
 
   setTool(tool: Tool) {
@@ -122,7 +121,7 @@ export default class Container {
 
     const point = this.getMouse(evt);
     if (this.tool === Tool.Line || this.tool === Tool.Eraser || this.tool === Tool.Rect) {
-      this.createId = this.worker.createShape(this.tool, point);
+      this.createId = this.worker.createShape(this.tool, point, { color: this.color });
       this.worker.executeTask(this.createId, this.tool, this.drawAll);
     } else if (this.tool === Tool.Selector) {
       const shape = this.worker.selectShape(point);
@@ -188,9 +187,9 @@ export default class Container {
 
   draw(shape: Shape, canvas: Canvas = this.scene) {
     if (shape.type === 'line') {
-      drawLine(canvas.getContext(), shape as Line, this.options.color);
+      drawLine(canvas.getContext(), shape as Line);
     } else if (shape.type === 'eraser') {
-      drawLine(canvas.getContext(), shape as EraserLine, this.options.eraserColor);
+      drawLine(canvas.getContext(), shape as EraserLine);
     } else if (shape.type === 'rect') {
       drawRect(canvas.getContext(), shape as Rect);
     }

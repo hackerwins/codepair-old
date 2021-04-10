@@ -1,7 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import grey from '@material-ui/core/colors/grey';
-import deepOrange from '@material-ui/core/colors/deepOrange';
 
 import { AppState } from 'app/rootReducer';
 import { Tool, setTool } from 'features/boardSlices';
@@ -15,23 +13,20 @@ export default function Board({ width, height }: { width: number; height: number
   const dispatch = useDispatch();
   const doc = useSelector((state: AppState) => state.docState.doc);
   const tool = useSelector((state: AppState) => state.boardState.tool);
+  const color = useSelector((state: AppState) => state.boardState.color);
 
   useEffect(() => {
     if (!canvasRef.current || !doc) {
       return () => {};
     }
 
-    const options = {
-      color: grey[500],
-      eraserColor: deepOrange[400],
-    };
-
     canvasRef.current.width = width;
     canvasRef.current.height = height;
 
-    const container = new Container(canvasRef.current, doc.update.bind(doc), options);
+    const container = new Container(canvasRef.current, doc.update.bind(doc));
     containerRef.current = container;
     containerRef.current.setTool(tool);
+    containerRef.current.setColor(color);
     containerRef.current.drawAll(doc.getRoot().shapes);
 
     const handleMouseup = () => {
@@ -46,7 +41,7 @@ export default function Board({ width, height }: { width: number; height: number
       containerRef.current?.off('mouseup', handleMouseup);
       container.destroy();
     };
-  }, [width, height, doc, tool]);
+  }, [width, height, doc, tool, color]);
 
   useEffect(() => {
     if (!doc) {

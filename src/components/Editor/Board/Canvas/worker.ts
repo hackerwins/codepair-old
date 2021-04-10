@@ -4,7 +4,7 @@ import { Tool } from 'features/boardSlices';
 
 import { Root, Shape, Point, Line, Rect } from './Shape';
 import { compressPoints, checkLineIntersection, isInnerBox, cloneBox } from './utils';
-import { createLine, createEraserLine, fixEraserPoint } from './line';
+import { LineOption, createLine, createEraserLine, fixEraserPoint } from './line';
 import { createRect, adjustRectBox } from './rect';
 import * as schedule from './schedule';
 
@@ -13,6 +13,8 @@ interface SelectedShape {
   shape: Shape;
   point: Point; // pin
 }
+
+type ShapeOption = LineOption;
 
 export default class Worker {
   private update: Function;
@@ -26,12 +28,12 @@ export default class Worker {
   /**
    * Create shape according to tool.
    */
-  createShape(tool: Tool, point: Point): TimeTicket {
+  createShape(tool: Tool, point: Point, options: ShapeOption): TimeTicket {
     let timeTicket: TimeTicket;
 
     this.update((root: Root) => {
       if (tool === Tool.Line) {
-        const shape = createLine(point);
+        const shape = createLine(point, options);
         root.shapes.push(shape);
       } else if (tool === Tool.Eraser) {
         const shape = createEraserLine(point);
