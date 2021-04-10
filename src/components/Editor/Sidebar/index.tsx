@@ -2,7 +2,6 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import IconButton from '@material-ui/core/IconButton';
-import BrushIcon from '@material-ui/icons/Brush';
 import CodeIcon from '@material-ui/icons/Code';
 import Tooltip from '@material-ui/core/Tooltip';
 import Divider from '@material-ui/core/Divider';
@@ -11,6 +10,7 @@ import { createStyles, makeStyles } from '@material-ui/core/styles';
 import EraserIcon from 'assets/icons/Eraser';
 import MouseIcon from 'assets/icons/Mouse';
 import RectIcon from 'assets/icons/Rect';
+import LineButton from 'components/Editor/Sidebar/LineButton';
 import { AppState } from 'app/rootReducer';
 import { Tool, setTool } from 'features/boardSlices';
 
@@ -55,11 +55,7 @@ export default function Sidebar() {
         </IconButton>
       </Tooltip>
       <Divider className={classes.divider} />
-      <Tooltip title="Brush" arrow className={tool === Tool.Line ? classes.select : classes.button}>
-        <IconButton aria-label="Brush" onClick={handleSelectTool(Tool.Line)}>
-          <BrushIcon fontSize="small" />
-        </IconButton>
-      </Tooltip>
+      <LineButton />
       <Tooltip title="Rect" arrow className={tool === Tool.Rect ? classes.select : classes.button}>
         <IconButton aria-label="rect" onClick={handleSelectTool(Tool.Rect)}>
           <RectIcon fontSize="small" />
