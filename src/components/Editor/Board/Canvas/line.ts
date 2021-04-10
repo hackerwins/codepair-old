@@ -50,6 +50,7 @@ export function drawLine(context: CanvasRenderingContext2D, line: Line | EraserL
   }
   context.stroke();
   context.strokeStyle = originColor;
+  context.closePath();
 }
 
 /**
