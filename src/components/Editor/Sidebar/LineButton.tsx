@@ -16,12 +16,14 @@ import { Tool, setTool, Color, setColor } from 'features/boardSlices';
 const useStyles = makeStyles((theme) =>
   createStyles({
     button: {
-      marginLeft: 5,
-      padding: 7,
+      marginLeft: 3,
+      marginRight: 3,
+      padding: 8,
     },
     select: {
-      marginLeft: 5,
-      padding: 7,
+      marginLeft: 3,
+      marginRight: 3,
+      padding: 8,
       color: theme.palette.primary.main,
     },
     box: {
