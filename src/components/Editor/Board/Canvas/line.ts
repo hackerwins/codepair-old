@@ -31,9 +31,9 @@ export function createEraserLine(point: Point): EraserLine {
  * Draw a line on the canvas.
  */
 export function drawLine(context: CanvasRenderingContext2D, line: Line | EraserLine) {
+  context.save();
   context.beginPath();
 
-  const originColor = context.strokeStyle;
   context.strokeStyle =
     line.type === 'eraser'
       ? '#ff7043' // eraser color
@@ -49,8 +49,8 @@ export function drawLine(context: CanvasRenderingContext2D, line: Line | EraserL
     }
   }
   context.stroke();
-  context.strokeStyle = originColor;
   context.closePath();
+  context.restore();
 }
 
 /**
