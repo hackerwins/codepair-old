@@ -1,4 +1,3 @@
-import { TimeTicket } from 'yorkie-js-sdk';
 import { Tool, Color } from 'features/boardSlices';
 import { Shape } from 'features/docSlices';
 import EventDispatcher from 'utils/eventDispatcher';
@@ -26,11 +25,7 @@ export default class Container {
 
   scene: Canvas;
 
-  tool: Tool;
-
   color: Color;
-
-  createId?: TimeTicket;
 
   dragStatus: DragStatus;
 
@@ -43,7 +38,6 @@ export default class Container {
   constructor(el: HTMLCanvasElement, update: Function) {
     this.pointY = 0;
     this.pointX = 0;
-    this.tool = Tool.Line;
     this.color = Color.Black;
     this.dragStatus = DragStatus.Stop;
     this.update = update;
@@ -56,11 +50,13 @@ export default class Container {
 
     this.init();
 
-    this.worker = new Worker(this.update);
+    this.worker = new Worker(this.update, this.emit);
   }
 
   init() {
     this.scene.getContext().strokeStyle = this.color;
+
+    this.emit = this.emit.bind(this);
     this.drawAll = this.drawAll.bind(this);
     this.onmouseup = this.onmouseup.bind(this);
     this.onmousedown = this.onmousedown.bind(this);
@@ -69,12 +65,16 @@ export default class Container {
     touchy(this.scene.getCanvas(), addEvent, 'mouseup', this.onmouseup);
     touchy(this.scene.getCanvas(), addEvent, 'mouseout', this.onmouseup);
     touchy(this.scene.getCanvas(), addEvent, 'mousedown', this.onmousedown);
+
+    this.on('renderAll', this.drawAll);
   }
 
   destroy() {
     touchy(this.scene.getCanvas(), removeEvent, 'mouseup', this.onmouseup);
     touchy(this.scene.getCanvas(), removeEvent, 'mouseout', this.onmouseup);
     touchy(this.scene.getCanvas(), removeEvent, 'mousedown', this.onmousedown);
+
+    this.off('renderAll');
   }
 
   setColor(color: Color) {
@@ -84,7 +84,7 @@ export default class Container {
   setTool(tool: Tool) {
     this.setMouseClass(tool);
 
-    this.tool = tool;
+    this.worker.setTool(tool);
   }
 
   setMouseClass(tool: Tool) {
@@ -94,6 +94,8 @@ export default class Container {
       this.scene.getCanvas().classList.add('crosshair', 'canvas-touch-none');
     } else if (tool === Tool.Eraser) {
       this.scene.getCanvas().classList.add('eraser', 'canvas-touch-none');
+    } else if (tool === Tool.Selector) {
+      this.scene.getCanvas().classList.add('canvas-touch-none');
     }
   }
 
@@ -120,15 +122,8 @@ export default class Container {
     this.dragStatus = DragStatus.Drag;
 
     const point = this.getMouse(evt);
-    if (this.tool === Tool.Line || this.tool === Tool.Eraser || this.tool === Tool.Rect) {
-      this.createId = this.worker.createShape(this.tool, point, { color: this.color });
-      this.worker.executeTask(this.createId, this.tool, this.drawAll);
-    } else if (this.tool === Tool.Selector) {
-      const shape = this.worker.selectShape(point);
-      if (shape) {
-        this.worker.executeTask(shape.getID(), this.tool, this.drawAll);
-      }
-    }
+
+    this.worker.mousedown(point, { color: this.color });
   }
 
   onmousemove(evt: TouchyEvent) {
@@ -141,32 +136,14 @@ export default class Container {
       return;
     }
 
-    if (
-      this.tool === Tool.Line ||
-      this.tool === Tool.Eraser ||
-      this.tool === Tool.Rect ||
-      this.tool === Tool.Selector
-    ) {
-      this.worker.reserveTask({
-        point,
-      });
-    }
+    this.worker.mousemove(point);
   }
 
   onmouseup() {
     touchy(this.scene.getCanvas(), removeEvent, 'mousemove', this.onmousemove);
     this.dragStatus = DragStatus.Stop;
 
-    if (
-      this.tool === Tool.Line ||
-      this.tool === Tool.Eraser ||
-      this.tool === Tool.Rect ||
-      this.tool === Tool.Selector
-    ) {
-      this.worker.flushTask(this.createId!, this.tool, this.drawAll);
-    }
-
-    this.createId = undefined;
+    this.worker.mouseup();
     this.emit('mouseup');
   }
 
@@ -179,7 +156,7 @@ export default class Container {
   }
 
   drawAll(shapes: Array<Shape>, canvas: Canvas = this.scene) {
-    canvas.clear();
+    this.clear(canvas);
     for (const shape of shapes) {
       this.draw(shape, canvas);
     }
@@ -195,8 +172,8 @@ export default class Container {
     }
   }
 
-  clear() {
-    this.scene.clear();
+  clear(canvas: Canvas = this.scene) {
+    canvas.clear();
   }
 
   emit(name: string, ...args: Array<unknown>) {
@@ -207,7 +184,7 @@ export default class Container {
     this.eventDispatcher.addEventListener(name, cb);
   }
 
-  off(name: string, cb: Function) {
+  off(name: string, cb?: Function) {
     this.eventDispatcher.removeEventListener(name, cb);
   }
 }

@@ -9,7 +9,6 @@ import { createRect, adjustRectBox } from './rect';
 import * as schedule from './schedule';
 
 interface SelectedShape {
-  status: 'move';
   shape: Shape;
   point: Point; // pin
 }
@@ -19,88 +18,59 @@ type ShapeOption = LineOption;
 export default class Worker {
   private update: Function;
 
-  private selectedShape: SelectedShape | undefined;
+  private emit: Function;
 
-  constructor(update: Function) {
+  private tool: Tool = Tool.Line;
+
+  private selectedShape?: SelectedShape;
+
+  private createId?: TimeTicket;
+
+  constructor(update: Function, emit: Function) {
     this.update = update;
+    this.emit = emit;
   }
 
-  /**
-   * Create shape according to tool.
-   */
-  createShape(tool: Tool, point: Point, options: ShapeOption): TimeTicket {
-    let timeTicket: TimeTicket;
-
-    this.update((root: Root) => {
-      if (tool === Tool.Line) {
-        const shape = createLine(point, options);
-        root.shapes.push(shape);
-      } else if (tool === Tool.Eraser) {
-        const shape = createEraserLine(point);
-        root.shapes.push(shape);
-      } else if (tool === Tool.Rect) {
-        const shape = createRect(point);
-        root.shapes.push(shape);
+  mousedown(p: Point, options: ShapeOption): void {
+    if (this.tool === Tool.Selector) {
+      const target = this.findTarget(p);
+      if (target) {
+        this.selectedShape = {
+          shape: target,
+          point: p,
+        };
+        return;
       }
 
-      const lastShape = root.shapes.getLast();
-      timeTicket = lastShape.getID();
-    });
-
-    return timeTicket!;
-  }
-
-  /**
-   * Select a shape that can be controlled.
-   */
-  selectShape(point: Point): Shape | undefined {
-    this.update((root: Root) => {
-      for (const shape of root.shapes) {
-        if (shape?.box && isInnerBox(shape.box, point)) {
-          this.selectedShape = {
-            shape,
-            point,
-            status: 'move',
-          };
-          return;
-        }
-      }
       this.selectedShape = undefined;
-    });
+      return;
+    }
 
-    return this.selectedShape?.shape;
+    if (this.tool === Tool.Line || this.tool === Tool.Eraser || this.tool === Tool.Rect) {
+      this.createId = this.createShape(p, options);
+    }
   }
 
-  isEmptySelectedShape() {
-    return !this.selectedShape;
-  }
+  mousemove(p: Point) {
+    schedule.reserveTask(p, (tasks: Array<schedule.Task>) => {
+      const points = compressPoints(tasks);
 
-  /**
-   * Task execution by scheduler.
-   */
-  executeTask(createId: TimeTicket, tool: Tool, callback: Function) {
-    schedule.requestHostCallback((tasks) => {
       if (tasks.length < 2) {
         return;
       }
 
       this.update((root: Root) => {
-        if (tool === Tool.Line) {
-          const points = compressPoints(tasks.map((task) => task.point));
-          const lastShape = root.shapes.getElementByID(createId) as Line;
-
+        if (this.tool === Tool.Line) {
+          const lastShape = root.shapes.getElementByID(this.createId!) as Line;
           lastShape.points.push(...points);
-          callback(root.shapes);
-        } else if (tool === Tool.Eraser) {
-          const points = compressPoints(tasks.map((task) => task.point));
+        } else if (this.tool === Tool.Eraser) {
           const pointStart = fixEraserPoint(points[0]);
           const pointEnd = fixEraserPoint(points[points.length - 1]);
-          const lastShape = root.shapes.getElementByID(createId);
+          const lastShape = root.shapes.getElementByID(this.createId!);
 
           const findAndRemoveShape = (point1: Point, point2: Point) => {
             for (const shape of root.shapes) {
-              // TODO(ppeeou) selectable shape
-              if (shape.type === 'rect') {
+              if (this.isSelectable(shape)) {
                 if (isInnerBox(shape.box, point2)) {
                   root.shapes.deleteByID(shape.getID());
                 }
@@ -123,70 +93,136 @@ export default class Worker {
 
           findAndRemoveShape(pointStart, pointEnd);
           lastShape.points = [pointStart, pointEnd];
-          callback(root.shapes);
-        } else if (tool === Tool.Rect) {
-          const { point } = tasks[tasks.length - 1];
-          const lastShape = root.shapes.getElementByID(createId) as Rect;
+        } else if (this.tool === Tool.Rect) {
+          const point = tasks[tasks.length - 1];
+          const lastShape = root.shapes.getElementByID(this.createId!) as Rect;
           const box = adjustRectBox(lastShape, point);
           lastShape.box = box;
-          callback(root.shapes);
-        } else if (tool === Tool.Selector) {
+        } else if (this.tool === Tool.Selector) {
           if (this.isEmptySelectedShape()) {
             return;
           }
 
-          // TODO(ppeeou) selectable shape
-          const lastShape = root.shapes.getElementByID(createId) as Rect;
-          const pointEnd = tasks[tasks.length - 1].point;
-          const offsetY = pointEnd.y - this.selectedShape!.point.y;
-          const offsetX = pointEnd.x - this.selectedShape!.point.x;
-          this.selectedShape!.point = pointEnd;
+          const lastShape = root.shapes.getElementByID(this.selectedShape!.shape.getID());
+          if (!lastShape) {
+            return;
+          }
 
-          lastShape.box = {
-            ...cloneBox(lastShape.box),
-            y: lastShape.box.y + offsetY,
-            x: lastShape.box.x + offsetX,
-          };
+          if (this.isSelectable(lastShape)) {
+            const pointEnd = tasks[tasks.length - 1];
+            const offsetY = pointEnd.y - this.selectedShape!.point.y;
+            const offsetX = pointEnd.x - this.selectedShape!.point.x;
+            this.selectedShape!.point = pointEnd;
 
-          lastShape.points[0] = {
-            y: lastShape.points[0].y + offsetY,
-            x: lastShape.points[0].x + offsetX,
-          };
-          callback(root.shapes);
+            lastShape.box = {
+              ...cloneBox(lastShape.box),
+              y: lastShape.box.y + offsetY,
+              x: lastShape.box.x + offsetX,
+            };
+
+            lastShape.points[0] = {
+              y: lastShape.points[0].y + offsetY,
+              x: lastShape.points[0].x + offsetX,
+            };
+          }
         }
+
+        this.emit('renderAll', root.shapes);
       });
     });
   }
 
+  mouseup() {
+    this.flushTask();
+  }
+
   /**
-   * Schedule the task to be executed in the scheduler.
+   * Register the tool to the worker.
    */
-  reserveTask(task: schedule.Task) {
-    schedule.reserveTask(task);
+  setTool(tool: Tool) {
+    this.tool = tool;
+  }
+
+  /**
+   * Check if it is a shape that can be selected.
+   */
+  isSelectable(shape: Shape): shape is Rect {
+    return shape.type === 'rect';
+  }
+
+  /**
+   * Check if there is a selected shape.
+   */
+  isEmptySelectedShape() {
+    return !this.selectedShape;
+  }
+
+  /**
+   * Find the shape in the document.
+   */
+  findTarget(point: Point): Shape | undefined {
+    let target;
+    this.update((root: Root) => {
+      for (const shape of root.shapes) {
+        if (shape?.box && isInnerBox(shape.box, point)) {
+          target = shape;
+          return;
+        }
+      }
+    });
+    return target;
+  }
+
+  /**
+   * Create shape according to tool.
+   */
+  createShape(point: Point, options: ShapeOption): TimeTicket {
+    let timeTicket: TimeTicket;
+
+    this.update((root: Root) => {
+      if (this.tool === Tool.Line) {
+        const shape = createLine(point, options);
+        root.shapes.push(shape);
+      } else if (this.tool === Tool.Eraser) {
+        const shape = createEraserLine(point);
+        root.shapes.push(shape);
+      } else if (this.tool === Tool.Rect) {
+        const shape = createRect(point);
+        root.shapes.push(shape);
+      }
+
+      const lastShape = root.shapes.getLast();
+      timeTicket = lastShape.getID();
+    });
+
+    return timeTicket!;
   }
 
   /**
    * Flush existing tasks in the scheduler.
    */
-  flushTask(createId: TimeTicket, tool: Tool, callback: Function) {
+  flushTask() {
     schedule.requestHostWorkFlush();
 
-    if (!createId) {
-      return;
-    }
-
     this.update((root: Root) => {
-      if (tool === Tool.Line) {
-        const shape = root.shapes.getElementByID(createId);
+      if (this.tool === Tool.Line) {
+        if (!this.createId) {
+          return;
+        }
+
+        const shape = root.shapes.getElementByID(this.createId);
         // When erasing a line, it checks that the lines overlap, so do not save if there are two points below
         if (shape.points.length < 2) {
-          root.shapes.deleteByID(createId);
-          callback(root.shapes);
+          root.shapes.deleteByID(this.createId!);
         }
-      } else if (tool === Tool.Eraser) {
-        root.shapes.deleteByID(createId);
-        callback(root.shapes);
+      } else if (this.tool === Tool.Eraser) {
+        if (!this.createId) {
+          return;
+        }
+        root.shapes.deleteByID(this.createId);
       }
+
+      this.emit('renderAll', root.shapes);
     });
   }
 }

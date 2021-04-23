@@ -1,34 +1,45 @@
 import { Point } from './Shape';
 
-export type Task = {
-  point: Point;
-};
+export type Task = Point;
 
 const INTERVAL_TIME = 50;
 let tasks: Array<Task> = [];
-let intervalId: number;
+let timeout: ReturnType<typeof setTimeout>;
 let work: Function | undefined;
 
-export function requestHostCallback(callback: (tasks: Array<Task>) => void) {
-  work = () => {
-    if (tasks.length > 0) {
-      callback(tasks);
-      tasks = [];
-    }
-  };
+const doWork = () => {
+  if (typeof work === 'function') {
+    work(tasks);
+    tasks = [];
+  }
+};
 
-  intervalId = setInterval(work, INTERVAL_TIME);
+function requestHostCallback(isDone: Boolean) {
+  if (isDone) {
+    doWork();
+    return;
+  }
+
+  timeout = setTimeout(() => {
+    doWork();
+    requestHostCallback(false);
+  }, INTERVAL_TIME);
 }
 
-export function reserveTask(task: Task) {
+export function reserveTask(task: Task, _work: Function) {
   tasks.push(task);
+
+  if (work === undefined) {
+    work = _work;
+    requestHostCallback(false);
+  }
 }
 
 export function requestHostWorkFlush() {
-  clearInterval(intervalId);
+  clearTimeout(timeout);
 
   if (typeof work === 'function') {
-    work();
+    requestHostCallback(true);
   }
   work = undefined;
 }
