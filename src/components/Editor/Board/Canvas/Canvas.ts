@@ -12,9 +12,12 @@ export default class Canvas {
     this.canvas = canvas;
     this.context = canvas.getContext('2d')!;
 
-    this.resize();
     this.context.lineWidth = 3;
     this.context.lineCap = 'round';
+    this.canvas.className = 'canvas';
+
+    this.setWidth(canvas.width);
+    this.setHeight(canvas.height);
   }
 
   getCanvas() {

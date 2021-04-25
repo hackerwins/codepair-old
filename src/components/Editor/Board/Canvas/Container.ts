@@ -15,19 +15,19 @@ enum DragStatus {
 }
 
 export default class Container {
-  pointY: number;
+  pointY: number = 0;
 
-  pointX: number;
+  pointX: number = 0;
 
-  offsetY: number;
+  offsetY: number = 0;
 
-  offsetX: number;
+  offsetX: number = 0;
 
-  scene: Canvas;
+  lowerCanvas: Canvas;
 
-  color: Color;
+  upperCanvas: Canvas;
 
-  dragStatus: DragStatus;
+  color: Color = Color.Black;
 
   update: Function;
 
@@ -35,18 +35,15 @@ export default class Container {
 
   eventDispatcher: EventDispatcher;
 
-  constructor(el: HTMLCanvasElement, update: Function) {
-    this.pointY = 0;
-    this.pointX = 0;
-    this.color = Color.Black;
-    this.dragStatus = DragStatus.Stop;
-    this.update = update;
-    this.scene = new Canvas(el);
-    this.eventDispatcher = new EventDispatcher();
+  dragStatus: DragStatus = DragStatus.Stop;
 
-    const { y, x } = this.scene.getCanvas().getBoundingClientRect();
-    this.offsetY = y;
-    this.offsetX = x;
+  constructor(el: HTMLCanvasElement, update: Function) {
+    this.lowerCanvas = new Canvas(el);
+    this.upperCanvas = this.createUpperCanvas();
+
+    this.update = update;
+
+    this.eventDispatcher = new EventDispatcher();
 
     this.init();
 
@@ -54,27 +51,59 @@ export default class Container {
   }
 
   init() {
-    this.scene.getContext().strokeStyle = this.color;
-
+    this.initResize();
+    this.initOffset();
     this.emit = this.emit.bind(this);
     this.drawAll = this.drawAll.bind(this);
     this.onmouseup = this.onmouseup.bind(this);
     this.onmousedown = this.onmousedown.bind(this);
     this.onmousemove = this.onmousemove.bind(this);
 
-    touchy(this.scene.getCanvas(), addEvent, 'mouseup', this.onmouseup);
-    touchy(this.scene.getCanvas(), addEvent, 'mouseout', this.onmouseup);
-    touchy(this.scene.getCanvas(), addEvent, 'mousedown', this.onmousedown);
+    touchy(this.upperCanvas.getCanvas(), addEvent, 'mouseup', this.onmouseup);
+    touchy(this.upperCanvas.getCanvas(), addEvent, 'mouseout', this.onmouseup);
+    touchy(this.upperCanvas.getCanvas(), addEvent, 'mousedown', this.onmousedown);
 
     this.on('renderAll', this.drawAll);
   }
 
   destroy() {
-    touchy(this.scene.getCanvas(), removeEvent, 'mouseup', this.onmouseup);
-    touchy(this.scene.getCanvas(), removeEvent, 'mouseout', this.onmouseup);
-    touchy(this.scene.getCanvas(), removeEvent, 'mousedown', this.onmousedown);
+    touchy(this.upperCanvas.getCanvas(), removeEvent, 'mouseup', this.onmouseup);
+    touchy(this.upperCanvas.getCanvas(), removeEvent, 'mouseout', this.onmouseup);
+    touchy(this.upperCanvas.getCanvas(), removeEvent, 'mousedown', this.onmousedown);
 
+    this.destroyUpperCanvas();
     this.off('renderAll');
+  }
+
+  initOffset() {
+    const { y, x } = this.lowerCanvas.getCanvas().getBoundingClientRect();
+    this.offsetY = y;
+    this.offsetX = x;
+  }
+
+  initResize() {
+    this.lowerCanvas.resize();
+    this.upperCanvas.resize();
+  }
+
+  createUpperCanvas(): Canvas {
+    const canvas = document.createElement('canvas');
+    const upperCanvas = new Canvas(canvas);
+
+    upperCanvas.setWidth(this.lowerCanvas.getWidth());
+    upperCanvas.setHeight(this.lowerCanvas.getHeight());
+
+    this.lowerCanvas.getCanvas().parentNode?.appendChild(canvas);
+
+    return upperCanvas;
+  }
+
+  destroyUpperCanvas() {
+    const upperCanvas = this.upperCanvas?.getCanvas();
+
+    if (upperCanvas) {
+      this.upperCanvas.getCanvas().parentNode?.removeChild(upperCanvas);
+    }
   }
 
   setColor(color: Color) {
@@ -88,14 +117,14 @@ export default class Container {
   }
 
   setMouseClass(tool: Tool) {
-    this.scene.getCanvas().className = '';
+    this.upperCanvas.getCanvas().className = 'canvas canvas-upper';
 
     if (tool === Tool.Line || tool === Tool.Rect) {
-      this.scene.getCanvas().classList.add('crosshair', 'canvas-touch-none');
+      this.upperCanvas.getCanvas().classList.add('crosshair', 'canvas-touch-none');
     } else if (tool === Tool.Eraser) {
-      this.scene.getCanvas().classList.add('eraser', 'canvas-touch-none');
+      this.upperCanvas.getCanvas().classList.add('eraser', 'canvas-touch-none');
     } else if (tool === Tool.Selector) {
-      this.scene.getCanvas().classList.add('canvas-touch-none');
+      this.upperCanvas.getCanvas().classList.add('canvas-touch-none');
     }
   }
 
@@ -118,7 +147,7 @@ export default class Container {
   }
 
   onmousedown(evt: TouchyEvent) {
-    touchy(this.scene.getCanvas(), addEvent, 'mousemove', this.onmousemove);
+    touchy(this.upperCanvas.getCanvas(), addEvent, 'mousemove', this.onmousemove);
     this.dragStatus = DragStatus.Drag;
 
     const point = this.getMouse(evt);
@@ -140,7 +169,7 @@ export default class Container {
   }
 
   onmouseup() {
-    touchy(this.scene.getCanvas(), removeEvent, 'mousemove', this.onmousemove);
+    touchy(this.upperCanvas.getCanvas(), removeEvent, 'mousemove', this.onmousemove);
     this.dragStatus = DragStatus.Stop;
 
     this.worker.mouseup();
@@ -148,21 +177,21 @@ export default class Container {
   }
 
   isOutSide(point: Point) {
-    if (point.y < 0 || point.x < 0 || point.y > this.scene.getHeight() || point.x > this.scene.getWidth()) {
+    if (point.y < 0 || point.x < 0 || point.y > this.lowerCanvas.getHeight() || point.x > this.lowerCanvas.getWidth()) {
       this.onmouseup();
       return true;
     }
     return false;
   }
 
-  drawAll(shapes: Array<Shape>, canvas: Canvas = this.scene) {
+  drawAll(shapes: Array<Shape>, canvas: Canvas = this.lowerCanvas) {
     this.clear(canvas);
     for (const shape of shapes) {
       this.draw(shape, canvas);
     }
   }
 
-  draw(shape: Shape, canvas: Canvas = this.scene) {
+  draw(shape: Shape, canvas: Canvas = this.lowerCanvas) {
     if (shape.type === 'line') {
       drawLine(canvas.getContext(), shape as Line);
     } else if (shape.type === 'eraser') {
@@ -172,7 +201,7 @@ export default class Container {
     }
   }
 
-  clear(canvas: Canvas = this.scene) {
+  clear(canvas: Canvas = this.lowerCanvas) {
     canvas.clear();
   }
 

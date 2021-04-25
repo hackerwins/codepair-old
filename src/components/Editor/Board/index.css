@@ -16,3 +16,19 @@
 .eraser {
   cursor: url('assets/icons/eraser.cur'), auto;
 }
+
+.canvas {
+  position: absolute;
+}
+
+.canvas-upper {
+  z-index: 1;
+  top: 0px;
+  left: 0px;
+}
+
+.canvas-lower {
+  z-index: 0;
+  top: 0px;
+  left: 0px;
+}
