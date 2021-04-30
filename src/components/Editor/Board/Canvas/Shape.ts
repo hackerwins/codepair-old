@@ -1,4 +1,4 @@
-import { TimeTicket } from 'yorkie-js-sdk';
+import { TimeTicket, ActorID } from 'yorkie-js-sdk';
 
 export type Point = {
   y: number;
@@ -17,6 +17,8 @@ export interface BaseShape {
   type: string;
   box?: Box;
   getID(): TimeTicket;
+  isEditing: boolean;
+  editorID: ActorID;
 }
 
 export interface Line extends BaseShape {

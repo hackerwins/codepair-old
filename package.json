@@ -72,7 +72,7 @@
   "lint-staged": {
     "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
       "prettier --write",
-      "npm test -- --watchAll=false"
+      "npm test -- --watchAll=false --passWithNoTests"
     ],
     "**/*.{ts,tsx}": "eslint"
   },

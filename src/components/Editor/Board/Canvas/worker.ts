@@ -1,6 +1,7 @@
-import { TimeTicket } from 'yorkie-js-sdk';
+import { TimeTicket, Client, ActorID } from 'yorkie-js-sdk';
 
 import { Tool } from 'features/boardSlices';
+import { Peer } from 'features/peerSlices';
 
 import { Root, Shape, Point, Line, Rect } from './Shape';
 import { compressPoints, checkLineIntersection, isInnerBox, cloneBox } from './utils';
@@ -21,8 +22,17 @@ export default class Worker {
 
   private selectedShape: SelectedShape | undefined;
 
-  constructor(update: Function) {
+  private activePeerMap: Map<ActorID, Peer> = new Map();
+
+  private client: Client;
+
+  constructor(client: Client, update: Function) {
     this.update = update;
+    this.client = client;
+  }
+
+  setActivePeerMap(activePeerMap: Map<ActorID, Peer>) {
+    this.activePeerMap = activePeerMap;
   }
 
   /**
@@ -32,43 +42,60 @@ export default class Worker {
     let timeTicket: TimeTicket;
 
     this.update((root: Root) => {
+      let shape: Shape;
       if (tool === Tool.Line) {
-        const shape = createLine(point, options);
-        root.shapes.push(shape);
+        shape = createLine(point, options);
       } else if (tool === Tool.Eraser) {
-        const shape = createEraserLine(point);
-        root.shapes.push(shape);
+        shape = createEraserLine(point);
       } else if (tool === Tool.Rect) {
-        const shape = createRect(point);
-        root.shapes.push(shape);
+        shape = createRect(point);
+      } else {
+        throw new Error(`Undefined tool ${tool}`);
       }
 
-      const lastShape = root.shapes.getLast();
-      timeTicket = lastShape.getID();
+      this.beforeEditShape(shape);
+      root.shapes.push(shape);
+      timeTicket = root.shapes.getLast().getID();
     });
 
     return timeTicket!;
   }
 
   /**
-   * Select a shape that can be controlled.
+   * Find the shape in the document.
    */
-  selectShape(point: Point): Shape | undefined {
+  findTarget(point: Point): Shape | undefined {
+    let target;
     this.update((root: Root) => {
       for (const shape of root.shapes) {
         if (shape?.box && isInnerBox(shape.box, point)) {
-          this.selectedShape = {
-            shape,
-            point,
-            status: 'move',
-          };
+          target = shape;
           return;
         }
       }
-      this.selectedShape = undefined;
     });
+    return target;
+  }
 
-    return this.selectedShape?.shape;
+  /**
+   * Select a shape that can be controlled.
+   */
+  selectShape(point: Point): Shape | undefined {
+    const target = this.findTarget(point);
+
+    if (!target) {
+      return undefined;
+    }
+
+    this.beforeEditShape(target);
+
+    this.selectedShape = {
+      shape: target,
+      point,
+      status: 'move',
+    };
+
+    return target;
   }
 
   isEmptySelectedShape() {
@@ -102,13 +129,13 @@ export default class Worker {
               // TODO(ppeeou) selectable shape
               if (shape.type === 'rect') {
                 if (isInnerBox(shape.box, point2)) {
-                  root.shapes.deleteByID(shape.getID());
+                  this.deleteShapeByID(root, shape.getID());
                 }
               } else {
                 for (let i = 1; i < shape.points.length; i += 1) {
                   const result = checkLineIntersection(point1, point2, shape.points[i - 1], shape.points[i]);
                   if (result.onLine1 && result.onLine2) {
-                    root.shapes.deleteByID(shape.getID());
+                    this.deleteShapeByID(root, shape.getID());
                     break;
                   }
                 }
@@ -178,15 +205,40 @@ export default class Worker {
     this.update((root: Root) => {
       if (tool === Tool.Line) {
         const shape = root.shapes.getElementByID(createId);
+        this.afterEditShape(shape);
+
         // When erasing a line, it checks that the lines overlap, so do not save if there are two points below
         if (shape.points.length < 2) {
-          root.shapes.deleteByID(createId);
+          this.deleteShapeByID(root, createId);
           callback(root.shapes);
         }
+      } else if (tool === Tool.Rect) {
+        const shape = root.shapes.getElementByID(createId);
+        this.afterEditShape(shape);
       } else if (tool === Tool.Eraser) {
-        root.shapes.deleteByID(createId);
+        const shape = root.shapes.getElementByID(createId);
+        this.afterEditShape(shape);
+        this.deleteShapeByID(root, createId);
         callback(root.shapes);
       }
     });
+  }
+
+  beforeEditShape(shape: Shape) {
+    shape.isEditing = true;
+    shape.editorID = this.client.getID()!;
+  }
+
+  afterEditShape(shape: Shape) {
+    shape.isEditing = false;
+  }
+
+  deleteShapeByID(root: Root, id: TimeTicket) {
+    const shape = root.shapes.getElementByID(id);
+    if (shape.isEditing && this.activePeerMap.has(shape.editorID)) {
+      return;
+    }
+
+    root.shapes.deleteByID(id);
   }
 }

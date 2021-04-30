@@ -1,6 +1,7 @@
-import { TimeTicket } from 'yorkie-js-sdk';
+import { Client, TimeTicket, ActorID } from 'yorkie-js-sdk';
 import { Tool, Color } from 'features/boardSlices';
 import { Shape } from 'features/docSlices';
+import { Peer } from 'features/peerSlices';
 import EventDispatcher from 'utils/eventDispatcher';
 
 import Canvas from './Canvas';
@@ -40,7 +41,7 @@ export default class Container {
 
   eventDispatcher: EventDispatcher;
 
-  constructor(el: HTMLCanvasElement, update: Function) {
+  constructor(el: HTMLCanvasElement, client: Client, update: Function) {
     this.pointY = 0;
     this.pointX = 0;
     this.tool = Tool.Line;
@@ -55,8 +56,7 @@ export default class Container {
     this.offsetX = x;
 
     this.init();
-
-    this.worker = new Worker(this.update);
+    this.worker = new Worker(client, this.update);
   }
 
   init() {
@@ -87,6 +87,10 @@ export default class Container {
     this.tool = tool;
   }
 
+  setActivePeers(activePeerMap: Map<ActorID, Peer>) {
+    this.worker.setActivePeerMap(activePeerMap);
+  }
+
   setMouseClass(tool: Tool) {
     this.scene.getCanvas().className = '';
 
@@ -94,6 +98,8 @@ export default class Container {
       this.scene.getCanvas().classList.add('crosshair', 'canvas-touch-none');
     } else if (tool === Tool.Eraser) {
       this.scene.getCanvas().classList.add('eraser', 'canvas-touch-none');
+    } else if (tool === Tool.Selector) {
+      this.scene.getCanvas().classList.add('canvas-touch-none');
     }
   }
 
