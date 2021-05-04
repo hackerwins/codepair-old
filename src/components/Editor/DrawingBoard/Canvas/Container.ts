@@ -1,4 +1,4 @@
-import { Tool, Color } from 'features/boardSlices';
+import { ToolType, Color } from 'features/boardSlices';
 import { Point, Shape } from 'features/docSlices';
 import EventDispatcher from 'utils/eventDispatcher';
 
@@ -54,24 +54,24 @@ export default class Container {
     this.initializeOffset();
     this.emit = this.emit.bind(this);
     this.drawAll = this.drawAll.bind(this);
-    this.onmouseup = this.onmouseup.bind(this);
-    this.onmousedown = this.onmousedown.bind(this);
-    this.onmousemove = this.onmousemove.bind(this);
+    this.onMouseUp = this.onMouseUp.bind(this);
+    this.onMouseDown = this.onMouseDown.bind(this);
+    this.onMouseMove = this.onMouseMove.bind(this);
 
-    touchy(this.upperWrapper.getCanvas(), addEvent, 'mouseup', this.onmouseup);
-    touchy(this.upperWrapper.getCanvas(), addEvent, 'mouseout', this.onmouseup);
-    touchy(this.upperWrapper.getCanvas(), addEvent, 'mousedown', this.onmousedown);
+    touchy(this.upperWrapper.getCanvas(), addEvent, 'mouseup', this.onMouseUp);
+    touchy(this.upperWrapper.getCanvas(), addEvent, 'mouseout', this.onMouseUp);
+    touchy(this.upperWrapper.getCanvas(), addEvent, 'mousedown', this.onMouseDown);
 
-    this.on('renderAll', this.drawAll);
+    this.addEventListener('renderAll', this.drawAll);
   }
 
   destroy() {
-    touchy(this.upperWrapper.getCanvas(), removeEvent, 'mouseup', this.onmouseup);
-    touchy(this.upperWrapper.getCanvas(), removeEvent, 'mouseout', this.onmouseup);
-    touchy(this.upperWrapper.getCanvas(), removeEvent, 'mousedown', this.onmousedown);
+    touchy(this.upperWrapper.getCanvas(), removeEvent, 'mouseup', this.onMouseUp);
+    touchy(this.upperWrapper.getCanvas(), removeEvent, 'mouseout', this.onMouseUp);
+    touchy(this.upperWrapper.getCanvas(), removeEvent, 'mousedown', this.onMouseDown);
 
     this.destroyUpperCanvas();
-    this.off('renderAll');
+    this.removeEventListener('renderAll');
   }
 
   initializeOffset() {
@@ -109,20 +109,20 @@ export default class Container {
     this.color = color;
   }
 
-  setTool(tool: Tool) {
+  setTool(tool: ToolType) {
     this.setMouseClass(tool);
 
     this.worker.setTool(tool);
   }
 
-  setMouseClass(tool: Tool) {
+  setMouseClass(tool: ToolType) {
     this.upperWrapper.getCanvas().className = 'canvas canvas-upper';
 
-    if (tool === Tool.Line || tool === Tool.Rect) {
+    if (tool === ToolType.Line || tool === ToolType.Rect) {
       this.upperWrapper.getCanvas().classList.add('crosshair', 'canvas-touch-none');
-    } else if (tool === Tool.Eraser) {
+    } else if (tool === ToolType.Eraser) {
       this.upperWrapper.getCanvas().classList.add('eraser', 'canvas-touch-none');
-    } else if (tool === Tool.Selector) {
+    } else if (tool === ToolType.Selector) {
       this.upperWrapper.getCanvas().classList.add('canvas-touch-none');
     }
   }
@@ -145,8 +145,8 @@ export default class Container {
     };
   }
 
-  onmousedown(evt: TouchyEvent) {
-    touchy(this.upperWrapper.getCanvas(), addEvent, 'mousemove', this.onmousemove);
+  onMouseDown(evt: TouchyEvent) {
+    touchy(this.upperWrapper.getCanvas(), addEvent, 'mousemove', this.onMouseMove);
     this.dragStatus = DragStatus.Drag;
 
     const point = this.getPointFromTouchyEvent(evt);
@@ -154,10 +154,10 @@ export default class Container {
     this.worker.mousedown(point, { color: this.color });
   }
 
-  onmousemove(evt: TouchyEvent) {
+  onMouseMove(evt: TouchyEvent) {
     const point = this.getPointFromTouchyEvent(evt);
     if (this.isOutside(point)) {
-      this.onmouseup();
+      this.onMouseUp();
       return;
     }
 
@@ -168,8 +168,8 @@ export default class Container {
     this.worker.mousemove(point);
   }
 
-  onmouseup() {
-    touchy(this.upperWrapper.getCanvas(), removeEvent, 'mousemove', this.onmousemove);
+  onMouseUp() {
+    touchy(this.upperWrapper.getCanvas(), removeEvent, 'mousemove', this.onMouseMove);
     this.dragStatus = DragStatus.Stop;
 
     this.worker.mouseup();
@@ -186,17 +186,13 @@ export default class Container {
   drawAll(shapes: Array<Shape>, wrapper: CanvasWrapper = this.lowerWrapper) {
     this.clear(wrapper);
     for (const shape of shapes) {
-      this.draw(shape, wrapper);
-    }
-  }
-
-  draw(shape: Shape, wrapper: CanvasWrapper = this.lowerWrapper) {
-    if (shape.type === 'line') {
-      drawLine(wrapper.getContext(), shape);
-    } else if (shape.type === 'eraser') {
-      drawLine(wrapper.getContext(), shape);
-    } else if (shape.type === 'rect') {
-      drawRect(wrapper.getContext(), shape);
+      if (shape.type === 'line') {
+        drawLine(wrapper.getContext(), shape);
+      } else if (shape.type === 'eraser') {
+        drawLine(wrapper.getContext(), shape);
+      } else if (shape.type === 'rect') {
+        drawRect(wrapper.getContext(), shape);
+      }
     }
   }
 
@@ -208,11 +204,11 @@ export default class Container {
     this.eventDispatcher.emit(name, ...args);
   }
 
-  on(name: string, cb: Function) {
+  addEventListener(name: string, cb: Function) {
     this.eventDispatcher.addEventListener(name, cb);
   }
 
-  off(name: string, cb?: Function) {
+  removeEventListener(name: string, cb?: Function) {
     this.eventDispatcher.removeEventListener(name, cb);
   }
 }

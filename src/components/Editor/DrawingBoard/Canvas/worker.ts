@@ -1,6 +1,6 @@
 import { TimeTicket } from 'yorkie-js-sdk';
 
-import { Tool } from 'features/boardSlices';
+import { ToolType } from 'features/boardSlices';
 import { Root, Shape, Point, Line, Rect } from 'features/docSlices';
 
 import { compressPoints, checkLineIntersection, isInnerBox, cloneBox } from './utils';
@@ -15,11 +15,11 @@ export default class Worker {
 
   private emit: Function;
 
-  private tool: Tool = Tool.Line;
+  private tool: ToolType = ToolType.Line;
 
   private selectedShape?: { shape: Shape; point: Point; };
 
-  private createId?: TimeTicket;
+  private createID?: TimeTicket;
 
   constructor(update: Function, emit: Function) {
     this.update = update;
@@ -27,7 +27,7 @@ export default class Worker {
   }
 
   mousedown(p: Point, options: ShapeOption): void {
-    if (this.tool === Tool.Selector) {
+    if (this.tool === ToolType.Selector) {
       const target = this.findTarget(p);
       if (target) {
         this.selectedShape = {
@@ -41,8 +41,8 @@ export default class Worker {
       return;
     }
 
-    if (this.tool === Tool.Line || this.tool === Tool.Eraser || this.tool === Tool.Rect) {
-      this.createId = this.createShape(p, options);
+    if (this.tool === ToolType.Line || this.tool === ToolType.Eraser || this.tool === ToolType.Rect) {
+      this.createID = this.createShape(p, options);
     }
   }
 
@@ -55,13 +55,13 @@ export default class Worker {
       }
 
       this.update((root: Root) => {
-        if (this.tool === Tool.Line) {
-          const lastShape = root.shapes.getElementByID(this.createId!) as Line;
+        if (this.tool === ToolType.Line) {
+          const lastShape = root.shapes.getElementByID(this.createID!) as Line;
           lastShape.points.push(...points);
-        } else if (this.tool === Tool.Eraser) {
+        } else if (this.tool === ToolType.Eraser) {
           const pointStart = fixEraserPoint(points[0]);
           const pointEnd = fixEraserPoint(points[points.length - 1]);
-          const lastShape = root.shapes.getElementByID(this.createId!);
+          const lastShape = root.shapes.getElementByID(this.createID!);
 
           const findAndRemoveShape = (point1: Point, point2: Point) => {
             for (const shape of root.shapes) {
@@ -88,12 +88,12 @@ export default class Worker {
 
           findAndRemoveShape(pointStart, pointEnd);
           lastShape.points = [pointStart, pointEnd];
-        } else if (this.tool === Tool.Rect) {
+        } else if (this.tool === ToolType.Rect) {
           const point = tasks[tasks.length - 1];
-          const lastShape = root.shapes.getElementByID(this.createId!) as Rect;
+          const lastShape = root.shapes.getElementByID(this.createID!) as Rect;
           const box = adjustRectBox(lastShape, point);
           lastShape.box = box;
-        } else if (this.tool === Tool.Selector) {
+        } else if (this.tool === ToolType.Selector) {
           if (this.isEmptySelectedShape()) {
             return;
           }
@@ -134,7 +134,7 @@ export default class Worker {
   /**
    * Register the tool to the worker.
    */
-  setTool(tool: Tool) {
+  setTool(tool: ToolType) {
     this.tool = tool;
   }
 
@@ -175,13 +175,13 @@ export default class Worker {
     let timeTicket: TimeTicket;
 
     this.update((root: Root) => {
-      if (this.tool === Tool.Line) {
+      if (this.tool === ToolType.Line) {
         const shape = createLine(point, options);
         root.shapes.push(shape);
-      } else if (this.tool === Tool.Eraser) {
+      } else if (this.tool === ToolType.Eraser) {
         const shape = createEraserLine(point);
         root.shapes.push(shape);
-      } else if (this.tool === Tool.Rect) {
+      } else if (this.tool === ToolType.Rect) {
         const shape = createRect(point);
         root.shapes.push(shape);
       }
@@ -200,21 +200,21 @@ export default class Worker {
     scheduler.requestHostWorkFlush();
 
     this.update((root: Root) => {
-      if (this.tool === Tool.Line) {
-        if (!this.createId) {
+      if (this.tool === ToolType.Line) {
+        if (!this.createID) {
           return;
         }
 
-        const shape = root.shapes.getElementByID(this.createId);
+        const shape = root.shapes.getElementByID(this.createID);
         // When erasing a line, it checks that the lines overlap, so do not save if there are two points below
         if (shape.points.length < 2) {
-          root.shapes.deleteByID(this.createId!);
+          root.shapes.deleteByID(this.createID!);
         }
-      } else if (this.tool === Tool.Eraser) {
-        if (!this.createId) {
+      } else if (this.tool === ToolType.Eraser) {
+        if (!this.createID) {
           return;
         }
-        root.shapes.deleteByID(this.createId);
+        root.shapes.deleteByID(this.createID);
       }
 
       this.emit('renderAll', root.shapes);

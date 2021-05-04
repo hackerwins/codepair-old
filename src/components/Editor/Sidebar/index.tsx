@@ -12,7 +12,7 @@ import MouseIcon from 'assets/icons/Mouse';
 import RectIcon from 'assets/icons/Rect';
 import LineButton from 'components/Editor/Sidebar/LineButton';
 import { AppState } from 'app/rootReducer';
-import { Tool, setTool } from 'features/boardSlices';
+import { ToolType, setTool } from 'features/boardSlices';
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -43,31 +43,31 @@ export default function Sidebar() {
   const dispatch = useDispatch();
   const tool = useSelector((state: AppState) => state.boardState.tool);
 
-  const handleSelectTool = (nextTool: Tool) => () => {
+  const handleSelectTool = (nextTool: ToolType) => () => {
     dispatch(setTool(nextTool));
   };
 
   return (
     <div className={classes.root}>
-      <Tooltip title="Code" arrow className={tool === Tool.None ? classes.select : classes.button}>
-        <IconButton aria-label="Code" onClick={handleSelectTool(Tool.None)}>
+      <Tooltip title="Code" arrow className={tool === ToolType.None ? classes.select : classes.button}>
+        <IconButton aria-label="Code" onClick={handleSelectTool(ToolType.None)}>
           <CodeIcon fontSize="small" />
         </IconButton>
       </Tooltip>
       <Divider className={classes.divider} />
       <LineButton />
-      <Tooltip title="Rect" arrow className={tool === Tool.Rect ? classes.select : classes.button}>
-        <IconButton aria-label="rect" onClick={handleSelectTool(Tool.Rect)}>
+      <Tooltip title="Rect" arrow className={tool === ToolType.Rect ? classes.select : classes.button}>
+        <IconButton aria-label="rect" onClick={handleSelectTool(ToolType.Rect)}>
           <RectIcon fontSize="small" />
         </IconButton>
       </Tooltip>
-      <Tooltip title="Selector" arrow className={tool === Tool.Selector ? classes.select : classes.button}>
-        <IconButton aria-label="selector" onClick={handleSelectTool(Tool.Selector)}>
+      <Tooltip title="Selector" arrow className={tool === ToolType.Selector ? classes.select : classes.button}>
+        <IconButton aria-label="selector" onClick={handleSelectTool(ToolType.Selector)}>
           <MouseIcon fontSize="small" />
         </IconButton>
       </Tooltip>
-      <Tooltip title="Eraser" arrow className={tool === Tool.Eraser ? classes.select : classes.button}>
-        <IconButton aria-label="eraser" onClick={handleSelectTool(Tool.Eraser)}>
+      <Tooltip title="Eraser" arrow className={tool === ToolType.Eraser ? classes.select : classes.button}>
+        <IconButton aria-label="eraser" onClick={handleSelectTool(ToolType.Eraser)}>
           <EraserIcon fontSize="small" />
         </IconButton>
       </Tooltip>
