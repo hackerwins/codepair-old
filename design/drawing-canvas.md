@@ -6,17 +6,17 @@ title: drawing-canvas
 
 ## Summary
 
-We help users to express their thoughts in `CodePair` using tools.
+We provide drawing tools to make it easier for users to express their thoughts.
 
 ### Goals
 
-Implement so that several shapes can be drawn on the canvas by receiving events from the browser.
+Implement drawing tools that can express various shapes such as lines and rectangles and so on using HTML Canvas.
 
 ### Non-Goals
 
 ## Proposal Details
 
-![draw-structure](https://user-images.githubusercontent.com/10924072/115980398-64042400-a5c7-11eb-8676-90a334d380c0.png)
+![draw-structure](https://user-images.githubusercontent.com/2059311/116966438-27cd7380-aceb-11eb-8b8d-7dce06ae35ca.png)
 
 Each role is as follows
 
@@ -36,15 +36,6 @@ Each role is as follows
   - `Scheduler` receives tasks from workers, stores them, and executes them at specific cycles.
     The reason for doing this is that there are a lot of data accumulated in the document when all the operations requested by the user are executed.
 
-![image](https://user-images.githubusercontent.com/10924072/115982022-eba36000-a5d2-11eb-9fdf-c476ded2bd23.png)
-
-1. The user requests an event.
-2. `Container` delivers the event to `Worker`.
-3. `Worker` can schedule work to `Scheduler` according to the situation.
-4. When there is a scheduled task, `Scheduler` executes the registered task according to a specific cycle.
-5. After working on the document, `Worker` delivers the part to be rendered on the canvas to `Container`.
-   (Choose whether to use Upper Canvas or Lower Canvas)
-   `Container` draws shapes on the canvas.
 
 ### Risks and Mitigation
 
