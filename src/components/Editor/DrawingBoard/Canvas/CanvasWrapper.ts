@@ -1,4 +1,4 @@
-export default class Canvas {
+export default class CanvasWrapper {
   private canvas: HTMLCanvasElement;
 
   // eslint-disable-next-line react/static-property-placement

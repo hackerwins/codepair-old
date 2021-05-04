@@ -1,10 +1,9 @@
 import { Tool, Color } from 'features/boardSlices';
-import { Shape } from 'features/docSlices';
+import { Point, Shape } from 'features/docSlices';
 import EventDispatcher from 'utils/eventDispatcher';
 
-import Canvas from './Canvas';
+import CanvasWrapper from './CanvasWrapper';
 import Worker from './worker';
-import { Point, Line, EraserLine, Rect } from './Shape';
 import { drawLine } from './line';
 import { drawRect } from './rect';
 import { addEvent, removeEvent, touchy, TouchyEvent } from './dom';
@@ -23,9 +22,9 @@ export default class Container {
 
   offsetX: number = 0;
 
-  lowerCanvas: Canvas;
+  lowerWrapper: CanvasWrapper;
 
-  upperCanvas: Canvas;
+  upperWrapper: CanvasWrapper;
 
   color: Color = Color.Black;
 
@@ -38,71 +37,71 @@ export default class Container {
   dragStatus: DragStatus = DragStatus.Stop;
 
   constructor(el: HTMLCanvasElement, update: Function) {
-    this.lowerCanvas = new Canvas(el);
-    this.upperCanvas = this.createUpperCanvas();
+    this.lowerWrapper = new CanvasWrapper(el);
+    this.upperWrapper = this.createUpperWrapper();
 
     this.update = update;
 
     this.eventDispatcher = new EventDispatcher();
 
-    this.init();
+    this.initialize();
 
     this.worker = new Worker(this.update, this.emit);
   }
 
-  init() {
-    this.initResize();
-    this.initOffset();
+  initialize() {
+    this.initializeSize();
+    this.initializeOffset();
     this.emit = this.emit.bind(this);
     this.drawAll = this.drawAll.bind(this);
     this.onmouseup = this.onmouseup.bind(this);
     this.onmousedown = this.onmousedown.bind(this);
     this.onmousemove = this.onmousemove.bind(this);
 
-    touchy(this.upperCanvas.getCanvas(), addEvent, 'mouseup', this.onmouseup);
-    touchy(this.upperCanvas.getCanvas(), addEvent, 'mouseout', this.onmouseup);
-    touchy(this.upperCanvas.getCanvas(), addEvent, 'mousedown', this.onmousedown);
+    touchy(this.upperWrapper.getCanvas(), addEvent, 'mouseup', this.onmouseup);
+    touchy(this.upperWrapper.getCanvas(), addEvent, 'mouseout', this.onmouseup);
+    touchy(this.upperWrapper.getCanvas(), addEvent, 'mousedown', this.onmousedown);
 
     this.on('renderAll', this.drawAll);
   }
 
   destroy() {
-    touchy(this.upperCanvas.getCanvas(), removeEvent, 'mouseup', this.onmouseup);
-    touchy(this.upperCanvas.getCanvas(), removeEvent, 'mouseout', this.onmouseup);
-    touchy(this.upperCanvas.getCanvas(), removeEvent, 'mousedown', this.onmousedown);
+    touchy(this.upperWrapper.getCanvas(), removeEvent, 'mouseup', this.onmouseup);
+    touchy(this.upperWrapper.getCanvas(), removeEvent, 'mouseout', this.onmouseup);
+    touchy(this.upperWrapper.getCanvas(), removeEvent, 'mousedown', this.onmousedown);
 
     this.destroyUpperCanvas();
     this.off('renderAll');
   }
 
-  initOffset() {
-    const { y, x } = this.lowerCanvas.getCanvas().getBoundingClientRect();
+  initializeOffset() {
+    const { y, x } = this.lowerWrapper.getCanvas().getBoundingClientRect();
     this.offsetY = y;
     this.offsetX = x;
   }
 
-  initResize() {
-    this.lowerCanvas.resize();
-    this.upperCanvas.resize();
+  initializeSize() {
+    this.lowerWrapper.resize();
+    this.upperWrapper.resize();
   }
 
-  createUpperCanvas(): Canvas {
+  createUpperWrapper(): CanvasWrapper {
     const canvas = document.createElement('canvas');
-    const upperCanvas = new Canvas(canvas);
+    const wrapper = new CanvasWrapper(canvas);
 
-    upperCanvas.setWidth(this.lowerCanvas.getWidth());
-    upperCanvas.setHeight(this.lowerCanvas.getHeight());
+    wrapper.setWidth(this.lowerWrapper.getWidth());
+    wrapper.setHeight(this.lowerWrapper.getHeight());
 
-    this.lowerCanvas.getCanvas().parentNode?.appendChild(canvas);
+    this.lowerWrapper.getCanvas().parentNode?.appendChild(canvas);
 
-    return upperCanvas;
+    return wrapper;
   }
 
   destroyUpperCanvas() {
-    const upperCanvas = this.upperCanvas?.getCanvas();
+    const upperCanvas = this.upperWrapper?.getCanvas();
 
     if (upperCanvas) {
-      this.upperCanvas.getCanvas().parentNode?.removeChild(upperCanvas);
+      upperCanvas.parentNode?.removeChild(upperCanvas);
     }
   }
 
@@ -117,18 +116,18 @@ export default class Container {
   }
 
   setMouseClass(tool: Tool) {
-    this.upperCanvas.getCanvas().className = 'canvas canvas-upper';
+    this.upperWrapper.getCanvas().className = 'canvas canvas-upper';
 
     if (tool === Tool.Line || tool === Tool.Rect) {
-      this.upperCanvas.getCanvas().classList.add('crosshair', 'canvas-touch-none');
+      this.upperWrapper.getCanvas().classList.add('crosshair', 'canvas-touch-none');
     } else if (tool === Tool.Eraser) {
-      this.upperCanvas.getCanvas().classList.add('eraser', 'canvas-touch-none');
+      this.upperWrapper.getCanvas().classList.add('eraser', 'canvas-touch-none');
     } else if (tool === Tool.Selector) {
-      this.upperCanvas.getCanvas().classList.add('canvas-touch-none');
+      this.upperWrapper.getCanvas().classList.add('canvas-touch-none');
     }
   }
 
-  getMouse(evt: TouchyEvent): Point {
+  getPointFromTouchyEvent(evt: TouchyEvent): Point {
     let originY;
     let originX;
     if (window.TouchEvent && evt instanceof TouchEvent) {
@@ -147,17 +146,18 @@ export default class Container {
   }
 
   onmousedown(evt: TouchyEvent) {
-    touchy(this.upperCanvas.getCanvas(), addEvent, 'mousemove', this.onmousemove);
+    touchy(this.upperWrapper.getCanvas(), addEvent, 'mousemove', this.onmousemove);
     this.dragStatus = DragStatus.Drag;
 
-    const point = this.getMouse(evt);
+    const point = this.getPointFromTouchyEvent(evt);
 
     this.worker.mousedown(point, { color: this.color });
   }
 
   onmousemove(evt: TouchyEvent) {
-    const point = this.getMouse(evt);
-    if (this.isOutSide(point)) {
+    const point = this.getPointFromTouchyEvent(evt);
+    if (this.isOutside(point)) {
+      this.onmouseup();
       return;
     }
 
@@ -169,40 +169,39 @@ export default class Container {
   }
 
   onmouseup() {
-    touchy(this.upperCanvas.getCanvas(), removeEvent, 'mousemove', this.onmousemove);
+    touchy(this.upperWrapper.getCanvas(), removeEvent, 'mousemove', this.onmousemove);
     this.dragStatus = DragStatus.Stop;
 
     this.worker.mouseup();
     this.emit('mouseup');
   }
 
-  isOutSide(point: Point) {
-    if (point.y < 0 || point.x < 0 || point.y > this.lowerCanvas.getHeight() || point.x > this.lowerCanvas.getWidth()) {
-      this.onmouseup();
+  isOutside(point: Point): boolean {
+    if (point.y < 0 || point.x < 0 || point.y > this.lowerWrapper.getHeight() || point.x > this.lowerWrapper.getWidth()) {
       return true;
     }
     return false;
   }
 
-  drawAll(shapes: Array<Shape>, canvas: Canvas = this.lowerCanvas) {
-    this.clear(canvas);
+  drawAll(shapes: Array<Shape>, wrapper: CanvasWrapper = this.lowerWrapper) {
+    this.clear(wrapper);
     for (const shape of shapes) {
-      this.draw(shape, canvas);
+      this.draw(shape, wrapper);
     }
   }
 
-  draw(shape: Shape, canvas: Canvas = this.lowerCanvas) {
+  draw(shape: Shape, wrapper: CanvasWrapper = this.lowerWrapper) {
     if (shape.type === 'line') {
-      drawLine(canvas.getContext(), shape as Line);
+      drawLine(wrapper.getContext(), shape);
     } else if (shape.type === 'eraser') {
-      drawLine(canvas.getContext(), shape as EraserLine);
+      drawLine(wrapper.getContext(), shape);
     } else if (shape.type === 'rect') {
-      drawRect(canvas.getContext(), shape as Rect);
+      drawRect(wrapper.getContext(), shape);
     }
   }
 
-  clear(canvas: Canvas = this.lowerCanvas) {
-    canvas.clear();
+  clear(wrapper: CanvasWrapper = this.lowerWrapper) {
+    wrapper.clear();
   }
 
   emit(name: string, ...args: Array<unknown>) {

@@ -1,17 +1,12 @@
 import { TimeTicket } from 'yorkie-js-sdk';
 
 import { Tool } from 'features/boardSlices';
+import { Root, Shape, Point, Line, Rect } from 'features/docSlices';
 
-import { Root, Shape, Point, Line, Rect } from './Shape';
 import { compressPoints, checkLineIntersection, isInnerBox, cloneBox } from './utils';
 import { LineOption, createLine, createEraserLine, fixEraserPoint } from './line';
 import { createRect, adjustRectBox } from './rect';
-import * as schedule from './schedule';
-
-interface SelectedShape {
-  shape: Shape;
-  point: Point; // pin
-}
+import * as scheduler from './scheduler';
 
 type ShapeOption = LineOption;
 
@@ -22,7 +17,7 @@ export default class Worker {
 
   private tool: Tool = Tool.Line;
 
-  private selectedShape?: SelectedShape;
+  private selectedShape?: { shape: Shape; point: Point; };
 
   private createId?: TimeTicket;
 
@@ -52,7 +47,7 @@ export default class Worker {
   }
 
   mousemove(p: Point) {
-    schedule.reserveTask(p, (tasks: Array<schedule.Task>) => {
+    scheduler.reserveTask(p, (tasks: Array<scheduler.Task>) => {
       const points = compressPoints(tasks);
 
       if (tasks.length < 2) {
@@ -104,7 +99,7 @@ export default class Worker {
           }
 
           const lastShape = root.shapes.getElementByID(this.selectedShape!.shape.getID());
-          if (!lastShape) {
+          if (!lastShape || lastShape.type !== 'rect') {
             return;
           }
 
@@ -164,7 +159,7 @@ export default class Worker {
     let target;
     this.update((root: Root) => {
       for (const shape of root.shapes) {
-        if (shape?.box && isInnerBox(shape.box, point)) {
+        if (shape.type === 'rect' && isInnerBox(shape.box, point)) {
           target = shape;
           return;
         }
@@ -202,7 +197,7 @@ export default class Worker {
    * Flush existing tasks in the scheduler.
    */
   flushTask() {
-    schedule.requestHostWorkFlush();
+    scheduler.requestHostWorkFlush();
 
     this.update((root: Root) => {
       if (this.tool === Tool.Line) {

@@ -1,4 +1,4 @@
-import { Point, Box } from './Shape';
+import { Point, Box } from 'features/docSlices';
 
 /**
  * square distance between 2 points

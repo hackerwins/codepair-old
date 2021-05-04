@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 
 import CodeEditor from 'components/Editor/CodeEditor';
-import Board from 'components/Editor/Board';
+import DrawingBoard from 'components/Editor/DrawingBoard';
 import Sidebar from 'components/Editor/Sidebar';
 import { Tool } from 'features/boardSlices';
 
@@ -81,7 +81,7 @@ export default function Editor({ tool }: EditorProps) {
           <CodeEditor forwardedRef={codeEditorRef} />
         </div>
         <div className={classes.canvas}>
-          <Board width={width} height={height} />
+          <DrawingBoard width={width} height={height} />
         </div>
       </div>
       <Sidebar />

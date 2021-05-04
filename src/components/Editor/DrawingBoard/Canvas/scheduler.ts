@@ -1,4 +1,4 @@
-import { Point } from './Shape';
+import { Point } from 'features/docSlices';
 
 export type Task = Point;
 

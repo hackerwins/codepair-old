@@ -7,7 +7,7 @@ import { Tool, setTool } from 'features/boardSlices';
 import Container from './Canvas/Container';
 import './index.css';
 
-export default function Board({ width, height }: { width: number; height: number }) {
+export default function DrawingBoard({ width, height }: { width: number; height: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<Container | null>(null);
   const dispatch = useDispatch();
