@@ -16,7 +16,7 @@ Implement drawing tools that can express various shapes such as lines and rectan
 
 ## Proposal Details
 
-![draw-structure](https://user-images.githubusercontent.com/2059311/116966438-27cd7380-aceb-11eb-8b8d-7dce06ae35ca.png)
+![drawing-structure](https://user-images.githubusercontent.com/2059311/116966438-27cd7380-aceb-11eb-8b8d-7dce06ae35ca.png)
 
 Each role is as follows
 
