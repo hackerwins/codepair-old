@@ -12,8 +12,6 @@ We provide drawing tools to make it easier for users to express their thoughts.
 
 Implement drawing tools that can express various shapes such as lines and rectangles and so on using HTML Canvas.
 
-### Non-Goals
-
 ## Proposal Details
 
 ![drawing-structure](https://user-images.githubusercontent.com/2059311/116966438-27cd7380-aceb-11eb-8b8d-7dce06ae35ca.png)
@@ -35,7 +33,6 @@ Each role is as follows
 - Scheduler
   - `Scheduler` receives tasks from workers, stores them, and executes them at specific cycles.
     The reason for doing this is that there are a lot of data accumulated in the document when all the operations requested by the user are executed.
-
 
 ### Risks and Mitigation
 
