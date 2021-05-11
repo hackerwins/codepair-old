@@ -14,7 +14,7 @@ const doWork = () => {
   }
 };
 
-function requestHostCallback(isDone: Boolean) {
+function requestTask(isDone: Boolean) {
   if (isDone) {
     doWork();
     return;
@@ -22,7 +22,7 @@ function requestHostCallback(isDone: Boolean) {
 
   timeout = setTimeout(() => {
     doWork();
-    requestHostCallback(false);
+    requestTask(false);
   }, INTERVAL_TIME);
 }
 
@@ -31,15 +31,15 @@ export function reserveTask(task: Task, _work: Function) {
 
   if (work === undefined) {
     work = _work;
-    requestHostCallback(false);
+    requestTask(false);
   }
 }
 
-export function requestHostWorkFlush() {
+export function flushTask() {
   clearTimeout(timeout);
 
   if (typeof work === 'function') {
-    requestHostCallback(true);
+    requestTask(true);
   }
   work = undefined;
 }

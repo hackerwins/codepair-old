@@ -3,17 +3,17 @@ import { Point, Shape } from 'features/docSlices';
 import EventDispatcher from 'utils/eventDispatcher';
 
 import CanvasWrapper from './CanvasWrapper';
-import Worker from './worker';
 import { drawLine } from './line';
 import { drawRect } from './rect';
 import { addEvent, removeEvent, touchy, TouchyEvent } from './dom';
+import { Worker, LineWorker, EraserWorker, RectWorker, SelectorWorker } from './Worker';
 
 enum DragStatus {
   Drag,
   Stop,
 }
 
-export default class Container {
+export default class Container extends EventDispatcher {
   pointY: number = 0;
 
   pointX: number = 0;
@@ -22,31 +22,26 @@ export default class Container {
 
   offsetX: number = 0;
 
+  color: Color = Color.Black;
+
+  dragStatus: DragStatus = DragStatus.Stop;
+
   lowerWrapper: CanvasWrapper;
 
   upperWrapper: CanvasWrapper;
 
-  color: Color = Color.Black;
-
   update: Function;
 
-  worker: Worker;
-
-  eventDispatcher: EventDispatcher;
-
-  dragStatus: DragStatus = DragStatus.Stop;
+  worker!: Worker;
 
   constructor(el: HTMLCanvasElement, update: Function) {
+    super();
     this.lowerWrapper = new CanvasWrapper(el);
     this.upperWrapper = this.createUpperWrapper();
 
     this.update = update;
 
-    this.eventDispatcher = new EventDispatcher();
-
     this.initialize();
-
-    this.worker = new Worker(this.update, this.emit);
   }
 
   initialize() {
@@ -57,6 +52,8 @@ export default class Container {
     this.onMouseUp = this.onMouseUp.bind(this);
     this.onMouseDown = this.onMouseDown.bind(this);
     this.onMouseMove = this.onMouseMove.bind(this);
+
+    this.worker = new LineWorker(this.update, this.emit);
 
     touchy(this.upperWrapper.getCanvas(), addEvent, 'mouseup', this.onMouseUp);
     touchy(this.upperWrapper.getCanvas(), addEvent, 'mouseout', this.onMouseUp);
@@ -112,7 +109,23 @@ export default class Container {
   setTool(tool: ToolType) {
     this.setMouseClass(tool);
 
-    this.worker.setTool(tool);
+    if (this.worker.type === tool || tool === ToolType.None) {
+      return;
+    }
+
+    this.worker.flushTask();
+
+    if (tool === ToolType.Line) {
+      this.worker = new LineWorker(this.update, this.emit);
+    } else if (tool === ToolType.Eraser) {
+      this.worker = new EraserWorker(this.update, this.emit);
+    } else if (tool === ToolType.Rect) {
+      this.worker = new RectWorker(this.update, this.emit);
+    } else if (tool === ToolType.Selector) {
+      this.worker = new SelectorWorker(this.update, this.emit);
+    } else {
+      throw new Error(`Undefined tool: ${tool}`);
+    }
   }
 
   setMouseClass(tool: ToolType) {
@@ -177,7 +190,12 @@ export default class Container {
   }
 
   isOutside(point: Point): boolean {
-    if (point.y < 0 || point.x < 0 || point.y > this.lowerWrapper.getHeight() || point.x > this.lowerWrapper.getWidth()) {
+    if (
+      point.y < 0 ||
+      point.x < 0 ||
+      point.y > this.lowerWrapper.getHeight() ||
+      point.x > this.lowerWrapper.getWidth()
+    ) {
       return true;
     }
     return false;
@@ -198,17 +216,5 @@ export default class Container {
 
   clear(wrapper: CanvasWrapper = this.lowerWrapper) {
     wrapper.clear();
-  }
-
-  emit(name: string, ...args: Array<unknown>) {
-    this.eventDispatcher.emit(name, ...args);
-  }
-
-  addEventListener(name: string, cb: Function) {
-    this.eventDispatcher.addEventListener(name, cb);
-  }
-
-  removeEventListener(name: string, cb?: Function) {
-    this.eventDispatcher.removeEventListener(name, cb);
   }
 }
