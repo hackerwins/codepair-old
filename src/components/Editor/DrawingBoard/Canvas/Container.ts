@@ -14,21 +14,17 @@ enum DragStatus {
 }
 
 export default class Container extends EventDispatcher {
-  pointY: number = 0;
+  private offsetY: number = 0;
 
-  pointX: number = 0;
+  private offsetX: number = 0;
 
-  offsetY: number = 0;
+  private color: Color = Color.Black;
 
-  offsetX: number = 0;
+  private dragStatus: DragStatus = DragStatus.Stop;
 
-  color: Color = Color.Black;
+  private lowerWrapper: CanvasWrapper;
 
-  dragStatus: DragStatus = DragStatus.Stop;
-
-  lowerWrapper: CanvasWrapper;
-
-  upperWrapper: CanvasWrapper;
+  private upperWrapper: CanvasWrapper;
 
   update: Function;
 
