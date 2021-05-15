@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
-import yorkie, { Client, Document, PlainText } from 'yorkie-js-sdk';
+import yorkie, { Client, DocumentReplica, PlainText } from 'yorkie-js-sdk';
 import anonymous from 'anonymous-animals-gen';
 import randomColor from 'randomcolor';
 
@@ -37,7 +37,7 @@ export enum DocStatus {
 
 export interface DocState {
   client?: Client;
-  doc?: Document<PairDoc>;
+  doc?: DocumentReplica<PairDoc>;
   mode: CodeMode;
   loading: boolean;
   errorMessage: string;
@@ -111,7 +111,7 @@ const docSlice = createSlice({
     detachDocument(state) {
       const { doc, client } = state;
       state.doc = undefined;
-      client?.detach(doc as Document<PairDoc>);
+      client?.detach(doc as DocumentReplica<PairDoc>);
     },
     attachDocLoading(state, action: PayloadAction<boolean>) {
       state.loading = action.payload;
@@ -151,5 +151,5 @@ export const {
 export default docSlice.reducer;
 
 type ActivateClientResult = { client: Client };
-type AttachDocArgs = { doc: Document<PairDoc>; client: Client };
-type AttachDocResult = { doc: Document<PairDoc>; client: Client };
+type AttachDocArgs = { doc: DocumentReplica<PairDoc>; client: Client };
+type AttachDocResult = { doc: DocumentReplica<PairDoc>; client: Client };

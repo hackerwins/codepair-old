@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import { useSelector } from 'react-redux';
-import { ActorID } from 'yorkie-js-sdk';
+import { ActorID, DocEvent } from 'yorkie-js-sdk';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
 
 import { AppState } from 'app/rootReducer';
@@ -97,7 +97,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
         };
 
         // TODO(ppeeou) Load user's cursor position
-        doc.subscribe((event) => {
+        doc.subscribe((event: DocEvent) => {
           if (event.type === 'remote-change') {
             for (const { change } of event.value) {
               const actor = change.getID().getActorID()!;
