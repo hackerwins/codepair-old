@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, MouseEvent, ChangeEvent } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { DocEvent } from 'yorkie-js-sdk';
 
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -51,7 +52,7 @@ export default function Toolbar() {
       return () => {};
     }
 
-    const unsubscribe = doc.subscribe((event) => {
+    const unsubscribe = doc.subscribe((event: DocEvent) => {
       if (event.type === 'remote-change') {
         dispatch(setCodeMode(doc.getRoot().mode || CodeMode.Markdown));
       }

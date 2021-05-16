@@ -73,7 +73,7 @@ export default function (props: { docKey: string }) {
         status === DocStatus.Connect &&
         ((event.type === 'status-changed' && event.value === 'deactivated') ||
           (event.type === 'stream-connection-status-changed' && event.value === 'disconnected') ||
-          (event.type === 'document-sync-result' && event.value === 'sync-failed'))
+          (event.type === 'document-synced' && event.value === 'sync-failed'))
       ) {
         dispatch(setStatus(DocStatus.Disconnect));
       } else if (
@@ -82,7 +82,7 @@ export default function (props: { docKey: string }) {
           event.type === 'documents-changed' ||
           (event.type === 'status-changed' && event.value === 'activated') ||
           (event.type === 'stream-connection-status-changed' && event.value === 'connected') ||
-          (event.type === 'document-sync-result' && event.value === 'synced'))
+          (event.type === 'document-synced' && event.value === 'synced'))
       ) {
         dispatch(setStatus(DocStatus.Connect));
       }
