@@ -19,17 +19,11 @@ Implement drawing tools that can express various shapes such as lines and rectan
 Each role is as follows
 
 - Container
-
   - `Container` receives the user's event and passes it to `Worker`, and receives the shape to be drawn on the canvas from `worker` and draws it on the canvas.
-    - lower canvas
-      - `lower canvas` draws shapes that exist in the `yorkie document`.
-    - upper canvas
-      - `upper canvas` draws shapes that will be changed by user events.
-
+  - lower canvas: `lower canvas` draws shapes that exist in the `yorkie document`.
+  - upper canvas: `upper canvas` draws shapes that will be changed by user events.
 - Worker
-
   - `Worker` executes tasks in `yorkie document` considering the currently applied tools and environment.
-
 - Scheduler
   - `Scheduler` receives tasks from workers, stores them, and executes them at specific cycles.
     The reason for doing this is that there are a lot of data accumulated in the document when all the operations requested by the user are executed.
