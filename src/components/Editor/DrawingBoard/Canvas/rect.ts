@@ -1,4 +1,5 @@
-import { Rect, Point, Box } from './Shape';
+import { Rect, Point, Box } from 'features/docSlices';
+
 import { cloneBox } from './utils';
 
 /**

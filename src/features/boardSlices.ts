@@ -9,7 +9,7 @@ export enum Color {
   Black = '#444',
 }
 
-export enum Tool {
+export enum ToolType {
   None,
   Line,
   Eraser,
@@ -21,14 +21,14 @@ export interface BoardState {
   isOpen: boolean;
 
   color: Color;
-  tool: Tool;
+  tool: ToolType;
 }
 
 const initialBoardState: BoardState = {
   isOpen: false,
 
   color: Color.Red,
-  tool: Tool.None,
+  tool: ToolType.None,
 };
 
 const boardSlice = createSlice({
@@ -40,7 +40,7 @@ const boardSlice = createSlice({
       state.isOpen = !state.isOpen;
     },
 
-    setTool(state, action: PayloadAction<Tool>) {
+    setTool(state, action: PayloadAction<ToolType>) {
       state.tool = action.payload;
     },
 

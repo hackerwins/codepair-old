@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
-import yorkie, { Client, DocumentReplica, PlainText } from 'yorkie-js-sdk';
+import yorkie, { Client, DocumentReplica, PlainText, TimeTicket } from 'yorkie-js-sdk';
 import anonymous from 'anonymous-animals-gen';
 import randomColor from 'randomcolor';
 
@@ -19,16 +19,60 @@ export type Point = {
   x: number;
 };
 
-export type Shape = {
-  type: string;
-  points: Array<Point>;
-};
+export interface Box {
+  y: number;
+  x: number;
+  width: number;
+  height: number;
+}
 
-export type PairDoc = {
+// TODO(ppeeou): refer to yorkie-sdk-js ArrayProxy
+export interface BaseShape {
+  type: string;
+  getID(): TimeTicket;
+}
+
+export interface Line extends BaseShape {
+  type: 'line';
+  color: string;
+  points: Array<Point>;
+}
+
+export interface EraserLine extends BaseShape {
+  type: 'eraser';
+  points: Array<Point>;
+}
+
+export interface Rect extends BaseShape {
+  type: 'rect';
+  points: Array<Point>;
+  box: Box;
+}
+
+export type Shape = Line | EraserLine | Rect;
+
+export type CodePairDoc = {
   mode: CodeMode;
   content: PlainText;
   shapes: Array<Shape>;
 };
+
+// TODO(ppeeou): refer to yorkie-sdk-js ArrayProxy
+export interface Shapes {
+  push(shape: Shape): number;
+
+  getLast(): Shape;
+  getElementByID(createdAt: TimeTicket): Shape;
+  deleteByID(createdAt: TimeTicket): Shape;
+  length: number;
+  [index: number]: Shape;
+  [Symbol.iterator](): IterableIterator<Shape>;
+}
+
+//  TODO(ppeeou) refer to yorkie-sdk-js JSONObject
+export interface Root {
+  shapes: Shapes;
+}
 
 export enum DocStatus {
   Disconnect = 'disconnect',
@@ -37,7 +81,7 @@ export enum DocStatus {
 
 export interface DocState {
   client?: Client;
-  doc?: DocumentReplica<PairDoc>;
+  doc?: DocumentReplica<CodePairDoc>;
   mode: CodeMode;
   loading: boolean;
   errorMessage: string;
@@ -106,12 +150,12 @@ const docSlice = createSlice({
       client?.deactivate();
     },
     createDocument(state, action: PayloadAction<string>) {
-      state.doc = yorkie.createDocument<PairDoc>('codepairs', action.payload);
+      state.doc = yorkie.createDocument<CodePairDoc>('codepairs', action.payload);
     },
     detachDocument(state) {
       const { doc, client } = state;
       state.doc = undefined;
-      client?.detach(doc as DocumentReplica<PairDoc>);
+      client?.detach(doc as DocumentReplica<CodePairDoc>);
     },
     attachDocLoading(state, action: PayloadAction<boolean>) {
       state.loading = action.payload;
@@ -151,5 +195,5 @@ export const {
 export default docSlice.reducer;
 
 type ActivateClientResult = { client: Client };
-type AttachDocArgs = { doc: DocumentReplica<PairDoc>; client: Client };
-type AttachDocResult = { doc: DocumentReplica<PairDoc>; client: Client };
+type AttachDocArgs = { doc: DocumentReplica<CodePairDoc>; client: Client };
+type AttachDocResult = { doc: DocumentReplica<CodePairDoc>; client: Client };

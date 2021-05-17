@@ -2,12 +2,12 @@ import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { AppState } from 'app/rootReducer';
-import { Tool, setTool } from 'features/boardSlices';
+import { ToolType, setTool } from 'features/boardSlices';
 
 import Container from './Canvas/Container';
 import './index.css';
 
-export default function Board({ width, height }: { width: number; height: number }) {
+export default function DrawingBoard({ width, height }: { width: number; height: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<Container | null>(null);
   const dispatch = useDispatch();
@@ -30,15 +30,15 @@ export default function Board({ width, height }: { width: number; height: number
     containerRef.current.drawAll(doc.getRoot().shapes);
 
     const handleMouseup = () => {
-      if (tool === Tool.Rect) {
-        dispatch(setTool(Tool.Selector));
+      if (tool === ToolType.Rect) {
+        dispatch(setTool(ToolType.Selector));
       }
     };
 
-    containerRef.current.on('mouseup', handleMouseup);
+    containerRef.current.addEventListener('mouseup', handleMouseup);
 
     return () => {
-      containerRef.current?.off('mouseup', handleMouseup);
+      containerRef.current?.removeEventListener('mouseup', handleMouseup);
       container.destroy();
     };
   }, [width, height, doc, tool, color]);

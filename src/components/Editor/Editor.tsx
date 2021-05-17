@@ -2,15 +2,15 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 
 import CodeEditor from 'components/Editor/CodeEditor';
-import Board from 'components/Editor/Board';
+import DrawingBoard from 'components/Editor/DrawingBoard';
 import Sidebar from 'components/Editor/Sidebar';
-import { Tool } from 'features/boardSlices';
+import { ToolType } from 'features/boardSlices';
 
 export const NAVBAR_HEIGHT = 110;
 const SIDEBAR_WIDTH = 42;
 
 interface EditorProps {
-  tool: Tool;
+  tool: ToolType;
 }
 
 const useStyles = makeStyles(() =>
@@ -36,7 +36,7 @@ const useStyles = makeStyles(() =>
        * 1:  Show code mirror first
        * 10: Show canvas first
        */
-      zIndex: (tool: Tool) => (tool === Tool.None ? 1 : 10),
+      zIndex: (tool: ToolType) => (tool === ToolType.None ? 1 : 10),
     },
   }),
 );
@@ -51,7 +51,7 @@ export default function Editor({ tool }: EditorProps) {
   const codeEditorRef = useRef<CodeMirror.Editor>(null);
 
   const onClickEditor = useCallback(() => {
-    if (tool === Tool.None) {
+    if (tool === ToolType.None) {
       codeEditorRef.current?.focus();
     }
   }, [tool]);
@@ -81,7 +81,7 @@ export default function Editor({ tool }: EditorProps) {
           <CodeEditor forwardedRef={codeEditorRef} />
         </div>
         <div className={classes.canvas}>
-          <Board width={width} height={height} />
+          <DrawingBoard width={width} height={height} />
         </div>
       </div>
       <Sidebar />

@@ -1,6 +1,5 @@
 import { Color } from 'features/boardSlices';
-
-import { Line, Point, EraserLine } from './Shape';
+import { Line, Point, EraserLine } from 'features/docSlices';
 
 export interface LineOption {
   color: Color;

@@ -1,4 +1,4 @@
-import { Point, Box } from './Shape';
+import { Point, Box, Shape, Rect } from 'features/docSlices';
 
 /**
  * square distance between 2 points
@@ -183,4 +183,11 @@ export function isInnerBox(box: Box, point: Point): boolean {
     return false;
   }
   return true;
+}
+
+/**
+ * Check if it is a shape that can be selected.
+ */
+export function isSelectable(shape: Shape): shape is Rect {
+  return shape.type === 'rect';
 }

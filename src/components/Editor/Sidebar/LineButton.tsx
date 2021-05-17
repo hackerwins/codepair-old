@@ -11,7 +11,7 @@ import { createStyles, makeStyles } from '@material-ui/core/styles';
 
 import Popover from 'components/commons/Popover';
 import { AppState } from 'app/rootReducer';
-import { Tool, setTool, Color, setColor } from 'features/boardSlices';
+import { ToolType, setTool, Color, setColor } from 'features/boardSlices';
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -67,27 +67,27 @@ export default function LineButton() {
 
   const handleSelectTool = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => {
-      if (tool === Tool.Line) {
+      if (tool === ToolType.Line) {
         handleOpen(event);
         return;
       }
 
-      dispatch(setTool(Tool.Line));
+      dispatch(setTool(ToolType.Line));
     },
     [tool, color],
   );
 
   const handleSelectColor = (nextColor: Color) => () => {
-    dispatch(setTool(Tool.Line));
+    dispatch(setTool(ToolType.Line));
     dispatch(setColor(nextColor));
     handleClose();
   };
 
   return (
     <>
-      <Tooltip title="Brush" arrow className={tool === Tool.Line ? classes.select : classes.button}>
+      <Tooltip title="Brush" arrow className={tool === ToolType.Line ? classes.select : classes.button}>
         <IconButton aria-label="Brush" onClick={handleSelectTool}>
-          {tool === Tool.Line ? (
+          {tool === ToolType.Line ? (
             <Badge
               variant="dot"
               classes={{ badge: classes.badge }}
@@ -118,7 +118,7 @@ export default function LineButton() {
       >
         <Box p={2} className={classes.box}>
           {Object.entries(Color).map(([name, _color]: [string, Color]) => {
-            const selected = color === _color && tool === Tool.Line;
+            const selected = color === _color && tool === ToolType.Line;
             return (
               <Tooltip key={name} title={name} arrow>
                 <Box border={3} borderRadius="50%" borderColor={selected ? 'primary.main' : ''}>
