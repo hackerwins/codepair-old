@@ -1,6 +1,7 @@
 import { Rect, Point, Box } from 'features/docSlices';
 
 import { cloneBox } from './utils';
+import { transform } from './matrix';
 
 /**
  * Create the basic object of the rect with point.
@@ -22,17 +23,10 @@ export function createRect(point: Point): Rect {
  * Draw a rect on the canvas.
  */
 export function drawRect(context: CanvasRenderingContext2D, rect: Rect) {
-  /**
-   * TODO(ppeeou):We have to draw the possible parts of the control area separately
-   * debug
-   */
-  // if (rect.isEditing) {
-  //   context.save();
-  //   context.fillStyle = 'rgba(102,153,255,0.1)';
-  //   context.fillRect(rect.box.x, rect.box.y, rect.box.width, rect.box.height);
-  //   context.restore();
-  // }
-  context.strokeRect(rect.box.x, rect.box.y, rect.box.width, rect.box.height);
+  context.save();
+  transform(context, rect);
+  context.strokeRect(-rect.box.width * 0.5, -rect.box.height * 0.5, rect.box.width, rect.box.height);
+  context.restore();
 }
 
 /**

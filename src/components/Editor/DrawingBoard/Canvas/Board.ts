@@ -1,15 +1,15 @@
 import { Client } from 'yorkie-js-sdk';
 import { ToolType, Color } from 'features/boardSlices';
-import { Point, Shape } from 'features/docSlices';
+import { Point, Shape, Rect } from 'features/docSlices';
 import { Peer } from 'features/peerSlices';
 import EventDispatcher from 'utils/eventDispatcher';
 
 import CanvasWrapper from './CanvasWrapper';
 import { drawLine } from './line';
 import { drawRect } from './rect';
+import { drawBorder } from './shape';
 import { addEvent, removeEvent, touchy, TouchyEvent } from './dom';
-import { Worker, LineWorker, EraserWorker, RectWorker, SelectorWorker } from './Worker';
-import NoneWorker from './Worker/NoneWorker';
+import { Worker, LineWorker, EraserWorker, RectWorker, SelectorWorker, NoneWorker } from './Worker';
 
 enum DragStatus {
   Drag,
@@ -38,6 +38,8 @@ export default class Board extends EventDispatcher {
   update!: Function;
 
   worker!: Worker;
+
+  selectedShape?: Rect;
 
   static getInstance() {
     if (this.instance) {
@@ -172,6 +174,12 @@ export default class Board extends EventDispatcher {
     }
   }
 
+  setSelectShape(shape?: Rect) {
+    this.selectedShape = shape;
+
+    this.drawSelectedShape();
+  }
+
   getPointFromTouchyEvent(evt: TouchyEvent): Point {
     let originY;
     let originX;
@@ -244,6 +252,15 @@ export default class Board extends EventDispatcher {
         drawRect(wrapper.getContext(), shape);
       }
     }
+    this.drawSelectedShape();
+  }
+
+  drawSelectedShape(wrapper: CanvasWrapper = this.upperWrapper!) {
+    if (!this.selectedShape) {
+      return;
+    }
+    this.clear(wrapper);
+    drawBorder(wrapper.getContext(), this.selectedShape);
   }
 
   clear(wrapper: CanvasWrapper = this.lowerWrapper) {

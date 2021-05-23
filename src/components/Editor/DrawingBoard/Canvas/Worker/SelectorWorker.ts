@@ -1,5 +1,5 @@
 import Board from 'components/Editor/DrawingBoard/Canvas/Board';
-import { Root, Point, Shape } from 'features/docSlices';
+import { Root, Point, SeletableShape } from 'features/docSlices';
 import { ToolType } from 'features/boardSlices';
 import { isInnerBox, cloneBox, isSelectable } from '../utils';
 import Worker from './Worker';
@@ -12,7 +12,7 @@ class SelectorWorker extends Worker {
 
   board: Board;
 
-  private selectedShape?: { shape: Shape; point: Point };
+  private selectedShape?: { shape: SeletableShape; point: Point };
 
   constructor(update: Function, board: Board) {
     super();
@@ -38,7 +38,7 @@ class SelectorWorker extends Worker {
     this.drawAll();
   }
 
-  setSelectShape(target: Shape, point: Point) {
+  setSelectShape(target: SeletableShape, point: Point) {
     this.selectedShape = {
       shape: target,
       point,
@@ -110,7 +110,7 @@ class SelectorWorker extends Worker {
   /**
    * Find the shape in the document.
    */
-  findTarget(point: Point): Shape | undefined {
+  findTarget(point: Point): SeletableShape | undefined {
     let target;
     this.update((root: Root) => {
       for (const shape of root.shapes) {

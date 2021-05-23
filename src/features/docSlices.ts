@@ -26,12 +26,27 @@ export interface Box {
   height: number;
 }
 
+export interface ShapeOptions {
+  angle: number;
+  flipX: boolean;
+  flipY: boolean;
+  scaleX: number;
+  scaleY: number;
+  translateY: number;
+  translateX: number;
+}
+
 // TODO(ppeeou): refer to yorkie-sdk-js ArrayProxy
 export interface BaseShape {
   type: string;
   getID(): TimeTicket;
   isEditing: boolean;
   editorID: ActorID;
+}
+
+export interface BaseSelectableShape extends BaseShape {
+  box: Box;
+  options?: ShapeOptions;
 }
 
 export interface Line extends BaseShape {
@@ -45,18 +60,19 @@ export interface EraserLine extends BaseShape {
   points: Array<Point>;
 }
 
-export interface Rect extends BaseShape {
+export interface Rect extends BaseSelectableShape {
   type: 'rect';
   points: Array<Point>;
-  box: Box;
 }
 
 export type Shape = Line | EraserLine | Rect;
 
+export type SeletableShape = Rect;
+
 export type CodePairDoc = {
   mode: CodeMode;
   content: PlainText;
-  shapes: Array<Shape>;
+  shapes: Array<Shape | SeletableShape>;
 };
 
 // TODO(ppeeou): refer to yorkie-sdk-js ArrayProxy
@@ -73,7 +89,7 @@ export interface Shapes {
 
 //  TODO(ppeeou) refer to yorkie-sdk-js JSONObject
 export interface Root {
-  shapes: Shapes & Array<Shape>;
+  shapes: Shapes & Array<Shape | SeletableShape>;
 }
 
 export enum DocStatus {
