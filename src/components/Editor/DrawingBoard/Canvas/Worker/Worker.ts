@@ -1,4 +1,5 @@
 import { ActorID, Client, TimeTicket } from 'yorkie-js-sdk';
+import Board from 'components/Editor/DrawingBoard/Canvas/Board';
 import { ToolType } from 'features/boardSlices';
 import { Point, Root, Shape } from 'features/docSlices';
 import { Peer } from 'features/peerSlices';
@@ -11,7 +12,7 @@ abstract class Worker {
 
   abstract update: Function;
 
-  abstract emit: Function;
+  abstract board: Board;
 
   abstract mousedown(point: Point, options: Options): void;
 
@@ -72,7 +73,7 @@ abstract class Worker {
 
   protected drawAll() {
     this.update((root: Root) => {
-      this.emit('renderAll', root.shapes);
+      this.board.drawAll(root.shapes);
     });
   }
 }

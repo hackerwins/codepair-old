@@ -19,16 +19,12 @@ export default function DrawingBoard({ width, height }: { width: number; height:
 
   useEffect(() => {
     if (!canvasRef.current || !doc || !client) {
-      return () => {};
+      return;
     }
 
     Board.getInstance().setClient(client);
     Board.getInstance().setDocUpdate(doc.update.bind(doc));
     Board.getInstance().initialize();
-
-    return () => {
-      Board.getInstance().destroy();
-    };
   }, [doc, client]);
 
   useEffect(() => {

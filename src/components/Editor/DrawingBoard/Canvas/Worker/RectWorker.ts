@@ -1,4 +1,5 @@
 import { TimeTicket } from 'yorkie-js-sdk';
+import Board from 'components/Editor/DrawingBoard/Canvas/Board';
 import { Root, Point, Rect } from 'features/docSlices';
 import { ToolType } from 'features/boardSlices';
 import { createRect, adjustRectBox } from '../rect';
@@ -10,14 +11,14 @@ class RectWorker extends Worker {
 
   update: Function;
 
-  emit: Function;
+  board: Board;
 
   private createID?: TimeTicket;
 
-  constructor(update: Function, emit: Function) {
+  constructor(update: Function, board: Board) {
     super();
     this.update = update;
-    this.emit = emit;
+    this.board = board;
   }
 
   mousedown(point: Point): void {

@@ -9,7 +9,7 @@ import { drawLine } from './line';
 import { drawRect } from './rect';
 import { addEvent, removeEvent, touchy, TouchyEvent } from './dom';
 import { Worker, LineWorker, EraserWorker, RectWorker, SelectorWorker } from './Worker';
-import NoneWorker from './Worker/LineWorker';
+import NoneWorker from './Worker/NoneWorker';
 
 enum DragStatus {
   Drag,
@@ -55,13 +55,7 @@ export default class Board extends EventDispatcher {
     this.onMouseDown = this.onMouseDown.bind(this);
     this.onMouseMove = this.onMouseMove.bind(this);
 
-    this.addEventListener('renderAll', this.drawAll);
-
-    this.worker = new NoneWorker(this.update, this.emit);
-  }
-
-  destroy() {
-    this.removeEventListener('renderAll');
+    this.worker = new NoneWorker(this.update, this);
   }
 
   initializeOffset() {
@@ -152,15 +146,15 @@ export default class Board extends EventDispatcher {
     this.worker.destroy();
 
     if (tool === ToolType.Line) {
-      this.worker = new LineWorker(this.update, this.emit);
+      this.worker = new LineWorker(this.update, this);
     } else if (tool === ToolType.Eraser) {
-      this.worker = new EraserWorker(this.update, this.emit);
+      this.worker = new EraserWorker(this.update, this);
     } else if (tool === ToolType.Rect) {
-      this.worker = new RectWorker(this.update, this.emit);
+      this.worker = new RectWorker(this.update, this);
     } else if (tool === ToolType.Selector) {
-      this.worker = new SelectorWorker(this.update, this.emit);
+      this.worker = new SelectorWorker(this.update, this);
     } else {
-      this.worker = new NoneWorker(this.update, this.emit);
+      this.worker = new NoneWorker(this.update, this);
     }
 
     this.worker.resetPeers(this.client, this.activePeers);

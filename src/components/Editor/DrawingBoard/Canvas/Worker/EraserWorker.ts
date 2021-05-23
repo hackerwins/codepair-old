@@ -1,4 +1,5 @@
 import { TimeTicket } from 'yorkie-js-sdk';
+import Board from 'components/Editor/DrawingBoard/Canvas/Board';
 import { Root, Point, Shape } from 'features/docSlices';
 import { ToolType } from 'features/boardSlices';
 import { createEraserLine, fixEraserPoint } from '../line';
@@ -11,14 +12,14 @@ class EraserWorker extends Worker {
 
   update: Function;
 
-  emit: Function;
+  board: Board;
 
   private createID?: TimeTicket;
 
-  constructor(update: Function, emit: Function) {
+  constructor(update: Function, board: Board) {
     super();
     this.update = update;
-    this.emit = emit;
+    this.board = board;
   }
 
   mousedown(point: Point): void {

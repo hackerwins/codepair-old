@@ -1,3 +1,4 @@
+import Board from 'components/Editor/DrawingBoard/Canvas/Board';
 import { ToolType } from 'features/boardSlices';
 import Worker from './Worker';
 
@@ -6,12 +7,12 @@ class NoneWorker extends Worker {
 
   update: Function;
 
-  emit: Function;
+  board: Board;
 
-  constructor(update: Function, emit: Function) {
+  constructor(update: Function, board: Board) {
     super();
     this.update = update;
-    this.emit = emit;
+    this.board = board;
   }
 
   mousedown() {}
