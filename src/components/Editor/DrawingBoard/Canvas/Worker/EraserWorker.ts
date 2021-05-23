@@ -1,21 +1,22 @@
 import { TimeTicket } from 'yorkie-js-sdk';
-import { Root, Point } from 'features/docSlices';
+import { Root, Point, Shape } from 'features/docSlices';
 import { ToolType } from 'features/boardSlices';
 import { createEraserLine, fixEraserPoint } from '../line';
 import Worker from './Worker';
 import { compressPoints, checkLineIntersection, isInnerBox, isSelectable } from '../utils';
 import * as scheduler from '../scheduler';
 
-class EraserWorker implements Worker {
+class EraserWorker extends Worker {
   type = ToolType.Eraser;
 
-  private update: Function;
+  update: Function;
 
-  private emit: Function;
+  emit: Function;
 
   private createID?: TimeTicket;
 
   constructor(update: Function, emit: Function) {
+    super();
     this.update = update;
     this.emit = emit;
   }
@@ -31,6 +32,7 @@ class EraserWorker implements Worker {
       timeTicket = lastShape.getID();
     });
 
+    this.setIsEditShape(timeTicket!);
     this.createID = timeTicket!;
   }
 
@@ -42,22 +44,23 @@ class EraserWorker implements Worker {
         return;
       }
 
+      const shapes: Array<Shape> = [];
       this.update((root: Root) => {
         const pointStart = fixEraserPoint(points[0]);
         const pointEnd = fixEraserPoint(points[points.length - 1]);
         const lastShape = root.shapes.getElementByID(this.createID!);
 
-        const findAndRemoveShape = (point1: Point, point2: Point) => {
+        const findShape = (point1: Point, point2: Point) => {
           for (const shape of root.shapes) {
             if (isSelectable(shape)) {
               if (isInnerBox(shape.box, point2)) {
-                root.shapes.deleteByID(shape.getID());
+                shapes.push(shape);
               }
             } else {
               for (let i = 1; i < shape.points.length; i += 1) {
                 const result = checkLineIntersection(point1, point2, shape.points[i - 1], shape.points[i]);
                 if (result.onLine1 && result.onLine2) {
-                  root.shapes.deleteByID(shape.getID());
+                  shapes.push(shape);
                   break;
                 }
               }
@@ -67,14 +70,15 @@ class EraserWorker implements Worker {
 
         if (lastShape.points.length > 0) {
           const lastPoint = lastShape.points[lastShape.points.length - 1];
-          findAndRemoveShape(lastPoint, pointStart);
+          findShape(lastPoint, pointStart);
         }
 
-        findAndRemoveShape(pointStart, pointEnd);
+        findShape(pointStart, pointEnd);
         lastShape.points = [pointStart, pointEnd];
-
-        this.emit('renderAll', root.shapes);
       });
+
+      shapes.forEach((shape) => this.deleteShapeByID(shape.getID()));
+      this.drawAll();
     });
   }
 
@@ -85,14 +89,19 @@ class EraserWorker implements Worker {
   flushTask() {
     scheduler.flushTask();
 
-    this.update((root: Root) => {
-      if (!this.createID) {
-        return;
-      }
+    if (!this.createID) {
+      return;
+    }
 
-      root.shapes.deleteByID(this.createID);
-      this.emit('renderAll', root.shapes);
-    });
+    this.unsetIsEditShape(this.createID!);
+    this.deleteShapeByID(this.createID!);
+    this.drawAll();
+
+    this.createID = undefined;
+  }
+
+  destroy() {
+    this.flushTask();
   }
 }
 

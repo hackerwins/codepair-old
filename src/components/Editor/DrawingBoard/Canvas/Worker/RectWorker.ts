@@ -5,16 +5,17 @@ import { createRect, adjustRectBox } from '../rect';
 import Worker from './Worker';
 import * as scheduler from '../scheduler';
 
-class RectWorker implements Worker {
+class RectWorker extends Worker {
   type = ToolType.Rect;
 
-  private update: Function;
+  update: Function;
 
-  private emit: Function;
+  emit: Function;
 
   private createID?: TimeTicket;
 
   constructor(update: Function, emit: Function) {
+    super();
     this.update = update;
     this.emit = emit;
   }
@@ -30,23 +31,24 @@ class RectWorker implements Worker {
       timeTicket = lastShape.getID();
     });
 
+    this.setIsEditShape(timeTicket!);
     this.createID = timeTicket!;
   }
 
-  mousemove(p: Point) {
-    scheduler.reserveTask(p, (tasks: Array<scheduler.Task>) => {
+  mousemove(point: Point) {
+    scheduler.reserveTask(point, (tasks: Array<scheduler.Task>) => {
       if (tasks.length < 2) {
         return;
       }
 
       this.update((root: Root) => {
-        const point = tasks[tasks.length - 1];
+        const lastPoint = tasks[tasks.length - 1];
         const lastShape = root.shapes.getElementByID(this.createID!) as Rect;
-        const box = adjustRectBox(lastShape, point);
+        const box = adjustRectBox(lastShape, lastPoint);
         lastShape.box = box;
-
-        this.emit('renderAll', root.shapes);
       });
+
+      this.drawAll();
     });
   }
 
@@ -54,8 +56,18 @@ class RectWorker implements Worker {
     this.flushTask();
   }
 
+  destroy() {
+    this.flushTask();
+  }
+
   flushTask() {
     scheduler.flushTask();
+    if (!this.createID) {
+      return;
+    }
+
+    this.unsetIsEditShape(this.createID!);
+    this.createID = undefined;
   }
 }
 

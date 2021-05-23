@@ -54,6 +54,6 @@ export default class EventDispatcher {
       return;
     }
 
-    this.events[name].off(cb);
+    this.events[name]?.off(cb);
   }
 }

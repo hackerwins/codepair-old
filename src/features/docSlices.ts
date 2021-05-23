@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
-import yorkie, { Client, DocumentReplica, PlainText, TimeTicket } from 'yorkie-js-sdk';
+import yorkie, { ActorID, Client, DocumentReplica, PlainText, TimeTicket } from 'yorkie-js-sdk';
 import anonymous from 'anonymous-animals-gen';
 import randomColor from 'randomcolor';
 
@@ -30,6 +30,8 @@ export interface Box {
 export interface BaseShape {
   type: string;
   getID(): TimeTicket;
+  isEditing: boolean;
+  editorID: ActorID;
 }
 
 export interface Line extends BaseShape {

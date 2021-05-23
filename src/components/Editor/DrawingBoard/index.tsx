@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { AppState } from 'app/rootReducer';
+import usePeer from 'hooks/usePeer';
 import { ToolType, setTool } from 'features/boardSlices';
 
 import Board from './Canvas/Board';
@@ -9,11 +10,26 @@ import './index.css';
 
 export default function DrawingBoard({ width, height }: { width: number; height: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const boardRef = useRef<Board | null>(null);
   const dispatch = useDispatch();
   const doc = useSelector((state: AppState) => state.docState.doc);
+  const client = useSelector((state: AppState) => state.docState.client);
   const tool = useSelector((state: AppState) => state.boardState.tool);
   const color = useSelector((state: AppState) => state.boardState.color);
+  const { activePeers } = usePeer();
+
+  useEffect(() => {
+    if (!canvasRef.current || !doc || !client) {
+      return () => {};
+    }
+
+    Board.getInstance().setClient(client);
+    Board.getInstance().setDocUpdate(doc.update.bind(doc));
+    Board.getInstance().initialize();
+
+    return () => {
+      Board.getInstance().destroy();
+    };
+  }, [doc, client]);
 
   useEffect(() => {
     if (!canvasRef.current || !doc) {
@@ -23,11 +39,16 @@ export default function DrawingBoard({ width, height }: { width: number; height:
     canvasRef.current.width = width;
     canvasRef.current.height = height;
 
-    const board = new Board(canvasRef.current, doc.update.bind(doc));
-    boardRef.current = board;
-    boardRef.current.setTool(tool);
-    boardRef.current.setColor(color);
-    boardRef.current.drawAll(doc.getRoot().shapes);
+    Board.getInstance().setCanvas(canvasRef.current);
+    Board.getInstance().initializeCanvas();
+    Board.getInstance().drawAll(doc.getRoot().shapes);
+    return () => {
+      Board.getInstance().destroyCanvas();
+    };
+  }, [width, height, doc]);
+
+  useEffect(() => {
+    Board.getInstance().setTool(tool);
 
     const handleMouseup = () => {
       if (tool === ToolType.Rect) {
@@ -35,13 +56,19 @@ export default function DrawingBoard({ width, height }: { width: number; height:
       }
     };
 
-    boardRef.current.addEventListener('mouseup', handleMouseup);
-
+    Board.getInstance().addEventListener('mouseup', handleMouseup);
     return () => {
-      boardRef.current?.removeEventListener('mouseup', handleMouseup);
-      boardRef.current?.destroy();
+      Board.getInstance().removeEventListener('mouseup', handleMouseup);
     };
-  }, [width, height, doc, tool, color]);
+  }, [tool]);
+
+  useEffect(() => {
+    Board.getInstance().setColor(color);
+  }, [color]);
+
+  useEffect(() => {
+    Board.getInstance().setActivePeers(activePeers);
+  }, [activePeers]);
 
   useEffect(() => {
     if (!doc) {
@@ -50,7 +77,7 @@ export default function DrawingBoard({ width, height }: { width: number; height:
 
     const unsubscribe = doc.subscribe((event) => {
       if (event.type === 'remote-change') {
-        boardRef.current?.drawAll(doc.getRoot().shapes);
+        Board.getInstance().drawAll(doc.getRoot().shapes);
       }
     });
 
@@ -58,10 +85,6 @@ export default function DrawingBoard({ width, height }: { width: number; height:
       unsubscribe();
     };
   }, [doc]);
-
-  useEffect(() => {
-    boardRef.current?.setTool(tool);
-  }, [doc, tool]);
 
   return <canvas ref={canvasRef} />;
 }

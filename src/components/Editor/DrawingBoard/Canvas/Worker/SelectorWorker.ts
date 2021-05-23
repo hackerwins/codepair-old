@@ -4,54 +4,74 @@ import { isInnerBox, cloneBox, isSelectable } from '../utils';
 import Worker from './Worker';
 import * as scheduler from '../scheduler';
 
-class SelectorWorker implements Worker {
+class SelectorWorker extends Worker {
   type = ToolType.Selector;
 
-  private update: Function;
+  update: Function;
 
-  private emit: Function;
+  emit: Function;
 
   private selectedShape?: { shape: Shape; point: Point };
 
   constructor(update: Function, emit: Function) {
+    super();
     this.update = update;
     this.emit = emit;
   }
 
   mousedown(point: Point): void {
     const target = this.findTarget(point);
+
     if (target) {
-      this.selectedShape = {
-        shape: target,
-        point,
-      };
+      if (this.selectedShape) {
+        this.resetSelectShape();
+      }
+
+      this.setSelectShape(target, point);
+      this.setIsEditShape(target.getID());
+      this.drawAll();
       return;
     }
 
-    this.selectedShape = undefined;
+    this.resetSelectShape();
+    this.drawAll();
   }
 
-  mousemove(p: Point) {
-    scheduler.reserveTask(p, (tasks: Array<scheduler.Task>) => {
+  setSelectShape(target: Shape, point: Point) {
+    this.selectedShape = {
+      shape: target,
+      point,
+    };
+  }
+
+  resetSelectShape() {
+    if (this.selectedShape) {
+      this.unsetIsEditShape(this.selectedShape.shape.getID());
+      this.selectedShape = undefined;
+    }
+  }
+
+  mousemove(point: Point) {
+    scheduler.reserveTask(point, (tasks: Array<scheduler.Task>) => {
       if (tasks.length < 2) {
         return;
       }
 
       this.update((root: Root) => {
-        if (this.isEmptySelectedShape()) {
+        if (!this.selectedShape) {
           return;
         }
 
-        const lastShape = root.shapes.getElementByID(this.selectedShape!.shape.getID());
+        const lastShape = root.shapes.getElementByID(this.selectedShape.shape.getID());
         if (!lastShape || lastShape.type !== 'rect') {
           return;
         }
 
         if (isSelectable(lastShape)) {
           const pointEnd = tasks[tasks.length - 1];
-          const offsetY = pointEnd.y - this.selectedShape!.point.y;
-          const offsetX = pointEnd.x - this.selectedShape!.point.x;
-          this.selectedShape!.point = pointEnd;
+          const offsetY = pointEnd.y - this.selectedShape.point.y;
+          const offsetX = pointEnd.x - this.selectedShape.point.x;
+          this.selectedShape.point = pointEnd;
 
           lastShape.box = {
             ...cloneBox(lastShape.box),
@@ -64,8 +84,9 @@ class SelectorWorker implements Worker {
             x: lastShape.points[0].x + offsetX,
           };
         }
-        this.emit('renderAll', root.shapes);
       });
+
+      this.drawAll();
     });
   }
 
@@ -73,15 +94,16 @@ class SelectorWorker implements Worker {
     this.flushTask();
   }
 
-  flushTask() {
-    scheduler.flushTask();
+  destroy() {
+    this.flushTask();
+
+    if (this.selectedShape) {
+      this.unsetIsEditShape(this.selectedShape!.shape.getID());
+    }
   }
 
-  /**
-   * Check if there is a selected shape.
-   */
-  isEmptySelectedShape() {
-    return !this.selectedShape;
+  flushTask() {
+    scheduler.flushTask();
   }
 
   /**

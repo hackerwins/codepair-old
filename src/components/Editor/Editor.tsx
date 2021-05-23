@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { useSelector } from 'react-redux';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 
+import { AppState } from 'app/rootReducer';
 import CodeEditor from 'components/Editor/CodeEditor';
 import DrawingBoard from 'components/Editor/DrawingBoard';
 import Sidebar from 'components/Editor/Sidebar';
@@ -43,6 +45,8 @@ const useStyles = makeStyles(() =>
 
 export default function Editor({ tool }: EditorProps) {
   const classes = useStyles(tool);
+  const doc = useSelector((state: AppState) => state.docState.doc);
+  const client = useSelector((state: AppState) => state.docState.client);
 
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
@@ -77,12 +81,16 @@ export default function Editor({ tool }: EditorProps) {
   return (
     <div className={classes.root} onClick={onClickEditor} aria-hidden="true">
       <div className={classes.editor} ref={divRef}>
-        <div className={classes.codeEditor}>
-          <CodeEditor forwardedRef={codeEditorRef} />
-        </div>
-        <div className={classes.canvas}>
-          <DrawingBoard width={width} height={height} />
-        </div>
+        {doc && client && (
+          <>
+            <div className={classes.codeEditor}>
+              <CodeEditor forwardedRef={codeEditorRef} />
+            </div>
+            <div className={classes.canvas}>
+              <DrawingBoard width={width} height={height} />
+            </div>
+          </>
+        )}
       </div>
       <Sidebar />
     </div>

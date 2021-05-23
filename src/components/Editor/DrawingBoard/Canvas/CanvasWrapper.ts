@@ -8,6 +8,10 @@ export default class CanvasWrapper {
 
   private height = 0;
 
+  private styleWidth = 0;
+
+  private styleHeight = 0;
+
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     this.context = canvas.getContext('2d')!;
@@ -38,12 +42,16 @@ export default class CanvasWrapper {
 
   setWidth(width: number, devicePixelRatio?: number) {
     this.width = width;
+    this.styleWidth = width;
+
     this.canvas.width = devicePixelRatio ? width * devicePixelRatio : width;
     this.canvas.style.width = `${width}px`;
   }
 
   setHeight(height: number, devicePixelRatio?: number) {
     this.height = height;
+    this.styleHeight = height;
+
     this.canvas.height = devicePixelRatio ? height * devicePixelRatio : height;
     this.canvas.style.height = `${height}px`;
   }
@@ -54,16 +62,16 @@ export default class CanvasWrapper {
   }
 
   clear() {
-    this.getContext().clearRect(0, 0, this.getWidth(), this.getHeight());
+    this.getContext().clearRect(0, 0, this.width, this.height);
   }
 
   resize() {
     const { devicePixelRatio } = window;
     if (devicePixelRatio) {
-      this.setSize(this.canvas.width, this.canvas.height, devicePixelRatio);
+      this.setSize(this.styleWidth, this.styleHeight, devicePixelRatio);
       this.context.scale(devicePixelRatio, devicePixelRatio);
     } else {
-      this.setSize(this.canvas.width, this.canvas.height);
+      this.setSize(this.styleWidth, this.styleHeight);
     }
   }
 }

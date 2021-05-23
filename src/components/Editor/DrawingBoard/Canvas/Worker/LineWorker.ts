@@ -6,16 +6,17 @@ import Worker from './Worker';
 import { compressPoints } from '../utils';
 import * as scheduler from '../scheduler';
 
-class LineWorker implements Worker {
+class LineWorker extends Worker {
   type = ToolType.Line;
 
-  private update: Function;
+  update: Function;
 
-  private emit: Function;
+  emit: Function;
 
   private createID?: TimeTicket;
 
   constructor(update: Function, emit: Function) {
+    super();
     this.update = update;
     this.emit = emit;
   }
@@ -31,11 +32,12 @@ class LineWorker implements Worker {
       timeTicket = lastShape.getID();
     });
 
+    this.setIsEditShape(timeTicket!);
     this.createID = timeTicket!;
   }
 
-  mousemove(p: Point) {
-    scheduler.reserveTask(p, (tasks: Array<scheduler.Task>) => {
+  mousemove(point: Point) {
+    scheduler.reserveTask(point, (tasks: Array<scheduler.Task>) => {
       const points = compressPoints(tasks);
 
       if (tasks.length < 2) {
@@ -45,8 +47,9 @@ class LineWorker implements Worker {
       this.update((root: Root) => {
         const lastShape = root.shapes.getElementByID(this.createID!) as Line;
         lastShape.points.push(...points);
-        this.emit('renderAll', root.shapes);
       });
+
+      this.drawAll();
     });
   }
 
@@ -57,19 +60,26 @@ class LineWorker implements Worker {
   flushTask() {
     scheduler.flushTask();
 
-    this.update((root: Root) => {
-      if (!this.createID) {
-        return;
-      }
+    if (!this.createID) {
+      return;
+    }
 
-      const shape = root.shapes.getElementByID(this.createID);
+    this.unsetIsEditShape(this.createID!);
+    this.update((root: Root) => {
+      const shape = root.shapes.getElementByID(this.createID!);
+
       // When erasing a line, it checks that the lines overlap, so do not save if there are two points below
       if (shape.points.length < 2) {
-        root.shapes.deleteByID(this.createID!);
+        this.deleteShapeByID(this.createID!);
       }
-
-      this.emit('renderAll', root.shapes);
     });
+
+    this.drawAll();
+    this.createID = undefined;
+  }
+
+  destroy() {
+    this.flushTask();
   }
 }
 
