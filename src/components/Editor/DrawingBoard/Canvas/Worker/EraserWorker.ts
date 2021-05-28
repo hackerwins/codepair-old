@@ -1,6 +1,6 @@
 import { TimeTicket } from 'yorkie-js-sdk';
 import Board from 'components/Editor/DrawingBoard/Canvas/Board';
-import { Root, Point, Shape } from 'features/docSlices';
+import { Root, Point, Box, Shape } from 'features/docSlices';
 import { ToolType } from 'features/boardSlices';
 import { createEraserLine, fixEraserPoint } from '../line';
 import Worker from './Worker';
@@ -16,8 +16,11 @@ class EraserWorker extends Worker {
 
   private createID?: TimeTicket;
 
+  private eraserBoxSize: number = 24;
+
   constructor(update: Function, board: Board) {
     super();
+
     this.update = update;
     this.board = board;
   }
@@ -59,7 +62,20 @@ class EraserWorker extends Worker {
               }
             } else {
               for (let i = 1; i < shape.points.length; i += 1) {
-                const result = checkLineIntersection(point1, point2, shape.points[i - 1], shape.points[i]);
+                const shapePoint1 = shape.points[i - 1];
+                const shapePoint2 = shape.points[i];
+
+                if (isInnerBox(this.eraserBox(point2), shapePoint2)) {
+                  shapes.push(shape);
+                  break;
+                }
+
+                if (isInnerBox(this.eraserBox(point1), shapePoint2)) {
+                  shapes.push(shape);
+                  break;
+                }
+
+                const result = checkLineIntersection(point1, point2, shapePoint1, shapePoint2);
                 if (result.onLine1 && result.onLine2) {
                   shapes.push(shape);
                   break;
@@ -103,6 +119,15 @@ class EraserWorker extends Worker {
 
   destroy() {
     this.flushTask();
+  }
+
+  eraserBox(point: Point): Box {
+    const x = point.x - this.eraserBoxSize / 2;
+    const y = point.y - this.eraserBoxSize / 2;
+    const width = this.eraserBoxSize;
+    const height = this.eraserBoxSize;
+
+    return { y, x, width, height };
   }
 }
 
