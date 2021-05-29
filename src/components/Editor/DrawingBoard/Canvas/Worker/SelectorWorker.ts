@@ -108,7 +108,7 @@ class SelectorWorker extends Worker {
   }
 
   /**
-   * Find the shape in the document.
+   * 'findTarget' find the shape in the document.
    */
   findTarget(point: Point): Shape | undefined {
     let target;

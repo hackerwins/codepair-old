@@ -3,7 +3,7 @@ import { Rect, Point, Box } from 'features/docSlices';
 import { cloneBox } from './utils';
 
 /**
- * Create the basic object of the rect with point.
+ * 'createRect' create the basic object of the rect with point.
  */
 export function createRect(point: Point): Rect {
   return {
@@ -36,7 +36,7 @@ export function drawRect(context: CanvasRenderingContext2D, rect: Rect) {
 }
 
 /**
- * Adjust the box according to the incoming point.
+ * 'adjustRectBox' adjust the box according to the incoming point.
  */
 export function adjustRectBox(shape: Rect, point: Point): Box {
   const box = cloneBox(shape.box);

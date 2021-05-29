@@ -4,12 +4,16 @@ export default class CanvasWrapper {
   // eslint-disable-next-line react/static-property-placement
   private context: CanvasRenderingContext2D;
 
+  // 'width' is calculated length up to Retina size.
   private width = 0;
 
+  // 'height' is calculated length up to Retina size.
   private height = 0;
 
+  // 'styleWidth' is canvas width size.
   private styleWidth = 0;
 
+  // 'styleHeight' is canvas height size.
   private styleHeight = 0;
 
   constructor(canvas: HTMLCanvasElement) {

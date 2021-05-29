@@ -6,7 +6,7 @@ export interface LineOption {
 }
 
 /**
- * Create the basic object of the line with point.
+ * 'createLine' create the basic object of the line with point.
  */
 export function createLine(point: Point, options: LineOption): Line {
   return {
@@ -17,7 +17,7 @@ export function createLine(point: Point, options: LineOption): Line {
 }
 
 /**
- * Create the basic object of the line with point.
+ * 'createEraserLine' create the basic object of the line with point.
  */
 export function createEraserLine(point: Point): EraserLine {
   return {
@@ -27,7 +27,7 @@ export function createEraserLine(point: Point): EraserLine {
 }
 
 /**
- * Draw a line on the canvas.
+ * 'drawLine' draw a line on the canvas.
  */
 export function drawLine(context: CanvasRenderingContext2D, line: Line | EraserLine) {
   context.save();
@@ -53,7 +53,7 @@ export function drawLine(context: CanvasRenderingContext2D, line: Line | EraserL
 }
 
 /**
- * Match the mouse point position for eraser
+ * 'fixEraserPoint' match the mouse point position for eraser
  */
 export function fixEraserPoint(point: Point) {
   const eraserOffsetXSize = 8;
