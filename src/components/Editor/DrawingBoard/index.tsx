@@ -5,7 +5,7 @@ import { AppState } from 'app/rootReducer';
 import { ToolType, setTool } from 'features/boardSlices';
 
 import Container from './Canvas/Container';
-import './index.css';
+import './index.scss';
 
 export default function DrawingBoard({ width, height }: { width: number; height: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);

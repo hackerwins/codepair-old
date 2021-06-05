@@ -8,6 +8,7 @@ import App from 'app/App';
 import store from 'app/store';
 
 import * as serviceWorker from 'serviceWorker';
+import 'scss/global.scss';
 
 ReactGA.initialize('UA-42438082-5');
 
