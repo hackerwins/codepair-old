@@ -7,7 +7,7 @@ import { AppState } from 'app/rootReducer';
 import { Theme } from 'features/settingSlices';
 
 import DocPage from 'pages/DocPage';
-import './App.css';
+import './App.scss';
 
 function App() {
   const menu = useSelector((state: AppState) => state.settingState.menu);

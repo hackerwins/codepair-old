@@ -29,7 +29,7 @@ import 'codemirror/keymap/vim';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/monokai.css';
 import 'codemirror/theme/xq-light.css';
-import './index.css';
+import './index.scss';
 
 interface CodeEditorProps {
   forwardedRef: React.MutableRefObject<CodeMirror.Editor | null>;
