@@ -16,7 +16,7 @@ services:
   yorkie:
     volumes:
     - ./yorkie.json:/app/yorkie.json
-    image: 'yorkieteam/yorkie:latest'
+    image: 'yorkieteam/yorkie:0.1.5'
     container_name: 'yorkie'
     command: [
       'agent',
