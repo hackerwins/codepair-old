@@ -6,18 +6,19 @@ import Worker from './Worker';
 import { compressPoints, checkLineIntersection, isInnerBox, isSelectable } from '../utils';
 import * as scheduler from '../scheduler';
 
-class EraserWorker implements Worker {
+class EraserWorker extends Worker {
   type = ToolType.Eraser;
 
-  private update: Function;
+  update: Function;
 
-  private emit: Function;
+  emit: Function;
 
   private createID?: TimeTicket;
 
   private eraserBoxSize: number = 24;
 
   constructor(update: Function, emit: Function) {
+    super();
     this.update = update;
     this.emit = emit;
   }
@@ -47,7 +48,11 @@ class EraserWorker implements Worker {
       this.update((root: Root) => {
         const pointStart = fixEraserPoint(points[0]);
         const pointEnd = fixEraserPoint(points[points.length - 1]);
-        const lastShape = root.shapes.getElementByID(this.createID!);
+        const lastShape = this.getElementByID(root, this.createID!);
+
+        if (!lastShape) {
+          return;
+        }
 
         const findAndRemoveShape = (point1: Point, point2: Point) => {
           for (const shape of root.shapes) {
@@ -57,7 +62,7 @@ class EraserWorker implements Worker {
 
             if (isSelectable(shape)) {
               if (isInnerBox(shape.box, point2)) {
-                root.shapes.deleteByID(shape.getID());
+                this.deleteByID(root, shape.getID());
               }
             } else {
               for (let i = 1; i < shape.points.length; i += 1) {
@@ -65,18 +70,18 @@ class EraserWorker implements Worker {
                 const shapePoint2 = shape.points[i];
 
                 if (isInnerBox(this.eraserBox(point2), shapePoint2)) {
-                  root.shapes.deleteByID(shape.getID());
+                  this.deleteByID(root, shape.getID());
                   break;
                 }
 
                 if (isInnerBox(this.eraserBox(point1), shapePoint2)) {
-                  root.shapes.deleteByID(shape.getID());
+                  this.deleteByID(root, shape.getID());
                   break;
                 }
 
                 const result = checkLineIntersection(point1, point2, shapePoint1, shapePoint2);
                 if (result.onLine1 && result.onLine2) {
-                  root.shapes.deleteByID(shape.getID());
+                  this.deleteByID(root, shape.getID());
                   break;
                 }
               }
@@ -109,7 +114,7 @@ class EraserWorker implements Worker {
         return;
       }
 
-      root.shapes.deleteByID(this.createID);
+      this.deleteByID(root, this.createID);
       this.emit('renderAll', root.shapes);
     });
   }

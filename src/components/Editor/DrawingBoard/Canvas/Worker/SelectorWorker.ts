@@ -4,16 +4,17 @@ import { isInnerBox, cloneBox, isSelectable } from '../utils';
 import Worker from './Worker';
 import * as scheduler from '../scheduler';
 
-class SelectorWorker implements Worker {
+class SelectorWorker extends Worker {
   type = ToolType.Selector;
 
-  private update: Function;
+  update: Function;
 
-  private emit: Function;
+  emit: Function;
 
   private selectedShape?: { shape: Shape; point: Point };
 
   constructor(update: Function, emit: Function) {
+    super();
     this.update = update;
     this.emit = emit;
   }
@@ -42,7 +43,7 @@ class SelectorWorker implements Worker {
           return;
         }
 
-        const lastShape = root.shapes.getElementByID(this.selectedShape!.shape.getID());
+        const lastShape = this.getElementByID(root, this.selectedShape!.shape.getID());
         if (!lastShape || lastShape.type !== 'rect') {
           return;
         }
@@ -85,7 +86,7 @@ class SelectorWorker implements Worker {
   }
 
   /**
-   * Find the shape in the document.
+   * findTarget find the shape in the document.
    */
   findTarget(point: Point): Shape | undefined {
     let target;

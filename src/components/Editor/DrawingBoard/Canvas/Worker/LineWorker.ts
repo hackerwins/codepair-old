@@ -1,21 +1,22 @@
 import { TimeTicket } from 'yorkie-js-sdk';
-import { Root, Point, Line } from 'features/docSlices';
+import { Root, Point } from 'features/docSlices';
 import { ToolType } from 'features/boardSlices';
 import { LineOption, createLine } from '../line';
 import Worker from './Worker';
 import { compressPoints } from '../utils';
 import * as scheduler from '../scheduler';
 
-class LineWorker implements Worker {
+class LineWorker extends Worker {
   type = ToolType.Line;
 
-  private update: Function;
+  update: Function;
 
-  private emit: Function;
+  emit: Function;
 
   private createID?: TimeTicket;
 
   constructor(update: Function, emit: Function) {
+    super();
     this.update = update;
     this.emit = emit;
   }
@@ -43,7 +44,11 @@ class LineWorker implements Worker {
       }
 
       this.update((root: Root) => {
-        const lastShape = root.shapes.getElementByID(this.createID!) as Line;
+        const lastShape = this.getElementByID(root, this.createID!);
+        if (!lastShape) {
+          return;
+        }
+
         lastShape.points.push(...points);
         this.emit('renderAll', root.shapes);
       });
@@ -62,10 +67,14 @@ class LineWorker implements Worker {
         return;
       }
 
-      const shape = root.shapes.getElementByID(this.createID);
+      const shape = this.getElementByID(root, this.createID!);
+      if (!shape) {
+        return;
+      }
+
       // When erasing a line, it checks that the lines overlap, so do not save if there are two points below
       if (shape.points.length < 2) {
-        root.shapes.deleteByID(this.createID!);
+        this.deleteByID(root, this.createID!);
       }
 
       this.emit('renderAll', root.shapes);

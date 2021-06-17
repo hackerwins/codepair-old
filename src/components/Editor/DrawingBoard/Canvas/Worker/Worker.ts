@@ -1,19 +1,38 @@
+import { TimeTicket } from 'yorkie-js-sdk';
 import { ToolType } from 'features/boardSlices';
-import { Point } from 'features/docSlices';
+import { Root, Shape, Point } from 'features/docSlices';
 import { LineOption } from '../line';
 
 type Options = LineOption;
 
-interface Worker {
-  type: ToolType;
+abstract class Worker {
+  abstract type: ToolType;
 
-  mousedown: (point: Point, options: Options) => void;
+  abstract update: Function;
 
-  mousemove: (point: Point) => void;
+  abstract mousedown(point: Point, options: Options): void;
 
-  mouseup: () => void;
+  abstract mousemove(point: Point): void;
 
-  flushTask: () => void;
+  abstract mouseup(): void;
+
+  abstract flushTask(): void;
+
+  getElementByID(root: Root, createID: TimeTicket): Shape | undefined {
+    try {
+      return root.shapes.getElementByID(createID);
+    } catch {
+      return undefined;
+    }
+  }
+
+  deleteByID(root: Root, createID: TimeTicket): Shape | undefined {
+    try {
+      return root.shapes.deleteByID(createID);
+    } catch {
+      return undefined;
+    }
+  }
 }
 
 export default Worker;
