@@ -5,16 +5,17 @@ import { createRect, adjustRectBox } from '../rect';
 import Worker from './Worker';
 import * as scheduler from '../scheduler';
 
-class RectWorker implements Worker {
+class RectWorker extends Worker {
   type = ToolType.Rect;
 
-  private update: Function;
+  update: Function;
 
-  private emit: Function;
+  emit: Function;
 
   private createID?: TimeTicket;
 
   constructor(update: Function, emit: Function) {
+    super();
     this.update = update;
     this.emit = emit;
   }
@@ -41,7 +42,7 @@ class RectWorker implements Worker {
 
       this.update((root: Root) => {
         const point = tasks[tasks.length - 1];
-        const lastShape = root.shapes.getElementByID(this.createID!) as Rect;
+        const lastShape = this.getElementByID(root, this.createID!) as Rect;
         const box = adjustRectBox(lastShape, point);
         lastShape.box = box;
 
