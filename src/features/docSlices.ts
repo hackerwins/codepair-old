@@ -71,7 +71,7 @@ export interface Shapes {
 
 //  TODO(ppeeou) refer to yorkie-sdk-js JSONObject
 export interface Root {
-  shapes: Shapes;
+  shapes: Shapes & Array<Shape>;
 }
 
 export enum DocStatus {

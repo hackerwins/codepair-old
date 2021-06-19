@@ -3,6 +3,7 @@ import { Root, Point, Box } from 'features/docSlices';
 import { ToolType } from 'features/boardSlices';
 import { createEraserLine, fixEraserPoint } from '../line';
 import Worker from './Worker';
+import Board from '../Board';
 import { compressPoints, checkLineIntersection, isInnerBox, isSelectable } from '../utils';
 import * as scheduler from '../scheduler';
 
@@ -11,16 +12,16 @@ class EraserWorker extends Worker {
 
   update: Function;
 
-  emit: Function;
+  board: Board;
 
   private createID?: TimeTicket;
 
   private eraserBoxSize: number = 24;
 
-  constructor(update: Function, emit: Function) {
+  constructor(update: Function, board: Board) {
     super();
     this.update = update;
-    this.emit = emit;
+    this.board = board;
   }
 
   mousedown(point: Point): void {
@@ -37,8 +38,8 @@ class EraserWorker extends Worker {
     this.createID = timeTicket!;
   }
 
-  mousemove(p: Point) {
-    scheduler.reserveTask(p, (tasks: Array<scheduler.Task>) => {
+  mousemove(point: Point) {
+    scheduler.reserveTask(point, (tasks: Array<scheduler.Task>) => {
       const points = compressPoints(tasks);
 
       if (tasks.length < 2) {
@@ -97,7 +98,7 @@ class EraserWorker extends Worker {
         findAndRemoveShape(pointStart, pointEnd);
         lastShape.points = [pointStart, pointEnd];
 
-        this.emit('renderAll', root.shapes);
+        this.board.drawAll(root.shapes);
       });
     });
   }
@@ -115,7 +116,7 @@ class EraserWorker extends Worker {
       }
 
       this.deleteByID(root, this.createID);
-      this.emit('renderAll', root.shapes);
+      this.board.drawAll(root.shapes);
     });
   }
 
