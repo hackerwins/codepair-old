@@ -128,7 +128,7 @@ export default function (props: { docKey: string }) {
     );
   }
 
-  if (loading) {
+  if (loading || !client || !doc) {
     return (
       <Box className={classes.loading}>
         <CircularProgress color="inherit" />

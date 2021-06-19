@@ -1,9 +1,9 @@
 import { TimeTicket } from 'yorkie-js-sdk';
 import { Root, Point, Rect } from 'features/docSlices';
 import { ToolType } from 'features/boardSlices';
+import Board from 'components/Editor/DrawingBoard/Canvas/Board';
 import { createRect, adjustRectBox } from '../rect';
 import Worker from './Worker';
-import Board from '../Board';
 import * as scheduler from '../scheduler';
 
 class RectWorker extends Worker {

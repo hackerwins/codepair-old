@@ -1,9 +1,9 @@
 import { TimeTicket } from 'yorkie-js-sdk';
 import { Root, Point } from 'features/docSlices';
 import { ToolType } from 'features/boardSlices';
+import Board from 'components/Editor/DrawingBoard/Canvas/Board';
 import { LineOption, createLine } from '../line';
 import Worker from './Worker';
-import Board from '../Board';
 import { compressPoints } from '../utils';
 import * as scheduler from '../scheduler';
 

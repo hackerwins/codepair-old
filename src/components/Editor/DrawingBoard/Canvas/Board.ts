@@ -6,7 +6,7 @@ import CanvasWrapper from './CanvasWrapper';
 import { drawLine } from './line';
 import { drawRect } from './rect';
 import { addEvent, removeEvent, touchy, TouchyEvent } from './dom';
-import { Worker, LineWorker, EraserWorker, RectWorker, SelectorWorker } from './Worker';
+import { Worker, NoneWorker, LineWorker, EraserWorker, RectWorker, SelectorWorker } from './Worker';
 
 enum DragStatus {
   Drag,
@@ -49,7 +49,7 @@ export default class Board extends EventDispatcher {
     this.onMouseDown = this.onMouseDown.bind(this);
     this.onMouseMove = this.onMouseMove.bind(this);
 
-    this.worker = new LineWorker(this.update, this);
+    this.worker = new NoneWorker(this.update, this);
 
     touchy(this.upperWrapper.getCanvas(), addEvent, 'mouseup', this.onMouseUp);
     touchy(this.upperWrapper.getCanvas(), addEvent, 'mouseout', this.onMouseUp);
@@ -122,7 +122,7 @@ export default class Board extends EventDispatcher {
   setTool(tool: ToolType) {
     this.setMouseClass(tool);
 
-    if (this.worker.type === tool || tool === ToolType.None) {
+    if (this.worker.type === tool) {
       return;
     }
 
@@ -136,6 +136,8 @@ export default class Board extends EventDispatcher {
       this.worker = new RectWorker(this.update, this);
     } else if (tool === ToolType.Selector) {
       this.worker = new SelectorWorker(this.update, this);
+    } else if (tool === ToolType.None) {
+      this.worker = new NoneWorker(this.update, this);
     } else {
       throw new Error(`Undefined tool: ${tool}`);
     }
