@@ -102,6 +102,23 @@ export default class Board extends EventDispatcher {
     this.color = color;
   }
 
+  setWidth(width: number) {
+    this.lowerWrapper.setWidth(width);
+    this.upperWrapper.setWidth(width);
+    this.resize();
+  }
+
+  setHeight(height: number) {
+    this.lowerWrapper.setHeight(height);
+    this.upperWrapper.setHeight(height);
+    this.resize();
+  }
+
+  resize() {
+    this.lowerWrapper.resize();
+    this.upperWrapper.resize();
+  }
+
   setTool(tool: ToolType) {
     this.setMouseClass(tool);
 

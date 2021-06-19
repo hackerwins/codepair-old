@@ -16,32 +16,16 @@ export default function DrawingBoard({ width, height }: { width: number; height:
   const color = useSelector((state: AppState) => state.boardState.color);
 
   useEffect(() => {
-    if (!canvasRef.current || !doc) {
+    if (!canvasRef.current) {
       return () => {};
     }
-
-    canvasRef.current.width = width;
-    canvasRef.current.height = height;
-
-    const board = new Board(canvasRef.current, doc.update.bind(doc));
+    const board = new Board(canvasRef.current, doc!.update.bind(doc));
     boardRef.current = board;
-    boardRef.current.setTool(tool);
-    boardRef.current.setColor(color);
-    boardRef.current.drawAll(doc.getRoot().shapes);
-
-    const handleMouseup = () => {
-      if (tool === ToolType.Rect) {
-        dispatch(setTool(ToolType.Selector));
-      }
-    };
-
-    boardRef.current.addEventListener('mouseup', handleMouseup);
 
     return () => {
-      boardRef.current?.removeEventListener('mouseup', handleMouseup);
       board.destroy();
     };
-  }, [width, height, doc, tool, color]);
+  }, [doc]);
 
   useEffect(() => {
     if (!doc) {
@@ -60,8 +44,35 @@ export default function DrawingBoard({ width, height }: { width: number; height:
   }, [doc]);
 
   useEffect(() => {
+    const handleMouseup = () => {
+      if (tool === ToolType.Rect) {
+        dispatch(setTool(ToolType.Selector));
+      }
+    };
+
+    boardRef.current?.addEventListener('mouseup', handleMouseup);
+    return () => {
+      boardRef.current?.removeEventListener('mouseup', handleMouseup);
+    };
+  }, [doc, tool]);
+
+  useEffect(() => {
+    if (!canvasRef.current) {
+      return;
+    }
+
+    boardRef.current?.setWidth(width);
+    boardRef.current?.setHeight(height);
+    boardRef.current?.drawAll(doc!.getRoot().shapes);
+  }, [doc, width, height]);
+
+  useEffect(() => {
     boardRef.current?.setTool(tool);
   }, [doc, tool]);
+
+  useEffect(() => {
+    boardRef.current?.setColor(color);
+  }, [doc, color]);
 
   return <canvas ref={canvasRef} />;
 }
