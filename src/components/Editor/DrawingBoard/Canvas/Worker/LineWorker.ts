@@ -1,6 +1,7 @@
 import { TimeTicket } from 'yorkie-js-sdk';
 import { Root, Point } from 'features/docSlices';
 import { ToolType } from 'features/boardSlices';
+import Board from 'components/Editor/DrawingBoard/Canvas/Board';
 import { LineOption, createLine } from '../line';
 import Worker from './Worker';
 import { compressPoints } from '../utils';
@@ -11,14 +12,14 @@ class LineWorker extends Worker {
 
   update: Function;
 
-  emit: Function;
+  board: Board;
 
   private createID?: TimeTicket;
 
-  constructor(update: Function, emit: Function) {
+  constructor(update: Function, board: Board) {
     super();
     this.update = update;
-    this.emit = emit;
+    this.board = board;
   }
 
   mousedown(point: Point, options: LineOption): void {
@@ -35,8 +36,8 @@ class LineWorker extends Worker {
     this.createID = timeTicket!;
   }
 
-  mousemove(p: Point) {
-    scheduler.reserveTask(p, (tasks: Array<scheduler.Task>) => {
+  mousemove(point: Point) {
+    scheduler.reserveTask(point, (tasks: Array<scheduler.Task>) => {
       const points = compressPoints(tasks);
 
       if (tasks.length < 2) {
@@ -50,7 +51,7 @@ class LineWorker extends Worker {
         }
 
         lastShape.points.push(...points);
-        this.emit('renderAll', root.shapes);
+        this.board.drawAll(root.shapes);
       });
     });
   }
@@ -77,7 +78,7 @@ class LineWorker extends Worker {
         this.deleteByID(root, this.createID!);
       }
 
-      this.emit('renderAll', root.shapes);
+      this.board.drawAll(root.shapes);
     });
   }
 }

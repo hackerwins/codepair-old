@@ -4,44 +4,28 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppState } from 'app/rootReducer';
 import { ToolType, setTool } from 'features/boardSlices';
 
-import Container from './Canvas/Container';
+import Board from './Canvas/Board';
 import './index.scss';
 
 export default function DrawingBoard({ width, height }: { width: number; height: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<Container | null>(null);
+  const boardRef = useRef<Board | null>(null);
   const dispatch = useDispatch();
   const doc = useSelector((state: AppState) => state.docState.doc);
   const tool = useSelector((state: AppState) => state.boardState.tool);
   const color = useSelector((state: AppState) => state.boardState.color);
 
   useEffect(() => {
-    if (!canvasRef.current || !doc) {
+    if (!canvasRef.current) {
       return () => {};
     }
-
-    canvasRef.current.width = width;
-    canvasRef.current.height = height;
-
-    const container = new Container(canvasRef.current, doc.update.bind(doc));
-    containerRef.current = container;
-    containerRef.current.setTool(tool);
-    containerRef.current.setColor(color);
-    containerRef.current.drawAll(doc.getRoot().shapes);
-
-    const handleMouseup = () => {
-      if (tool === ToolType.Rect) {
-        dispatch(setTool(ToolType.Selector));
-      }
-    };
-
-    containerRef.current.addEventListener('mouseup', handleMouseup);
+    const board = new Board(canvasRef.current, doc!.update.bind(doc));
+    boardRef.current = board;
 
     return () => {
-      containerRef.current?.removeEventListener('mouseup', handleMouseup);
-      container.destroy();
+      board.destroy();
     };
-  }, [width, height, doc, tool, color]);
+  }, [doc]);
 
   useEffect(() => {
     if (!doc) {
@@ -50,7 +34,7 @@ export default function DrawingBoard({ width, height }: { width: number; height:
 
     const unsubscribe = doc.subscribe((event) => {
       if (event.type === 'remote-change') {
-        containerRef.current?.drawAll(doc.getRoot().shapes);
+        boardRef.current?.drawAll(doc.getRoot().shapes);
       }
     });
 
@@ -60,8 +44,35 @@ export default function DrawingBoard({ width, height }: { width: number; height:
   }, [doc]);
 
   useEffect(() => {
-    containerRef.current?.setTool(tool);
+    const handleMouseup = () => {
+      if (tool === ToolType.Rect) {
+        dispatch(setTool(ToolType.Selector));
+      }
+    };
+
+    boardRef.current?.addEventListener('mouseup', handleMouseup);
+    return () => {
+      boardRef.current?.removeEventListener('mouseup', handleMouseup);
+    };
   }, [doc, tool]);
+
+  useEffect(() => {
+    if (!canvasRef.current) {
+      return;
+    }
+
+    boardRef.current?.setWidth(width);
+    boardRef.current?.setHeight(height);
+    boardRef.current?.drawAll(doc!.getRoot().shapes);
+  }, [doc, width, height]);
+
+  useEffect(() => {
+    boardRef.current?.setTool(tool);
+  }, [doc, tool]);
+
+  useEffect(() => {
+    boardRef.current?.setColor(color);
+  }, [doc, color]);
 
   return <canvas ref={canvasRef} />;
 }

@@ -1,6 +1,7 @@
 import { TimeTicket } from 'yorkie-js-sdk';
 import { Root, Point, Rect } from 'features/docSlices';
 import { ToolType } from 'features/boardSlices';
+import Board from 'components/Editor/DrawingBoard/Canvas/Board';
 import { createRect, adjustRectBox } from '../rect';
 import Worker from './Worker';
 import * as scheduler from '../scheduler';
@@ -10,14 +11,14 @@ class RectWorker extends Worker {
 
   update: Function;
 
-  emit: Function;
+  board: Board;
 
   private createID?: TimeTicket;
 
-  constructor(update: Function, emit: Function) {
+  constructor(update: Function, board: Board) {
     super();
     this.update = update;
-    this.emit = emit;
+    this.board = board;
   }
 
   mousedown(point: Point): void {
@@ -34,19 +35,19 @@ class RectWorker extends Worker {
     this.createID = timeTicket!;
   }
 
-  mousemove(p: Point) {
-    scheduler.reserveTask(p, (tasks: Array<scheduler.Task>) => {
+  mousemove(point: Point) {
+    scheduler.reserveTask(point, (tasks: Array<scheduler.Task>) => {
       if (tasks.length < 2) {
         return;
       }
 
       this.update((root: Root) => {
-        const point = tasks[tasks.length - 1];
+        const lastPoint = tasks[tasks.length - 1];
         const lastShape = this.getElementByID(root, this.createID!) as Rect;
-        const box = adjustRectBox(lastShape, point);
+        const box = adjustRectBox(lastShape, lastPoint);
         lastShape.box = box;
 
-        this.emit('renderAll', root.shapes);
+        this.board.drawAll(root.shapes);
       });
     });
   }

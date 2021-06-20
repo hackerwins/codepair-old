@@ -14,12 +14,12 @@ Implement drawing tools that can express various shapes such as lines and rectan
 
 ## Proposal Details
 
-![drawing-structure](https://user-images.githubusercontent.com/2059311/116966438-27cd7380-aceb-11eb-8b8d-7dce06ae35ca.png)
+![image](https://user-images.githubusercontent.com/10924072/119370901-cf3d3500-bcf0-11eb-84f6-a67cbb8bbea6.png)
 
 Each role is as follows
 
-- Container
-  - `Container` receives the user's event and passes it to `Worker`, and receives the shape to be drawn on the canvas from `worker` and draws it on the canvas.
+- Board
+  - `Board` receives the user's event and passes it to `Worker`, and receives the shape to be drawn on the canvas from `worker` and draws it on the canvas.
   - lower canvas: `lower canvas` draws shapes that exist in the `yorkie document`.
   - upper canvas: `upper canvas` draws shapes that will be changed by user events.
 - Worker

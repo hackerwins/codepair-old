@@ -1,5 +1,6 @@
 import { Root, Point, Shape } from 'features/docSlices';
 import { ToolType } from 'features/boardSlices';
+import Board from 'components/Editor/DrawingBoard/Canvas/Board';
 import { isInnerBox, cloneBox, isSelectable } from '../utils';
 import Worker from './Worker';
 import * as scheduler from '../scheduler';
@@ -9,14 +10,14 @@ class SelectorWorker extends Worker {
 
   update: Function;
 
-  emit: Function;
+  board: Board;
 
   private selectedShape?: { shape: Shape; point: Point };
 
-  constructor(update: Function, emit: Function) {
+  constructor(update: Function, board: Board) {
     super();
     this.update = update;
-    this.emit = emit;
+    this.board = board;
   }
 
   mousedown(point: Point): void {
@@ -32,8 +33,8 @@ class SelectorWorker extends Worker {
     this.selectedShape = undefined;
   }
 
-  mousemove(p: Point) {
-    scheduler.reserveTask(p, (tasks: Array<scheduler.Task>) => {
+  mousemove(point: Point) {
+    scheduler.reserveTask(point, (tasks: Array<scheduler.Task>) => {
       if (tasks.length < 2) {
         return;
       }
@@ -65,7 +66,7 @@ class SelectorWorker extends Worker {
             x: lastShape.points[0].x + offsetX,
           };
         }
-        this.emit('renderAll', root.shapes);
+        this.board.drawAll(root.shapes);
       });
     });
   }

@@ -6,14 +6,14 @@ import CanvasWrapper from './CanvasWrapper';
 import { drawLine } from './line';
 import { drawRect } from './rect';
 import { addEvent, removeEvent, touchy, TouchyEvent } from './dom';
-import { Worker, LineWorker, EraserWorker, RectWorker, SelectorWorker } from './Worker';
+import { Worker, NoneWorker, LineWorker, EraserWorker, RectWorker, SelectorWorker } from './Worker';
 
 enum DragStatus {
   Drag,
   Stop,
 }
 
-export default class Container extends EventDispatcher {
+export default class Board extends EventDispatcher {
   private offsetY: number = 0;
 
   private offsetX: number = 0;
@@ -49,7 +49,7 @@ export default class Container extends EventDispatcher {
     this.onMouseDown = this.onMouseDown.bind(this);
     this.onMouseMove = this.onMouseMove.bind(this);
 
-    this.worker = new LineWorker(this.update, this.emit);
+    this.worker = new NoneWorker(this.update, this);
 
     touchy(this.upperWrapper.getCanvas(), addEvent, 'mouseup', this.onMouseUp);
     touchy(this.upperWrapper.getCanvas(), addEvent, 'mouseout', this.onMouseUp);
@@ -102,23 +102,42 @@ export default class Container extends EventDispatcher {
     this.color = color;
   }
 
+  setWidth(width: number) {
+    this.lowerWrapper.setWidth(width);
+    this.upperWrapper.setWidth(width);
+    this.resize();
+  }
+
+  setHeight(height: number) {
+    this.lowerWrapper.setHeight(height);
+    this.upperWrapper.setHeight(height);
+    this.resize();
+  }
+
+  resize() {
+    this.lowerWrapper.resize();
+    this.upperWrapper.resize();
+  }
+
   setTool(tool: ToolType) {
     this.setMouseClass(tool);
 
-    if (this.worker.type === tool || tool === ToolType.None) {
+    if (this.worker.type === tool) {
       return;
     }
 
     this.worker.flushTask();
 
     if (tool === ToolType.Line) {
-      this.worker = new LineWorker(this.update, this.emit);
+      this.worker = new LineWorker(this.update, this);
     } else if (tool === ToolType.Eraser) {
-      this.worker = new EraserWorker(this.update, this.emit);
+      this.worker = new EraserWorker(this.update, this);
     } else if (tool === ToolType.Rect) {
-      this.worker = new RectWorker(this.update, this.emit);
+      this.worker = new RectWorker(this.update, this);
     } else if (tool === ToolType.Selector) {
-      this.worker = new SelectorWorker(this.update, this.emit);
+      this.worker = new SelectorWorker(this.update, this);
+    } else if (tool === ToolType.None) {
+      this.worker = new NoneWorker(this.update, this);
     } else {
       throw new Error(`Undefined tool: ${tool}`);
     }
