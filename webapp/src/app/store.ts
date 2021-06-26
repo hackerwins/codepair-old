@@ -1,7 +1,6 @@
-import { configureStore, Action, getDefaultMiddleware } from '@reduxjs/toolkit';
-import { ThunkAction } from 'redux-thunk';
+import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit';
 
-import rootReducer, { AppState } from './rootReducer';
+import rootReducer from './rootReducer';
 
 const store = configureStore({
   reducer: rootReducer,
@@ -15,9 +14,5 @@ const store = configureStore({
     },
   }),
 });
-
-export type AppDispatch = typeof store.dispatch;
-
-export type AppThunk = ThunkAction<void, AppState, unknown, Action<string>>;
 
 export default store;
