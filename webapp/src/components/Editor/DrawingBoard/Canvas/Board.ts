@@ -136,7 +136,7 @@ export default class Board extends EventDispatcher {
       this.worker = new RectWorker(this.update, this);
     } else if (tool === ToolType.Selector) {
       this.worker = new SelectorWorker(this.update, this);
-    } else if (tool === ToolType.None) {
+    } else if (tool === ToolType.None || tool === ToolType.Clear) {
       this.worker = new NoneWorker(this.update, this);
     } else {
       throw new Error(`Undefined tool: ${tool}`);
@@ -231,5 +231,11 @@ export default class Board extends EventDispatcher {
 
   clear(wrapper: CanvasWrapper = this.lowerWrapper) {
     wrapper.clear();
+  }
+
+  clearBoard() {
+    this.clear(this.lowerWrapper);
+    this.clear(this.upperWrapper);
+    this.worker.clearAll();
   }
 }

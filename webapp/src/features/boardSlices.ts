@@ -15,6 +15,7 @@ export enum ToolType {
   Eraser,
   Rect,
   Selector,
+  Clear,
 }
 
 export interface BoardState {
