@@ -33,6 +33,14 @@ abstract class Worker {
       return undefined;
     }
   }
+
+  clearAll() {
+    this.update((root: Root) => {
+      for (const shape of root.shapes) {
+        this.deleteByID(root, shape.getID());
+      }
+    });
+  }
 }
 
 export default Worker;

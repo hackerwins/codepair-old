@@ -74,5 +74,12 @@ export default function DrawingBoard({ width, height }: { width: number; height:
     boardRef.current?.setColor(color);
   }, [doc, color]);
 
+  useEffect(() => {
+    if (tool === ToolType.Clear) {
+      boardRef.current?.clearBoard();
+      dispatch(setTool(ToolType.None));
+    }
+  }, [doc, tool]);
+
   return <canvas ref={canvasRef} />;
 }
