@@ -46,6 +46,7 @@ export interface EraserLine extends BaseShape {
 
 export interface Rect extends BaseShape {
   type: 'rect';
+  color: string;
   points: Array<Point>;
   box: Box;
 }

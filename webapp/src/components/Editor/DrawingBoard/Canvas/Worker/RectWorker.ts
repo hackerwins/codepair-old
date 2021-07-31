@@ -2,7 +2,7 @@ import { TimeTicket } from 'yorkie-js-sdk';
 import { Root, Point, Rect } from 'features/docSlices';
 import { ToolType } from 'features/boardSlices';
 import Board from 'components/Editor/DrawingBoard/Canvas/Board';
-import { createRect, adjustRectBox } from '../rect';
+import { createRect, adjustRectBox, RectOption } from '../rect';
 import Worker from './Worker';
 import * as scheduler from '../scheduler';
 
@@ -21,11 +21,11 @@ class RectWorker extends Worker {
     this.board = board;
   }
 
-  mousedown(point: Point): void {
+  mousedown(point: Point, options: RectOption): void {
     let timeTicket: TimeTicket;
 
     this.update((root: Root) => {
-      const shape = createRect(point);
+      const shape = createRect(point, options);
       root.shapes.push(shape);
 
       const lastShape = root.shapes.getLast();

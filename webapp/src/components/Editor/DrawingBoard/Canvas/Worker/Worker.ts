@@ -2,8 +2,9 @@ import { TimeTicket } from 'yorkie-js-sdk';
 import { ToolType } from 'features/boardSlices';
 import { Root, Shape, Point } from 'features/docSlices';
 import { LineOption } from '../line';
+import { RectOption } from '../rect';
 
-type Options = LineOption;
+type Options = LineOption | RectOption;
 
 export type BoardMetadata = {
   eraserPoints?: Point[];
