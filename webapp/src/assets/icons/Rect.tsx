@@ -1,7 +1,7 @@
 import React from 'react';
 import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
 
-export default function Mouse({ fontSize }: SvgIconProps) {
+export default function Rect({ fontSize }: SvgIconProps) {
   return (
     <SvgIcon fontSize={fontSize}>
       <svg enableBackground="new 0 0 506.1 506.1" viewBox="0 0 506.1 506.1" xmlns="http://www.w3.org/2000/svg">

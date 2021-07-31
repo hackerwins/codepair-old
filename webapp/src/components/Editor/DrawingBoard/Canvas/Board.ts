@@ -132,20 +132,26 @@ export default class Board extends EventDispatcher {
     }
 
     this.worker.flushTask();
+    this.worker = this.createWorker(tool);
+  }
 
+  createWorker(tool: ToolType) {
     if (tool === ToolType.Line) {
-      this.worker = new LineWorker(this.update, this, { color: this.color });
-    } else if (tool === ToolType.Eraser) {
-      this.worker = new EraserWorker(this.update, this);
-    } else if (tool === ToolType.Rect) {
-      this.worker = new RectWorker(this.update, this);
-    } else if (tool === ToolType.Selector) {
-      this.worker = new SelectorWorker(this.update, this);
-    } else if (tool === ToolType.None || tool === ToolType.Clear) {
-      this.worker = new NoneWorker(this.update, this);
-    } else {
-      throw new Error(`Undefined tool: ${tool}`);
+      return new LineWorker(this.update, this, { color: this.color });
     }
+    if (tool === ToolType.Eraser) {
+      return new EraserWorker(this.update, this);
+    }
+    if (tool === ToolType.Rect) {
+      return new RectWorker(this.update, this);
+    }
+    if (tool === ToolType.Selector) {
+      return new SelectorWorker(this.update, this);
+    }
+    if (tool === ToolType.None || tool === ToolType.Clear) {
+      return new NoneWorker(this.update, this);
+    }
+    throw new Error(`Undefined tool: ${tool}`);
   }
 
   setMouseClass(tool: ToolType) {
