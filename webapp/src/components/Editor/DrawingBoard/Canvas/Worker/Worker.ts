@@ -19,19 +19,11 @@ abstract class Worker {
   abstract flushTask(): void;
 
   getElementByID(root: Root, createID: TimeTicket): Shape | undefined {
-    try {
-      return root.shapes.getElementByID(createID);
-    } catch {
-      return undefined;
-    }
+    return root.shapes.getElementByID(createID);
   }
 
   deleteByID(root: Root, createID: TimeTicket): Shape | undefined {
-    try {
-      return root.shapes.deleteByID(createID);
-    } catch {
-      return undefined;
-    }
+    return root.shapes.deleteByID(createID);
   }
 
   clearAll() {

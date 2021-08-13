@@ -44,6 +44,10 @@ class RectWorker extends Worker {
       this.update((root: Root) => {
         const lastPoint = tasks[tasks.length - 1];
         const lastShape = this.getElementByID(root, this.createID!) as Rect;
+        if (!lastShape) {
+          return;
+        }
+
         const box = adjustRectBox(lastShape, lastPoint);
         lastShape.box = box;
 
