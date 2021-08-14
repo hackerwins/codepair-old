@@ -46,4 +46,5 @@ static_resources:
     # When you want envoy container to communicate with your host machine, you should set as the following
     # - Windows/Mac: Input host.docker.internal
     # - Linux: an IP address of the host machine or docker-0 interface or some addresses defined in extra hosts of docker-compose.yml
+    # you can simply use the yorkie container name(e.g. yorkie) in docker-compose whatever your OS is.
     hosts: [{ socket_address: { address: host.docker.internal, port_value: 11101 }}]
