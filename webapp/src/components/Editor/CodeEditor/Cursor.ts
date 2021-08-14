@@ -66,9 +66,15 @@ export default class Cursor {
   updateLine(cm: CodeMirror.Editor, fromPos: CodeMirror.Position, toPos: CodeMirror.Position) {
     this.removeLine();
     this.status = CursorStatus.Activated;
+    // Change HEX to RGBA
+    const redColor = parseInt(this.color.slice(1, 3), 16);
+    const greenColor = parseInt(this.color.slice(3, 5), 16);
+    const blueColor = parseInt(this.color.slice(5, 7), 16);
+    // opacity apply by rgba, not opacity.
+    const backgroundColor = `rgba(${redColor}, ${greenColor}, ${blueColor}, 0.15)`;
 
     this.lineMarker = cm.getDoc().markText(fromPos, toPos, {
-      css: `background-color : ${this.color}; opacity:0.7`,
+      css: `background-color : ${backgroundColor};`,
     });
   }
 
