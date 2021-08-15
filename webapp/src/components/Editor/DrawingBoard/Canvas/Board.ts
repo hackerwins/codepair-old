@@ -46,13 +46,14 @@ export default class Board extends EventDispatcher {
     this.emit = this.emit.bind(this);
     this.drawAll = this.drawAll.bind(this);
     this.onMouseUp = this.onMouseUp.bind(this);
+    this.onMouseOut = this.onMouseOut.bind(this);
     this.onMouseDown = this.onMouseDown.bind(this);
     this.onMouseMove = this.onMouseMove.bind(this);
 
     this.worker = new NoneWorker(this.update, this);
 
     touchy(this.upperWrapper.getCanvas(), addEvent, 'mouseup', this.onMouseUp);
-    touchy(this.upperWrapper.getCanvas(), addEvent, 'mouseout', this.onMouseUp);
+    touchy(this.upperWrapper.getCanvas(), addEvent, 'mouseout', this.onMouseOut);
     touchy(this.upperWrapper.getCanvas(), addEvent, 'mousedown', this.onMouseDown);
 
     this.addEventListener('renderAll', this.drawAll);
@@ -60,7 +61,7 @@ export default class Board extends EventDispatcher {
 
   destroy() {
     touchy(this.upperWrapper.getCanvas(), removeEvent, 'mouseup', this.onMouseUp);
-    touchy(this.upperWrapper.getCanvas(), removeEvent, 'mouseout', this.onMouseUp);
+    touchy(this.upperWrapper.getCanvas(), removeEvent, 'mouseout', this.onMouseOut);
     touchy(this.upperWrapper.getCanvas(), removeEvent, 'mousedown', this.onMouseDown);
 
     this.destroyUpperCanvas();
@@ -202,6 +203,11 @@ export default class Board extends EventDispatcher {
 
     this.worker.mouseup();
     this.emit('mouseup');
+  }
+
+  onMouseOut() {
+    this.dragStatus = DragStatus.Stop;
+    this.worker.flushTask();
   }
 
   isOutside(point: Point): boolean {
