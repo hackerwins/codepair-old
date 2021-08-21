@@ -4,13 +4,17 @@ Yorkie CodePair provides developers with real-time collaborative code editing.
 
 ## Developing Yorkie CodePair
 
-Runs CodePair in the development mode.
+CodePair requires local applications such as Envoy, Yorkie and MongoDB. To start them:
 
-#### client
+```
+docker-compose -f docker/docker-compose.yml up --build -d
+```
+
+Next, Let's starts CodePair in the development mode.
 
 ```
 cd webapp
-npm run start
+npm start
 ```
 
 ## Deploying
