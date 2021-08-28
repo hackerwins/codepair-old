@@ -41,7 +41,9 @@ function MenuAppBar() {
       <AppBar position="static" className={classes.appBar}>
         <Toolbar>
           <Typography variant="h6" className={classes.title}>
-            <Link href="/">CodePair</Link>
+            <Link href="/" underline="none">
+              CodePair
+            </Link>
           </Typography>
           <NetworkButton />
           <div className={classes.grow} />
