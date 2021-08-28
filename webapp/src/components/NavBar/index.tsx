@@ -1,4 +1,5 @@
 import React, { memo } from 'react';
+import { Link } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -40,7 +41,9 @@ function MenuAppBar() {
       <AppBar position="static" className={classes.appBar}>
         <Toolbar>
           <Typography variant="h6" className={classes.title}>
-            CodePair
+            <Link href="/" underline="none">
+              CodePair
+            </Link>
           </Typography>
           <NetworkButton />
           <div className={classes.grow} />
