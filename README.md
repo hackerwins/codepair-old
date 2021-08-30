@@ -10,7 +10,16 @@ Runs CodePair in the development mode.
 
 ```
 cd webapp
+
+# Install related package
+npm install
+# if you using yarn
+yarn
+
+# Start development server
 npm run start
+# if you using yarn
+yarn start
 ```
 
 ## Deploying
