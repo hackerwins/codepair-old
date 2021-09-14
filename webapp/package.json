@@ -78,6 +78,9 @@
     ],
     "**/*.{ts,tsx}": "eslint"
   },
+  "engines": {
+    "node": ">=16"
+  },
   "browserslist": {
     "production": [
       ">0.2%",
