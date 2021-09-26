@@ -52,6 +52,8 @@ export interface Rect extends BaseShape {
 
 export type Shape = Line | EraserLine | Rect;
 
+export type ShapeType = Shape['type'];
+
 export type CodePairDoc = {
   mode: CodeMode;
   content: PlainText;

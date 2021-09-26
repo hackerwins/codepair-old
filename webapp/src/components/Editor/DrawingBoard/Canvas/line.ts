@@ -1,6 +1,6 @@
 import { Color } from 'features/boardSlices';
 import fitCurve from 'fit-curve';
-import { Line, Point, EraserLine } from 'features/docSlices';
+import { Line, Point, EraserLine, ShapeType } from 'features/docSlices';
 
 export interface LineOption {
   color: Color;
@@ -30,7 +30,11 @@ export function createEraserLine(point: Point): EraserLine {
 /**
  * drawLine draws a line with bezier curves.
  */
-export function drawLine(context: CanvasRenderingContext2D, line: Line) {
+export function drawLine(context: CanvasRenderingContext2D, line: {
+  type: ShapeType,
+  points: Point[];
+  color?: string;
+}) {
   if (line.points.length < 3) {
     return;
   }
@@ -47,7 +51,7 @@ export function drawLine(context: CanvasRenderingContext2D, line: Line) {
 
   context.save();
   context.beginPath();
-  context.strokeStyle = line.color;
+  context.strokeStyle = line.color || '#ff7043';
 
   const firstCurve = curves[0];
   context.moveTo(firstCurve[0][0], firstCurve[0][1]);
