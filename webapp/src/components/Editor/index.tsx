@@ -63,7 +63,7 @@ export default function (props: { docKey: string }) {
         const changedPeers = event.value[documentKey];
         dispatch(
           syncPeer({
-            myClientID: client.getID(),
+            myClientID: client.getID()!,
             changedPeers,
           }),
         );

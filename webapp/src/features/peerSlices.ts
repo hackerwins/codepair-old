@@ -1,4 +1,4 @@
-import { ActorID } from 'yorkie-js-sdk';
+import { ActorID, MetadataInfo } from 'yorkie-js-sdk';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface Metadata {
@@ -15,12 +15,17 @@ export enum ConnectionStatus {
 export interface Peer {
   id: ActorID;
   status: ConnectionStatus;
-  metadata: Metadata;
+  metadata: MetadataInfo<Metadata>;
   isMine: boolean;
 }
 
 export interface PeerState {
   peers: Record<string, Peer>;
+}
+
+export interface SyncPeerPayLoad {
+  myClientID: ActorID,
+  changedPeers: Record<string, MetadataInfo<Metadata>>;
 }
 
 const initialPeerState: PeerState = {
@@ -31,7 +36,7 @@ const peerSlice = createSlice({
   name: 'peer',
   initialState: initialPeerState,
   reducers: {
-    syncPeer(state, action: PayloadAction<any>) {
+    syncPeer(state, action: PayloadAction<SyncPeerPayLoad>) {
       const { myClientID, changedPeers } = action.payload;
       const { peers } = state;
 
@@ -46,7 +51,7 @@ const peerSlice = createSlice({
           const peer = {
             id: clientID,
             status: ConnectionStatus.Connected,
-            metadata: metadata as Metadata,
+            metadata,
             isMine: myClientID === clientID,
           };
           state.peers[clientID] = peer;
