@@ -6,11 +6,17 @@ import { LineOption } from '../line';
 type Options = LineOption;
 
 abstract class Worker {
+  constructor(options?: Options) {
+    this.options = options;
+  }
+
+  options?: Options;
+
   abstract type: ToolType;
 
   abstract update: Function;
 
-  abstract mousedown(point: Point, options: Options): void;
+  abstract mousedown(point: Point): void;
 
   abstract mousemove(point: Point): void;
 

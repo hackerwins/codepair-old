@@ -130,7 +130,7 @@ export default class Board extends EventDispatcher {
     this.worker.flushTask();
 
     if (tool === ToolType.Line) {
-      this.worker = new LineWorker(this.update, this);
+      this.worker = new LineWorker(this.update, this, { color: this.color });
     } else if (tool === ToolType.Eraser) {
       this.worker = new EraserWorker(this.update, this);
     } else if (tool === ToolType.Rect) {
@@ -180,7 +180,7 @@ export default class Board extends EventDispatcher {
 
     const point = this.getPointFromTouchyEvent(evt);
 
-    this.worker.mousedown(point, { color: this.color });
+    this.worker.mousedown(point);
   }
 
   onMouseMove(evt: TouchyEvent) {
