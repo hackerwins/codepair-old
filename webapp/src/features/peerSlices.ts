@@ -1,4 +1,4 @@
-import { ActorID } from 'yorkie-js-sdk';
+import { ActorID, MetadataInfo } from 'yorkie-js-sdk';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface Metadata {

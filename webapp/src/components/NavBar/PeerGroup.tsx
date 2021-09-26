@@ -53,7 +53,7 @@ export default function PeerGroup() {
     <>
       <AvatarGroup className={classes.group} max={MAX_PEER_VIEW} onClick={handleViewList}>
         {activePeers.map((peer) => {
-          const { username, color, image } = peer.metadata;
+          const { username, color, image } = peer.metadata.data;
           return (
             <Tooltip key={peer.id} title={peer.isMine ? `[ME] ${username}` : username} data-id={peer.id} arrow>
               <Avatar
