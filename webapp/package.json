@@ -53,7 +53,7 @@
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
     "typescript": "^3.7.5",
-    "yorkie-js-sdk": "^0.1.6"
+    "yorkie-js-sdk": "github:yorkie-team/yorkie-js-sdk#1c4ad2b"
   },
   "scripts": {
     "start": "REACT_APP_GIT_HASH=`git rev-parse --short HEAD` react-scripts start",
