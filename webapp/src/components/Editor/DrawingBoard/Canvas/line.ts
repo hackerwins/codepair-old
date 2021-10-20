@@ -1,4 +1,5 @@
 import { Color } from 'features/boardSlices';
+import fitCurve from 'fit-curve';
 import { Line, Point, EraserLine } from 'features/docSlices';
 
 export interface LineOption {
@@ -27,16 +28,51 @@ export function createEraserLine(point: Point): EraserLine {
 }
 
 /**
- * Draw a line on the canvas.
+ * drawLine draws a line with bezier curves.
  */
-export function drawLine(context: CanvasRenderingContext2D, line: Line | EraserLine) {
+export function drawLine(context: CanvasRenderingContext2D, line: Line) {
+  if (line.points.length < 3) {
+    return;
+  }
+
+  const points = [];
+  for (const p of line.points) {
+    points.push([p.x, p.y]);
+  }
+
+  const curves = fitCurve(points, 2);
+  if (!curves.length) {
+    return;
+  }
+
+  context.save();
+  context.beginPath();
+  context.strokeStyle = line.color;
+
+  const firstCurve = curves[0];
+  context.moveTo(firstCurve[0][0], firstCurve[0][1]);
+
+  for (const curve of curves) {
+    context.bezierCurveTo(
+      curve[1][0], curve[1][1],
+      curve[2][0], curve[2][1],
+      curve[3][0], curve[3][1],
+    );
+  }
+
+  context.stroke();
+  context.closePath();
+  context.restore();
+}
+
+/**
+ * drawEraser draws the line of the eraser on the canvas.
+ */
+export function drawEraser(context: CanvasRenderingContext2D, line: EraserLine) {
   context.save();
   context.beginPath();
 
-  context.strokeStyle =
-    line.type === 'eraser'
-      ? '#ff7043' // eraser color
-      : line.color;
+  context.strokeStyle = '#ff7043';
 
   let isMoved = false;
   for (const p of line.points) {
