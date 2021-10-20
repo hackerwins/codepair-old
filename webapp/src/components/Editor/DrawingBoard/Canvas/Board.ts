@@ -3,7 +3,7 @@ import { Point, Shape } from 'features/docSlices';
 import EventDispatcher from 'utils/eventDispatcher';
 
 import CanvasWrapper from './CanvasWrapper';
-import { drawLine } from './line';
+import { drawLine, drawEraser } from './line';
 import { drawRect } from './rect';
 import { addEvent, removeEvent, touchy, TouchyEvent } from './dom';
 import { Worker, NoneWorker, LineWorker, EraserWorker, RectWorker, SelectorWorker } from './Worker';
@@ -228,7 +228,7 @@ export default class Board extends EventDispatcher {
       if (shape.type === 'line') {
         drawLine(wrapper.getContext(), shape);
       } else if (shape.type === 'eraser') {
-        drawLine(wrapper.getContext(), shape);
+        drawEraser(wrapper.getContext(), shape);
       } else if (shape.type === 'rect') {
         drawRect(wrapper.getContext(), shape);
       }
