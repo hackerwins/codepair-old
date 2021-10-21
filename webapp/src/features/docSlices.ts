@@ -108,6 +108,7 @@ export const activateClient = createAsyncThunk<ActivateClientResult, undefined, 
           username: name,
           image: animal,
           color: randomColor(),
+          board: '',
         },
       });
 

@@ -3,7 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { AppState } from 'app/rootReducer';
 import { ToolType, setTool } from 'features/boardSlices';
-
+import { Metadata } from 'features/peerSlices';
+import { BoardMetadata } from './Canvas/Worker';
 import Board from './Canvas/Board';
 import './index.scss';
 
@@ -11,6 +12,7 @@ export default function DrawingBoard({ width, height }: { width: number; height:
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const boardRef = useRef<Board | null>(null);
   const dispatch = useDispatch();
+  const client = useSelector((state: AppState) => state.docState.client);
   const doc = useSelector((state: AppState) => state.docState.doc);
   const tool = useSelector((state: AppState) => state.boardState.tool);
   const color = useSelector((state: AppState) => state.boardState.color);
@@ -40,6 +42,45 @@ export default function DrawingBoard({ width, height }: { width: number; height:
 
     return () => {
       unsubscribe();
+    };
+  }, [doc]);
+
+  useEffect(() => {
+    if (!client || !doc) {
+      return () => {};
+    }
+
+    const unsubscribe = client.subscribe((event) => {
+      if (event.type === 'peers-changed') {
+        const documentKey = doc.getKey();
+        const changedPeers = event.value[documentKey];
+
+        for (const peerKey of Object.keys(changedPeers)) {
+          boardRef.current?.updateMetadata(peerKey, changedPeers[peerKey]);
+        }
+      }
+    });
+
+    const clientId = client.getID()!;
+    const handleUpdateMeta = (data: BoardMetadata) => {
+      const board = JSON.stringify(data);
+      boardRef.current?.updateMetadata(clientId, {
+        board,
+      } as Metadata);
+      client?.updateMetadata('board', board);
+    };
+
+    boardRef.current?.addEventListener('mousemove', handleUpdateMeta);
+    boardRef.current?.addEventListener('mousedown', handleUpdateMeta);
+    boardRef.current?.addEventListener('mouseout', handleUpdateMeta);
+    boardRef.current?.addEventListener('mouseup', handleUpdateMeta);
+
+    return () => {
+      unsubscribe();
+      boardRef.current?.removeEventListener('mousemove', handleUpdateMeta);
+      boardRef.current?.removeEventListener('mousedown', handleUpdateMeta);
+      boardRef.current?.removeEventListener('mouseout', handleUpdateMeta);
+      boardRef.current?.removeEventListener('mouseup', handleUpdateMeta);
     };
   }, [doc]);
 

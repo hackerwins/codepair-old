@@ -59,7 +59,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       if (cursorMapRef.current.has(id) && peer.status === ConnectionStatus.Disconnected) {
         disconnectCursor(id);
       } else if (!cursorMapRef.current.has(id) && peer.status === ConnectionStatus.Connected) {
-        connectCursor(id, peer.metadata.data);
+        connectCursor(id, peer.metadata);
       }
     }
   }, [peers]);

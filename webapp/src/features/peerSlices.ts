@@ -1,10 +1,11 @@
-import { ActorID, MetadataInfo } from 'yorkie-js-sdk';
+import { ActorID } from 'yorkie-js-sdk';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface Metadata {
   username: string;
   color: string;
   image: string; // Currently all anonymous images
+  board: string;
 }
 
 export enum ConnectionStatus {
@@ -15,7 +16,7 @@ export enum ConnectionStatus {
 export interface Peer {
   id: ActorID;
   status: ConnectionStatus;
-  metadata: MetadataInfo<Metadata>;
+  metadata: Metadata;
   isMine: boolean;
 }
 
@@ -25,7 +26,7 @@ export interface PeerState {
 
 export interface SyncPeerPayLoad {
   myClientID: ActorID,
-  changedPeers: Record<string, MetadataInfo<Metadata>>;
+  changedPeers: Record<string, Metadata>;
 }
 
 const initialPeerState: PeerState = {
