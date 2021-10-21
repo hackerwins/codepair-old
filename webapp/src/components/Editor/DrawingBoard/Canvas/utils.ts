@@ -191,3 +191,12 @@ export function isInnerBox(box: Box, point: Point): boolean {
 export function isSelectable(shape: Shape): shape is Rect {
   return shape.type === 'rect';
 }
+
+
+export function* reverseIter<T>(arr: T[]) {
+  let l = arr.length - 1;
+  while (l >= 0) {
+    yield arr[l];
+    l -= 1;
+  }
+}

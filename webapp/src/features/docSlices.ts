@@ -68,6 +68,7 @@ export interface Shapes {
   getLast(): Shape;
   getElementByID(createdAt: TimeTicket): Shape;
   deleteByID(createdAt: TimeTicket): Shape;
+  moveLast(createAt: TimeTicket): void;
   length: number;
   [index: number]: Shape;
   [Symbol.iterator](): IterableIterator<Shape>;
@@ -99,7 +100,7 @@ const initialState: DocState = {
   status: DocStatus.Connect,
 };
 
-export const activateClient = createAsyncThunk<ActivateClientResult, undefined, { rejectValue: string }>(
+export const activateClient = createAsyncThunk<ActivateClientResult, undefined, { rejectValue: string; }>(
   'doc/activate',
   async (_: undefined, thunkApi) => {
     try {
@@ -121,7 +122,7 @@ export const activateClient = createAsyncThunk<ActivateClientResult, undefined, 
   },
 );
 
-export const attachDoc = createAsyncThunk<AttachDocResult, AttachDocArgs, { rejectValue: string }>(
+export const attachDoc = createAsyncThunk<AttachDocResult, AttachDocArgs, { rejectValue: string; }>(
   'doc/attach',
   async ({ client, doc }, thunkApi) => {
     try {
@@ -199,6 +200,6 @@ export const {
 } = docSlice.actions;
 export default docSlice.reducer;
 
-type ActivateClientResult = { client: Client<Metadata> };
-type AttachDocArgs = { doc: DocumentReplica<CodePairDoc>; client: Client<Metadata> };
-type AttachDocResult = { doc: DocumentReplica<CodePairDoc>; client: Client<Metadata> };
+type ActivateClientResult = { client: Client<Metadata>; };
+type AttachDocArgs = { doc: DocumentReplica<CodePairDoc>; client: Client<Metadata>; };
+type AttachDocResult = { doc: DocumentReplica<CodePairDoc>; client: Client<Metadata>; };
