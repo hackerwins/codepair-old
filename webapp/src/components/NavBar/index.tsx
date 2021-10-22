@@ -5,6 +5,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import PeerGroup from 'components/NavBar/PeerGroup';
+import NameTextInput from 'components/NavBar/NameTextInput';
 import ShareButton from 'components/NavBar/ShareButton';
 import NetworkButton from 'components/NavBar/NetworkButton';
 
@@ -27,6 +28,8 @@ const useStyles = makeStyles((theme: Theme) =>
     items: {
       display: 'flex',
       '& > *': {
+        display: 'flex',
+        alignItems: 'center',
         margin: theme.spacing(1),
       },
     },
@@ -48,6 +51,7 @@ function MenuAppBar() {
           <NetworkButton />
           <div className={classes.grow} />
           <div className={classes.items}>
+            <NameTextInput />
             <ShareButton />
             <PeerGroup />
           </div>
