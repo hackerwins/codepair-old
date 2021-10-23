@@ -11,6 +11,9 @@ services:
     restart: always
     ports:
       - '3000:3000'
+    volumes:
+      - /app/node_modules
+      - ../webapp:/app
     depends_on:
       - envoy
   envoy:
