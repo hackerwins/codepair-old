@@ -2,9 +2,6 @@ import { Color } from 'features/boardSlices';
 import fitCurve from 'fit-curve';
 import { Line, Point, EraserLine } from 'features/docSlices';
 
-export interface LineOption {
-  color: Color;
-}
 
 type CanvasLine = Pick<Line, 'type' | 'points' | 'color'>;
 
@@ -13,10 +10,10 @@ type CanvasEraser = Pick<EraserLine, 'type' | 'points'>;
 /**
  * Create the basic object of the line with point.
  */
-export function createLine(point: Point, options: LineOption): Line {
+export function createLine(point: Point, color: Color): Line {
   return {
     type: 'line',
-    color: options.color,
+    color,
     points: [point],
   } as Line;
 }

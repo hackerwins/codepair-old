@@ -2,8 +2,8 @@ import { TimeTicket } from 'yorkie-js-sdk';
 import { Root, Point } from 'features/docSlices';
 import { ToolType } from 'features/boardSlices';
 import Board from 'components/Editor/DrawingBoard/Canvas/Board';
-import { LineOption, createLine } from '../line';
-import Worker from './Worker';
+import { createLine } from '../line';
+import Worker, { Options } from './Worker';
 import { compressPoints } from '../utils';
 import * as scheduler from '../scheduler';
 
@@ -16,7 +16,7 @@ class LineWorker extends Worker {
 
   private createID?: TimeTicket;
 
-  constructor(update: Function, board: Board, options: LineOption) {
+  constructor(update: Function, board: Board, options: Options) {
     super(options);
     this.update = update;
     this.board = board;
@@ -26,7 +26,7 @@ class LineWorker extends Worker {
     let timeTicket: TimeTicket;
 
     this.update((root: Root) => {
-      const shape = createLine(point, this.options!);
+      const shape = createLine(point, this.options?.color!);
       root.shapes.push(shape);
 
       const lastShape = root.shapes.getLast();

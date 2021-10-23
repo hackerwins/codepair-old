@@ -29,9 +29,8 @@ export function createRect(point: Point, options: RectOption): Rect {
  */
 export function drawRect(context: CanvasRenderingContext2D, rect: Rect) {
   context.save();
-  context.fillStyle = rect.color;
+  context.strokeStyle = rect.color;
   context.strokeRect(rect.box.x, rect.box.y, rect.box.width, rect.box.height);
-  context.fillRect(rect.box.x, rect.box.y, rect.box.width, rect.box.height);
   context.restore();
 }
 

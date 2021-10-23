@@ -143,7 +143,7 @@ export default class Board extends EventDispatcher {
       return new EraserWorker(this.update, this);
     }
     if (tool === ToolType.Rect) {
-      return new RectWorker(this.update, this);
+      return new RectWorker(this.update, this, { color: this.color });
     }
     if (tool === ToolType.Selector) {
       return new SelectorWorker(this.update, this);
@@ -151,7 +151,7 @@ export default class Board extends EventDispatcher {
     if (tool === ToolType.None || tool === ToolType.Clear) {
       return new NoneWorker(this.update, this);
     }
-    throw new Error(`Undefined tool: ${tool}`);
+    throw new TypeError(`Undefined tool: ${tool}`);
   }
 
   setMouseClass(tool: ToolType) {
