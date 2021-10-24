@@ -225,7 +225,7 @@ export default class Board extends EventDispatcher {
       this.drawAll(root.shapes);
     });
 
-    this.metadataMap.set(peerKey, JSON.parse(metadata.board || '[]'));
+    this.metadataMap.set(peerKey, JSON.parse(metadata.board || '{}'));
 
     for (const boardMetadata of this.metadataMap.values()) {
       const { eraserPoints } = boardMetadata;
