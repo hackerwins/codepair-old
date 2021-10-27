@@ -20,10 +20,7 @@ export interface Peer {
 }
 
 export interface PeerState {
-  peers: {
-    /** @type {Object.<ActorID, Peer>} */
-    [id: string]: Peer;
-  };
+  peers: Record<string, Peer>;
 }
 
 const initialPeerState: PeerState = {

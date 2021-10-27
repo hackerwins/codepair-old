@@ -20,9 +20,7 @@ export enum TabSize {
 
 export type MenuKey = 'theme' | 'codeKeyMap' | 'tabSize';
 
-export type Menu = {
-  [key in MenuKey]: string;
-};
+export type Menu = Record<MenuKey, string>;
 
 export interface SettingState {
   menu: Menu;
