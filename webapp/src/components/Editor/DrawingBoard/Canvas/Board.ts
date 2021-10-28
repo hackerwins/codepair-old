@@ -104,6 +104,7 @@ export default class Board extends EventDispatcher {
 
   setColor(color: Color) {
     this.color = color;
+    this.worker.setOption({ color });
   }
 
   setWidth(width: number) {
