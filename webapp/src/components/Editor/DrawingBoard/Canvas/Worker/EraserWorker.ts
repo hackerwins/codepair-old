@@ -1,9 +1,8 @@
-import { TimeTicket } from 'yorkie-js-sdk';
 import { Root, Point, Box } from 'features/docSlices';
 import { ToolType } from 'features/boardSlices';
 import Board from 'components/Editor/DrawingBoard/Canvas/Board';
-import { createEraserLine, fixEraserPoint } from '../line';
-import Worker from './Worker';
+import { fixEraserPoint } from '../line';
+import Worker, { MouseDownCallback, MouseMoveCallback } from './Worker';
 import { compressPoints, checkLineIntersection, isInnerBox, isSelectable } from '../utils';
 import * as scheduler from '../scheduler';
 
@@ -14,9 +13,9 @@ class EraserWorker extends Worker {
 
   board: Board;
 
-  private createID?: TimeTicket;
-
   private eraserBoxSize: number = 24;
+
+  private selectPoint: Point[] = [];
 
   constructor(update: Function, board: Board) {
     super();
@@ -24,21 +23,13 @@ class EraserWorker extends Worker {
     this.board = board;
   }
 
-  mousedown(point: Point): void {
-    let timeTicket: TimeTicket;
+  mousedown(point: Point, callback: MouseDownCallback): void {
+    this.selectPoint = [point, point];
 
-    this.update((root: Root) => {
-      const shape = createEraserLine(point);
-      root.shapes.push(shape);
-
-      const lastShape = root.shapes.getLast();
-      timeTicket = lastShape.getID();
-    });
-
-    this.createID = timeTicket!;
+    callback({ eraserPoints: [...this.selectPoint] });
   }
 
-  mousemove(point: Point) {
+  mousemove(point: Point, callback: MouseMoveCallback) {
     scheduler.reserveTask(point, (tasks: Array<scheduler.Task>) => {
       const points = compressPoints(tasks);
 
@@ -49,11 +40,7 @@ class EraserWorker extends Worker {
       this.update((root: Root) => {
         const pointStart = fixEraserPoint(points[0]);
         const pointEnd = fixEraserPoint(points[points.length - 1]);
-        const lastShape = this.getElementByID(root, this.createID!);
 
-        if (!lastShape) {
-          return;
-        }
 
         const findAndRemoveShape = (point1: Point, point2: Point) => {
           for (const shape of root.shapes) {
@@ -90,15 +77,17 @@ class EraserWorker extends Worker {
           }
         };
 
-        if (lastShape.points.length > 0) {
-          const lastPoint = lastShape.points[lastShape.points.length - 1];
+        if (this.selectPoint.length > 0) {
+          const lastPoint = this.selectPoint[this.selectPoint.length - 1];
           findAndRemoveShape(lastPoint, pointStart);
         }
 
         findAndRemoveShape(pointStart, pointEnd);
-        lastShape.points = [pointStart, pointEnd];
 
         this.board.drawAll(root.shapes);
+        this.selectPoint = [pointStart, pointEnd];
+
+        callback({ eraserPoints: [...this.selectPoint] });
       });
     });
   }
@@ -109,15 +98,7 @@ class EraserWorker extends Worker {
 
   flushTask() {
     scheduler.flushTask();
-
-    this.update((root: Root) => {
-      if (!this.createID) {
-        return;
-      }
-
-      this.deleteByID(root, this.createID);
-      this.board.drawAll(root.shapes);
-    });
+    this.selectPoint = [];
   }
 
   eraserBox(point: Point): Box {

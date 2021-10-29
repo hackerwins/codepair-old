@@ -50,7 +50,7 @@ export default function Editor({ tool }: EditorProps) {
   const divRef = useRef<HTMLDivElement>(null);
   const codeEditorRef = useRef<CodeMirror.Editor>(null);
 
-  const onClickEditor = useCallback(() => {
+  const handleClickEditor = useCallback(() => {
     if (tool === ToolType.None) {
       codeEditorRef.current?.focus();
     }
@@ -75,7 +75,7 @@ export default function Editor({ tool }: EditorProps) {
   }, []);
 
   return (
-    <div className={classes.root} onClick={onClickEditor} aria-hidden="true">
+    <div className={classes.root} onClick={handleClickEditor} aria-hidden="true">
       <div className={classes.editor} ref={divRef}>
         <div className={classes.codeEditor}>
           <CodeEditor forwardedRef={codeEditorRef} />

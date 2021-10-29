@@ -16,17 +16,17 @@ class LineWorker extends Worker {
 
   private createID?: TimeTicket;
 
-  constructor(update: Function, board: Board) {
-    super();
+  constructor(update: Function, board: Board, options: LineOption) {
+    super(options);
     this.update = update;
     this.board = board;
   }
 
-  mousedown(point: Point, options: LineOption): void {
+  mousedown(point: Point): void {
     let timeTicket: TimeTicket;
 
     this.update((root: Root) => {
-      const shape = createLine(point, options);
+      const shape = createLine(point, this.options!);
       root.shapes.push(shape);
 
       const lastShape = root.shapes.getLast();

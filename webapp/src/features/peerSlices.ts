@@ -5,6 +5,7 @@ export interface Metadata {
   username: string;
   color: string;
   image: string; // Currently all anonymous images
+  board: string;
 }
 
 export enum ConnectionStatus {
@@ -23,6 +24,11 @@ export interface PeerState {
   peers: Record<string, Peer>;
 }
 
+export interface SyncPeerPayLoad {
+  myClientID: ActorID,
+  changedPeers: Record<string, Metadata>;
+}
+
 const initialPeerState: PeerState = {
   peers: {},
 };
@@ -31,7 +37,7 @@ const peerSlice = createSlice({
   name: 'peer',
   initialState: initialPeerState,
   reducers: {
-    syncPeer(state, action: PayloadAction<any>) {
+    syncPeer(state, action: PayloadAction<SyncPeerPayLoad>) {
       const { myClientID, changedPeers } = action.payload;
       const { peers } = state;
 
@@ -46,7 +52,7 @@ const peerSlice = createSlice({
           const peer = {
             id: clientID,
             status: ConnectionStatus.Connected,
-            metadata: metadata as Metadata,
+            metadata,
             isMine: myClientID === clientID,
           };
           state.peers[clientID] = peer;

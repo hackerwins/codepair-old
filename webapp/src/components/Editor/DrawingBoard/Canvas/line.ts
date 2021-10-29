@@ -6,6 +6,10 @@ export interface LineOption {
   color: Color;
 }
 
+type CanvasLine = Pick<Line, 'type' | 'points' | 'color'>;
+
+type CanvasEraser = Pick<EraserLine, 'type' | 'points'>;
+
 /**
  * Create the basic object of the line with point.
  */
@@ -30,7 +34,7 @@ export function createEraserLine(point: Point): EraserLine {
 /**
  * drawLine draws a line with bezier curves.
  */
-export function drawLine(context: CanvasRenderingContext2D, line: Line) {
+export function drawLine(context: CanvasRenderingContext2D, line: CanvasLine) {
   if (line.points.length < 3) {
     return;
   }
@@ -47,7 +51,7 @@ export function drawLine(context: CanvasRenderingContext2D, line: Line) {
 
   context.save();
   context.beginPath();
-  context.strokeStyle = line.color;
+  context.strokeStyle = line.color || '#ff7043';
 
   const firstCurve = curves[0];
   context.moveTo(firstCurve[0][0], firstCurve[0][1]);
@@ -68,7 +72,7 @@ export function drawLine(context: CanvasRenderingContext2D, line: Line) {
 /**
  * drawEraser draws the line of the eraser on the canvas.
  */
-export function drawEraser(context: CanvasRenderingContext2D, line: EraserLine) {
+export function drawEraser(context: CanvasRenderingContext2D, line: CanvasEraser) {
   context.save();
   context.beginPath();
 

@@ -1,12 +1,13 @@
 import { ToolType, Color } from 'features/boardSlices';
-import { Point, Shape } from 'features/docSlices';
+import { Point, Shape, Root } from 'features/docSlices';
 import EventDispatcher from 'utils/eventDispatcher';
+import { Metadata } from 'features/peerSlices';
 
 import CanvasWrapper from './CanvasWrapper';
 import { drawLine, drawEraser } from './line';
 import { drawRect } from './rect';
 import { addEvent, removeEvent, touchy, TouchyEvent } from './dom';
-import { Worker, NoneWorker, LineWorker, EraserWorker, RectWorker, SelectorWorker } from './Worker';
+import { Worker, NoneWorker, LineWorker, EraserWorker, RectWorker, SelectorWorker, BoardMetadata } from './Worker';
 
 enum DragStatus {
   Drag,
@@ -25,6 +26,8 @@ export default class Board extends EventDispatcher {
   private lowerWrapper: CanvasWrapper;
 
   private upperWrapper: CanvasWrapper;
+
+  private metadataMap: Map<string, BoardMetadata> = new Map();
 
   update: Function;
 
@@ -101,6 +104,7 @@ export default class Board extends EventDispatcher {
 
   setColor(color: Color) {
     this.color = color;
+    this.worker.setOption({ color });
   }
 
   setWidth(width: number) {
@@ -130,7 +134,7 @@ export default class Board extends EventDispatcher {
     this.worker.flushTask();
 
     if (tool === ToolType.Line) {
-      this.worker = new LineWorker(this.update, this);
+      this.worker = new LineWorker(this.update, this, { color: this.color });
     } else if (tool === ToolType.Eraser) {
       this.worker = new EraserWorker(this.update, this);
     } else if (tool === ToolType.Rect) {
@@ -180,7 +184,9 @@ export default class Board extends EventDispatcher {
 
     const point = this.getPointFromTouchyEvent(evt);
 
-    this.worker.mousedown(point, { color: this.color });
+    this.worker.mousedown(point, (boardMetadata: BoardMetadata) => {
+      this.emit('mousedown', boardMetadata);
+    });
   }
 
   onMouseMove(evt: TouchyEvent) {
@@ -194,7 +200,9 @@ export default class Board extends EventDispatcher {
       return;
     }
 
-    this.worker.mousemove(point);
+    this.worker.mousemove(point, (boardMetadata: BoardMetadata) => {
+      this.emit('mousemove', boardMetadata);
+    });
   }
 
   onMouseUp() {
@@ -208,6 +216,27 @@ export default class Board extends EventDispatcher {
   onMouseOut() {
     this.dragStatus = DragStatus.Stop;
     this.worker.flushTask();
+    this.emit('mouseout');
+  }
+
+  updateMetadata(peerKey: string, metadata: Metadata) {
+    this.clear(this.lowerWrapper);
+
+    this.update((root: Root) => {
+      this.drawAll(root.shapes);
+    });
+
+    this.metadataMap.set(peerKey, JSON.parse(metadata.board || '{}'));
+
+    for (const boardMetadata of this.metadataMap.values()) {
+      const { eraserPoints } = boardMetadata;
+      if (eraserPoints && eraserPoints.length > 0) {
+        drawEraser(this.lowerWrapper.getContext(), {
+          type: 'eraser',
+          points: eraserPoints,
+        });
+      }
+    }
   }
 
   isOutside(point: Point): boolean {

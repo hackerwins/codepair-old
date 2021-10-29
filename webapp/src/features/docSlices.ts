@@ -2,6 +2,7 @@ import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import yorkie, { Client, DocumentReplica, PlainText, TimeTicket } from 'yorkie-js-sdk';
 import anonymous from 'anonymous-animals-gen';
 import randomColor from 'randomcolor';
+import { Metadata } from 'features/peerSlices';
 
 export enum CodeMode {
   Markdown = 'gfm',
@@ -51,6 +52,8 @@ export interface Rect extends BaseShape {
 
 export type Shape = Line | EraserLine | Rect;
 
+export type ShapeType = Shape['type'];
+
 export type CodePairDoc = {
   mode: CodeMode;
   content: PlainText;
@@ -80,7 +83,7 @@ export enum DocStatus {
 }
 
 export interface DocState {
-  client?: Client;
+  client?: Client<Metadata>;
   doc?: DocumentReplica<CodePairDoc>;
   mode: CodeMode;
   loading: boolean;
@@ -105,6 +108,7 @@ export const activateClient = createAsyncThunk<ActivateClientResult, undefined, 
           username: name,
           image: animal,
           color: randomColor(),
+          board: '',
         },
       });
 
@@ -194,6 +198,6 @@ export const {
 } = docSlice.actions;
 export default docSlice.reducer;
 
-type ActivateClientResult = { client: Client };
-type AttachDocArgs = { doc: DocumentReplica<CodePairDoc>; client: Client };
-type AttachDocResult = { doc: DocumentReplica<CodePairDoc>; client: Client };
+type ActivateClientResult = { client: Client<Metadata> };
+type AttachDocArgs = { doc: DocumentReplica<CodePairDoc>; client: Client<Metadata> };
+type AttachDocResult = { doc: DocumentReplica<CodePairDoc>; client: Client<Metadata> };
