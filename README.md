@@ -35,7 +35,6 @@ Yorkie CodePair is deployed to AWS and the configuration is shown below. This re
 
 ```
 [Route53]
- ㄴ codepair.yorkie.dev     [gh-pages] # for serving static pages
- ㄴ codepair-api.yorkie.dev [EKS]      # for serving API (not yet)
- ㄴ api.yorkie.dev          [EKS]      # for serving yorkie API
+ ㄴ codepair.yorkie.dev - [gh-pages] # for serving static pages
+ ㄴ api.yorkie.dev      - [EKS]      # for serving API
 ```
