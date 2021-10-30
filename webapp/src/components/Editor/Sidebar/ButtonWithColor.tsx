@@ -4,7 +4,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import Badge from '@material-ui/core/Badge';
 import Avatar from '@material-ui/core/Avatar';
 import IconButton from '@material-ui/core/IconButton';
-import BrushIcon from '@material-ui/icons/Brush';
 import Tooltip from '@material-ui/core/Tooltip';
 import Box from '@material-ui/core/Box';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
@@ -12,6 +11,7 @@ import { createStyles, makeStyles } from '@material-ui/core/styles';
 import Popover from 'components/commons/Popover';
 import { AppState } from 'app/rootReducer';
 import { ToolType, setTool, Color, setColor } from 'features/boardSlices';
+import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -47,9 +47,15 @@ const useStyles = makeStyles((theme) =>
   }),
 );
 
-export default function LineButton() {
+interface ButtonWithColorProps extends SvgIconProps {
+  tooltip: string;
+  toolType: ToolType;
+  Icon: typeof SvgIcon;
+}
+
+export default function ButtonWithColor({ toolType, Icon, tooltip, fontSize }: ButtonWithColorProps) {
   const dispatch = useDispatch();
-  const tool = useSelector((state: AppState) => state.boardState.tool);
+  const currentToolType = useSelector((state: AppState) => state.boardState.toolType);
   const color = useSelector((state: AppState) => state.boardState.color);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | undefined>();
   const classes = useStyles({ color });
@@ -58,7 +64,7 @@ export default function LineButton() {
     (event: MouseEvent<HTMLButtonElement>) => {
       setAnchorEl(event.currentTarget);
     },
-    [tool],
+    [currentToolType],
   );
 
   const handleClose = useCallback(() => {
@@ -67,27 +73,27 @@ export default function LineButton() {
 
   const handleSelectTool = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => {
-      if (tool === ToolType.Line) {
+      if (currentToolType === toolType) {
         handleOpen(event);
         return;
       }
 
-      dispatch(setTool(ToolType.Line));
+      dispatch(setTool(toolType));
     },
-    [tool, color],
+    [currentToolType, color],
   );
 
   const handleSelectColor = (nextColor: Color) => () => {
-    dispatch(setTool(ToolType.Line));
+    dispatch(setTool(toolType));
     dispatch(setColor(nextColor));
     handleClose();
   };
 
   return (
     <>
-      <Tooltip title="Brush" arrow className={tool === ToolType.Line ? classes.select : classes.button}>
-        <IconButton aria-label="Brush" onClick={handleSelectTool}>
-          {tool === ToolType.Line ? (
+      <Tooltip title={tooltip} arrow className={currentToolType === toolType ? classes.select : classes.button}>
+        <IconButton aria-label={tooltip} onClick={handleSelectTool}>
+          {currentToolType === toolType ? (
             <Badge
               variant="dot"
               classes={{ badge: classes.badge }}
@@ -96,10 +102,10 @@ export default function LineButton() {
                 horizontal: 'right',
               }}
             >
-              <BrushIcon fontSize="small" />
+              <Icon fontSize={fontSize} />
             </Badge>
           ) : (
-            <BrushIcon fontSize="small" />
+            <Icon fontSize={fontSize} />
           )}
         </IconButton>
       </Tooltip>
@@ -118,7 +124,7 @@ export default function LineButton() {
       >
         <Box p={2} className={classes.box}>
           {Object.entries(Color).map(([name, _color]: [string, Color]) => {
-            const selected = color === _color && tool === ToolType.Line;
+            const selected = color === _color && currentToolType === toolType;
             return (
               <Tooltip key={name} title={name} arrow>
                 <Box border={3} borderRadius="50%" borderColor={selected ? 'primary.main' : ''}>

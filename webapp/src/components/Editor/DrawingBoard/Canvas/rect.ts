@@ -1,13 +1,18 @@
 import { Rect, Point, Box } from 'features/docSlices';
-
+import { Color } from 'features/boardSlices';
 import { cloneBox } from './utils';
+
+export interface RectOptions {
+  color: Color;
+}
 
 /**
  * Create the basic object of the rect with point.
  */
-export function createRect(point: Point): Rect {
+export function createRect(point: Point, options: RectOptions): Rect {
   return {
     type: 'rect',
+    color: options.color,
     box: {
       x: point.x,
       y: point.y,
@@ -22,7 +27,10 @@ export function createRect(point: Point): Rect {
  * Draw a rect on the canvas.
  */
 export function drawRect(context: CanvasRenderingContext2D, rect: Rect) {
+  context.save();
+  context.strokeStyle = rect.color;
   context.strokeRect(rect.box.x, rect.box.y, rect.box.width, rect.box.height);
+  context.restore();
 }
 
 /**

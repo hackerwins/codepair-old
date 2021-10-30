@@ -3,7 +3,7 @@ import { Root, Point, Rect } from 'features/docSlices';
 import { ToolType } from 'features/boardSlices';
 import Board from 'components/Editor/DrawingBoard/Canvas/Board';
 import { createRect, adjustRectBox } from '../rect';
-import Worker from './Worker';
+import Worker, { Options } from './Worker';
 import * as scheduler from '../scheduler';
 
 class RectWorker extends Worker {
@@ -15,8 +15,8 @@ class RectWorker extends Worker {
 
   private createID?: TimeTicket;
 
-  constructor(update: Function, board: Board) {
-    super();
+  constructor(update: Function, board: Board, options: Options) {
+    super(options);
     this.update = update;
     this.board = board;
   }
@@ -25,7 +25,7 @@ class RectWorker extends Worker {
     let timeTicket: TimeTicket;
 
     this.update((root: Root) => {
-      const shape = createRect(point);
+      const shape = createRect(point, this.options!);
       root.shapes.push(shape);
 
       const lastShape = root.shapes.getLast();

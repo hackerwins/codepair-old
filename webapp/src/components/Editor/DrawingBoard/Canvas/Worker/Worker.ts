@@ -1,9 +1,8 @@
 import { TimeTicket } from 'yorkie-js-sdk';
-import { ToolType } from 'features/boardSlices';
+import { ToolType, Color } from 'features/boardSlices';
 import { Root, Shape, Point } from 'features/docSlices';
-import { LineOption } from '../line';
 
-type Options = LineOption;
+export type Options = { color: Color; };
 
 export type BoardMetadata = {
   eraserPoints?: Point[];
