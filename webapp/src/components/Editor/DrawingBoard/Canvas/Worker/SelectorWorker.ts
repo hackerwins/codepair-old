@@ -1,7 +1,7 @@
 import { Root, Point, Shape } from 'features/docSlices';
 import { ToolType } from 'features/boardSlices';
 import Board from 'components/Editor/DrawingBoard/Canvas/Board';
-import { isInnerBox, cloneBox, isSelectable, reverseIter } from '../utils';
+import { isInnerBox, cloneBox, isSelectable } from '../utils';
 import Worker from './Worker';
 import * as scheduler from '../scheduler';
 
@@ -12,7 +12,7 @@ class SelectorWorker extends Worker {
 
   board: Board;
 
-  private selectedShape?: { shape: Shape; point: Point; };
+  private selectedShape?: { shape: Shape; point: Point };
 
   constructor(update: Function, board: Board) {
     super();
@@ -23,7 +23,6 @@ class SelectorWorker extends Worker {
   mousedown(point: Point): void {
     const target = this.findTarget(point);
     if (target) {
-      this.moveToFront(target);
       this.selectedShape = {
         shape: target,
         point,
@@ -93,7 +92,7 @@ class SelectorWorker extends Worker {
   findTarget(point: Point): Shape | undefined {
     let target;
     this.update((root: Root) => {
-      for (const shape of reverseIter(root.shapes)) {
+      for (const shape of root.shapes) {
         if (shape.type === 'rect' && isInnerBox(shape.box, point)) {
           target = shape;
           return;
@@ -101,15 +100,6 @@ class SelectorWorker extends Worker {
       }
     });
     return target;
-  }
-
-  /**
-   * moveToFront move selected shape at the head
-   */
-  moveToFront(shape: Shape): void {
-    this.update((root: Root) => {
-      root.shapes.moveLast(shape.getID());
-    });
   }
 }
 
