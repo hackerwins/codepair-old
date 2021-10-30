@@ -41,7 +41,7 @@ export default function (props: { docKey: string }) {
   const client = useSelector((state: AppState) => state.docState.client);
   const doc = useSelector((state: AppState) => state.docState.doc);
   const status = useSelector((state: AppState) => state.docState.status);
-  const tool = useSelector((state: AppState) => state.boardState.tool);
+  const tool = useSelector((state: AppState) => state.boardState.toolType);
   const loading = useSelector((state: AppState) => state.docState.loading);
   const errorMessage = useSelector((state: AppState) => state.docState.errorMessage);
 

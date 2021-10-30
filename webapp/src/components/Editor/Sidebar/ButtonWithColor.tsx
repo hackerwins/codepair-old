@@ -48,13 +48,13 @@ const useStyles = makeStyles((theme) =>
 );
 
 interface ButtonWithColorProps extends SvgIconProps {
-  tool: ToolType;
+  toolType: ToolType;
   Icon: typeof SvgIcon;
 }
 
-export default function ButtonWithColor({ tool, Icon, fontSize }: ButtonWithColorProps) {
+export default function ButtonWithColor({ toolType, Icon, fontSize }: ButtonWithColorProps) {
   const dispatch = useDispatch();
-  const nowTool = useSelector((state: AppState) => state.boardState.tool);
+  const currentToolType = useSelector((state: AppState) => state.boardState.toolType);
   const color = useSelector((state: AppState) => state.boardState.color);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | undefined>();
   const classes = useStyles({ color });
@@ -63,7 +63,7 @@ export default function ButtonWithColor({ tool, Icon, fontSize }: ButtonWithColo
     (event: MouseEvent<HTMLButtonElement>) => {
       setAnchorEl(event.currentTarget);
     },
-    [nowTool],
+    [currentToolType],
   );
 
   const handleClose = useCallback(() => {
@@ -72,27 +72,27 @@ export default function ButtonWithColor({ tool, Icon, fontSize }: ButtonWithColo
 
   const handleSelectTool = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => {
-      if (nowTool === tool) {
+      if (currentToolType === toolType) {
         handleOpen(event);
         return;
       }
 
-      dispatch(setTool(tool));
+      dispatch(setTool(toolType));
     },
-    [nowTool, color],
+    [currentToolType, color],
   );
 
   const handleSelectColor = (nextColor: Color) => () => {
-    dispatch(setTool(tool));
+    dispatch(setTool(toolType));
     dispatch(setColor(nextColor));
     handleClose();
   };
 
   return (
     <>
-      <Tooltip title="Brush" arrow className={nowTool === tool ? classes.select : classes.button}>
+      <Tooltip title="Brush" arrow className={currentToolType === toolType ? classes.select : classes.button}>
         <IconButton aria-label="Brush" onClick={handleSelectTool}>
-          {nowTool === tool ? (
+          {currentToolType === toolType ? (
             <Badge
               variant="dot"
               classes={{ badge: classes.badge }}
@@ -123,7 +123,7 @@ export default function ButtonWithColor({ tool, Icon, fontSize }: ButtonWithColo
       >
         <Box p={2} className={classes.box}>
           {Object.entries(Color).map(([name, _color]: [string, Color]) => {
-            const selected = color === _color && nowTool === tool;
+            const selected = color === _color && currentToolType === toolType;
             return (
               <Tooltip key={name} title={name} arrow>
                 <Box border={3} borderRadius="50%" borderColor={selected ? 'primary.main' : ''}>

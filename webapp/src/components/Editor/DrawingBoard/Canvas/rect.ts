@@ -2,15 +2,14 @@ import { Rect, Point, Box } from 'features/docSlices';
 import { Color } from 'features/boardSlices';
 import { cloneBox } from './utils';
 
-export interface RectOption {
+export interface RectOptions {
   color: Color;
 }
-
 
 /**
  * Create the basic object of the rect with point.
  */
-export function createRect(point: Point, options: RectOption): Rect {
+export function createRect(point: Point, options: RectOptions): Rect {
   return {
     type: 'rect',
     color: options.color,

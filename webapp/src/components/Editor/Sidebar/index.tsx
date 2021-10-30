@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme) =>
 export default function Sidebar() {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const tool = useSelector((state: AppState) => state.boardState.tool);
+  const tool = useSelector((state: AppState) => state.boardState.toolType);
 
   const handleSelectTool = (nextTool: ToolType) => () => {
     dispatch(setTool(nextTool));
@@ -57,8 +57,8 @@ export default function Sidebar() {
         </IconButton>
       </Tooltip>
       <Divider className={classes.divider} />
-      <ButtonWithColor tool={ToolType.Line} Icon={BrushIcon} fontSize="small" />
-      <ButtonWithColor tool={ToolType.Rect} Icon={RectIcon} fontSize="small" />
+      <ButtonWithColor toolType={ToolType.Line} Icon={BrushIcon} fontSize="small" />
+      <ButtonWithColor toolType={ToolType.Rect} Icon={RectIcon} fontSize="small" />
       <Tooltip title="Selector" arrow className={tool === ToolType.Selector ? classes.select : classes.button}>
         <IconButton aria-label="selector" onClick={handleSelectTool(ToolType.Selector)}>
           <MouseIcon fontSize="small" />

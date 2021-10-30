@@ -14,7 +14,7 @@ export default function DrawingBoard({ width, height }: { width: number; height:
   const dispatch = useDispatch();
   const client = useSelector((state: AppState) => state.docState.client);
   const doc = useSelector((state: AppState) => state.docState.doc);
-  const tool = useSelector((state: AppState) => state.boardState.tool);
+  const tool = useSelector((state: AppState) => state.boardState.toolType);
   const color = useSelector((state: AppState) => state.boardState.color);
 
   useEffect(() => {
