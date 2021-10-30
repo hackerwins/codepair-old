@@ -57,8 +57,8 @@ export default function Sidebar() {
         </IconButton>
       </Tooltip>
       <Divider className={classes.divider} />
-      <ButtonWithColor toolType={ToolType.Line} Icon={BrushIcon} fontSize="small" />
-      <ButtonWithColor toolType={ToolType.Rect} Icon={RectIcon} fontSize="small" />
+      <ButtonWithColor toolType={ToolType.Line} Icon={BrushIcon} fontSize="small" tooltip="Brush" />
+      <ButtonWithColor toolType={ToolType.Rect} Icon={RectIcon} fontSize="small" tooltip="Shape" />
       <Tooltip title="Selector" arrow className={tool === ToolType.Selector ? classes.select : classes.button}>
         <IconButton aria-label="selector" onClick={handleSelectTool(ToolType.Selector)}>
           <MouseIcon fontSize="small" />

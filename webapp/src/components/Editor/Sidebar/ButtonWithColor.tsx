@@ -48,11 +48,12 @@ const useStyles = makeStyles((theme) =>
 );
 
 interface ButtonWithColorProps extends SvgIconProps {
+  tooltip: string;
   toolType: ToolType;
   Icon: typeof SvgIcon;
 }
 
-export default function ButtonWithColor({ toolType, Icon, fontSize }: ButtonWithColorProps) {
+export default function ButtonWithColor({ toolType, Icon, tooltip, fontSize }: ButtonWithColorProps) {
   const dispatch = useDispatch();
   const currentToolType = useSelector((state: AppState) => state.boardState.toolType);
   const color = useSelector((state: AppState) => state.boardState.color);
@@ -90,8 +91,8 @@ export default function ButtonWithColor({ toolType, Icon, fontSize }: ButtonWith
 
   return (
     <>
-      <Tooltip title="Brush" arrow className={currentToolType === toolType ? classes.select : classes.button}>
-        <IconButton aria-label="Brush" onClick={handleSelectTool}>
+      <Tooltip title={tooltip} arrow className={currentToolType === toolType ? classes.select : classes.button}>
+        <IconButton aria-label={tooltip} onClick={handleSelectTool}>
           {currentToolType === toolType ? (
             <Badge
               variant="dot"
