@@ -4,14 +4,6 @@ Yorkie CodePair provides developers with real-time collaborative code editing.
 
 ## Developing Yorkie CodePair
 
-To develop CodePair in a containerized environment:
-
-```
-docker-compose -f docker/docker-compose.dev.yml up --build -d
-```
-
-Or to run the CodePair in the local environment:
-
 CodePair requires local applications such as Envoy, Yorkie and MongoDB. To start them:
 
 ```
