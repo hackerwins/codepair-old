@@ -3,14 +3,7 @@
 Yorkie CodePair provides developers with real-time collaborative code editing.
 
 ## Developing Yorkie CodePair
-
-To develop CodePair in a containerized environment:
-
-```
-docker-compose -f docker/docker-compose.dev.yml up --build -d
-```
-
-Or to run the CodePair in the local environment:
+For building Yorkie CodePair, You'll first need Node.js installed(Node.js version 16+ and npm version 7.10+ are required).
 
 CodePair requires local applications such as Envoy, Yorkie and MongoDB. To start them:
 
