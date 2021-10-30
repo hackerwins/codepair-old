@@ -3,6 +3,7 @@
 Yorkie CodePair provides developers with real-time collaborative code editing.
 
 ## Developing Yorkie CodePair
+For building Yorkie CodePair, You'll first need `node.js` installed (node.js version 16+ and npm version 7.10+ are required).
 
 CodePair requires local applications such as Envoy, Yorkie and MongoDB. To start them:
 
