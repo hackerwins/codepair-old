@@ -192,7 +192,6 @@ export function isSelectable(shape: Shape): shape is Rect {
   return shape.type === 'rect';
 }
 
-
 export function* reverseIter<T>(arr: T[]) {
   let l = arr.length - 1;
   while (l >= 0) {

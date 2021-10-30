@@ -22,14 +22,14 @@ export interface BoardState {
   isOpen: boolean;
 
   color: Color;
-  tool: ToolType;
+  toolType: ToolType;
 }
 
 const initialBoardState: BoardState = {
   isOpen: false,
 
   color: Color.Red,
-  tool: ToolType.None,
+  toolType: ToolType.None,
 };
 
 const boardSlice = createSlice({
@@ -42,7 +42,7 @@ const boardSlice = createSlice({
     },
 
     setTool(state, action: PayloadAction<ToolType>) {
-      state.tool = action.payload;
+      state.toolType = action.payload;
     },
 
     setColor(state, action: PayloadAction<Color>) {
