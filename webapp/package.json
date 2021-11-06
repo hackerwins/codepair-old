@@ -65,6 +65,10 @@
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint --fix . --ext .ts,.tsx"
   },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=7.1.0"
+  },
   "eslintConfig": {
     "extends": "react-app"
   },
