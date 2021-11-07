@@ -2,7 +2,7 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import IconButton from '@material-ui/core/IconButton';
-import CodeIcon from '@material-ui/icons/Code';
+import TextFieldsIcon from '@material-ui/icons/TextFields';
 import Tooltip from '@material-ui/core/Tooltip';
 import Divider from '@material-ui/core/Divider';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
@@ -53,7 +53,7 @@ export default function Sidebar() {
     <div className={classes.root}>
       <Tooltip title="Code" arrow className={tool === ToolType.None ? classes.select : classes.button}>
         <IconButton aria-label="Code" onClick={handleSelectTool(ToolType.None)}>
-          <CodeIcon fontSize="small" />
+          <TextFieldsIcon fontSize="small" />
         </IconButton>
       </Tooltip>
       <Divider className={classes.divider} />
