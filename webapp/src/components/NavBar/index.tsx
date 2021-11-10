@@ -24,6 +24,13 @@ const useStyles = makeStyles((theme: Theme) =>
       color: theme.palette.primary.main,
       marginRight: theme.spacing(1),
     },
+    yorkie: {
+      '& > a': {
+        textDecoration: 'none',
+        color: '#b5b0a1',
+        fontSize: 12,
+      },
+    },
     items: {
       display: 'flex',
       '& > *': {
@@ -41,9 +48,10 @@ function MenuAppBar() {
       <AppBar position="static" className={classes.appBar}>
         <Toolbar>
           <Typography variant="h6" className={classes.title}>
-            <Link href="/" underline="none">
-              CodePair
-            </Link>
+            <Link href="/" underline="none">CodePair</Link>
+          </Typography>
+          <Typography className={classes.yorkie}>
+            <a href="https://yorkie.dev" target="_blank" rel="noreferrer">Powered by Yorkie</a>
           </Typography>
           <NetworkButton />
           <div className={classes.grow} />
