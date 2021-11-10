@@ -12,6 +12,7 @@ import Cursor from './Cursor';
 import 'codemirror/addon/edit/closebrackets';
 import 'codemirror/addon/edit/closetag';
 import 'codemirror/addon/comment/comment';
+import 'codemirror/addon/display/placeholder';
 
 import 'codemirror/mode/gfm/gfm';
 import 'codemirror/mode/go/go';
@@ -73,6 +74,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       className="CodeMirror"
       options={{
         mode: codeMode,
+        placeholder: 'Write code here and share...',
         theme: menu.theme === Theme.Dark ? 'monokai' : 'xq-light',
         keyMap: menu.codeKeyMap,
         tabSize: Number(menu.tabSize),
