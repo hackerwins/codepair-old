@@ -1,4 +1,5 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, ChangeEvent } from 'react';
+import { DocEvent } from 'yorkie-js-sdk';
 import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import { useSelector, useDispatch } from 'react-redux';
 import Box from '@material-ui/core/Box';
@@ -9,6 +10,7 @@ import Typography from '@material-ui/core/Typography';
 import FormControl from '@material-ui/core/FormControl';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 
+import { CodeMode, setCodeMode } from 'features/docSlices';
 import { Theme, CodeKeyMap, TabSize, setDarkMode, setCodeKeyMap, setTabSize } from 'features/settingSlices';
 import { AppState } from 'app/rootReducer';
 
@@ -48,10 +50,45 @@ const useStyles = makeStyles((theme) =>
   }),
 );
 
-const Settings = () => {
+export default function Settings() {
   const dispatch = useDispatch();
   const classes = useStyles();
+
+  const doc = useSelector((state: AppState) => state.docState.doc);
+  const codeMode = useSelector((state: AppState) => state.docState.mode);
   const menu = useSelector((state: AppState) => state.settingState.menu);
+
+  useEffect(() => {
+    if (!doc) {
+      return () => {};
+    }
+
+    const unsubscribe = doc.subscribe((event: DocEvent) => {
+      if (event.type === 'remote-change') {
+        dispatch(setCodeMode(doc.getRoot().mode || CodeMode.Markdown));
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [doc]);
+
+  const handleCodeModeChange = useCallback(
+    (event: ChangeEvent<{ name?: string; value: unknown }>) => {
+      if (!doc) {
+        return;
+      }
+      const mode = event.target.value as CodeMode;
+      doc.update((root) => {
+        // eslint-disable-next-line no-param-reassign
+        root.mode = mode;
+      });
+
+      dispatch(setCodeMode(mode));
+    },
+    [doc, dispatch],
+  );
 
   function handleChange<T>(action: ActionCreatorWithPayload<T>) {
     return (event: React.ChangeEvent<{ name?: string; value: unknown }>) => {
@@ -74,18 +111,18 @@ const Settings = () => {
       </Box>
       <div className={classes.list}>
         <div className={classes.item}>
-          <div className={classes.itemTitle}>Dark Mode</div>
+          <div className={classes.itemTitle}>Code Format</div>
           <FormControl className={classes.itemInfo}>
-            <Switch checked={menu.theme === Theme.Dark} onChange={handleThemeChanged} />
-          </FormControl>
-        </div>
-        <div className={classes.item}>
-          <div className={classes.itemTitle}>Key Binding</div>
-          <FormControl className={classes.itemInfo}>
-            <Select value={menu.codeKeyMap} onChange={handleChange(setCodeKeyMap)} displayEmpty>
-              {Object.entries(CodeKeyMap).map(([display, codeKeyMap]: [string, string]) => {
+            <Select
+              name="codeMode"
+              value={codeMode}
+              onChange={handleCodeModeChange}
+              disableUnderline
+              displayEmpty
+            >
+              {Object.entries(CodeMode).map(([display, mode]: [string, string]) => {
                 return (
-                  <MenuItem value={codeKeyMap} key={codeKeyMap}>
+                  <MenuItem value={mode} key={mode}>
                     {display}
                   </MenuItem>
                 );
@@ -107,9 +144,27 @@ const Settings = () => {
             </Select>
           </FormControl>
         </div>
+        <div className={classes.item}>
+          <div className={classes.itemTitle}>Key Binding</div>
+          <FormControl className={classes.itemInfo}>
+            <Select value={menu.codeKeyMap} onChange={handleChange(setCodeKeyMap)} displayEmpty>
+              {Object.entries(CodeKeyMap).map(([display, codeKeyMap]: [string, string]) => {
+                return (
+                  <MenuItem value={codeKeyMap} key={codeKeyMap}>
+                    {display}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+        </div>
+        <div className={classes.item}>
+          <div className={classes.itemTitle}>Dark Mode</div>
+          <FormControl className={classes.itemInfo}>
+            <Switch checked={menu.theme === Theme.Dark} onChange={handleThemeChanged} />
+          </FormControl>
+        </div>
       </div>
     </div>
   );
-};
-
-export default Settings;
+}

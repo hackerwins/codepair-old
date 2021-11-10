@@ -6,7 +6,7 @@ import DrawingBoard from 'components/Editor/DrawingBoard';
 import Sidebar from 'components/Editor/Sidebar';
 import { ToolType } from 'features/boardSlices';
 
-export const NAVBAR_HEIGHT = 110;
+export const NAVBAR_HEIGHT = 64;
 const SIDEBAR_WIDTH = 42;
 
 interface EditorProps {

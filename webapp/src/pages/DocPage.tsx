@@ -5,7 +5,6 @@ import ReactGA from 'react-ga';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 
 import NavBar from 'components/NavBar';
-import Toolbar from 'components/Toolbar';
 import Editor from 'components/Editor';
 
 type DocPageProps = {
@@ -36,7 +35,6 @@ export default function DocPage(props: RouteComponentProps<DocPageProps>) {
   return (
     <div className={classes.root}>
       <NavBar />
-      <Toolbar />
       <Editor docKey={docKey} />
     </div>
   );
