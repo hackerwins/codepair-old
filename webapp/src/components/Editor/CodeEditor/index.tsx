@@ -82,6 +82,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
         lineWrapping: true,
         autoCloseTags: true,
         autoCloseBrackets: true,
+        scrollbarStyle: 'null',
       }}
       editorDidMount={(editor: CodeMirror.Editor) => {
         // eslint-disable-next-line no-param-reassign

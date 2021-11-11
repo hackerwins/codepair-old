@@ -6,8 +6,9 @@ import DrawingBoard from 'components/Editor/DrawingBoard';
 import Sidebar from 'components/Editor/Sidebar';
 import { ToolType } from 'features/boardSlices';
 
+// TODO(hackerwins): The height is 48 on the mobile AppBar.
 export const NAVBAR_HEIGHT = 64;
-const SIDEBAR_WIDTH = 42;
+const SIDEBAR_WIDTH = 46;
 
 interface EditorProps {
   tool: ToolType;
@@ -15,22 +16,22 @@ interface EditorProps {
 
 const useStyles = makeStyles(() =>
   createStyles({
-    root: {
-      flexGrow: 1,
-      display: 'flex',
-    },
     editor: {
+      position: 'relative',
       width: `calc(100% - ${SIDEBAR_WIDTH}px)`,
+      height: `calc(100vh - ${NAVBAR_HEIGHT}px)`,
+      overflowY: 'auto',
+      overflowX: 'hidden',
     },
     codeEditor: {
+      position: 'absolute',
       width: '100%',
       height: `calc(100vh - ${NAVBAR_HEIGHT}px)`,
     },
     canvas: {
-      top: NAVBAR_HEIGHT,
+      position: 'absolute',
       height: `calc(100vh - ${NAVBAR_HEIGHT}px)`,
       width: `calc(100% - ${SIDEBAR_WIDTH}px)`,
-      position: 'fixed',
       /**
        * z-index
        * 1:  Show code mirror first
@@ -75,16 +76,18 @@ export default function Editor({ tool }: EditorProps) {
   }, []);
 
   return (
-    <div className={classes.root} onClick={handleClickEditor} aria-hidden="true">
-      <div className={classes.editor} ref={divRef}>
-        <div className={classes.codeEditor}>
-          <CodeEditor forwardedRef={codeEditorRef} />
-        </div>
-        <div className={classes.canvas}>
-          <DrawingBoard width={width} height={height} />
+    <>
+      <div onClick={handleClickEditor} aria-hidden="true">
+        <div className={classes.editor} ref={divRef}>
+          <div className={classes.codeEditor}>
+            <CodeEditor forwardedRef={codeEditorRef} />
+          </div>
+          <div className={classes.canvas}>
+            <DrawingBoard width={width} height={height} />
+          </div>
         </div>
       </div>
       <Sidebar />
-    </div>
+    </>
   );
 }

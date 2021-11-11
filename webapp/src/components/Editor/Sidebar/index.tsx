@@ -23,7 +23,11 @@ import { ToolType, setTool } from 'features/boardSlices';
 const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
+      position: 'fixed',
+      top: 64,
+      right: 0,
       display: 'flex',
+      height: '100%',
       flexDirection: 'column',
     },
     divider: {

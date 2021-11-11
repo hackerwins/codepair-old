@@ -10,10 +10,8 @@ import NetworkButton from 'components/NavBar/NetworkButton';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    root: {
-      flexGrow: 1,
-    },
     appBar: {
+      flexGrow: 1,
       backgroundColor: 'black',
     },
     grow: {
@@ -44,24 +42,22 @@ function MenuAppBar() {
   const classes = useStyles();
 
   return (
-    <div className={classes.root}>
-      <AppBar position="static" className={classes.appBar}>
-        <Toolbar>
-          <Typography variant="h6" className={classes.title}>
-            <Link href="/" underline="none">CodePair</Link>
-          </Typography>
-          <Typography className={classes.yorkie}>
-            <a href="https://yorkie.dev" target="_blank" rel="noreferrer">Powered by Yorkie</a>
-          </Typography>
-          <NetworkButton />
-          <div className={classes.grow} />
-          <div className={classes.items}>
-            <ShareButton />
-            <PeerGroup />
-          </div>
-        </Toolbar>
-      </AppBar>
-    </div>
+    <AppBar position="static" className={classes.appBar}>
+      <Toolbar>
+        <Typography variant="h6" className={classes.title}>
+          <Link href="/" underline="none">CodePair</Link>
+        </Typography>
+        <Typography className={classes.yorkie}>
+          <a href="https://yorkie.dev" target="_blank" rel="noreferrer">Powered by Yorkie</a>
+        </Typography>
+        <NetworkButton />
+        <div className={classes.grow} />
+        <div className={classes.items}>
+          <ShareButton />
+          <PeerGroup />
+        </div>
+      </Toolbar>
+    </AppBar>
   );
 }
 

@@ -65,8 +65,8 @@ function NetworkDisconnect(props: { hasLocalChanges: boolean }) {
 
   return (
     <>
-      <Button aria-label="doc-status" color="secondary" startIcon={<CloudOffIcon />} onClick={handleOpen}>
-        Working offline
+      <Button aria-label="doc-status" color="secondary" onClick={handleOpen}>
+        <CloudOffIcon />
       </Button>
 
       <Popover

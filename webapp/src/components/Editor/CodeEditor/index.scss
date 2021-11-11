@@ -36,7 +36,7 @@
 
 .CodeMirror {
   font-size: 16px;
-  height: 100%;
+  height: auto;
 }
 
 .CodeMirror .cm-s-xq-light {
@@ -48,10 +48,11 @@
 * codemirror's default style marks outgoing doms as hidden, How to solve this.
 * issue ref https://github.com/yorkie-team/codepair/issues/16
 */
-.CodeMirror-scroll {
-  padding-top: 18px;
-  padding-bottom: 18px;
-}
+// TODO(hackerwins): Uncomment below:
+// .CodeMirror-scroll {
+//   padding-top: 18px;
+//   padding-bottom: 18px;
+// }
 
 .CodeMirror pre.CodeMirror-placeholder {
   color: gray;
