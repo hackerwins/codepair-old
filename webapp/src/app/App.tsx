@@ -17,7 +17,7 @@ const history = createBrowserHistory();
 if (process.env.NODE_ENV === 'production') {
   Sentry.init({
     dsn: 'https://d287d6df8c6f423189266360055e6ca7@o553194.ingest.sentry.io/5680102',
-    release: `yorkie-codepair@${process.env.REACT_APP_GIT_HASH}`,
+    release: `codepair@${process.env.REACT_APP_GIT_HASH}`,
     integrations: [new Integrations.BrowserTracing({
       routingInstrumentation: Sentry.reactRouterV5Instrumentation(history),
     })],

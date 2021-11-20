@@ -1,9 +1,9 @@
-# Yorkie CodePair
+# CodePair
 
-Yorkie CodePair provides developers with real-time collaborative code editing.
+CodePair provides developers with real-time collaborative code editing.
 
-## Developing Yorkie CodePair
-For building Yorkie CodePair, You'll first need Node.js installed(Node.js version 16+ and npm version 7.10+ are required).
+## Developing CodePair
+For building CodePair, You'll first need Node.js installed(Node.js version 16+ and npm version 7.10+ are required).
 
 CodePair requires local applications such as Envoy, Yorkie and MongoDB. To start them:
 
@@ -24,7 +24,7 @@ When PR is merged into main, it is automatically distributed by GitHub Actions.
 
 ### Layout
 
-Yorkie CodePair is deployed to AWS and the configuration is shown below. This repository is used to distribute static pages.
+CodePair is deployed to AWS and the configuration is shown below. This repository is used to distribute static pages.
 
 ```
 [Route53]
