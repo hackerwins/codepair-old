@@ -27,8 +27,7 @@ export interface BoardState {
 
 const initialBoardState: BoardState = {
   isOpen: false,
-
-  color: Color.Red,
+  color: Color.Yellow,
   toolType: ToolType.None,
 };
 
