@@ -1,6 +1,8 @@
 # CodePair
 
-CodePair provides developers with real-time collaborative code editing.
+Real-time collaborative code editor with brush tools for online coding interviews or meetings.
+
+![Screenshot](media/screenshot.png)
 
 ## Developing CodePair
 For building CodePair, You'll first need Node.js installed(Node.js version 16+ and npm version 7.10+ are required).
