@@ -2,13 +2,14 @@ import React, { useState, useCallback, MouseEvent } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import IconButton from '@material-ui/core/IconButton';
-import TextFieldsIcon from '@material-ui/icons/TextFields';
 import Tooltip from '@material-ui/core/Tooltip';
 import Divider from '@material-ui/core/Divider';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
+import TextFieldsIcon from '@material-ui/icons/TextFields';
 import SettingsIcon from '@material-ui/icons/Settings';
 import BrushIcon from '@material-ui/icons/Brush';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
+import GitHubIcon from '@material-ui/icons/GitHub';
 
 import EraserIcon from 'assets/icons/Eraser';
 import MouseIcon from 'assets/icons/Mouse';
@@ -68,6 +69,11 @@ export default function Sidebar() {
       <Tooltip title="Settings" arrow>
         <IconButton aria-label="settings" onClick={handleSettingsClick}>
           <SettingsIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="GitHub" arrow className={classes.button}>
+        <IconButton aria-label="selector" href="https://github.com/yorkie-team/codepair">
+          <GitHubIcon fontSize="default" />
         </IconButton>
       </Tooltip>
       <Divider className={classes.divider} />
