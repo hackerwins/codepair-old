@@ -1,14 +1,21 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { AppState } from 'app/rootReducer';
 import { ToolType, setTool } from 'features/boardSlices';
+import { SCREEN_PADDING, setDrawBoardHeight, setDrawBoardWidth } from 'features/screenSlice';
 import { Metadata } from 'features/peerSlices';
 import { BoardMetadata } from './Canvas/Worker';
 import Board from './Canvas/Board';
 import './index.scss';
 
-export default function DrawingBoard({ width, height }: { width: number; height: number }) {
+export default function DrawingBoard({
+  editorRef,
+  drawBoardRef,
+}: {
+  editorRef: React.MutableRefObject<HTMLDivElement | null>;
+  drawBoardRef: React.MutableRefObject<HTMLDivElement | null>;
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const boardRef = useRef<Board | null>(null);
   const dispatch = useDispatch();
@@ -16,12 +23,24 @@ export default function DrawingBoard({ width, height }: { width: number; height:
   const doc = useSelector((state: AppState) => state.docState.doc);
   const tool = useSelector((state: AppState) => state.boardState.toolType);
   const color = useSelector((state: AppState) => state.boardState.color);
+  const screen = useSelector((state: AppState) => state.screenState);
+
+  const updateCodeMirrorSize = useCallback(() => {
+    let maxX = -1;
+    let maxY = -1;
+    for (const shape of doc!.getRoot().shapes) {
+      for (const point of shape.points) {
+        maxX = maxX > point.x ? maxX : point.x;
+        maxY = maxY > point.y ? maxY : point.y;
+      }
+    }
+
+    dispatch(setDrawBoardWidth(maxX + SCREEN_PADDING));
+    dispatch(setDrawBoardHeight(maxY + SCREEN_PADDING));
+  }, [doc]);
 
   useEffect(() => {
-    if (!canvasRef.current) {
-      return () => {};
-    }
-    const board = new Board(canvasRef.current, doc!.update.bind(doc));
+    const board = new Board(canvasRef.current!, editorRef.current!, drawBoardRef.current!, doc!.update.bind(doc));
     boardRef.current = board;
 
     return () => {
@@ -34,14 +53,34 @@ export default function DrawingBoard({ width, height }: { width: number; height:
       return () => {};
     }
 
+    updateCodeMirrorSize();
     const unsubscribe = doc.subscribe((event) => {
       if (event.type === 'remote-change') {
+        updateCodeMirrorSize();
+
         boardRef.current?.drawAll(doc.getRoot().shapes);
       }
     });
 
     return () => {
       unsubscribe();
+    };
+  }, [doc]);
+
+  useEffect(() => {
+    const codeMirrorScrollEl = editorRef.current?.querySelector('.CodeMirror-scroll')!;
+
+    const onScroll: EventListenerOrEventListenerObject = (evt) => {
+      const target = evt.target as HTMLDivElement;
+      if (parseInt(drawBoardRef.current!.style.left, 10) !== target.scrollLeft) {
+        // eslint-disable-next-line no-param-reassign
+        drawBoardRef.current!.style.left = `-${target.scrollLeft}px`;
+      }
+    };
+
+    codeMirrorScrollEl.addEventListener('scroll', onScroll);
+    return () => {
+      codeMirrorScrollEl.removeEventListener('scroll', onScroll);
     };
   }, [doc]);
 
@@ -98,14 +137,16 @@ export default function DrawingBoard({ width, height }: { width: number; height:
   }, [doc, tool]);
 
   useEffect(() => {
-    if (!canvasRef.current) {
-      return;
-    }
-
-    boardRef.current?.setWidth(width);
-    boardRef.current?.setHeight(height);
+    const codeMirrorSizeEl = editorRef.current?.querySelector('.CodeMirror-sizer')! as HTMLDivElement;
+    codeMirrorSizeEl.style.minWidth = `${screen.drawBoardScreenWidth}px`;
+    boardRef.current?.setWidth(screen.drawBoardScreenWidth);
     boardRef.current?.drawAll(doc!.getRoot().shapes);
-  }, [doc, width, height]);
+  }, [doc, screen.drawBoardScreenWidth]);
+
+  useEffect(() => {
+    boardRef.current?.setHeight(screen.drawBoardScreenHeight);
+    boardRef.current?.drawAll(doc!.getRoot().shapes);
+  }, [doc, screen.drawBoardScreenHeight]);
 
   useEffect(() => {
     boardRef.current?.setTool(tool);

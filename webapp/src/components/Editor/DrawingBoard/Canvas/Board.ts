@@ -29,16 +29,21 @@ export default class Board extends EventDispatcher {
 
   private metadataMap: Map<string, BoardMetadata> = new Map();
 
+  private editor: HTMLDivElement;
+
+  private drawBoard: HTMLDivElement;
+
   update: Function;
 
   worker!: Worker;
 
-  constructor(el: HTMLCanvasElement, update: Function) {
+  constructor(el: HTMLCanvasElement, editor: HTMLDivElement, drawBoard: HTMLDivElement, update: Function) {
     super();
+    this.editor = editor;
+    this.drawBoard = drawBoard;
+    this.update = update;
     this.lowerWrapper = new CanvasWrapper(el);
     this.upperWrapper = this.createUpperWrapper();
-
-    this.update = update;
 
     this.initialize();
   }
@@ -176,8 +181,10 @@ export default class Board extends EventDispatcher {
       originY = evt.clientY;
       originX = evt.clientX;
     }
-    originY += window.scrollY;
-    originX += window.scrollX;
+
+    const paddingLeft = this.drawBoard.style.left ? parseInt(this.drawBoard.style.left, 10) : 0;
+    originY += this.editor.scrollTop;
+    originX += this.editor.scrollLeft - paddingLeft;
     return {
       y: originY - this.offsetY,
       x: originX - this.offsetX,

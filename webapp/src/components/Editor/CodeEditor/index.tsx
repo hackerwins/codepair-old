@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useCallback } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { ActorID, DocEvent } from 'yorkie-js-sdk';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
 
 import { AppState } from 'app/rootReducer';
 import { ConnectionStatus, Metadata } from 'features/peerSlices';
 import { Theme } from 'features/settingSlices';
+import { setCodeMirrorHeight } from 'features/screenSlice';
 
 import Cursor from './Cursor';
 
@@ -33,10 +34,11 @@ import 'codemirror/theme/xq-light.css';
 import './index.scss';
 
 interface CodeEditorProps {
-  forwardedRef: React.MutableRefObject<CodeMirror.Editor | null>;
+  codeEditorRef: React.MutableRefObject<CodeMirror.Editor | null>;
 }
 
-export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
+export default function CodeEditor({ codeEditorRef }: CodeEditorProps) {
+  const dispatch = useDispatch();
   const doc = useSelector((state: AppState) => state.docState.doc);
   const codeMode = useSelector((state: AppState) => state.docState.mode);
   const client = useSelector((state: AppState) => state.docState.client);
@@ -86,7 +88,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       }}
       editorDidMount={(editor: CodeMirror.Editor) => {
         // eslint-disable-next-line no-param-reassign
-        forwardedRef.current = editor;
+        codeEditorRef.current = editor;
 
         editor.focus();
         const updateCursor = (clientID: ActorID, pos: CodeMirror.Position) => {
@@ -165,6 +167,9 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       }}
       // Edit the yorkie document
       onBeforeChange={(editor: CodeMirror.Editor, change: CodeMirror.EditorChange) => {
+        const { scrollHeight } = editor.getScrollerElement();
+        dispatch(setCodeMirrorHeight(scrollHeight));
+
         if (change.origin === 'yorkie' || change.origin === 'setValue') {
           return;
         }

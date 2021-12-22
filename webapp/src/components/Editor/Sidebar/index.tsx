@@ -19,12 +19,13 @@ import Settings from 'components/Editor/Sidebar/Settings';
 import ButtonWithColor from 'components/Editor/Sidebar/ButtonWithColor';
 import { AppState } from 'app/rootReducer';
 import { ToolType, setTool } from 'features/boardSlices';
+import { NAVBAR_HEIGHT } from '../Editor';
 
 const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
       position: 'fixed',
-      top: 64,
+      top: NAVBAR_HEIGHT,
       right: 0,
       display: 'flex',
       height: '100%',
@@ -65,8 +66,6 @@ export default function Sidebar() {
   const handleSettingsClose = useCallback(() => {
     setAnchorEl(undefined);
   }, []);
-
-
 
   return (
     <div className={classes.root}>
