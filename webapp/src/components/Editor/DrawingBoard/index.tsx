@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import debounce from 'lodash/debounce';
 
 import { AppState } from 'app/rootReducer';
 import { ToolType, setTool } from 'features/boardSlices';
@@ -24,6 +25,18 @@ export default function DrawingBoard({
   const tool = useSelector((state: AppState) => state.boardState.toolType);
   const color = useSelector((state: AppState) => state.boardState.color);
   const screen = useSelector((state: AppState) => state.screenState);
+
+  const updateScreenWidth = debounce((width: number) => {
+    const codeMirrorSizeEl = editorRef.current?.querySelector('.CodeMirror-sizer')! as HTMLDivElement;
+    codeMirrorSizeEl.style.minWidth = `${width}px`;
+    boardRef.current?.setWidth(width);
+    boardRef.current?.drawAll(doc!.getRoot().shapes);
+  }, 300);
+
+  const updateScreenHeight = debounce((height: number) => {
+    boardRef.current?.setHeight(height);
+    boardRef.current?.drawAll(doc!.getRoot().shapes);
+  }, 300);
 
   const updateCodeMirrorSize = useCallback(() => {
     let maxX = -1;
@@ -137,15 +150,11 @@ export default function DrawingBoard({
   }, [doc, tool]);
 
   useEffect(() => {
-    const codeMirrorSizeEl = editorRef.current?.querySelector('.CodeMirror-sizer')! as HTMLDivElement;
-    codeMirrorSizeEl.style.minWidth = `${screen.drawBoardScreenWidth}px`;
-    boardRef.current?.setWidth(screen.drawBoardScreenWidth);
-    boardRef.current?.drawAll(doc!.getRoot().shapes);
+    updateScreenWidth(screen.drawBoardScreenWidth);
   }, [doc, screen.drawBoardScreenWidth]);
 
   useEffect(() => {
-    boardRef.current?.setHeight(screen.drawBoardScreenHeight);
-    boardRef.current?.drawAll(doc!.getRoot().shapes);
+    updateScreenHeight(screen.drawBoardScreenHeight);
   }, [doc, screen.drawBoardScreenHeight]);
 
   useEffect(() => {
