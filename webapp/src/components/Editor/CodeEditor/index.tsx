@@ -77,11 +77,17 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
         placeholder: 'Write code here and share...',
         theme: menu.theme === Theme.Dark ? 'monokai' : 'xq-light',
         keyMap: menu.codeKeyMap,
+        indentWithTabs: false,
         tabSize: Number(menu.tabSize),
         lineNumbers: true,
         lineWrapping: true,
         autoCloseTags: true,
         autoCloseBrackets: true,
+        extraKeys: {
+          'Tab': (cm) => {
+            cm.replaceSelection(' '.repeat(Number(menu.tabSize)), 'end');
+          },
+        },
       }}
       editorDidMount={(editor: CodeMirror.Editor) => {
         // eslint-disable-next-line no-param-reassign
