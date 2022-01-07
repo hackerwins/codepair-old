@@ -30,7 +30,7 @@ const SettingModel = new BrowserStorage<SettingState>('$$codepair$$setting');
 
 const initialState: SettingState = SettingModel.getValue({
   menu: {
-    theme: Theme.Dark,
+    theme: Theme.Light,
     codeKeyMap: CodeKeyMap.Sublime,
     tabSize: TabSize.Two,
   },
