@@ -1,10 +1,12 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 
+import { ToolType } from 'features/boardSlices';
+
 import CodeEditor from 'components/Editor/CodeEditor';
 import DrawingBoard from 'components/Editor/DrawingBoard';
 import Sidebar from 'components/Editor/Sidebar';
-import { ToolType } from 'features/boardSlices';
+import EditorTab from './EditorTab';
 
 export const NAVBAR_HEIGHT = 64;
 const SIDEBAR_WIDTH = 42;
@@ -77,6 +79,7 @@ export default function Editor({ tool }: EditorProps) {
   return (
     <div className={classes.root} onClick={handleClickEditor} aria-hidden="true">
       <div className={classes.editor} ref={divRef}>
+        <EditorTab />
         <div className={classes.codeEditor}>
           <CodeEditor forwardedRef={codeEditorRef} />
         </div>

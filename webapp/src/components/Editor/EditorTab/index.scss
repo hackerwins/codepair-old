@@ -1,0 +1,14 @@
+.editor-tab {
+  padding: 0 4px;
+  > ul {
+    width: calc(100% - 46px);
+    margin: 0;
+    padding: 0;
+    &.selected {}
+    > .tab {
+      display: inline-block;
+      list-style-type: none;
+      padding: 4px 8px;
+    }
+  }
+}
