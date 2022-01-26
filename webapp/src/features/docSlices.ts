@@ -116,7 +116,8 @@ export const activateClient = createAsyncThunk<ActivateClientResult, undefined, 
       await client.activate();
       return { client };
     } catch (err) {
-      return thunkApi.rejectWithValue(err.message);
+      if (err instanceof Error) return thunkApi.rejectWithValue(err.message);
+      return thunkApi.rejectWithValue(err as string);
     }
   },
 );
@@ -140,7 +141,8 @@ export const attachDoc = createAsyncThunk<AttachDocResult, AttachDocArgs, { reje
       await client.sync();
       return { doc, client };
     } catch (err) {
-      return thunkApi.rejectWithValue(err.message);
+      if (err instanceof Error) return thunkApi.rejectWithValue(err.message);
+      return thunkApi.rejectWithValue(err as string);
     }
   },
 );
