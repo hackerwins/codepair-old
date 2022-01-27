@@ -1,0 +1,77 @@
+.editor-tab-nav {
+  position: relative;
+  padding: 0;
+  margin: 0;
+  width: calc(100vw - 46px);
+  height: 46px;
+  z-index: 2;
+  > ul {
+    display: flex;
+    padding: 0;
+    margin: 0;
+    width: calc(100% - 40px);
+    height: 100%;
+    > .editor-tab {
+      flex: 0 0 auto;
+      list-style-type: none;
+      width: 200px;
+      height: 100%;
+      opacity: 0.5;
+      border-bottom: solid 2px transparent;
+      transition: ease 0.2s;
+      cursor: pointer;
+      > .tab-title {
+        display: inline-block;
+      }
+      > .close-btn {
+        display: none;
+      }
+      &.selected {
+        opacity: 1;
+        border-bottom: solid 2px #d8b01a;
+        background-color: #272822;
+        > .close-btn {
+          display: inline-block;
+          padding: 0;
+          svg {
+            width: 16px;
+            height: 16px;
+          }
+        }
+      }
+    }
+  }
+  > .add-btn {
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: 11px;
+  }
+}
+
+#x-scroller {
+  position: relative;
+  /* set to some transparent color */
+  border-color: rgba(186, 186, 192, 0);
+  /* here we make the color transition */
+  transition: border-color ease-in 0.3s;
+  /* make this element do the scrolling */
+  overflow-x: auto;
+  overflow-x: overlay;
+  overflow-y: hidden;
+  &:hover {
+    /* the color we want the scrollbar on hover */
+    border-color: rgba(186, 186, 192, 0.3);
+  }
+  &::-webkit-scrollbar,
+  &::-webkit-scrollbar-thumb,
+  &::-webkit-scrollbar-corner {
+    height: 4px;
+    /* add border to act as background-color */
+    border-right-style: inset;
+    /* sum viewport dimensions to guarantee border will fill scrollbar */
+    border-right-width: calc(100vw + 100vh);
+    /* inherit border-color to inherit transitions */
+    border-color: inherit;
+  }
+}
