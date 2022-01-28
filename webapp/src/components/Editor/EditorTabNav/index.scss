@@ -13,6 +13,9 @@
     height: 100%;
     > .editor-tab {
       flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      padding: 4px 8px;
       list-style-type: none;
       width: 200px;
       height: 100%;
@@ -25,6 +28,7 @@
       }
       > .close-btn {
         display: none;
+        margin-left: auto;
       }
       &.selected {
         opacity: 1;
@@ -45,14 +49,15 @@
     position: absolute;
     right: 0;
     top: 0;
-    padding: 11px;
+    // padding: 3px;
+    // border-radius: 0;
   }
 }
 
 #x-scroller {
   /* set to some transparent color */
   border-color: rgba(186, 186, 192, 0);
-  /* here we make the color transition */
+  // /* here we make the color transition */
   transition: border-color ease-in 0.3s;
   /* make this element do the scrolling */
   overflow-x: auto;
