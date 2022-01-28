@@ -21,6 +21,7 @@ const useStyles = makeStyles(() =>
     },
     editor: {
       width: `calc(100% - ${SIDEBAR_WIDTH}px)`,
+      flex: '0 0 auto',
     },
     codeEditor: {
       width: '100%',
