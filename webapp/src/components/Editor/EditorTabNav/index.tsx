@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useSelector } from 'react-redux';
+import { AppState } from 'app/rootReducer';
+import { Theme } from 'features/settingSlices';
 import EditorTab from './EditorTab';
 import AddButton from './AddButton';
 import './index.scss';
@@ -17,9 +20,13 @@ const temp = [
 
 export default function EditorTabNav() {
   const [selected, setSelected] = useState<number>(1);
+  const menu = useSelector((state: AppState) => state.settingState.menu);
+  const isDarkmode = useMemo<boolean>(() => {
+    return menu.theme === Theme.Dark;
+  }, [menu]);
 
   return (
-    <nav className="editor-tab-nav">
+    <nav className={`editor-tab-nav ${isDarkmode ? 'darkmode' : 'lightmode'}`}>
       <ul id="x-scroller">
         {temp.map((t) => (
           <EditorTab key={t.id} isSelected={t.id === selected} {...t} onChange={setSelected} />

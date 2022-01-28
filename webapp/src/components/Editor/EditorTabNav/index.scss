@@ -3,8 +3,29 @@
   padding: 0;
   margin: 0;
   width: calc(100vw - 46px);
-  height: 46px;
+  height: 30px;
   z-index: 2;
+
+  &.darkmode {
+    > ul {
+      > .editor-tab {
+        &.selected {
+          background-color: #272822;
+        }
+      }
+    }
+  }
+
+  &.lightmode {
+    > ul {
+      > .editor-tab {
+        &.selected {
+          background-color: #eee;
+        }
+      }
+    }
+  }
+
   > ul {
     display: flex;
     padding: 0;
@@ -33,7 +54,6 @@
       &.selected {
         opacity: 1;
         border-bottom: solid 2px #d8b01a;
-        background-color: #272822;
         > .close-btn {
           display: inline-block;
           padding: 0;
@@ -49,7 +69,8 @@
     position: absolute;
     right: 0;
     top: 0;
-    // padding: 3px;
+    // padding: 10px;
+    padding: 3px;
     // border-radius: 0;
   }
 }
