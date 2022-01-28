@@ -78,7 +78,7 @@
 #x-scroller {
   /* set to some transparent color */
   border-color: rgba(186, 186, 192, 0);
-  // /* here we make the color transition */
+  /* here we make the color transition */
   transition: border-color ease-in 0.3s;
   /* make this element do the scrolling */
   overflow-x: auto;
