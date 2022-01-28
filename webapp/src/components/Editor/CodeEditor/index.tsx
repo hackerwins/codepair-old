@@ -5,7 +5,7 @@ import { UnControlled as CodeMirror } from 'react-codemirror2';
 
 import { AppState } from 'app/rootReducer';
 import { ConnectionStatus, Metadata } from 'features/peerSlices';
-import { Theme } from 'features/settingSlices';
+import { Theme, selectMenu } from 'features/settingSlices';
 
 import Cursor from './Cursor';
 
@@ -41,7 +41,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
   const codeMode = useSelector((state: AppState) => state.docState.mode);
   const client = useSelector((state: AppState) => state.docState.client);
   const peers = useSelector((state: AppState) => state.peerState.peers);
-  const menu = useSelector((state: AppState) => state.settingState.menu);
+  const menu = useSelector(selectMenu);
   const cursorMapRef = useRef<Map<ActorID, Cursor>>(new Map());
 
   const connectCursor = useCallback((clientID: ActorID, metadata: Metadata) => {

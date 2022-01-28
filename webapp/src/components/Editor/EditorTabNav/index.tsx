@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import { AppState } from 'app/rootReducer';
-import { Theme } from 'features/settingSlices';
+import { Theme, selectMenu } from 'features/settingSlices';
 import EditorTab from './EditorTab';
 import AddButton from './AddButton';
 import './index.scss';
@@ -20,7 +19,7 @@ const temp = [
 
 export default function EditorTabNav() {
   const [selected, setSelected] = useState<number>(1);
-  const menu = useSelector((state: AppState) => state.settingState.menu);
+  const menu = useSelector(selectMenu);
   const isDarkmode = useMemo<boolean>(() => {
     return menu.theme === Theme.Dark;
   }, [menu]);

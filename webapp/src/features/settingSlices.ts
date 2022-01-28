@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { AppState } from 'app/rootReducer';
 import BrowserStorage from 'utils/storage';
 
 export enum Theme {
@@ -56,6 +57,9 @@ const settingSlice = createSlice({
     },
   },
 });
+
+/* selector */
+export const selectMenu = (state: AppState) => state.settingState.menu;
 
 export const { setDarkMode, setCodeKeyMap, setTabSize } = settingSlice.actions;
 export default settingSlice.reducer;

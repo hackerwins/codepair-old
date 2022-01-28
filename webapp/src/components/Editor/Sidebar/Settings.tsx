@@ -11,7 +11,7 @@ import FormControl from '@material-ui/core/FormControl';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 
 import { CodeMode, setCodeMode } from 'features/docSlices';
-import { Theme, CodeKeyMap, TabSize, setDarkMode, setCodeKeyMap, setTabSize } from 'features/settingSlices';
+import { Theme, selectMenu, CodeKeyMap, TabSize, setDarkMode, setCodeKeyMap, setTabSize } from 'features/settingSlices';
 import { AppState } from 'app/rootReducer';
 
 const useStyles = makeStyles((theme) =>
@@ -56,7 +56,7 @@ export default function Settings() {
 
   const doc = useSelector((state: AppState) => state.docState.doc);
   const codeMode = useSelector((state: AppState) => state.docState.mode);
-  const menu = useSelector((state: AppState) => state.settingState.menu);
+  const menu = useSelector(selectMenu);
 
   useEffect(() => {
     if (!doc) {

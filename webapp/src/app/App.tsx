@@ -6,8 +6,7 @@ import * as Sentry from '@sentry/react';
 import { Integrations } from '@sentry/tracing';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
-import { AppState } from 'app/rootReducer';
-import { Theme } from 'features/settingSlices';
+import { Theme, selectMenu } from 'features/settingSlices';
 
 import DocPage from 'pages/DocPage';
 import './App.scss';
@@ -30,7 +29,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 function App() {
-  const menu = useSelector((state: AppState) => state.settingState.menu);
+  const menu = useSelector(selectMenu);
   const theme = useMemo(
     () =>
       createMuiTheme({
