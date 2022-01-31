@@ -9,7 +9,7 @@ import Sidebar from 'components/Editor/Sidebar';
 import EditorTabNav from './EditorTabNav';
 
 export const NAVBAR_HEIGHT = 64;
-const SIDEBAR_WIDTH = 42;
+const SIDEBAR_WIDTH = 46;
 
 interface EditorProps {
   tool: ToolType;
@@ -23,6 +23,7 @@ const useStyles = makeStyles(() =>
     },
     editor: {
       width: `calc(100% - ${SIDEBAR_WIDTH}px)`,
+      flex: '0 0 auto',
     },
     codeEditor: {
       width: '100%',
