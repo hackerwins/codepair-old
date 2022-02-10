@@ -42,6 +42,7 @@
     "lint-staged": "^10.3.0",
     "node-sass": "^6.0.1",
     "prettier": "^2.1.1",
+    "qs": "^6.10.3",
     "randomcolor": "^0.6.2",
     "react": "^16.13.1",
     "react-codemirror2": "^7.2.1",
@@ -95,5 +96,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/qs": "^6.9.7"
   }
 }
