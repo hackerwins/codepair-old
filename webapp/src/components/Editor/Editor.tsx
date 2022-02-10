@@ -9,6 +9,7 @@ import Sidebar from 'components/Editor/Sidebar';
 import EditorTabNav from './EditorTabNav';
 
 export const NAVBAR_HEIGHT = 64;
+const TAB_HEIGHT = 30;
 const SIDEBAR_WIDTH = 46;
 
 interface EditorProps {
@@ -27,7 +28,7 @@ const useStyles = makeStyles(() =>
     },
     codeEditor: {
       width: '100%',
-      height: `calc(100vh - ${NAVBAR_HEIGHT}px)`,
+      height: `calc(100vh - ${NAVBAR_HEIGHT}px - ${TAB_HEIGHT}px)`,
     },
     canvas: {
       top: NAVBAR_HEIGHT,
