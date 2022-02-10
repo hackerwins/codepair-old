@@ -7,8 +7,9 @@
   z-index: 2;
 
   &.darkmode {
-    > ul {
+    > div {
       > .editor-tab {
+        color: white;
         &.selected {
           background-color: #272822;
         }
@@ -17,8 +18,9 @@
   }
 
   &.lightmode {
-    > ul {
+    > div {
       > .editor-tab {
+        color: black;
         &.selected {
           background-color: #eee;
         }
@@ -26,7 +28,7 @@
     }
   }
 
-  > ul {
+  > div {
     display: flex;
     padding: 0;
     margin: 0;
@@ -38,6 +40,7 @@
       align-items: center;
       padding: 4px 8px;
       list-style-type: none;
+      text-decoration: none;
       width: 140px;
       height: 100%;
       opacity: 0.5;

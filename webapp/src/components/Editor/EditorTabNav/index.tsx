@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import qs from 'qs';
 import { useLocation } from 'react-router-dom';
 import { selectDoc } from 'features/docSlices';
@@ -13,17 +13,22 @@ export default function EditorTabNav() {
   const { tab } = qs.parse(location.search, { ignoreQueryPrefix: true });
   const menu = useSelector(selectMenu);
   const doc = useSelector(selectDoc);
-  const tabLength = useMemo(() => doc?.getRoot().contents.length ?? 0, [doc]);
+  const [tabLength, setTabLength] = useState<number>(() => doc?.getRoot().contents.length ?? 1);
   const isDarkmode = useMemo<boolean>(() => menu.theme === Theme.Dark, [menu]);
 
+  doc?.subscribe(() => {
+    const changedTabLength = doc?.getRoot().contents.length;
+    if (tabLength !== changedTabLength) setTabLength(changedTabLength);
+  });
+
   return (
-    <nav className={`editor-tab-nav ${isDarkmode ? 'darkmode' : 'lightmode'}`}>
-      <ul id="x-scroller">
+    <nav className={`editor-tab-nav ${isDarkmode ? 'darkmode' : 'lightmode'}`} id="x-scroller">
+      <div id="x-scroller">
         {[...Array(tabLength)].map((_, index) => (
           // eslint-disable-next-line react/no-array-index-key
           <EditorTab key={index} isSelected={`${index}` === tab} index={index} />
         ))}
-      </ul>
+      </div>
       <AddButton />
     </nav>
   );
