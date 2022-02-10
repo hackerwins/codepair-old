@@ -1,21 +1,16 @@
-/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 import React from 'react';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 
-type EditorTabProps = {
+interface EditorTabProps {
   isSelected: boolean;
-  onChange: Function;
-  // test only
-  id: number;
-  title: string;
-};
+  index: number;
+}
 
-export default function EditorTab({ isSelected, onChange, title, id }: EditorTabProps) {
+export default function EditorTab({ isSelected, index }: EditorTabProps){
   return (
-    // eslint-disable-next-line jsx-a11y/click-events-have-key-events
-    <li className={`editor-tab ${isSelected ? 'selected' : ''}`} onClick={() => onChange(id)}>
-      <span className="tab-title">{ title }</span>
+    <li className={`editor-tab ${isSelected ? 'selected' : ''}`}>
+      <span className="tab-title">{ index }</span>
       <IconButton className="close-btn">
         <CloseIcon />
       </IconButton>

@@ -47,7 +47,7 @@ function App() {
   );
 
   const handleRender = useCallback(() => {
-    return <Redirect to={`/${Math.random().toString(36).substring(7)}`} />;
+    return <Redirect to={`/${Math.random().toString(36).substring(7)}?tab=0`} />;
   }, []);
 
   return (
