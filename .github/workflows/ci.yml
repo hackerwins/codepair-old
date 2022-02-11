@@ -1,9 +1,13 @@
-name: GitHub Page Publish
+name: CI
+
 on:
-  push:
+  pull_request:
     branches: [ main ]
+
 jobs:
-  build-and-deploy:
+
+  build:
+    name: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
@@ -22,8 +26,3 @@ jobs:
           npm install
           npm run build
 
-      - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@4.1.0
-        with:
-          branch: gh-pages
-          folder: build
