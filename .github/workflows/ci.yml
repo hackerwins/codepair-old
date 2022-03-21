@@ -23,6 +23,6 @@ jobs:
       - name: Install and Build 🔧 
         run: |
           cd ./webapp
-          npm install
+          npm install -f
           npm run build
 
