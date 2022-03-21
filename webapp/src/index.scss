@@ -1,3 +1,10 @@
+@import 'codemirror/lib/codemirror.css';
+@import 'codemirror/theme/monokai.css';
+@import 'codemirror/theme/xq-light.css';
+
+/**
+  * CodeEditor
+  */
 @keyframes fadeOut {
   from {
     opacity: 1;
@@ -68,4 +75,42 @@
     padding-left: 32px;
     bottom: 10px;
   }
+}
+
+/**
+ * DrawingBoard
+ */
+.canvas-touch-none {
+  touch-action: none;
+}
+
+/* mouse css */
+.auto {
+  cursor: auto;
+}
+.default {
+  cursor: default;
+}
+.crosshair {
+  cursor: crosshair;
+}
+
+.eraser {
+  cursor: url('./assets/icons/eraser.cur'), auto;
+}
+
+.canvas {
+  position: absolute;
+}
+
+.canvas-upper {
+  z-index: 1;
+  top: 0px;
+  left: 0px;
+}
+
+.canvas-lower {
+  z-index: 0;
+  top: 0px;
+  left: 0px;
 }

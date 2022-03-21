@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import classNames from 'classnames/bind';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
@@ -15,10 +14,6 @@ import Fade from 'components/commons/Fade';
 import { AppState } from 'app/rootReducer';
 import { DocStatus } from 'features/docSlices';
 
-import styles from './ShareButton.module.scss';
-
-const cx = classNames.bind(styles);
-
 const useStyles = makeStyles(() => ({
   dialog: {
     borderRadius: '4px',
@@ -30,6 +25,14 @@ const useStyles = makeStyles(() => ({
     borderRadius: '5px',
     outline: 'none',
     backgroundColor: 'hsla(0,0%,100%,0.9)',
+  },
+  box: {
+    '@media only screen and (max-width: 600px)': {
+      display: 'none',
+    },
+  },
+  button: {
+    lineHeight: '32px',
   },
 }));
 
@@ -58,9 +61,9 @@ export default function ShareButton() {
   }, []);
 
   return (
-    <div className={cx('box')}>
+    <div className={classes.box}>
       <Button
-        className={cx('button')}
+        className={classes.button}
         size="small"
         color="primary"
         variant="contained"

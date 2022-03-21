@@ -6,7 +6,6 @@ import { ToolType, setTool } from 'features/boardSlices';
 import { Metadata } from 'features/peerSlices';
 import { BoardMetadata } from './Canvas/Worker';
 import Board from './Canvas/Board';
-import './index.scss';
 
 export default function DrawingBoard({ width, height }: { width: number; height: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
