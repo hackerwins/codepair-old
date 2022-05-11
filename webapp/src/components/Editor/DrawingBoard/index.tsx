@@ -66,7 +66,7 @@ export default function DrawingBoard({ width, height }: { width: number; height:
       boardRef.current?.updateMetadata(clientId, {
         board,
       } as Metadata);
-      client?.updateMetadata('board', board);
+      client?.updatePresence('board', board);
     };
 
     boardRef.current?.addEventListener('mousemove', handleUpdateMeta);

@@ -105,7 +105,7 @@ export const activateClient = createAsyncThunk<ActivateClientResult, undefined, 
     try {
       const { name, animal } = anonymous.generate();
       const client = yorkie.createClient(`${process.env.REACT_APP_YORKIE_RPC_ADDR}`, {
-        metadata: {
+        presence: {
           username: name,
           image: animal,
           color: randomColor(),
@@ -130,7 +130,7 @@ export const attachDoc = createAsyncThunk<AttachDocResult, AttachDocArgs, { reje
       doc.update((root) => {
         // codeEditor
         if (!root.content) {
-          root.createText('content');
+          root.createText!('content');
         }
         // board
         if (!root.shapes) {
@@ -155,7 +155,7 @@ const docSlice = createSlice({
       client?.deactivate();
     },
     createDocument(state, action: PayloadAction<string>) {
-      state.doc = yorkie.createDocument<CodePairDoc>('codepairs', action.payload);
+      state.doc = yorkie.createDocument<CodePairDoc>(`codepairs$${action.payload}`);
     },
     detachDocument(state) {
       const { doc, client } = state;

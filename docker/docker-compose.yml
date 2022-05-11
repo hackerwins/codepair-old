@@ -23,10 +23,10 @@ services:
   yorkie:
     volumes:
     - ./yorkie.json:/app/yorkie.json
-    image: 'yorkieteam/yorkie:0.2.0'
+    image: 'yorkieteam/yorkie:0.2.4'
     container_name: 'yorkie'
     command: [
-      'agent',
+      'server',
     ]
     restart: always
     ports:
