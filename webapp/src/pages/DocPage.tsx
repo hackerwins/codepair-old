@@ -28,8 +28,10 @@ export default function DocPage(props: RouteComponentProps<DocPageProps>) {
   const { docKey } = params;
 
   useEffect(() => {
-    ReactGA.set({ page: location.pathname });
-    ReactGA.pageview(location.pathname);
+    if (`${process.env.REACT_APP_GOOGLE_ANALYTICS}`) {
+      ReactGA.set({ page: location.pathname });
+      ReactGA.pageview(location.pathname);
+    }
   }, [location]);
 
   return (

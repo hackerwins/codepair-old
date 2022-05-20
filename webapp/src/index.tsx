@@ -8,7 +8,10 @@ import store from 'app/store';
 import * as serviceWorker from 'serviceWorker';
 import './index.scss';
 
-ReactGA.initialize('UA-42438082-5');
+const trackingCode = `${process.env.REACT_APP_GOOGLE_ANALYTICS}`;
+if (trackingCode) {
+  ReactGA.initialize(trackingCode);
+}
 
 ReactDOM.render(
   <Provider store={store}>
