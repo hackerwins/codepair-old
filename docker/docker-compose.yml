@@ -10,6 +10,7 @@ services:
     restart: always
     ports:
       - '8080:8080'
+      - '9090:9090'
       - '9901:9901'
     depends_on:
       - yorkie
@@ -21,9 +22,7 @@ services:
     # extra_hosts:
     #   - "host.docker.internal:host-gateway"
   yorkie:
-    volumes:
-    - ./yorkie.json:/app/yorkie.json
-    image: 'yorkieteam/yorkie:0.2.4'
+    image: 'yorkieteam/yorkie:latest'
     container_name: 'yorkie'
     command: [
       'server',
@@ -31,3 +30,5 @@ services:
     restart: always
     ports:
       - '11101:11101'
+      - '11102:11102'
+      - '11103:11103'
