@@ -118,7 +118,7 @@ export const activateClient = createAsyncThunk<ActivateClientResult, undefined, 
         options.apiKey = `${process.env.REACT_APP_YORKIE_API_KEY}`;
       }
 
-      const client = yorkie.createClient(`${process.env.REACT_APP_YORKIE_RPC_ADDR}`, options);
+      const client = new yorkie.Client(`${process.env.REACT_APP_YORKIE_RPC_ADDR}`, options);
 
       await client.activate();
       return { client };
@@ -137,7 +137,7 @@ export const attachDoc = createAsyncThunk<AttachDocResult, AttachDocArgs, { reje
       doc.update((root) => {
         // codeEditor
         if (!root.content) {
-          root.createText!('content');
+          root.content = new yorkie.Text();
         }
         // board
         if (!root.shapes) {
@@ -162,7 +162,7 @@ const docSlice = createSlice({
       client?.deactivate();
     },
     createDocument(state, action: PayloadAction<string>) {
-      state.doc = yorkie.createDocument<CodePairDoc>(`codepairs$${action.payload}`);
+      state.doc = new yorkie.Document<CodePairDoc>(`codepairs$${action.payload}`);
     },
     detachDocument(state) {
       const { doc, client } = state;
