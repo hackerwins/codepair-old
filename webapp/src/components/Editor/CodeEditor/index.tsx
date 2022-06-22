@@ -149,6 +149,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
         });
 
         editor.setValue(root.content.toString());
+        editor.getDoc().clearHistory();
       }}
       // Notifying other clients to move the cursor
       onSelection={(editor: CodeMirror.Editor, data: CodeMirror.EditorSelectionChange) => {
