@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
-import yorkie, { Client, DocumentReplica, PlainText, TimeTicket } from 'yorkie-js-sdk';
+import yorkie, { Client, Document, Text, TimeTicket } from 'yorkie-js-sdk';
 import anonymous from 'anonymous-animals-gen';
 import randomColor from 'randomcolor';
 import { Metadata } from 'features/peerSlices';
@@ -57,7 +57,7 @@ export type ShapeType = Shape['type'];
 
 export type CodePairDoc = {
   mode: CodeMode;
-  content: PlainText;
+  content: Text;
   shapes: Array<Shape>;
 };
 
@@ -85,7 +85,7 @@ export enum DocStatus {
 
 export interface DocState {
   client?: Client<Metadata>;
-  doc?: DocumentReplica<CodePairDoc>;
+  doc?: Document<CodePairDoc>;
   mode: CodeMode;
   loading: boolean;
   errorMessage: string;
@@ -167,7 +167,7 @@ const docSlice = createSlice({
     detachDocument(state) {
       const { doc, client } = state;
       state.doc = undefined;
-      client?.detach(doc as DocumentReplica<CodePairDoc>);
+      client?.detach(doc as Document<CodePairDoc>);
     },
     attachDocLoading(state, action: PayloadAction<boolean>) {
       state.loading = action.payload;
@@ -207,5 +207,5 @@ export const {
 export default docSlice.reducer;
 
 type ActivateClientResult = { client: Client<Metadata> };
-type AttachDocArgs = { doc: DocumentReplica<CodePairDoc>; client: Client<Metadata> };
-type AttachDocResult = { doc: DocumentReplica<CodePairDoc>; client: Client<Metadata> };
+type AttachDocArgs = { doc: Document<CodePairDoc>; client: Client<Metadata> };
+type AttachDocResult = { doc: Document<CodePairDoc>; client: Client<Metadata> };

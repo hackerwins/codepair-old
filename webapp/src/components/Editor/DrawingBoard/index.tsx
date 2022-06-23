@@ -62,11 +62,11 @@ export default function DrawingBoard({ width, height }: { width: number; height:
 
     const clientId = client.getID()!;
     const handleUpdateMeta = (data: BoardMetadata) => {
-      const board = JSON.stringify(data);
-      boardRef.current?.updateMetadata(clientId, {
-        board,
-      } as Metadata);
-      client?.updatePresence('board', board);
+        const board = JSON.stringify(data || '');
+        boardRef.current?.updateMetadata(clientId, {
+          board,
+        } as Metadata);
+        client?.updatePresence('board', board);  
     };
 
     boardRef.current?.addEventListener('mousemove', handleUpdateMeta);
