@@ -55,11 +55,13 @@
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
     "typescript": "^3.7.5",
-    "yorkie-js-sdk": "^0.2.7"
+    "yorkie-js-sdk": "^0.2.8"
   },
   "scripts": {
     "start": "REACT_APP_GIT_HASH=`git rev-parse --short HEAD` react-scripts start",
     "build": "REACT_APP_GIT_HASH=`git rev-parse --short HEAD` react-scripts build",
+    "start:win": "set REACT_APP_GIT_HASH=`git rev-parse --short HEAD` && react-scripts start",
+    "build:win": "set REACT_APP_GIT_HASH=`git rev-parse --short HEAD` && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint . --ext .ts,.tsx",
