@@ -16,7 +16,6 @@ docker-compose -f docker/docker-compose.yml up --build -d
 Next, Let's starts CodePair in the development mode.
 
 ```
-cd webapp
 npm install
 npm start
 ```
