@@ -14,6 +14,10 @@ import Cursor from './Cursor';
 
 import 'easymde/dist/easymde.min.css';
 
+import 'codemirror/keymap/sublime';
+import 'codemirror/keymap/emacs';
+import 'codemirror/keymap/vim';
+
 const WIDGET_HEIGHT = 70;
 
 interface CodeEditorProps {
@@ -30,6 +34,9 @@ const useStyles = makeStyles((theme: Theme) =>
       },
       '& .cm-s-easymde .CodeMirror-cursor': {
         borderColor: theme.palette.background.paper,
+      },
+      '& .editor-toolbar': {
+        backgroundColor: theme.palette.background.paper,
       },
       '& .editor-toolbar > *': {
         color: theme.palette.common.white,
@@ -159,11 +166,18 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       });
     });
 
+    editor.addKeyMap(menu.codeKeyMap);
+    editor.setOption('keyMap', menu.codeKeyMap);
+    if (menu.codeKeyMap === 'vim') {
+      editor.addKeyMap('vim-insert');
+      editor.addKeyMap('vim-replace');
+    }
+
     // 05. initial value
     editor.setValue(root.content.toString());
     editor.getDoc().clearHistory();
     editor.focus();
-  }, [client, doc]);
+  }, [client, doc, menu]);
 
   useEffect(() => {
     for (const [id, peer] of Object.entries(peers)) {
@@ -187,7 +201,6 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
         placeholder: 'Write code here and share...',
         tabSize: Number(menu.tabSize),
         maxHeight: `calc(100vh - ${NAVBAR_HEIGHT + WIDGET_HEIGHT}px)`,
-        sideBySideFullscreen: false,
         toolbar: ['bold', 'italic', 'heading', '|', 'quote', 'code', 'link', '|', 'image', 'table', '|', 'preview', 'side-by-side'],
         status: false,
       }}
