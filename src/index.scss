@@ -41,21 +41,29 @@
   border-radius: 2px 2px 2px 0px;
 }
 
-.CodeMirror {
-  font-size: 16px;
-  height: 100%;
-}
+.EasyMDEContainer {
+  .editor-toolbar {
+    border: none;
+    // button > .fa {
+    //   color: white;
+    // }
+  }
 
-/* 
- * Make vim command visible.
- * issue ref https://github.com/yorkie-team/codepair/issues/148  
- */
-.CodeMirror-dialog { 
-  &.CodeMirror-dialog-bottom {
-    position: absolute;
-    z-index: 2;
-    padding-left: 32px;
-    bottom: 10px;
+  .CodeMirror {
+    border-bottom: none;
+  }
+  
+  /* 
+   * Make vim command visible.
+   * issue ref https://github.com/yorkie-team/codepair/issues/148  
+   */
+  .CodeMirror-dialog { 
+    &.CodeMirror-dialog-bottom {
+      position: absolute;
+      z-index: 2;
+      padding-left: 32px;
+      bottom: 10px;
+    }
   }
 }
 

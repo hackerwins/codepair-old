@@ -38,6 +38,7 @@ const useStyles = makeStyles(() =>
        * 10: Show canvas first
        */
       zIndex: (tool: ToolType) => (tool === ToolType.None ? 1 : 10),
+      pointerEvents: (tool: ToolType) => (tool === ToolType.None ? 'none' : 'auto'),
     },
   }),
 );

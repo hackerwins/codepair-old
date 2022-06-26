@@ -6,29 +6,13 @@ import SimpleMDE from 'react-simplemde-editor';
 
 import { AppState } from 'app/rootReducer';
 import { ConnectionStatus, Metadata } from 'features/peerSlices';
-// import { Theme } from 'features/settingSlices';
 
+import { NAVBAR_HEIGHT } from '../Editor';
 import Cursor from './Cursor';
 
 import 'easymde/dist/easymde.min.css';
 
-// import 'codemirror/addon/edit/closebrackets';
-// import 'codemirror/addon/edit/closetag';
-// import 'codemirror/addon/comment/comment';
-// import 'codemirror/addon/display/placeholder';
-// 
-// import 'codemirror/mode/gfm/gfm';
-// import 'codemirror/mode/go/go';
-// import 'codemirror/mode/dart/dart';
-// import 'codemirror/mode/ruby/ruby';
-// import 'codemirror/mode/rust/rust';
-// import 'codemirror/mode/python/python';
-// import 'codemirror/mode/clojure/clojure';
-// import 'codemirror/mode/javascript/javascript';
-// 
-// import 'codemirror/keymap/sublime';
-// import 'codemirror/keymap/emacs';
-// import 'codemirror/keymap/vim';
+const WIDGET_HEIGHT = 70;
 
 interface CodeEditorProps {
   forwardedRef: React.MutableRefObject<CodeMirror.Editor | null>;
@@ -36,7 +20,6 @@ interface CodeEditorProps {
 
 export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
   const doc = useSelector((state: AppState) => state.docState.doc);
-  // const codeMode = useSelector((state: AppState) => state.docState.mode);
   const menu = useSelector((state: AppState) => state.settingState.menu);
   const client = useSelector((state: AppState) => state.docState.client);
   const peers = useSelector((state: AppState) => state.peerState.peers);
@@ -171,28 +154,15 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
   return (
     <SimpleMDE
       options={{
+        spellChecker: false,
         placeholder: 'Write code here and share...',
         tabSize: Number(menu.tabSize),
+        maxHeight: `calc(100vh - ${NAVBAR_HEIGHT + WIDGET_HEIGHT}px)`,
+        toolbar: ['bold', 'italic', 'heading', '|', 'quote', 'code', 'link', '|', 'image', 'table', '|', 'preview', 'side-by-side', 'fullscreen'],
+        status: false,
       }}
       className="SimpleMDE"
       getCodemirrorInstance={getCmInstanceCallback}
     />
-    //  <CodeMirror
-    //    options={{
-    //      mode: codeMode,
-    //      theme: menu.theme === Theme.Dark ? 'monokai' : 'xq-light',
-    //      keyMap: menu.codeKeyMap,
-    //      indentWithTabs: false,
-    //      tabSize: Number(menu.tabSize),
-    //      lineWrapping: true,
-    //      autoCloseTags: true,
-    //      autoCloseBrackets: true,
-    //      extraKeys: {
-    //        Tab: (cm) => {
-    //          cm.replaceSelection(' '.repeat(Number(menu.tabSize)), 'end');
-    //        },
-    //      },
-    //    }}
-    //  />
   );
 }
