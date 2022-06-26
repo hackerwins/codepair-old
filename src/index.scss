@@ -46,24 +46,6 @@
   height: 100%;
 }
 
-.CodeMirror .cm-s-xq-light {
-  background-color: #eee;
-}
-
-/* 
-* When the user name needs to be expressed in the mouse cursor, 
-* codemirror's default style marks outgoing doms as hidden, How to solve this.
-* issue ref https://github.com/yorkie-team/codepair/issues/16
-*/
-.CodeMirror-scroll {
-  padding-top: 18px;
-  padding-bottom: 18px;
-}
-
-.CodeMirror pre.CodeMirror-placeholder {
-  color: gray;
-}
-
 /* 
  * Make vim command visible.
  * issue ref https://github.com/yorkie-team/codepair/issues/148  

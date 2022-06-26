@@ -1,31 +1,34 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { ActorID, DocEvent } from 'yorkie-js-sdk';
-import { UnControlled as CodeMirror } from 'react-codemirror2';
+import CodeMirror from 'codemirror';
+import SimpleMDE from 'react-simplemde-editor';
 
 import { AppState } from 'app/rootReducer';
 import { ConnectionStatus, Metadata } from 'features/peerSlices';
-import { Theme } from 'features/settingSlices';
+// import { Theme } from 'features/settingSlices';
 
 import Cursor from './Cursor';
 
-import 'codemirror/addon/edit/closebrackets';
-import 'codemirror/addon/edit/closetag';
-import 'codemirror/addon/comment/comment';
-import 'codemirror/addon/display/placeholder';
+import 'easymde/dist/easymde.min.css';
 
-import 'codemirror/mode/gfm/gfm';
-import 'codemirror/mode/go/go';
-import 'codemirror/mode/dart/dart';
-import 'codemirror/mode/ruby/ruby';
-import 'codemirror/mode/rust/rust';
-import 'codemirror/mode/python/python';
-import 'codemirror/mode/clojure/clojure';
-import 'codemirror/mode/javascript/javascript';
-
-import 'codemirror/keymap/sublime';
-import 'codemirror/keymap/emacs';
-import 'codemirror/keymap/vim';
+// import 'codemirror/addon/edit/closebrackets';
+// import 'codemirror/addon/edit/closetag';
+// import 'codemirror/addon/comment/comment';
+// import 'codemirror/addon/display/placeholder';
+// 
+// import 'codemirror/mode/gfm/gfm';
+// import 'codemirror/mode/go/go';
+// import 'codemirror/mode/dart/dart';
+// import 'codemirror/mode/ruby/ruby';
+// import 'codemirror/mode/rust/rust';
+// import 'codemirror/mode/python/python';
+// import 'codemirror/mode/clojure/clojure';
+// import 'codemirror/mode/javascript/javascript';
+// 
+// import 'codemirror/keymap/sublime';
+// import 'codemirror/keymap/emacs';
+// import 'codemirror/keymap/vim';
 
 interface CodeEditorProps {
   forwardedRef: React.MutableRefObject<CodeMirror.Editor | null>;
@@ -33,10 +36,10 @@ interface CodeEditorProps {
 
 export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
   const doc = useSelector((state: AppState) => state.docState.doc);
-  const codeMode = useSelector((state: AppState) => state.docState.mode);
+  // const codeMode = useSelector((state: AppState) => state.docState.mode);
+  const menu = useSelector((state: AppState) => state.settingState.menu);
   const client = useSelector((state: AppState) => state.docState.client);
   const peers = useSelector((state: AppState) => state.peerState.peers);
-  const menu = useSelector((state: AppState) => state.settingState.menu);
   const cursorMapRef = useRef<Map<ActorID, Cursor>>(new Map());
 
   const connectCursor = useCallback((clientID: ActorID, metadata: Metadata) => {
@@ -49,6 +52,107 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       cursorMapRef.current.delete(clientID);
     }
   }, []);
+
+  const getCmInstanceCallback = useCallback((editor: CodeMirror.Editor) => {
+    if (!client || !doc) {
+      return;
+    }
+
+    // eslint-disable-next-line no-param-reassign
+    forwardedRef.current = editor;
+
+    const updateCursor = (clientID: ActorID, pos: CodeMirror.Position) => {
+      const cursor = cursorMapRef.current.get(clientID);
+      cursor?.updateCursor(editor, pos);
+    };
+
+    const updateLine = (clientID: ActorID, fromPos: CodeMirror.Position, toPos: CodeMirror.Position) => {
+      const cursor = cursorMapRef.current.get(clientID);
+      cursor?.updateLine(editor, fromPos, toPos);
+    };
+
+    // 02. display remote cursors
+    doc.subscribe((event: DocEvent) => {
+      if (event.type === 'remote-change') {
+        for (const { change } of event.value) {
+          const actor = change.getID().getActorID()!;
+          if (actor !== client.getID()) {
+            if (!cursorMapRef.current.has(actor)) {
+              return;
+            }
+
+            const cursor = cursorMapRef.current.get(actor);
+            if (cursor!.isActive()) {
+              return;
+            }
+
+            updateCursor(actor, editor.posFromIndex(0));
+          }
+        }
+      }
+    });
+
+    // 03. local to remote
+    editor.on('beforeChange', (instance: CodeMirror.Editor, change: CodeMirror.EditorChange) => {
+      if (change.origin === 'yorkie' || change.origin === 'setValue') {
+        return;
+      }
+
+      const from = editor.indexFromPos(change.from);
+      const to = editor.indexFromPos(change.to);
+      const content = change.text.join('\n');
+
+      doc.update((root) => {
+        root.content.edit(from, to, content);
+      });
+    });
+
+    editor.on('beforeSelectionChange', (instance: CodeMirror.Editor, data: CodeMirror.EditorSelectionChange) => {
+      if (!data.origin) {
+        return;
+      }
+
+      const from = editor.indexFromPos(data.ranges[0].anchor);
+      const to = editor.indexFromPos(data.ranges[0].head);
+
+      doc.update((root) => {
+        root.content.select(from, to);
+      });
+    });
+
+    // 04. remote to local
+    const root = doc.getRoot();
+    root.content.onChanges((changes) => {
+      changes.forEach((change) => {
+        const { actor, from, to } = change;
+        if (change.type === 'content') {
+          const content = change.content || '';
+
+          if (actor !== client.getID()) {
+            const fromPos = editor.posFromIndex(from);
+            const toPos = editor.posFromIndex(to);
+            editor.replaceRange(content, fromPos, toPos, 'yorkie');
+          }
+        } else if (change.type === 'selection') {
+          if (actor !== client.getID()) {
+            let fromPos = editor.posFromIndex(from);
+            let toPos = editor.posFromIndex(to);
+            updateCursor(actor, toPos);
+
+            if (from > to) {
+              [toPos, fromPos] = [fromPos, toPos];
+            }
+            updateLine(actor, fromPos, toPos);
+          }
+        }
+      });
+    });
+
+    // 05. initial value
+    editor.setValue(root.content.toString());
+    editor.getDoc().clearHistory();
+    editor.focus();
+  }, [client, doc]);
 
   useEffect(() => {
     for (const [id, peer] of Object.entries(peers)) {
@@ -65,119 +169,30 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
   }
 
   return (
-    <CodeMirror
-      className="CodeMirror"
+    <SimpleMDE
       options={{
-        mode: codeMode,
         placeholder: 'Write code here and share...',
-        theme: menu.theme === Theme.Dark ? 'monokai' : 'xq-light',
-        keyMap: menu.codeKeyMap,
-        indentWithTabs: false,
         tabSize: Number(menu.tabSize),
-        lineNumbers: true,
-        lineWrapping: true,
-        autoCloseTags: true,
-        autoCloseBrackets: true,
-        extraKeys: {
-          Tab: (cm) => {
-            cm.replaceSelection(' '.repeat(Number(menu.tabSize)), 'end');
-          },
-        },
       }}
-      editorDidMount={(editor: CodeMirror.Editor) => {
-        // eslint-disable-next-line no-param-reassign
-        forwardedRef.current = editor;
-
-        editor.focus();
-        const updateCursor = (clientID: ActorID, pos: CodeMirror.Position) => {
-          const cursor = cursorMapRef.current.get(clientID);
-          cursor?.updateCursor(editor, pos);
-        };
-
-        const updateLine = (clientID: ActorID, fromPos: CodeMirror.Position, toPos: CodeMirror.Position) => {
-          const cursor = cursorMapRef.current.get(clientID);
-          cursor?.updateLine(editor, fromPos, toPos);
-        };
-
-        // TODO(ppeeou) Load user's cursor position
-        doc.subscribe((event: DocEvent) => {
-          if (event.type === 'remote-change') {
-            for (const { change } of event.value) {
-              const actor = change.getID().getActorID()!;
-              if (actor !== client.getID()) {
-                if (!cursorMapRef.current.has(actor)) {
-                  return;
-                }
-
-                const cursor = cursorMapRef.current.get(actor);
-                if (cursor!.isActive()) {
-                  return;
-                }
-
-                updateCursor(actor, editor.posFromIndex(0));
-              }
-            }
-          }
-        });
-
-        // When there is a document modification connected to the yorkie
-        const root = doc.getRoot();
-        root.content.onChanges((changes) => {
-          changes.forEach((change) => {
-            const { actor, from, to } = change;
-            if (change.type === 'content') {
-              const content = change.content || '';
-
-              if (actor !== client.getID()) {
-                const fromPos = editor.posFromIndex(from);
-                const toPos = editor.posFromIndex(to);
-                editor.replaceRange(content, fromPos, toPos, 'yorkie');
-              }
-            } else if (change.type === 'selection') {
-              if (actor !== client.getID()) {
-                let fromPos = editor.posFromIndex(from);
-                let toPos = editor.posFromIndex(to);
-                updateCursor(actor, toPos);
-
-                if (from > to) {
-                  [toPos, fromPos] = [fromPos, toPos];
-                }
-                updateLine(actor, fromPos, toPos);
-              }
-            }
-          });
-        });
-
-        editor.setValue(root.content.toString());
-        editor.getDoc().clearHistory();
-      }}
-      // Notifying other clients to move the cursor
-      onSelection={(editor: CodeMirror.Editor, data: CodeMirror.EditorSelectionChange) => {
-        if (!data.origin) {
-          return;
-        }
-
-        const from = editor.indexFromPos(data.ranges[0].anchor);
-        const to = editor.indexFromPos(data.ranges[0].head);
-
-        doc.update((root) => {
-          root.content.select(from, to);
-        });
-      }}
-      // Edit the yorkie document
-      onBeforeChange={(editor: CodeMirror.Editor, change: CodeMirror.EditorChange) => {
-        if (change.origin === 'yorkie' || change.origin === 'setValue') {
-          return;
-        }
-
-        const from = editor.indexFromPos(change.from);
-        const to = editor.indexFromPos(change.to);
-        const content = change.text.join('\n');
-
-        doc.update((root) => {
-          root.content.edit(from, to, content);
-        });
-      }}
+      className="SimpleMDE"
+      getCodemirrorInstance={getCmInstanceCallback}
     />
+    //  <CodeMirror
+    //    options={{
+    //      mode: codeMode,
+    //      theme: menu.theme === Theme.Dark ? 'monokai' : 'xq-light',
+    //      keyMap: menu.codeKeyMap,
+    //      indentWithTabs: false,
+    //      tabSize: Number(menu.tabSize),
+    //      lineWrapping: true,
+    //      autoCloseTags: true,
+    //      autoCloseBrackets: true,
+    //      extraKeys: {
+    //        Tab: (cm) => {
+    //          cm.replaceSelection(' '.repeat(Number(menu.tabSize)), 'end');
+    //        },
+    //      },
+    //    }}
+    //  />
   );
 }
