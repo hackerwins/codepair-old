@@ -30,10 +30,11 @@ const useStyles = makeStyles((theme: Theme) =>
       '& .CodeMirror': {
         color: theme.palette.common.white,
         borderColor: theme.palette.background.paper,
-        backgroundColor: 'inherit',
+        backgroundColor: theme.palette.background.paper,
       },
-      '& .cm-s-easymde .CodeMirror-cursor': {
-        borderColor: theme.palette.background.paper,
+      '& .CodeMirror-cursor': {
+        borderLeftColor: theme.palette.common.white,
+        color: theme.palette.common.white,
       },
       '& .editor-toolbar': {
         backgroundColor: '#303030',
@@ -46,6 +47,9 @@ const useStyles = makeStyles((theme: Theme) =>
       },
       '& .editor-preview': {
         backgroundColor: theme.palette.background.default,
+      },
+      '& .editor-preview-side': {
+        border: 'none',
       },
     },
   }),
@@ -71,113 +75,116 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
     }
   }, []);
 
-  const getCmInstanceCallback = useCallback((editor: CodeMirror.Editor) => {
-    if (!client || !doc) {
-      return;
-    }
-
-    // eslint-disable-next-line no-param-reassign
-    forwardedRef.current = editor;
-
-    const updateCursor = (clientID: ActorID, pos: CodeMirror.Position) => {
-      const cursor = cursorMapRef.current.get(clientID);
-      cursor?.updateCursor(editor, pos);
-    };
-
-    const updateLine = (clientID: ActorID, fromPos: CodeMirror.Position, toPos: CodeMirror.Position) => {
-      const cursor = cursorMapRef.current.get(clientID);
-      cursor?.updateLine(editor, fromPos, toPos);
-    };
-
-    // 02. display remote cursors
-    doc.subscribe((event: DocEvent) => {
-      if (event.type === 'remote-change') {
-        for (const { change } of event.value) {
-          const actor = change.getID().getActorID()!;
-          if (actor !== client.getID()) {
-            if (!cursorMapRef.current.has(actor)) {
-              return;
-            }
-
-            const cursor = cursorMapRef.current.get(actor);
-            if (cursor!.isActive()) {
-              return;
-            }
-
-            updateCursor(actor, editor.posFromIndex(0));
-          }
-        }
-      }
-    });
-
-    // 03. local to remote
-    editor.on('beforeChange', (instance: CodeMirror.Editor, change: CodeMirror.EditorChange) => {
-      if (change.origin === 'yorkie' || change.origin === 'setValue') {
+  const getCmInstanceCallback = useCallback(
+    (editor: CodeMirror.Editor) => {
+      if (!client || !doc) {
         return;
       }
 
-      const from = editor.indexFromPos(change.from);
-      const to = editor.indexFromPos(change.to);
-      const content = change.text.join('\n');
+      // eslint-disable-next-line no-param-reassign
+      forwardedRef.current = editor;
 
-      doc.update((root) => {
-        root.content.edit(from, to, content);
-      });
-    });
+      const updateCursor = (clientID: ActorID, pos: CodeMirror.Position) => {
+        const cursor = cursorMapRef.current.get(clientID);
+        cursor?.updateCursor(editor, pos);
+      };
 
-    editor.on('beforeSelectionChange', (instance: CodeMirror.Editor, data: CodeMirror.EditorSelectionChange) => {
-      if (!data.origin) {
-        return;
-      }
+      const updateLine = (clientID: ActorID, fromPos: CodeMirror.Position, toPos: CodeMirror.Position) => {
+        const cursor = cursorMapRef.current.get(clientID);
+        cursor?.updateLine(editor, fromPos, toPos);
+      };
 
-      const from = editor.indexFromPos(data.ranges[0].anchor);
-      const to = editor.indexFromPos(data.ranges[0].head);
+      // 02. display remote cursors
+      doc.subscribe((event: DocEvent) => {
+        if (event.type === 'remote-change') {
+          for (const { change } of event.value) {
+            const actor = change.getID().getActorID()!;
+            if (actor !== client.getID()) {
+              if (!cursorMapRef.current.has(actor)) {
+                return;
+              }
 
-      doc.update((root) => {
-        root.content.select(from, to);
-      });
-    });
+              const cursor = cursorMapRef.current.get(actor);
+              if (cursor!.isActive()) {
+                return;
+              }
 
-    // 04. remote to local
-    const root = doc.getRoot();
-    root.content.onChanges((changes) => {
-      changes.forEach((change) => {
-        const { actor, from, to } = change;
-        if (change.type === 'content') {
-          const content = change.content || '';
-
-          if (actor !== client.getID()) {
-            const fromPos = editor.posFromIndex(from);
-            const toPos = editor.posFromIndex(to);
-            editor.replaceRange(content, fromPos, toPos, 'yorkie');
-          }
-        } else if (change.type === 'selection') {
-          if (actor !== client.getID()) {
-            let fromPos = editor.posFromIndex(from);
-            let toPos = editor.posFromIndex(to);
-            updateCursor(actor, toPos);
-
-            if (from > to) {
-              [toPos, fromPos] = [fromPos, toPos];
+              updateCursor(actor, editor.posFromIndex(0));
             }
-            updateLine(actor, fromPos, toPos);
           }
         }
       });
-    });
 
-    editor.addKeyMap(menu.codeKeyMap);
-    editor.setOption('keyMap', menu.codeKeyMap);
-    if (menu.codeKeyMap === 'vim') {
-      editor.addKeyMap('vim-insert');
-      editor.addKeyMap('vim-replace');
-    }
+      // 03. local to remote
+      editor.on('beforeChange', (instance: CodeMirror.Editor, change: CodeMirror.EditorChange) => {
+        if (change.origin === 'yorkie' || change.origin === 'setValue') {
+          return;
+        }
 
-    // 05. initial value
-    editor.setValue(root.content.toString());
-    editor.getDoc().clearHistory();
-    editor.focus();
-  }, [client, doc, menu]);
+        const from = editor.indexFromPos(change.from);
+        const to = editor.indexFromPos(change.to);
+        const content = change.text.join('\n');
+
+        doc.update((root) => {
+          root.content.edit(from, to, content);
+        });
+      });
+
+      editor.on('beforeSelectionChange', (instance: CodeMirror.Editor, data: CodeMirror.EditorSelectionChange) => {
+        if (!data.origin) {
+          return;
+        }
+
+        const from = editor.indexFromPos(data.ranges[0].anchor);
+        const to = editor.indexFromPos(data.ranges[0].head);
+
+        doc.update((root) => {
+          root.content.select(from, to);
+        });
+      });
+
+      // 04. remote to local
+      const root = doc.getRoot();
+      root.content.onChanges((changes) => {
+        changes.forEach((change) => {
+          const { actor, from, to } = change;
+          if (change.type === 'content') {
+            const content = change.content || '';
+
+            if (actor !== client.getID()) {
+              const fromPos = editor.posFromIndex(from);
+              const toPos = editor.posFromIndex(to);
+              editor.replaceRange(content, fromPos, toPos, 'yorkie');
+            }
+          } else if (change.type === 'selection') {
+            if (actor !== client.getID()) {
+              let fromPos = editor.posFromIndex(from);
+              let toPos = editor.posFromIndex(to);
+              updateCursor(actor, toPos);
+
+              if (from > to) {
+                [toPos, fromPos] = [fromPos, toPos];
+              }
+              updateLine(actor, fromPos, toPos);
+            }
+          }
+        });
+      });
+
+      editor.addKeyMap(menu.codeKeyMap);
+      editor.setOption('keyMap', menu.codeKeyMap);
+      if (menu.codeKeyMap === 'vim') {
+        editor.addKeyMap('vim-insert');
+        editor.addKeyMap('vim-replace');
+      }
+
+      // 05. initial value
+      editor.setValue(root.content.toString());
+      editor.getDoc().clearHistory();
+      editor.focus();
+    },
+    [client, doc, menu],
+  );
 
   useEffect(() => {
     for (const [id, peer] of Object.entries(peers)) {
@@ -196,18 +203,34 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
   return (
     <SimpleMDE
       className={menu.theme === ThemeType.Dark ? classes.dark : ''}
+      getCodemirrorInstance={getCmInstanceCallback}
       options={{
         spellChecker: false,
         placeholder: 'Write code here and share...',
         tabSize: Number(menu.tabSize),
         maxHeight: `calc(100vh - ${NAVBAR_HEIGHT + WIDGET_HEIGHT}px)`,
-        toolbar: ['bold', 'italic', 'heading', '|', 'quote', 'code', 'link', '|', 'image', 'table', '|', 'preview', 'side-by-side'],
+        toolbar: [
+          'bold',
+          'italic',
+          '|',
+          'unordered-list',
+          'ordered-list',
+          '|',
+          'code',
+          'link',
+          'image',
+          'table',
+          '|',
+          'side-by-side',
+          'preview',
+          'fullscreen',
+        ],
+        unorderedListStyle: '-',
         status: false,
         shortcuts: {
           toggleUnorderedList: null,
         },
       }}
-      getCodemirrorInstance={getCmInstanceCallback}
     />
   );
 }

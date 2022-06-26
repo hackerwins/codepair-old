@@ -23,6 +23,7 @@ import { ToolType, setTool } from 'features/boardSlices';
 const useStyles = makeStyles((theme) =>
   createStyles({
     root: {
+      marginTop: 60,
       display: 'flex',
       flexDirection: 'column',
     },
@@ -66,17 +67,6 @@ export default function Sidebar() {
 
   return (
     <div className={classes.root}>
-      <Tooltip title="Settings" arrow>
-        <IconButton aria-label="settings" onClick={handleSettingsClick}>
-          <SettingsIcon fontSize="small" />
-        </IconButton>
-      </Tooltip>
-      <Tooltip title="GitHub" arrow className={classes.button}>
-        <IconButton aria-label="selector" href="https://github.com/yorkie-team/codepair">
-          <GitHubIcon fontSize="default" />
-        </IconButton>
-      </Tooltip>
-      <Divider className={classes.divider} />
       <Tooltip title="Code" arrow className={tool === ToolType.None ? classes.select : classes.button}>
         <IconButton aria-label="Code" onClick={handleSelectTool(ToolType.None)}>
           <TextFieldsIcon fontSize="small" />
@@ -99,7 +89,17 @@ export default function Sidebar() {
           <DeleteOutlineIcon fontSize="default" />
         </IconButton>
       </Tooltip>
-
+      <Divider className={classes.divider} />
+      <Tooltip title="Settings" arrow>
+        <IconButton aria-label="settings" onClick={handleSettingsClick}>
+          <SettingsIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="GitHub" arrow className={classes.button}>
+        <IconButton aria-label="selector" href="https://github.com/yorkie-team/codepair">
+          <GitHubIcon fontSize="default" />
+        </IconButton>
+      </Tooltip>
       <Popover anchorEl={anchorEl} onClose={handleSettingsClose}>
         <Settings />
       </Popover>
