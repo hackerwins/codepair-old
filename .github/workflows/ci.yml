@@ -18,11 +18,10 @@ jobs:
         with:
           node-version: '16'
           cache: 'npm'
-          cache-dependency-path: webapp/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install and Build 🔧 
         run: |
-          cd ./webapp
           npm install
           npm run build
 
