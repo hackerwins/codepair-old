@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme: Theme) =>
         borderColor: theme.palette.background.paper,
       },
       '& .editor-toolbar': {
-        backgroundColor: theme.palette.background.paper,
+        backgroundColor: '#303030',
       },
       '& .editor-toolbar > *': {
         color: theme.palette.common.white,
@@ -203,6 +203,9 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
         maxHeight: `calc(100vh - ${NAVBAR_HEIGHT + WIDGET_HEIGHT}px)`,
         toolbar: ['bold', 'italic', 'heading', '|', 'quote', 'code', 'link', '|', 'image', 'table', '|', 'preview', 'side-by-side'],
         status: false,
+        shortcuts: {
+          toggleUnorderedList: null,
+        },
       }}
       getCodemirrorInstance={getCmInstanceCallback}
     />
