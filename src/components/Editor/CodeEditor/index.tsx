@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useCallback } from 'react';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import { ActorID, DocEvent } from 'yorkie-js-sdk';
 import CodeMirror from 'codemirror';
@@ -6,6 +7,7 @@ import SimpleMDE from 'react-simplemde-editor';
 
 import { AppState } from 'app/rootReducer';
 import { ConnectionStatus, Metadata } from 'features/peerSlices';
+import { Theme as ThemeType } from 'features/settingSlices';
 
 import { NAVBAR_HEIGHT } from '../Editor';
 import Cursor from './Cursor';
@@ -18,7 +20,33 @@ interface CodeEditorProps {
   forwardedRef: React.MutableRefObject<CodeMirror.Editor | null>;
 }
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    dark: {
+      '& .CodeMirror': {
+        color: theme.palette.common.white,
+        borderColor: theme.palette.background.paper,
+        backgroundColor: 'inherit',
+      },
+      '& .cm-s-easymde .CodeMirror-cursor': {
+        borderColor: theme.palette.background.paper,
+      },
+      '& .editor-toolbar > *': {
+        color: theme.palette.common.white,
+      },
+      '& .editor-toolbar > .active, .editor-toolbar > button:hover, .editor-preview pre, .cm-s-easymde .cm-comment': {
+        backgroundColor: theme.palette.background.paper,
+      },
+      '& .editor-preview': {
+        backgroundColor: theme.palette.background.default,
+      },
+    },
+  }),
+);
+
 export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
+  const classes = useStyles();
+
   const doc = useSelector((state: AppState) => state.docState.doc);
   const menu = useSelector((state: AppState) => state.settingState.menu);
   const client = useSelector((state: AppState) => state.docState.client);
@@ -153,15 +181,16 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
 
   return (
     <SimpleMDE
+      className={menu.theme === ThemeType.Dark ? classes.dark : ''}
       options={{
         spellChecker: false,
         placeholder: 'Write code here and share...',
         tabSize: Number(menu.tabSize),
         maxHeight: `calc(100vh - ${NAVBAR_HEIGHT + WIDGET_HEIGHT}px)`,
-        toolbar: ['bold', 'italic', 'heading', '|', 'quote', 'code', 'link', '|', 'image', 'table', '|', 'preview', 'side-by-side', 'fullscreen'],
+        sideBySideFullscreen: false,
+        toolbar: ['bold', 'italic', 'heading', '|', 'quote', 'code', 'link', '|', 'image', 'table', '|', 'preview', 'side-by-side'],
         status: false,
       }}
-      className="SimpleMDE"
       getCodemirrorInstance={getCmInstanceCallback}
     />
   );
