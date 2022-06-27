@@ -1,9 +1,10 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useMemo, useRef, useCallback } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import { ActorID, DocEvent } from 'yorkie-js-sdk';
 import CodeMirror from 'codemirror';
-import SimpleMDE from 'react-simplemde-editor';
+import SimpleMDE from 'easymde';
+import SimpleMDEReact from 'react-simplemde-editor';
 
 import { AppState } from 'app/rootReducer';
 import { ConnectionStatus, Metadata } from 'features/peerSlices';
@@ -196,41 +197,41 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
     }
   }, [peers]);
 
-  if (!client || !doc) {
-    return null;
-  }
+  const options = useMemo(() => {
+    return {
+      spellChecker: false,
+      placeholder: 'Write code here and share...',
+      tabSize: Number(menu.tabSize),
+      maxHeight: `calc(100vh - ${NAVBAR_HEIGHT + WIDGET_HEIGHT}px)`,
+      toolbar: [
+        'bold',
+        'italic',
+        '|',
+        'unordered-list',
+        'ordered-list',
+        '|',
+        'code',
+        'link',
+        'image',
+        'table',
+        '|',
+        'side-by-side',
+        'preview',
+        'fullscreen',
+      ],
+      unorderedListStyle: '-',
+      status: false,
+      shortcuts: {
+        toggleUnorderedList: null,
+      },
+    } as SimpleMDE.Options;
+  }, []);
 
   return (
-    <SimpleMDE
+    <SimpleMDEReact
       className={menu.theme === ThemeType.Dark ? classes.dark : ''}
       getCodemirrorInstance={getCmInstanceCallback}
-      options={{
-        spellChecker: false,
-        placeholder: 'Write code here and share...',
-        tabSize: Number(menu.tabSize),
-        maxHeight: `calc(100vh - ${NAVBAR_HEIGHT + WIDGET_HEIGHT}px)`,
-        toolbar: [
-          'bold',
-          'italic',
-          '|',
-          'unordered-list',
-          'ordered-list',
-          '|',
-          'code',
-          'link',
-          'image',
-          'table',
-          '|',
-          'side-by-side',
-          'preview',
-          'fullscreen',
-        ],
-        unorderedListStyle: '-',
-        status: false,
-        shortcuts: {
-          toggleUnorderedList: null,
-        },
-      }}
+      options={options}
     />
   );
 }
