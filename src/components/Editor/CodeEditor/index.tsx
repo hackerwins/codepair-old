@@ -5,6 +5,8 @@ import { ActorID, DocEvent } from 'yorkie-js-sdk';
 import CodeMirror from 'codemirror';
 import SimpleMDE from 'easymde';
 import SimpleMDEReact from 'react-simplemde-editor';
+import { Marpit } from '@marp-team/marpit';
+
 
 import { AppState } from 'app/rootReducer';
 import { ConnectionStatus, Metadata } from 'features/peerSlices';
@@ -18,6 +20,34 @@ import 'easymde/dist/easymde.min.css';
 import 'codemirror/keymap/sublime';
 import 'codemirror/keymap/emacs';
 import 'codemirror/keymap/vim';
+
+const marpit = new Marpit();
+
+// 2. Add theme CSS
+const theme2 = `
+/* @theme example */
+
+section {
+  background-color: #369;
+  color: #fff;
+  font-size: 30px;
+  padding: 40px;
+  margin: 10px;
+  border: 10px solid black;
+}
+
+h1,
+h2 {
+  text-align: center;
+  margin: 0;
+}
+
+h1 {
+  color: #8cf;
+}
+`;
+marpit.themeSet.default = marpit.themeSet.add(theme2);
+
 
 const WIDGET_HEIGHT = 70;
 
@@ -221,6 +251,28 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       ],
       unorderedListStyle: '-',
       status: false,
+      previewRender(markdownPlainText: string, previewElement: HTMLElement): string {
+        const { html, css } = marpit.render(markdownPlainText);
+        const self = this as any;
+        setTimeout(() => {
+
+          // eslint-disable-next-line react/no-this-in-sfc
+          if (!(self).style) {
+            // eslint-disable-next-line react/no-this-in-sfc
+            (self).style = document.createElement('style');
+            document.head.appendChild((self).style);            
+          }
+
+          (this as any).style.innerHTML = css;
+
+
+          // eslint-disable-next-line no-param-reassign
+          previewElement.innerHTML = html;
+
+        }, 20);
+        
+        return null;
+      },
       shortcuts: {
         toggleUnorderedList: null,
       },
