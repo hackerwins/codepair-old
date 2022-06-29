@@ -4,6 +4,11 @@ import anonymous from 'anonymous-animals-gen';
 import randomColor from 'randomcolor';
 import { Metadata } from 'features/peerSlices';
 
+export enum Preview {
+  HTML = 'html',
+  Slide = 'slide',
+}
+
 export enum CodeMode {
   Markdown = 'gfm',
   Go = 'go',
@@ -57,6 +62,7 @@ export type ShapeType = Shape['type'];
 
 export type CodePairDoc = {
   mode: CodeMode;
+  preview: Preview;
   content: PlainText;
   shapes: Array<Shape>;
 };
@@ -87,6 +93,7 @@ export interface DocState {
   client?: Client<Metadata>;
   doc?: DocumentReplica<CodePairDoc>;
   mode: CodeMode;
+  preview: Preview;
   loading: boolean;
   errorMessage: string;
   status: DocStatus;
@@ -94,6 +101,7 @@ export interface DocState {
 
 const initialState: DocState = {
   mode: CodeMode.Markdown,
+  preview: Preview.HTML,
   loading: true,
   errorMessage: '',
   status: DocStatus.Connect,
@@ -175,6 +183,9 @@ const docSlice = createSlice({
     setCodeMode(state, action: PayloadAction<CodeMode>) {
       state.mode = action.payload;
     },
+    setPreview(state, action: PayloadAction<Preview>) {
+      state.preview = action.payload;
+    },
     setStatus(state, action: PayloadAction<DocStatus>) {
       state.status = action.payload;
     },
@@ -201,6 +212,7 @@ export const {
   createDocument,
   detachDocument,
   attachDocLoading,
+  setPreview,
   setCodeMode,
   setStatus,
 } = docSlice.actions;

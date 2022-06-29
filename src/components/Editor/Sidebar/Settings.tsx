@@ -1,4 +1,4 @@
-import React, { useCallback, ChangeEvent } from 'react';
+import React, { useCallback, useEffect, ChangeEvent } from 'react';
 import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import { useSelector, useDispatch } from 'react-redux';
 import Box from '@material-ui/core/Box';
@@ -9,6 +9,7 @@ import Typography from '@material-ui/core/Typography';
 import FormControl from '@material-ui/core/FormControl';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 
+import { Preview, setPreview } from 'features/docSlices';
 import { Theme, CodeKeyMap, TabSize, setDarkMode, setCodeKeyMap, setTabSize } from 'features/settingSlices';
 import { AppState } from 'app/rootReducer';
 
@@ -52,7 +53,41 @@ export default function Settings() {
   const dispatch = useDispatch();
   const classes = useStyles();
 
+  const doc = useSelector((state: AppState) => state.docState.doc);
+  const preview = useSelector((state: AppState) => state.docState.preview);
   const menu = useSelector((state: AppState) => state.settingState.menu);
+
+  useEffect(() => {
+    if (!doc) {
+      return () => {};
+    }
+
+    const unsubscribe = doc.subscribe((event) => {
+      if (event.type === 'remote-change') {
+        dispatch(setPreview(doc.getRoot().preview || Preview.HTML));
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [doc]);
+
+  const handlePreviewChange = useCallback(
+    (event: ChangeEvent<{ name?: string; value: unknown }>) => {
+      if (!doc) {
+        return;
+      }
+      const value = event.target.value as Preview;
+      doc.update((root) => {
+        // eslint-disable-next-line no-param-reassign
+        root.preview = value;
+      });
+
+      dispatch(setPreview(value));
+    },
+    [doc, dispatch],
+  );
 
   function handleChange<T>(action: ActionCreatorWithPayload<T>) {
     return (event: ChangeEvent<{ name?: string; value: unknown }>) => {
@@ -74,6 +109,25 @@ export default function Settings() {
         </header>
       </Box>
       <div className={classes.list}>
+        <div className={classes.item}>
+          <div className={classes.itemTitle}>Preview</div>
+          <FormControl className={classes.itemInfo}>
+            <Select
+              name="preview"
+              value={preview}
+              onChange={handlePreviewChange}
+              displayEmpty
+            >
+              {Object.entries(Preview).map(([display, value]: [string, string]) => {
+                return (
+                  <MenuItem value={value} key={value}>
+                    {display}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+        </div>
         <div className={classes.item}>
           <div className={classes.itemTitle}>Tab Size</div>
           <FormControl className={classes.itemInfo}>

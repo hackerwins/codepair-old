@@ -16,6 +16,7 @@ import {
   attachDocLoading,
   CodeMode,
   setCodeMode,
+  setPreview,
   DocStatus,
   setStatus,
 } from 'features/docSlices';
@@ -109,6 +110,7 @@ export default function (props: { docKey: string }) {
       dispatch(attachDocLoading(true));
       await dispatch(attachDoc({ client, doc }));
       dispatch(setCodeMode(doc.getRoot().mode || CodeMode.Markdown));
+      dispatch(setPreview(doc.getRoot().preview || Preview.HTML));
       dispatch(attachDocLoading(false));
     }
 

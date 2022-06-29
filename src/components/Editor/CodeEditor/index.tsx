@@ -5,19 +5,63 @@ import { ActorID, DocEvent } from 'yorkie-js-sdk';
 import CodeMirror from 'codemirror';
 import SimpleMDE from 'easymde';
 import SimpleMDEReact from 'react-simplemde-editor';
+import { Marpit } from '@marp-team/marpit';
 
 import { AppState } from 'app/rootReducer';
 import { ConnectionStatus, Metadata } from 'features/peerSlices';
 import { Theme as ThemeType } from 'features/settingSlices';
+import { Preview } from 'features/docSlices';
 
 import { NAVBAR_HEIGHT } from '../Editor';
 import Cursor from './Cursor';
 
 import 'easymde/dist/easymde.min.css';
-
 import 'codemirror/keymap/sublime';
 import 'codemirror/keymap/emacs';
 import 'codemirror/keymap/vim';
+
+const marpit = new Marpit();
+const slideTheme = `
+/* @theme example */
+section {
+  width: 100%;
+  background-color: #000;
+  color: #fff;
+  font-size: 30px;
+  padding: 40px;
+  margin: 10px;
+  border: 10px solid black;
+}
+
+h1, h2 {
+  text-align: center;
+  margin: 0;
+}
+
+h1 {
+  color: #fff;
+}
+`;
+marpit.themeSet.default = marpit.themeSet.add(slideTheme);
+
+function renderSlide(markdownPlainText: string, previewElement: HTMLElement): string {
+  const { html, css } = marpit.render(markdownPlainText);
+  // @ts-ignore
+  const self = this as any;
+  setTimeout(() => {
+    if (!self.style) {
+      self.style = document.createElement('style');
+      document.head.appendChild(self.style);            
+    }
+    self.style.innerHTML = css;
+
+    // eslint-disable-next-line no-param-reassign
+    previewElement.innerHTML = html;
+  }, 20);
+
+  // @ts-ignore
+  return null;
+}
 
 const WIDGET_HEIGHT = 70;
 
@@ -60,6 +104,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
   const classes = useStyles();
 
   const doc = useSelector((state: AppState) => state.docState.doc);
+  const preview = useSelector((state: AppState) => state.docState.preview);
   const menu = useSelector((state: AppState) => state.settingState.menu);
   const client = useSelector((state: AppState) => state.docState.client);
   const peers = useSelector((state: AppState) => state.peerState.peers);
@@ -198,7 +243,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
   }, [peers]);
 
   const options = useMemo(() => {
-    return {
+    const opts = {
       spellChecker: false,
       placeholder: 'Write code here and share...',
       tabSize: Number(menu.tabSize),
@@ -225,7 +270,12 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
         toggleUnorderedList: null,
       },
     } as SimpleMDE.Options;
-  }, []);
+
+    if (preview === Preview.Slide) {
+      opts.previewRender = renderSlide;
+    }
+    return opts;
+  }, [preview]);
 
   return (
     <SimpleMDEReact
