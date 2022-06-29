@@ -16,6 +16,7 @@ import {
   attachDocLoading,
   CodeMode,
   setCodeMode,
+  Preview,
   setPreview,
   DocStatus,
   setStatus,

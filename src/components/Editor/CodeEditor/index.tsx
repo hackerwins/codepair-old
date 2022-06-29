@@ -87,7 +87,7 @@ const useStyles = makeStyles((theme: Theme) =>
       '& .editor-toolbar > *': {
         color: theme.palette.common.white,
       },
-      '& .editor-toolbar > .active, .editor-toolbar > button:hover, .editor-preview pre, .cm-s-easymde .cm-comment': {
+      '& .editor-toolbar > .active, .editor-toolbar > button:hover, .editor-preview pre, .cm-s-easymde': {
         backgroundColor: theme.palette.background.paper,
       },
       '& .editor-preview': {
@@ -96,6 +96,24 @@ const useStyles = makeStyles((theme: Theme) =>
       '& .editor-preview-side': {
         border: 'none',
       },
+
+      '& .CodeMirror-line span.cm-keyword': {color: '#f92672'},
+      '& .CodeMirror-line span.cm-atom': {color: '#ae81ff'},
+      '& .CodeMirror-line span.cm-number': {color: '#ae81ff'},
+      '& .CodeMirror-line span.cm-def': {color: '#bc9262'},
+      '& .CodeMirror-line span.cm-variable': {color: '#f8f8f2'},
+      '& .CodeMirror-line span.cm-property': {color: '#a6e22e'},
+      '& .CodeMirror-line span.cm-operator': {color: '#fff'},
+      '& .CodeMirror-line span.cm-string': {color: '#e6db74'},
+      '& .CodeMirror-line span.cm-string-2': {color: '#e6db74'},
+      '& .CodeMirror-line span.cm-meta': {color: '#555'},
+      '& .CodeMirror-line span.cm-error': { background: '#f92672', color: '#f8f8f0' },
+      '& .CodeMirror-line span.cm-qualifier': {color: '#555'},
+      '& .CodeMirror-line span.cm-builtin': {color: '#66d9ef'},
+      '& .CodeMirror-line span.cm-bracket': {color: '#f8f8f2'},
+      '& .CodeMirror-line span.cm-tag': {color: '#bc6283'},
+      '& .CodeMirror-line span.cm-attribute': {color: '#97b757'},
+      '& .CodeMirror-line span.cm-hr': {color: '#999'},
     },
   }),
 );
