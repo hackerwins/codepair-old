@@ -62,7 +62,7 @@ export default function DrawingBoard({ width, height }: { width: number; height:
 
     const clientId = client.getID()!;
     const handleUpdateMeta = (data: BoardMetadata) => {
-      const board = JSON.stringify(data);
+      const board = JSON.stringify(data || '');
       boardRef.current?.updateMetadata(clientId, {
         board,
       } as Metadata);
