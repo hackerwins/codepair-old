@@ -1,8 +1,13 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
-import yorkie, { Client, DocumentReplica, PlainText, TimeTicket } from 'yorkie-js-sdk';
+import yorkie, { Client, Document, Text, TimeTicket } from 'yorkie-js-sdk';
 import anonymous from 'anonymous-animals-gen';
 import randomColor from 'randomcolor';
 import { Metadata } from 'features/peerSlices';
+
+export enum Preview {
+  HTML = 'html',
+  Slide = 'slide',
+}
 
 export enum CodeMode {
   Markdown = 'gfm',
@@ -57,7 +62,8 @@ export type ShapeType = Shape['type'];
 
 export type CodePairDoc = {
   mode: CodeMode;
-  content: PlainText;
+  preview: Preview;
+  content: Text;
   shapes: Array<Shape>;
 };
 
@@ -85,8 +91,9 @@ export enum DocStatus {
 
 export interface DocState {
   client?: Client<Metadata>;
-  doc?: DocumentReplica<CodePairDoc>;
+  doc?: Document<CodePairDoc>;
   mode: CodeMode;
+  preview: Preview;
   loading: boolean;
   errorMessage: string;
   status: DocStatus;
@@ -94,6 +101,7 @@ export interface DocState {
 
 const initialState: DocState = {
   mode: CodeMode.Markdown,
+  preview: Preview.HTML,
   loading: true,
   errorMessage: '',
   status: DocStatus.Connect,
@@ -167,13 +175,16 @@ const docSlice = createSlice({
     detachDocument(state) {
       const { doc, client } = state;
       state.doc = undefined;
-      client?.detach(doc as DocumentReplica<CodePairDoc>);
+      client?.detach(doc as Document<CodePairDoc>);
     },
     attachDocLoading(state, action: PayloadAction<boolean>) {
       state.loading = action.payload;
     },
     setCodeMode(state, action: PayloadAction<CodeMode>) {
       state.mode = action.payload;
+    },
+    setPreview(state, action: PayloadAction<Preview>) {
+      state.preview = action.payload;
     },
     setStatus(state, action: PayloadAction<DocStatus>) {
       state.status = action.payload;
@@ -201,11 +212,12 @@ export const {
   createDocument,
   detachDocument,
   attachDocLoading,
+  setPreview,
   setCodeMode,
   setStatus,
 } = docSlice.actions;
 export default docSlice.reducer;
 
 type ActivateClientResult = { client: Client<Metadata> };
-type AttachDocArgs = { doc: DocumentReplica<CodePairDoc>; client: Client<Metadata> };
-type AttachDocResult = { doc: DocumentReplica<CodePairDoc>; client: Client<Metadata> };
+type AttachDocArgs = { doc: Document<CodePairDoc>; client: Client<Metadata> };
+type AttachDocResult = { doc: Document<CodePairDoc>; client: Client<Metadata> };

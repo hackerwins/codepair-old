@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, ChangeEvent } from 'react';
-import { DocEvent } from 'yorkie-js-sdk';
 import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import { useSelector, useDispatch } from 'react-redux';
 import Box from '@material-ui/core/Box';
@@ -10,7 +9,7 @@ import Typography from '@material-ui/core/Typography';
 import FormControl from '@material-ui/core/FormControl';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 
-import { CodeMode, setCodeMode } from 'features/docSlices';
+import { Preview, setPreview } from 'features/docSlices';
 import { Theme, CodeKeyMap, TabSize, setDarkMode, setCodeKeyMap, setTabSize } from 'features/settingSlices';
 import { AppState } from 'app/rootReducer';
 
@@ -55,7 +54,7 @@ export default function Settings() {
   const classes = useStyles();
 
   const doc = useSelector((state: AppState) => state.docState.doc);
-  const codeMode = useSelector((state: AppState) => state.docState.mode);
+  const preview = useSelector((state: AppState) => state.docState.preview);
   const menu = useSelector((state: AppState) => state.settingState.menu);
 
   useEffect(() => {
@@ -63,9 +62,9 @@ export default function Settings() {
       return () => {};
     }
 
-    const unsubscribe = doc.subscribe((event: DocEvent) => {
+    const unsubscribe = doc.subscribe((event) => {
       if (event.type === 'remote-change') {
-        dispatch(setCodeMode(doc.getRoot().mode || CodeMode.Markdown));
+        dispatch(setPreview(doc.getRoot().preview || Preview.HTML));
       }
     });
 
@@ -74,24 +73,24 @@ export default function Settings() {
     };
   }, [doc]);
 
-  const handleCodeModeChange = useCallback(
+  const handlePreviewChange = useCallback(
     (event: ChangeEvent<{ name?: string; value: unknown }>) => {
       if (!doc) {
         return;
       }
-      const mode = event.target.value as CodeMode;
+      const value = event.target.value as Preview;
       doc.update((root) => {
         // eslint-disable-next-line no-param-reassign
-        root.mode = mode;
+        root.preview = value;
       });
 
-      dispatch(setCodeMode(mode));
+      dispatch(setPreview(value));
     },
     [doc, dispatch],
   );
 
   function handleChange<T>(action: ActionCreatorWithPayload<T>) {
-    return (event: React.ChangeEvent<{ name?: string; value: unknown }>) => {
+    return (event: ChangeEvent<{ name?: string; value: unknown }>) => {
       dispatch(action(event.target.value as T));
     };
   }
@@ -111,18 +110,17 @@ export default function Settings() {
       </Box>
       <div className={classes.list}>
         <div className={classes.item}>
-          <div className={classes.itemTitle}>Code Format</div>
+          <div className={classes.itemTitle}>Preview</div>
           <FormControl className={classes.itemInfo}>
             <Select
-              name="codeMode"
-              value={codeMode}
-              onChange={handleCodeModeChange}
-              disableUnderline
+              name="preview"
+              value={preview}
+              onChange={handlePreviewChange}
               displayEmpty
             >
-              {Object.entries(CodeMode).map(([display, mode]: [string, string]) => {
+              {Object.entries(Preview).map(([display, value]: [string, string]) => {
                 return (
-                  <MenuItem value={mode} key={mode}>
+                  <MenuItem value={value} key={value}>
                     {display}
                   </MenuItem>
                 );

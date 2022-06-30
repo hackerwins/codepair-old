@@ -33,11 +33,11 @@ const useStyles = makeStyles(() =>
       width: `calc(100% - ${SIDEBAR_WIDTH}px)`,
       position: 'fixed',
       /**
-       * z-index
-       * 1:  Show code mirror first
-       * 10: Show canvas first
+       * pointer-events
+       *   - 'auto': Show code mirror first
+       *   - 'none': Show canvas first
        */
-      zIndex: (tool: ToolType) => (tool === ToolType.None ? 1 : 10),
+      pointerEvents: (tool: ToolType) => (tool === ToolType.None ? 'none' : 'auto'),
     },
   }),
 );
