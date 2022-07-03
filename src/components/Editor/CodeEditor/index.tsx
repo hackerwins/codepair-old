@@ -5,7 +5,6 @@ import { ActorID, DocEvent } from 'yorkie-js-sdk';
 import CodeMirror from 'codemirror';
 import SimpleMDE from 'easymde';
 import SimpleMDEReact from 'react-simplemde-editor';
-import { Marpit } from '@marp-team/marpit';
 
 import { AppState } from 'app/rootReducer';
 import { ConnectionStatus, Metadata } from 'features/peerSlices';
@@ -14,72 +13,13 @@ import { Preview } from 'features/docSlices';
 
 import { NAVBAR_HEIGHT } from '../Editor';
 import Cursor from './Cursor';
+import SlideView from './slideView';
 
 import 'easymde/dist/easymde.min.css';
 import 'codemirror/keymap/sublime';
 import 'codemirror/keymap/emacs';
 import 'codemirror/keymap/vim';
-
-const marpit = new Marpit();
-const slideTheme = `
-/* @theme example */
-section {
-  width: 100%;
-  background-color: #000;
-  color: #fff;
-  font-size: 30px;
-  padding: 40px;
-  margin: 10px;
-  border: 10px solid black;
-}
-
-h1, h2 {
-  text-align: center;
-  margin: 0;
-}
-
-h1 {
-  color: #fff;
-}
-`;
-marpit.themeSet.default = marpit.themeSet.add(slideTheme);
-
-// @ts-ignore-start
-CodeMirror.Vim.defineEx('shuf', 'shuf', (cm, params) => {
-  const lineStart = params.line || cm.firstLine();
-  const lineEnd = params.lineEnd || params.line || cm.lastLine();
-  if (lineStart === lineEnd) {
-    return;
-  }
-  const curStart = new CodeMirror.Pos(lineStart, 0);
-  const curEnd = new CodeMirror.Pos(lineEnd, cm.getLine(lineEnd).length);
-  const text = cm.getRange(curStart, curEnd).split('\n');
-  for (let i = text.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [text[i], text[j]] = [text[j], text[i]];
-  }
-  cm.replaceRange(text.join('\n'), curStart, curEnd);
-});
-// @ts-ignore-end
-
-function renderSlide(markdownPlainText: string, previewElement: HTMLElement): string {
-  const { html, css } = marpit.render(markdownPlainText);
-  // @ts-ignore
-  const self = this as any;
-  setTimeout(() => {
-    if (!self.style) {
-      self.style = document.createElement('style');
-      document.head.appendChild(self.style);
-    }
-    self.style.innerHTML = css;
-
-    // eslint-disable-next-line no-param-reassign
-    previewElement.innerHTML = html;
-  }, 20);
-
-  // @ts-ignore
-  return null;
-}
+import './codemirror/shuffle';
 
 const WIDGET_HEIGHT = 70;
 
@@ -176,7 +116,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
         cursor?.updateLine(editor, fromPos, toPos);
       };
 
-      // 02. display remote cursors
+      // display remote cursors
       doc.subscribe((event: DocEvent) => {
         if (event.type === 'remote-change') {
           for (const { change } of event.value) {
@@ -197,7 +137,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
         }
       });
 
-      // 03. local to remote
+      // local to remote
       editor.on('beforeChange', (instance: CodeMirror.Editor, change: CodeMirror.EditorChange) => {
         if (change.origin === 'yorkie' || change.origin === 'setValue') {
           return;
@@ -225,7 +165,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
         });
       });
 
-      // 04. remote to local
+      // remote to local
       const root = doc.getRoot();
       root.content.onChanges((changes) => {
         changes.forEach((change) => {
@@ -255,8 +195,6 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
 
       editor.addKeyMap(menu.codeKeyMap);
       editor.setOption('keyMap', menu.codeKeyMap);
-
-      // 05. initial value
       editor.setValue(root.content.toString());
       editor.getDoc().clearHistory();
       editor.focus();
@@ -304,7 +242,26 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
     } as SimpleMDE.Options;
 
     if (preview === Preview.Slide) {
-      opts.previewRender = renderSlide;
+      const slideView = new SlideView(menu.theme);
+      // eslint-disable-next-line func-names
+      opts.previewRender = function (markdown: string, previewElement: HTMLElement): string {
+        const { html, css } = slideView.render(markdown);
+        // @ts-ignore
+        const self = this as any;
+        setTimeout(() => {
+          if (!self.style) {
+            self.style = document.createElement('style');
+            document.head.appendChild(self.style);
+          }
+          self.style.innerHTML = css;
+
+          // eslint-disable-next-line no-param-reassign
+          previewElement.innerHTML = html;
+        }, 20);
+
+        // @ts-ignore
+        return null;
+      };
     }
     return opts;
   }, [preview]);
