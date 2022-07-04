@@ -51,9 +51,6 @@ const useStyles = makeStyles((theme: Theme) =>
       '& .editor-preview': {
         backgroundColor: theme.palette.background.default,
       },
-      '& .editor-preview-side': {
-        border: 'none',
-      },
 
       '& .CodeMirror-line span.cm-keyword': { color: '#f92672' },
       '& .CodeMirror-line span.cm-atom': { color: '#ae81ff' },
