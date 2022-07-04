@@ -1,6 +1,6 @@
 # CodePair
 
-Real-time collaborative code editor with brush tools for online coding interviews or meetings.
+Real-time markdown editor for interviews, meetings & more...
 
 ![Screenshot](media/screenshot.png)
 
