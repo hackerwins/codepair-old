@@ -10,11 +10,13 @@ import Popover from 'components/commons/Popover';
 import PeerList from 'components/NavBar/PeerList';
 import { AppState } from 'app/rootReducer';
 import usePeer from 'hooks/usePeer';
+import PeerNameInput from './PeerNameInput';
 
 const useStyles = makeStyles((theme) => ({
   group: {
     '& > *': {
       cursor: 'pointer',
+      border: 'none',
     },
   },
   myAvatar: {
@@ -55,14 +57,17 @@ export default function PeerGroup() {
         {activePeers.map((peer) => {
           const { username, color, image } = peer.metadata;
           return (
-            <Tooltip key={peer.id} title={peer.isMine ? `[ME] ${username}` : username} data-id={peer.id} arrow>
-              <Avatar
-                alt="Peer Image"
-                className={peer.isMine ? classes.myAvatar : ''}
-                style={{ backgroundColor: color }}
-                src={anonymous.getImage(image)}
-              />
-            </Tooltip>
+            <div key={peer.id}>
+              <PeerNameInput username={username} color={color} />
+              <Tooltip title={peer.isMine ? `[ME] ${username}` : username} data-id={peer.id} arrow>
+                <Avatar
+                  alt="Peer Image"
+                  className={peer.isMine ? classes.myAvatar : ''}
+                  style={{ backgroundColor: color }}
+                  src={anonymous.getImage(image)}
+                />
+              </Tooltip>
+            </div>
           );
         })}
       </AvatarGroup>
