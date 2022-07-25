@@ -14,6 +14,7 @@ const useStyles = makeStyles((theme: Theme) =>
       flexGrow: 1,
     },
     appBar: {
+      padding: '10px',
       backgroundColor: 'black',
     },
     grow: {
@@ -33,6 +34,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     items: {
       display: 'flex',
+      alignItems: 'center',
       '& > *': {
         margin: theme.spacing(1),
       },

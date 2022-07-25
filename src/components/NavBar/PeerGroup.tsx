@@ -14,9 +14,12 @@ import PeerNameInput from './PeerNameInput';
 
 const useStyles = makeStyles((theme) => ({
   group: {
+    marginLeft: '20px',
     '& > *': {
       cursor: 'pointer',
       border: 'none',
+      display: 'flex',
+      alignItems: 'center',
     },
   },
   myAvatar: {
