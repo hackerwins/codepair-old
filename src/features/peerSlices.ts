@@ -40,7 +40,7 @@ const peerSlice = createSlice({
     syncPeer(state, action: PayloadAction<SyncPeerPayLoad>) {
       const { myClientID, changedPeers } = action.payload;
       const { peers } = state;
-
+      
       for (const clientID of Object.keys(peers)) {
         if (!changedPeers[clientID]) {
           peers[clientID].status = ConnectionStatus.Disconnected;

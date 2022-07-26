@@ -1,8 +1,9 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import Input from 'components/commons/Input';
 import { makeStyles } from '@material-ui/core/styles';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { AppState } from 'app/rootReducer';
+import { syncPeer } from 'features/peerSlices';
 
 const useStyles = makeStyles((theme) => ({
   text: {
@@ -23,8 +24,12 @@ const useStyles = makeStyles((theme) => ({
 
 export default function PeerNameInput() {
   const classes = useStyles();
+  const dispatch = useDispatch();
+
   const [inputValue, setInputValue] = useState('');
   const client = useSelector((state: AppState)=> state.docState.client);
+  const doc = useSelector((state: AppState)=> state.docState.doc);
+  // const peers = useSelector((state: AppState)=> state.peerState.peers);
 
   const handleNameInput = (event: ChangeEvent<HTMLInputElement>) => {
     const {value} = event.currentTarget;
@@ -38,7 +43,21 @@ export default function PeerNameInput() {
   }, []);
 
   useEffect(()=> {
-    client?.updatePresence('username', inputValue);
+    if (!client || !doc) {
+      return;
+    }
+
+    client.updatePresence('username', inputValue);
+    const clientId = client.getID();
+    const documentKey = doc.getKey();
+
+    const changedPeers = client.getPeers(documentKey);
+
+    dispatch(syncPeer({
+      myClientID: clientId || '',
+      changedPeers,
+    }));
+
   }, [inputValue]);
 
 

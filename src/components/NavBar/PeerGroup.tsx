@@ -61,7 +61,7 @@ export default function PeerGroup() {
           const { username, color, image } = peer.metadata;
           return (
             <div key={peer.id}>
-              <PeerNameInput username={username} color={color} />
+              <PeerNameInput />
               <Tooltip title={peer.isMine ? `[ME] ${username}` : username} data-id={peer.id} arrow>
                 <Avatar
                   alt="Peer Image"
