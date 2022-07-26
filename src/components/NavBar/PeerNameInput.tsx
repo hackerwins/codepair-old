@@ -1,11 +1,8 @@
-import React from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import Input from 'components/commons/Input';
 import { makeStyles } from '@material-ui/core/styles';
-
-interface PeerNameInputProps {
-  username: string;
-  color: string;
-}
+import { useSelector } from 'react-redux';
+import { AppState } from 'app/rootReducer';
 
 const useStyles = makeStyles((theme) => ({
   text: {
@@ -24,19 +21,31 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function PeerNameInput({username, color}: PeerNameInputProps) {
+export default function PeerNameInput() {
   const classes = useStyles();
-  const onChangeInput = () => {
-    console.log('onChangeInput');
-    console.log({username, color});
+  const [inputValue, setInputValue] = useState('');
+  const client = useSelector((state: AppState)=> state.docState.client);
+
+  const handleNameInput = (event: ChangeEvent<HTMLInputElement>) => {
+    const {value} = event.currentTarget;
+    setInputValue(value);
   };
 
-  const inputValue = username;
+  useEffect(()=> {
+    const currentName = client?.getPresence().username;
+    if (!currentName) return;
+    setInputValue(currentName);
+  }, []);
+
+  useEffect(()=> {
+    client?.updatePresence('username', inputValue);
+  }, [inputValue]);
+
 
   return (
     <div className={classes.inputWrapper}>
       <aside className={classes.text}>What should we call you?</aside>
-      <Input id="peer-name-input" className={classes.input} value={inputValue} onChange={onChangeInput} />
+      <Input id="peer-name-input" className={classes.input} value={inputValue} onChange={handleNameInput} />
     </div>
   );
 }

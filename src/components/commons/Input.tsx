@@ -4,7 +4,7 @@ import { Input as MaterialInput } from '@material-ui/core';
 interface InputProps {
   id: string;
   className: string;
-  onChange: (event: ChangeEvent) => void;
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   value: string;
   type?: string;
   color?: 'primary' | 'secondary';
