@@ -113,6 +113,34 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
         cursor?.updateLine(editor, fromPos, toPos);
       };
 
+      const setOnChangesHandler = () => {
+        doc.getRoot().content.onChanges((changes) => {
+          changes.forEach((change) => {
+            const { actor, from, to } = change;
+            if (change.type === 'content') {
+              const content = change.content || '';
+
+              if (actor !== client.getID()) {
+                const fromPos = editor.posFromIndex(from);
+                const toPos = editor.posFromIndex(to);
+                editor.replaceRange(content, fromPos, toPos, 'yorkie');
+              }
+            } else if (change.type === 'selection') {
+              if (actor !== client.getID()) {
+                let fromPos = editor.posFromIndex(from);
+                let toPos = editor.posFromIndex(to);
+                updateCursor(actor, toPos);
+
+                if (from > to) {
+                  [toPos, fromPos] = [fromPos, toPos];
+                }
+                updateLine(actor, fromPos, toPos);
+              }
+            }
+          });
+        });
+      };
+
       // display remote cursors
       doc.subscribe((event: DocEvent) => {
         if (event.type === 'remote-change') {
@@ -131,6 +159,9 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
               updateCursor(actor, editor.posFromIndex(0));
             }
           }
+        } else if (event.type === 'snapshot') {
+          setOnChangesHandler();
+          editor.setValue(doc.getRoot().content.toString());
         }
       });
 
@@ -163,36 +194,11 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       });
 
       // remote to local
-      const root = doc.getRoot();
-      root.content.onChanges((changes) => {
-        changes.forEach((change) => {
-          const { actor, from, to } = change;
-          if (change.type === 'content') {
-            const content = change.content || '';
-
-            if (actor !== client.getID()) {
-              const fromPos = editor.posFromIndex(from);
-              const toPos = editor.posFromIndex(to);
-              editor.replaceRange(content, fromPos, toPos, 'yorkie');
-            }
-          } else if (change.type === 'selection') {
-            if (actor !== client.getID()) {
-              let fromPos = editor.posFromIndex(from);
-              let toPos = editor.posFromIndex(to);
-              updateCursor(actor, toPos);
-
-              if (from > to) {
-                [toPos, fromPos] = [fromPos, toPos];
-              }
-              updateLine(actor, fromPos, toPos);
-            }
-          }
-        });
-      });
+      setOnChangesHandler();
 
       editor.addKeyMap(menu.codeKeyMap);
       editor.setOption('keyMap', menu.codeKeyMap);
-      editor.setValue(root.content.toString());
+      editor.setValue(doc.getRoot().content.toString());
       editor.getDoc().clearHistory();
       editor.focus();
     },
