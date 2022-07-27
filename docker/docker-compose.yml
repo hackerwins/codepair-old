@@ -26,10 +26,6 @@ services:
     container_name: 'yorkie'
     command: [
       'server',
-      '--backend-snapshot-threshold',
-      '2',
-      '--backend-snapshot-interval',
-      '2',
     ]
     restart: always
     ports:
