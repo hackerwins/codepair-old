@@ -63,8 +63,6 @@ export default function Sidebar() {
     setAnchorEl(undefined);
   }, []);
 
-
-
   return (
     <div className={classes.root}>
       <Tooltip title="Code" arrow className={tool === ToolType.None ? classes.select : classes.button}>
