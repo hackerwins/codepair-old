@@ -3,7 +3,7 @@
   "parserOptions": {
     "project": "./tsconfig.json"
   },
-  "extends": ["airbnb-typescript", "prettier", "plugin:@typescript-eslint/eslint-recommended"],
+  "extends": ["react-app", "airbnb", "airbnb-typescript", "plugin:prettier/recommended"],
   "rules": {
     "no-restricted-syntax": 0,
     "no-continue": 0,
@@ -12,5 +12,5 @@
     "class-methods-use-this": 0,
     "import/prefer-default-export": 0
   },
-  "plugins": ["@typescript-eslint"]
+  "plugins": ["@typescript-eslint", "prettier"]
 }
