@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useCallback } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
-import { ActorID, DocEvent } from 'yorkie-js-sdk';
+import { ActorID, DocEvent, TextChange } from 'yorkie-js-sdk';
 import CodeMirror from 'codemirror';
 import SimpleMDE from 'easymde';
 import SimpleMDEReact from 'react-simplemde-editor';
@@ -113,37 +113,11 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
         cursor?.updateLine(editor, fromPos, toPos);
       };
 
-      const setOnChangesHandler = () => {
-        doc.getRoot().content.onChanges((changes) => {
-          changes.forEach((change) => {
-            const { actor, from, to } = change;
-            if (change.type === 'content') {
-              const content = change.content || '';
+      let syncText = () => {};
 
-              if (actor !== client.getID()) {
-                const fromPos = editor.posFromIndex(from);
-                const toPos = editor.posFromIndex(to);
-                editor.replaceRange(content, fromPos, toPos, 'yorkie');
-              }
-            } else if (change.type === 'selection') {
-              if (actor !== client.getID()) {
-                let fromPos = editor.posFromIndex(from);
-                let toPos = editor.posFromIndex(to);
-                updateCursor(actor, toPos);
-
-                if (from > to) {
-                  [toPos, fromPos] = [fromPos, toPos];
-                }
-                updateLine(actor, fromPos, toPos);
-              }
-            }
-          });
-        });
-      };
-
-      // display remote cursors
       doc.subscribe((event: DocEvent) => {
         if (event.type === 'remote-change') {
+          // display remote cursors
           for (const { change } of event.value) {
             const actor = change.getID().getActorID()!;
             if (actor !== client.getID()) {
@@ -160,8 +134,8 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
             }
           }
         } else if (event.type === 'snapshot') {
-          setOnChangesHandler();
-          editor.setValue(doc.getRoot().content.toString());
+          // re-sync for the new text from the snapshot
+          syncText();
         }
       });
 
@@ -194,11 +168,39 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       });
 
       // remote to local
-      setOnChangesHandler();
+      const changeEventHandler = (changes: TextChange[]) => {
+        changes.forEach((change) => {
+          const { actor, from, to } = change;
+          if (change.type === 'content') {
+            const content = change.content || '';
+            if (actor !== client.getID()) {
+              const fromPos = editor.posFromIndex(from);
+              const toPos = editor.posFromIndex(to);
+              editor.replaceRange(content, fromPos, toPos, 'yorkie');
+            }
+          } else if (change.type === 'selection') {
+            if (actor !== client.getID()) {
+              let fromPos = editor.posFromIndex(from);
+              let toPos = editor.posFromIndex(to);
+              updateCursor(actor, toPos);
+              if (from > to) {
+                [toPos, fromPos] = [fromPos, toPos];
+              }
+              updateLine(actor, fromPos, toPos);
+            }
+          }
+        });
+      };
 
+      // sync text of document and editor
+      syncText = () => {
+        const text = doc.getRoot().content;
+        text.onChanges(changeEventHandler);
+        editor.setValue(text.toString());
+      };
+      syncText();
       editor.addKeyMap(menu.codeKeyMap);
-      editor.setOption('keyMap', menu.codeKeyMap);
-      editor.setValue(doc.getRoot().content.toString());
+      editor.setOption('keyMap', menu.codeKeyMap);  
       editor.getDoc().clearHistory();
       editor.focus();
     },
