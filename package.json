@@ -42,7 +42,6 @@
     "husky": "^4.2.5",
     "invert-color": "^2.0.0",
     "lint-staged": "^10.3.0",
-    "sass": "^1.54.3",
     "prettier": "^2.1.1",
     "randomcolor": "^0.6.2",
     "react": "^16.13.1",
@@ -56,6 +55,7 @@
     "react-simplemde-editor": "^5.0.2",
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
+    "sass": "^1.54.3",
     "typescript": "^3.7.5",
     "yorkie-js-sdk": "^0.2.12"
   },
@@ -99,5 +99,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "fsevents": "^2.3.2"
   }
 }
