@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useRef, useCallback } from 'react';
+import React, { useEffect, useMemo, useRef, useCallback, useState } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
-import { ActorID, DocEvent } from 'yorkie-js-sdk';
+import { ActorID, DocEvent, TextChange } from 'yorkie-js-sdk';
 import CodeMirror from 'codemirror';
 import SimpleMDE from 'easymde';
 import SimpleMDEReact from 'react-simplemde-editor';
@@ -82,6 +82,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
   const client = useSelector((state: AppState) => state.docState.client);
   const peers = useSelector((state: AppState) => state.peerState.peers);
   const cursorMapRef = useRef<Map<ActorID, Cursor>>(new Map());
+  const [editor, setEditor] = useState<CodeMirror.Editor|null>(null);
 
   const connectCursor = useCallback((clientID: ActorID, metadata: Metadata) => {
     cursorMapRef.current.set(clientID, new Cursor(clientID, metadata));
@@ -94,110 +95,9 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
     }
   }, []);
 
-  const getCmInstanceCallback = useCallback(
-    (editor: CodeMirror.Editor) => {
-      if (!client || !doc) {
-        return;
-      }
-
-      // eslint-disable-next-line no-param-reassign
-      forwardedRef.current = editor;
-
-      const updateCursor = (clientID: ActorID, pos: CodeMirror.Position) => {
-        const cursor = cursorMapRef.current.get(clientID);
-        cursor?.updateCursor(editor, pos);
-      };
-
-      const updateLine = (clientID: ActorID, fromPos: CodeMirror.Position, toPos: CodeMirror.Position) => {
-        const cursor = cursorMapRef.current.get(clientID);
-        cursor?.updateLine(editor, fromPos, toPos);
-      };
-
-      // display remote cursors
-      doc.subscribe((event: DocEvent) => {
-        if (event.type === 'remote-change') {
-          for (const { change } of event.value) {
-            const actor = change.getID().getActorID()!;
-            if (actor !== client.getID()) {
-              if (!cursorMapRef.current.has(actor)) {
-                return;
-              }
-
-              const cursor = cursorMapRef.current.get(actor);
-              if (cursor!.isActive()) {
-                return;
-              }
-
-              updateCursor(actor, editor.posFromIndex(0));
-            }
-          }
-        }
-      });
-
-      // local to remote
-      editor.on('beforeChange', (instance: CodeMirror.Editor, change: CodeMirror.EditorChange) => {
-        if (change.origin === 'yorkie' || change.origin === 'setValue') {
-          return;
-        }
-
-        const from = editor.indexFromPos(change.from);
-        const to = editor.indexFromPos(change.to);
-        const content = change.text.join('\n');
-
-        doc.update((root) => {
-          root.content.edit(from, to, content);
-        });
-      });
-
-      editor.on('beforeSelectionChange', (instance: CodeMirror.Editor, data: CodeMirror.EditorSelectionChange) => {
-        if (!data.origin) {
-          return;
-        }
-
-        const from = editor.indexFromPos(data.ranges[0].anchor);
-        const to = editor.indexFromPos(data.ranges[0].head);
-
-        doc.update((root) => {
-          root.content.select(from, to);
-        });
-      });
-
-      // remote to local
-      const root = doc.getRoot();
-      root.content.onChanges((changes) => {
-        changes.forEach((change) => {
-          const { actor, from, to } = change;
-          if (change.type === 'content') {
-            const content = change.content || '';
-
-            if (actor !== client.getID()) {
-              const fromPos = editor.posFromIndex(from);
-              const toPos = editor.posFromIndex(to);
-              editor.replaceRange(content, fromPos, toPos, 'yorkie');
-            }
-          } else if (change.type === 'selection') {
-            if (actor !== client.getID()) {
-              let fromPos = editor.posFromIndex(from);
-              let toPos = editor.posFromIndex(to);
-              updateCursor(actor, toPos);
-
-              if (from > to) {
-                [toPos, fromPos] = [fromPos, toPos];
-              }
-              updateLine(actor, fromPos, toPos);
-            }
-          }
-        });
-      });
-
-      editor.addKeyMap(menu.codeKeyMap);
-      editor.setOption('keyMap', menu.codeKeyMap);
-      editor.setValue(root.content.toString());
-      editor.getDoc().clearHistory();
-      editor.focus();
-    },
-    [client, doc, menu],
-  );
+  const getCmInstanceCallback = useCallback((cm: CodeMirror.Editor) => {
+    setEditor(cm);
+  }, []);
 
   useEffect(() => {
     for (const [id, peer] of Object.entries(peers)) {
@@ -208,6 +108,116 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       }
     }
   }, [peers]);
+
+  useEffect(() => {
+    if (!client || !doc || !editor) {
+      return;
+    }
+
+    // eslint-disable-next-line no-param-reassign
+    forwardedRef.current = editor;
+
+    const updateCursor = (clientID: ActorID, pos: CodeMirror.Position) => {
+      const cursor = cursorMapRef.current.get(clientID);
+      cursor?.updateCursor(editor, pos);
+    };
+
+    const updateLine = (clientID: ActorID, fromPos: CodeMirror.Position, toPos: CodeMirror.Position) => {
+      const cursor = cursorMapRef.current.get(clientID);
+      cursor?.updateLine(editor, fromPos, toPos);
+    };
+
+    let syncText = () => {};
+
+    doc.subscribe((event: DocEvent) => {
+      if (event.type === 'remote-change') {
+        // display remote cursors
+        for (const { change } of event.value) {
+          const actor = change.getID().getActorID()!;
+          if (actor !== client.getID()) {
+            if (!cursorMapRef.current.has(actor)) {
+              return;
+            }
+
+            const cursor = cursorMapRef.current.get(actor);
+            if (cursor!.isActive()) {
+              return;
+            }
+
+            updateCursor(actor, editor.posFromIndex(0));
+          }
+        }
+      } else if (event.type === 'snapshot') {
+        // re-sync for the new text from the snapshot
+        syncText();
+      }
+    });
+
+    // local to remote
+    editor.on('beforeChange', (instance: CodeMirror.Editor, change: CodeMirror.EditorChange) => {
+      if (change.origin === 'yorkie' || change.origin === 'setValue') {
+        return;
+      }
+
+      const from = editor.indexFromPos(change.from);
+      const to = editor.indexFromPos(change.to);
+      const content = change.text.join('\n');
+
+      doc.update((root) => {
+        root.content.edit(from, to, content);
+      });
+    });
+
+    editor.on('beforeSelectionChange', (instance: CodeMirror.Editor, data: CodeMirror.EditorSelectionChange) => {
+      if (!data.origin) {
+        return;
+      }
+
+      const from = editor.indexFromPos(data.ranges[0].anchor);
+      const to = editor.indexFromPos(data.ranges[0].head);
+
+      doc.update((root) => {
+        root.content.select(from, to);
+      });
+    });
+
+    // remote to local
+    const changeEventHandler = (changes: TextChange[]) => {
+      changes.forEach((change) => {
+        const { actor, from, to } = change;
+        if (change.type === 'content') {
+          const content = change.content || '';
+          if (actor !== client.getID()) {
+            const fromPos = editor.posFromIndex(from);
+            const toPos = editor.posFromIndex(to);
+            editor.replaceRange(content, fromPos, toPos, 'yorkie');
+          }
+        } else if (change.type === 'selection') {
+          if (actor !== client.getID()) {
+            let fromPos = editor.posFromIndex(from);
+            let toPos = editor.posFromIndex(to);
+            updateCursor(actor, toPos);
+            if (from > to) {
+              [toPos, fromPos] = [fromPos, toPos];
+            }
+            updateLine(actor, fromPos, toPos);
+          }
+        }
+      });
+    };
+
+    // sync text of document and editor
+    syncText = () => {
+      const text = doc.getRoot().content;
+      text.onChanges(changeEventHandler);
+      editor.setValue(text.toString());
+    };
+    syncText();
+    editor.addKeyMap(menu.codeKeyMap);
+    editor.setOption('keyMap', menu.codeKeyMap);  
+    editor.getDoc().clearHistory();
+    editor.focus();
+  }, [editor]);
 
   const options = useMemo(() => {
     const opts = {
