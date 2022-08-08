@@ -14,9 +14,7 @@ export default function usePeer() {
     if (!client) {
       return [];
     }
-    return Object
-      .values(peers)
-      .filter((peer) => peer.status === ConnectionStatus.Connected);
+    return Object.values(peers).filter((peer) => peer.status === ConnectionStatus.Connected);
   }, [client, peers]);
 
   return { activePeers };
