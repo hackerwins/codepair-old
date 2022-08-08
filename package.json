@@ -46,6 +46,7 @@
     "react-simplemde-editor": "^5.0.2",
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
+    "sass": "^1.54.3",
     "typescript": "^3.7.5",
     "yorkie-js-sdk": "^0.2.15"
   },
@@ -103,5 +104,8 @@
     "eslint-plugin-react": "^7.30.1",
     "eslint-plugin-react-hooks": "^4.6.0",
     "prettier": "^2.7.1"
+  },
+  "optionalDependencies": {
+    "fsevents": "^2.3.2"
   }
 }
