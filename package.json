@@ -59,6 +59,9 @@
     "typescript": "^3.7.5",
     "yorkie-js-sdk": "^0.2.14"
   },
+  "devDependencies": {
+    "fsevents": "^2.3.2"
+  },
   "scripts": {
     "start": "REACT_APP_GIT_HASH=`git rev-parse --short HEAD` react-scripts start",
     "build": "REACT_APP_GIT_HASH=`git rev-parse --short HEAD` react-scripts build",
@@ -99,8 +102,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "fsevents": "^2.3.2"
   }
 }
