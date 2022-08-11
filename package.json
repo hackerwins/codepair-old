@@ -42,7 +42,6 @@
     "husky": "^4.2.5",
     "invert-color": "^2.0.0",
     "lint-staged": "^10.3.0",
-    "node-sass": "^6.0.1",
     "prettier": "^2.1.1",
     "randomcolor": "^0.6.2",
     "react": "^16.13.1",
@@ -56,8 +55,12 @@
     "react-simplemde-editor": "^5.0.2",
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
+    "sass": "^1.54.3",
     "typescript": "^3.7.5",
     "yorkie-js-sdk": "^0.2.15"
+  },
+  "devDependencies": {
+    "fsevents": "^2.3.2"
   },
   "scripts": {
     "start": "REACT_APP_GIT_HASH=`git rev-parse --short HEAD` react-scripts start",
