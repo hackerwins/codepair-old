@@ -48,9 +48,7 @@ function App() {
     [menu],
   );
 
-  const handleRender = useCallback(() => {
-    return <Redirect to={`/${Math.random().toString(36).substring(7)}`} />;
-  }, []);
+  const handleRender = useCallback(() => <Redirect to={`/${Math.random().toString(36).substring(7)}`} />, []);
 
   return (
     <ThemeProvider theme={theme}>

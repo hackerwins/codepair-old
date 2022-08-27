@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useMemo, useRef, useCallback, useState } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
@@ -82,7 +83,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
   const client = useSelector((state: AppState) => state.docState.client);
   const peers = useSelector((state: AppState) => state.peerState.peers);
   const cursorMapRef = useRef<Map<ActorID, Cursor>>(new Map());
-  const [editor, setEditor] = useState<CodeMirror.Editor|null>(null);
+  const [editor, setEditor] = useState<CodeMirror.Editor | null>(null);
 
   const connectCursor = useCallback((clientID: ActorID, metadata: Metadata) => {
     cursorMapRef.current.set(clientID, new Cursor(clientID, metadata));
@@ -214,7 +215,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
     };
     syncText();
     editor.addKeyMap(menu.codeKeyMap);
-    editor.setOption('keyMap', menu.codeKeyMap);  
+    editor.setOption('keyMap', menu.codeKeyMap);
     editor.getDoc().clearHistory();
     editor.focus();
   }, [editor]);

@@ -2,7 +2,6 @@ import { Color } from 'features/boardSlices';
 import fitCurve from 'fit-curve';
 import { Line, Point, EraserLine } from 'features/docSlices';
 
-
 type CanvasLine = Pick<Line, 'type' | 'points' | 'color'>;
 
 type CanvasEraser = Pick<EraserLine, 'type' | 'points'>;
@@ -54,11 +53,7 @@ export function drawLine(context: CanvasRenderingContext2D, line: CanvasLine) {
   context.moveTo(firstCurve[0][0], firstCurve[0][1]);
 
   for (const curve of curves) {
-    context.bezierCurveTo(
-      curve[1][0], curve[1][1],
-      curve[2][0], curve[2][1],
-      curve[3][0], curve[3][1],
-    );
+    context.bezierCurveTo(curve[1][0], curve[1][1], curve[2][0], curve[2][1], curve[3][0], curve[3][1]);
   }
 
   context.stroke();

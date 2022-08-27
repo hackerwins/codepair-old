@@ -48,10 +48,14 @@ function MenuAppBar() {
       <AppBar position="static" className={classes.appBar}>
         <Toolbar>
           <Typography variant="h6" className={classes.title}>
-            <Link href="/" underline="none">CodePair</Link>
+            <Link href="/" underline="none">
+              CodePair
+            </Link>
           </Typography>
           <Typography className={classes.yorkie}>
-            <a href="https://yorkie.dev" target="_blank" rel="noreferrer">Powered by Yorkie</a>
+            <a href="https://yorkie.dev" target="_blank" rel="noreferrer">
+              Powered by Yorkie
+            </a>
           </Typography>
           <NetworkButton />
           <div className={classes.grow} />

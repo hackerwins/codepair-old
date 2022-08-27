@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, ChangeEvent } from 'react';
 import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import { useSelector, useDispatch } from 'react-redux';
@@ -95,9 +96,12 @@ export default function Settings() {
     };
   }
 
-  const handleThemeChanged = useCallback((input, checked) => {
-    dispatch(setDarkMode(checked));
-  }, [dispatch, setDarkMode]);
+  const handleThemeChanged = useCallback(
+    (input, checked) => {
+      dispatch(setDarkMode(checked));
+    },
+    [dispatch, setDarkMode],
+  );
 
   return (
     <div className={classes.root}>
@@ -112,12 +116,7 @@ export default function Settings() {
         <div className={classes.item}>
           <div className={classes.itemTitle}>Preview</div>
           <FormControl className={classes.itemInfo}>
-            <Select
-              name="preview"
-              value={preview}
-              onChange={handlePreviewChange}
-              displayEmpty
-            >
+            <Select name="preview" value={preview} onChange={handlePreviewChange} displayEmpty>
               {Object.entries(Preview).map(([display, value]: [string, string]) => {
                 return (
                   <MenuItem value={value} key={value}>

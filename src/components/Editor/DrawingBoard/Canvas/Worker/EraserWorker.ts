@@ -41,7 +41,6 @@ class EraserWorker extends Worker {
         const pointStart = fixEraserPoint(points[0]);
         const pointEnd = fixEraserPoint(points[points.length - 1]);
 
-
         const findAndRemoveShape = (point1: Point, point2: Point) => {
           for (const shape of root.shapes) {
             if (shape.type === 'eraser') {

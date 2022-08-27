@@ -15,13 +15,13 @@ class NoneWorker extends Worker {
     this.board = board;
   }
 
-  mousedown() { }
+  mousedown() {}
 
-  mousemove() { }
+  mousemove() {}
 
-  mouseup() { }
+  mouseup() {}
 
-  flushTask() { }
+  flushTask() {}
 }
 
 export default NoneWorker;
