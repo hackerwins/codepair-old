@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, ChangeEvent } from 'react';
 import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import { useSelector, useDispatch } from 'react-redux';
