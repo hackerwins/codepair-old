@@ -28,9 +28,11 @@ export interface SettingState {
 
 const SettingModel = new BrowserStorage<SettingState>('$$codepair$$setting');
 
+const prefersDark: boolean = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
 const initialState: SettingState = SettingModel.getValue({
   menu: {
-    theme: Theme.Light,
+    theme: prefersDark ? Theme.Dark : Theme.Light,
     codeKeyMap: CodeKeyMap.Sublime,
     tabSize: TabSize.Two,
   },
