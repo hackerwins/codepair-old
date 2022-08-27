@@ -1,5 +1,6 @@
 {
   "rules": {
-    "no-param-reassign": ["error", { "props": false }]
+    "no-param-reassign": ["error", { "props": false }],
+    "react-hooks/exhaustive-deps": ["warn"]
   }
 }
