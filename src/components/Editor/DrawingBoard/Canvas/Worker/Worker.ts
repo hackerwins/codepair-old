@@ -2,7 +2,7 @@ import { TimeTicket } from 'yorkie-js-sdk';
 import { ToolType, Color } from 'features/boardSlices';
 import { Root, Shape, Point } from 'features/docSlices';
 
-export type Options = { color: Color; };
+export type Options = { color: Color };
 
 export type BoardMetadata = {
   eraserPoints?: Point[];

@@ -25,7 +25,7 @@ export interface PeerState {
 }
 
 export interface SyncPeerPayLoad {
-  myClientID: ActorID,
+  myClientID: ActorID;
   changedPeers: Record<string, Metadata>;
 }
 

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useRef, ReactNode } from 'react';
 import MaterialFade from '@material-ui/core/Fade';
 

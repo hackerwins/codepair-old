@@ -33,3 +33,11 @@ CodePair is deployed to AWS and the configuration is shown below. This repositor
  ㄴ codepair.yorkie.dev - [gh-pages] # for serving static pages
  ㄴ api.yorkie.dev      - [EKS]      # for serving API
 ```
+
+## Contributors ✨
+
+Thanks goes to these incredible people:
+
+<a href="https://github.com/yorkie-team/codepair/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=yorkie-team/codepair" />
+</a>

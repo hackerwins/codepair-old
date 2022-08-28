@@ -32,18 +32,11 @@
     "codemirror": "^5.58.1",
     "easymde": "hackerwins/easy-markdown-editor#master",
     "eslint-config-airbnb-typescript": "^12.0.0",
-    "eslint-config-prettier": "^6.15.0",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-jsx-a11y": "^6.4.1",
-    "eslint-plugin-react": "^7.21.5",
-    "eslint-plugin-react-hooks": "^4.2.0",
     "fit-curve": "^0.2.0",
     "history": "^4.9.0",
     "husky": "^4.2.5",
     "invert-color": "^2.0.0",
     "lint-staged": "^10.3.0",
-    "node-sass": "^6.0.1",
-    "prettier": "^2.1.1",
     "randomcolor": "^0.6.2",
     "react": "^16.13.1",
     "react-copy-to-clipboard": "^5.0.3",
@@ -56,8 +49,12 @@
     "react-simplemde-editor": "^5.0.2",
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
+    "sass": "^1.54.3",
     "typescript": "^3.7.5",
-    "yorkie-js-sdk": "^0.2.12"
+    "yorkie-js-sdk": "^0.2.15"
+  },
+  "devDependencies": {
+    "fsevents": "^2.3.2"
   },
   "scripts": {
     "start": "REACT_APP_GIT_HASH=`git rev-parse --short HEAD` react-scripts start",
@@ -99,5 +96,16 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jsx-a11y": "^6.6.1",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react": "^7.30.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "prettier": "^2.7.1"
   }
 }
