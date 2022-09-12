@@ -53,9 +53,6 @@
     "typescript": "^3.7.5",
     "yorkie-js-sdk": "^0.2.15"
   },
-  "devDependencies": {
-    "fsevents": "^2.3.2"
-  },
   "scripts": {
     "start": "REACT_APP_GIT_HASH=`git rev-parse --short HEAD` react-scripts start",
     "build": "REACT_APP_GIT_HASH=`git rev-parse --short HEAD` react-scripts build",
@@ -106,6 +103,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.30.1",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "prettier": "^2.7.1"
+    "prettier": "^2.7.1",
+	"fsevents": "^2.3.2"
   }
 }
