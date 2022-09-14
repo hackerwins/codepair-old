@@ -104,6 +104,6 @@
     "eslint-plugin-react": "^7.30.1",
     "eslint-plugin-react-hooks": "^4.6.0",
     "prettier": "^2.7.1",
-	"fsevents": "^2.3.2"
+    "fsevents": "^2.3.2"
   }
 }
