@@ -49,11 +49,8 @@
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
     "sass": "^1.54.3",
-    "typescript": "^3.7.5",
+    "typescript": "^4.8.3",
     "yorkie-js-sdk": "^0.2.15"
-  },
-  "devDependencies": {
-    "fsevents": "^2.3.2"
   },
   "scripts": {
     "start": "REACT_APP_GIT_HASH=`git rev-parse --short HEAD` react-scripts start",
@@ -105,6 +102,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.30.1",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "fsevents": "^2.3.2",
     "prettier": "^2.7.1"
   }
 }

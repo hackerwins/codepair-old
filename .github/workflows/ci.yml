@@ -5,9 +5,7 @@ on:
     branches: [ main ]
 
 jobs:
-
-  build:
-    name: build
+  ci:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
@@ -20,8 +18,11 @@ jobs:
           cache: 'npm'
           cache-dependency-path: package-lock.json
 
-      - name: Install and Build 🔧 
-        run: |
-          npm install -f
-          npm run build
+      - name: Install npm dependencies 🔧
+        run: npm install
 
+      - name: Run Lint Check
+        run: npm run lint
+
+      - name: Run Type Check
+        run: npx tsc
