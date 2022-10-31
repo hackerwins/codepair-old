@@ -28,6 +28,20 @@ export function createEraserLine(point: Point): EraserLine {
 }
 
 /**
+ * drawTrace draws a trace of the line
+ */
+export function drawTrace(context: CanvasRenderingContext2D, line: CanvasLine) {
+  const { points, color } = line;
+  context.strokeStyle = color;
+  context.beginPath();
+  context.moveTo(points[0].x, points[0].y);
+  for (let i = 1; i < points.length; i += 1) {
+    context.lineTo(points[i].x, points[i].y);
+  }
+  context.stroke();
+}
+
+/**
  * drawLine draws a line with bezier curves.
  */
 export function drawLine(context: CanvasRenderingContext2D, line: CanvasLine) {

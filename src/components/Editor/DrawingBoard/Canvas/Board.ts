@@ -4,7 +4,7 @@ import EventDispatcher from 'utils/eventDispatcher';
 import { Metadata } from 'features/peerSlices';
 
 import CanvasWrapper from './CanvasWrapper';
-import { drawLine, drawEraser } from './line';
+import { drawLine, drawEraser, drawTrace } from './line';
 import { drawRect } from './rect';
 import { addEvent, removeEvent, touchy, TouchyEvent } from './dom';
 import { Worker, NoneWorker, LineWorker, EraserWorker, RectWorker, SelectorWorker, BoardMetadata } from './Worker';
@@ -215,7 +215,9 @@ export default class Board extends EventDispatcher {
     touchy(this.upperWrapper.getCanvas(), removeEvent, 'mousemove', this.onMouseMove);
     this.dragStatus = DragStatus.Stop;
 
-    this.worker.mouseup();
+    this.worker.mouseup((boardMetadata: BoardMetadata) => {
+      this.emit('mousedown', boardMetadata);
+    });
     this.emit('mouseup');
   }
 
@@ -235,12 +237,15 @@ export default class Board extends EventDispatcher {
     this.metadataMap.set(peerKey, JSON.parse(metadata.board || '{}'));
 
     for (const boardMetadata of this.metadataMap.values()) {
-      const { eraserPoints } = boardMetadata;
+      const { eraserPoints, line } = boardMetadata;
       if (eraserPoints && eraserPoints.length > 0) {
         drawEraser(this.lowerWrapper.getContext(), {
           type: 'eraser',
           points: eraserPoints,
         });
+      }
+      if (line && line.points.length > 0) {
+        drawTrace(this.lowerWrapper.getContext(), line);
       }
     }
   }

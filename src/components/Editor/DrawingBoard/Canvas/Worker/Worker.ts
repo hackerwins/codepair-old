@@ -1,16 +1,20 @@
 import { TimeTicket } from 'yorkie-js-sdk';
 import { ToolType, Color } from 'features/boardSlices';
-import { Root, Shape, Point } from 'features/docSlices';
+import { Root, Shape, Point, Line, Rect } from 'features/docSlices';
 
 export type Options = { color: Color };
 
 export type BoardMetadata = {
   eraserPoints?: Point[];
+  line?: Omit<Line, 'getID'>;
+  rect?: Omit<Rect, 'getID'>;
 };
 
 export type MouseDownCallback = (boardMetadata: BoardMetadata) => void;
 
 export type MouseMoveCallback = (boardMetadata: BoardMetadata) => void;
+
+export type MouseUpCallback = (boardMetadata: BoardMetadata) => void;
 
 abstract class Worker {
   constructor(options?: Options) {
@@ -27,7 +31,7 @@ abstract class Worker {
 
   abstract mousemove(point: Point, callback?: MouseMoveCallback): void;
 
-  abstract mouseup(): void;
+  abstract mouseup(callback?: MouseUpCallback): void;
 
   abstract flushTask(): void;
 
