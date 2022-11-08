@@ -4,17 +4,17 @@ import { Root, Shape, Point, Line, Rect } from 'features/docSlices';
 
 export type Options = { color: Color };
 
-export type BoardMetadata = {
+export type BoardPresence = {
   eraserPoints?: Point[];
   line?: Omit<Line, 'getID'>;
   rect?: Omit<Rect, 'getID'>;
 };
 
-export type MouseDownCallback = (boardMetadata: BoardMetadata) => void;
+export type MouseDownCallback = (boardPresence: BoardPresence) => void;
 
-export type MouseMoveCallback = (boardMetadata: BoardMetadata) => void;
+export type MouseMoveCallback = (boardPresence: BoardPresence) => void;
 
-export type MouseUpCallback = (boardMetadata: BoardMetadata) => void;
+export type MouseUpCallback = (boardPresence: BoardPresence) => void;
 
 abstract class Worker {
   constructor(options?: Options) {

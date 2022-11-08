@@ -1,4 +1,4 @@
-export type { default as Worker, BoardMetadata } from './Worker';
+export type { default as Worker, BoardPresence } from './Worker';
 export { default as LineWorker } from './LineWorker';
 export { default as RectWorker } from './RectWorker';
 export { default as EraserWorker } from './EraserWorker';

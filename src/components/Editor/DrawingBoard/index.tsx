@@ -1,11 +1,10 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { AppState } from 'app/rootReducer';
 import { ToolType, setTool } from 'features/boardSlices';
-import { Metadata } from 'features/peerSlices';
-import { BoardMetadata } from './Canvas/Worker';
+import { Presence } from 'features/peerSlices';
+import { BoardPresence } from './Canvas/Worker';
 import Board from './Canvas/Board';
 
 export default function DrawingBoard({ width, height }: { width: number; height: number }) {
@@ -56,17 +55,17 @@ export default function DrawingBoard({ width, height }: { width: number; height:
         const changedPeers = event.value[documentKey];
 
         for (const peerKey of Object.keys(changedPeers)) {
-          boardRef.current?.updateMetadata(peerKey, changedPeers[peerKey]);
+          boardRef.current?.updatePresence(peerKey, changedPeers[peerKey]);
         }
       }
     });
 
     const clientId = client.getID()!;
-    const handleUpdateMeta = (data: BoardMetadata) => {
+    const handleUpdateMeta = (data: BoardPresence) => {
       const board = JSON.stringify(data || '');
-      boardRef.current?.updateMetadata(clientId, {
+      boardRef.current?.updatePresence(clientId, {
         board,
-      } as Metadata);
+      } as Presence);
       client?.updatePresence('board', board);
     };
 
@@ -82,7 +81,7 @@ export default function DrawingBoard({ width, height }: { width: number; height:
       boardRef.current?.removeEventListener('mouseout', handleUpdateMeta);
       boardRef.current?.removeEventListener('mouseup', handleUpdateMeta);
     };
-  }, [doc]);
+  }, [client, doc]);
 
   useEffect(() => {
     const handleMouseup = () => {
@@ -95,7 +94,7 @@ export default function DrawingBoard({ width, height }: { width: number; height:
     return () => {
       boardRef.current?.removeEventListener('mouseup', handleMouseup);
     };
-  }, [doc, tool]);
+  }, [doc, tool, dispatch]);
 
   useEffect(() => {
     if (!canvasRef.current) {
@@ -120,7 +119,7 @@ export default function DrawingBoard({ width, height }: { width: number; height:
       boardRef.current?.clearBoard();
       dispatch(setTool(ToolType.None));
     }
-  }, [doc, tool]);
+  }, [doc, tool, dispatch]);
 
   return <canvas ref={canvasRef} />;
 }
