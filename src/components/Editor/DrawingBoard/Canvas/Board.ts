@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ToolType, Color } from 'features/boardSlices';
 import { Point, Shape, Root } from 'features/docSlices';
 import EventDispatcher from 'utils/eventDispatcher';
@@ -228,24 +229,26 @@ export default class Board extends EventDispatcher {
   }
 
   updateMetadata(peerKey: string, metadata: Metadata) {
-    this.clear(this.lowerWrapper);
-
-    this.update((root: Root) => {
-      this.drawAll(root.shapes);
-    });
+    this.clear(this.upperWrapper);
 
     this.metadataMap.set(peerKey, JSON.parse(metadata.board || '{}'));
 
     for (const boardMetadata of this.metadataMap.values()) {
-      const { eraserPoints, line } = boardMetadata;
+      const { eraserPoints, line, rect } = boardMetadata;
       if (eraserPoints && eraserPoints.length > 0) {
-        drawEraser(this.lowerWrapper.getContext(), {
+        drawEraser(this.upperWrapper.getContext(), {
           type: 'eraser',
           points: eraserPoints,
         });
       }
       if (line && line.points.length > 0) {
-        drawTrace(this.lowerWrapper.getContext(), line);
+        drawTrace(this.upperWrapper.getContext(), line);
+      }
+      if (rect && rect.box.height !== 0 && rect.box.width !== 0) {
+        drawRect(this.upperWrapper.getContext(), rect);
+      }
+      if (!eraserPoints && !line && !rect) {
+        this.clear(this.upperWrapper);
       }
     }
   }
