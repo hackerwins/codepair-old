@@ -10,7 +10,7 @@ interface PeerListItemProps {
 
 const useStyles = makeStyles(() => ({
   root: (props: PeerListItemProps) => ({
-    color: props.peer.metadata.color,
+    color: props.peer.presence.color,
   }),
 }));
 
@@ -18,5 +18,5 @@ export default function PeerListItem(props: PeerListItemProps) {
   const classes = useStyles(props);
   const { peer } = props;
 
-  return <ListItem className={classes.root}>{peer.metadata.username}</ListItem>;
+  return <ListItem className={classes.root}>{peer.presence.username}</ListItem>;
 }

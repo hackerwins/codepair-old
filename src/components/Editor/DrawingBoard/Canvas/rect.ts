@@ -6,6 +6,8 @@ export interface RectOptions {
   color: Color;
 }
 
+type CanvasRect = Pick<Rect, 'type' | 'color' | 'box'>;
+
 /**
  * Create the basic object of the rect with point.
  */
@@ -26,7 +28,7 @@ export function createRect(point: Point, options: RectOptions): Rect {
 /**
  * Draw a rect on the canvas.
  */
-export function drawRect(context: CanvasRenderingContext2D, rect: Rect) {
+export function drawRect(context: CanvasRenderingContext2D, rect: CanvasRect) {
   context.save();
   context.strokeStyle = rect.color;
   context.strokeRect(rect.box.x, rect.box.y, rect.box.width, rect.box.height);

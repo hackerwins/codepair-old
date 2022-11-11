@@ -3,8 +3,7 @@ import { Root, Point, Rect } from 'features/docSlices';
 import { ToolType } from 'features/boardSlices';
 import Board from 'components/Editor/DrawingBoard/Canvas/Board';
 import { createRect, adjustRectBox } from '../rect';
-import Worker, { Options } from './Worker';
-import * as scheduler from '../scheduler';
+import Worker, { MouseMoveCallback, MouseUpCallback, Options } from './Worker';
 
 class RectWorker extends Worker {
   type = ToolType.Rect;
@@ -15,53 +14,51 @@ class RectWorker extends Worker {
 
   private createID?: TimeTicket;
 
+  private previewRect: Omit<Rect, 'getID'>;
+
   constructor(update: Function, board: Board, options: Options) {
     super(options);
     this.update = update;
     this.board = board;
+    this.previewRect = {
+      type: 'rect',
+      color: this.options!.color,
+      box: {
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0,
+      },
+      points: [],
+    };
   }
 
   mousedown(point: Point): void {
-    let timeTicket: TimeTicket;
-
-    this.update((root: Root) => {
-      const shape = createRect(point, this.options!);
-      root.shapes.push(shape);
-
-      const lastShape = root.shapes.getLast();
-      timeTicket = lastShape.getID();
-    });
-
-    this.createID = timeTicket!;
+    this.previewRect = createRect(point, this.options!);
   }
 
-  mousemove(point: Point) {
-    scheduler.reserveTask(point, (tasks: Array<scheduler.Task>) => {
-      if (tasks.length < 2) {
-        return;
-      }
-
-      this.update((root: Root) => {
-        const lastPoint = tasks[tasks.length - 1];
-        const lastShape = this.getElementByID(root, this.createID!) as Rect;
-        if (!lastShape) {
-          return;
-        }
-
-        const box = adjustRectBox(lastShape, lastPoint);
-        lastShape.box = box;
-
-        this.board.drawAll(root.shapes);
-      });
-    });
+  mousemove(point: Point, callback: MouseMoveCallback) {
+    const box = adjustRectBox(this.previewRect as Rect, point);
+    this.previewRect.box = box;
+    callback({ rect: { ...this.previewRect } });
   }
 
-  mouseup() {
+  mouseup(callback: MouseUpCallback) {
     this.flushTask();
+    this.previewRect = { ...this.previewRect, box: { x: 0, y: 0, height: 0, width: 0 }, points: [] };
+    callback({});
   }
 
   flushTask() {
-    scheduler.flushTask();
+    if (this.previewRect.box.width !== 0 && this.previewRect.box.height !== 0) {
+      this.update((root: Root) => {
+        root.shapes.push(this.previewRect as Rect);
+
+        const lastShape = root.shapes.getLast();
+        this.createID = lastShape.getID();
+        this.board.drawAll(root.shapes);
+      });
+    }
   }
 }
 

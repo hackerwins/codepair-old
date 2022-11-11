@@ -2,7 +2,7 @@ import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import yorkie, { Client, Document, Text, TimeTicket } from 'yorkie-js-sdk';
 import anonymous from 'anonymous-animals-gen';
 import randomColor from 'randomcolor';
-import { Metadata } from 'features/peerSlices';
+import { Presence } from 'features/peerSlices';
 
 export enum Preview {
   HTML = 'html',
@@ -90,7 +90,7 @@ export enum DocStatus {
 }
 
 export interface DocState {
-  client?: Client<Metadata>;
+  client?: Client<Presence>;
   doc?: Document<CodePairDoc>;
   mode: CodeMode;
   preview: Preview;
@@ -218,6 +218,6 @@ export const {
 } = docSlice.actions;
 export default docSlice.reducer;
 
-type ActivateClientResult = { client: Client<Metadata> };
-type AttachDocArgs = { doc: Document<CodePairDoc>; client: Client<Metadata> };
-type AttachDocResult = { doc: Document<CodePairDoc>; client: Client<Metadata> };
+type ActivateClientResult = { client: Client<Presence> };
+type AttachDocArgs = { doc: Document<CodePairDoc>; client: Client<Presence> };
+type AttachDocResult = { doc: Document<CodePairDoc>; client: Client<Presence> };

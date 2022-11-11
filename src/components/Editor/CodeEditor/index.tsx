@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useMemo, useRef, useCallback, useState } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
@@ -8,7 +7,7 @@ import SimpleMDE from 'easymde';
 import SimpleMDEReact from 'react-simplemde-editor';
 
 import { AppState } from 'app/rootReducer';
-import { ConnectionStatus, Metadata } from 'features/peerSlices';
+import { ConnectionStatus, Presence } from 'features/peerSlices';
 import { Theme as ThemeType } from 'features/settingSlices';
 import { Preview } from 'features/docSlices';
 
@@ -85,8 +84,8 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
   const cursorMapRef = useRef<Map<ActorID, Cursor>>(new Map());
   const [editor, setEditor] = useState<CodeMirror.Editor | null>(null);
 
-  const connectCursor = useCallback((clientID: ActorID, metadata: Metadata) => {
-    cursorMapRef.current.set(clientID, new Cursor(clientID, metadata));
+  const connectCursor = useCallback((clientID: ActorID, presence: Presence) => {
+    cursorMapRef.current.set(clientID, new Cursor(clientID, presence));
   }, []);
 
   const disconnectCursor = useCallback((clientID: ActorID) => {
@@ -105,10 +104,10 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       if (cursorMapRef.current.has(id) && peer.status === ConnectionStatus.Disconnected) {
         disconnectCursor(id);
       } else if (!cursorMapRef.current.has(id) && peer.status === ConnectionStatus.Connected) {
-        connectCursor(id, peer.metadata);
+        connectCursor(id, peer.presence);
       }
     }
-  }, [peers]);
+  }, [peers, connectCursor, disconnectCursor]);
 
   useEffect(() => {
     if (!client || !doc || !editor) {
@@ -218,7 +217,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
     editor.setOption('keyMap', menu.codeKeyMap);
     editor.getDoc().clearHistory();
     editor.focus();
-  }, [editor]);
+  }, [client, doc, editor, forwardedRef, menu]);
 
   const options = useMemo(() => {
     const opts = {
@@ -272,7 +271,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       };
     }
     return opts;
-  }, [preview]);
+  }, [preview, menu]);
 
   return (
     <SimpleMDEReact

@@ -1,7 +1,7 @@
 import { ActorID } from 'yorkie-js-sdk';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export interface Metadata {
+export interface Presence {
   username: string;
   color: string;
   image: string; // Currently all anonymous images
@@ -16,7 +16,7 @@ export enum ConnectionStatus {
 export interface Peer {
   id: ActorID;
   status: ConnectionStatus;
-  metadata: Metadata;
+  presence: Presence;
   isMine: boolean;
 }
 
@@ -26,7 +26,7 @@ export interface PeerState {
 
 export interface SyncPeerPayLoad {
   myClientID: ActorID;
-  changedPeers: Record<string, Metadata>;
+  changedPeers: Record<string, Presence>;
 }
 
 const initialPeerState: PeerState = {
@@ -47,12 +47,12 @@ const peerSlice = createSlice({
         }
       }
 
-      for (const [clientID, metadata] of Object.entries(changedPeers)) {
+      for (const [clientID, presence] of Object.entries(changedPeers)) {
         if (!peers[clientID] || peers[clientID].status === ConnectionStatus.Disconnected) {
           const peer = {
             id: clientID,
             status: ConnectionStatus.Connected,
-            metadata,
+            presence,
             isMine: myClientID === clientID,
           };
           state.peers[clientID] = peer;

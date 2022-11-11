@@ -1,6 +1,6 @@
 import { ActorID } from 'yorkie-js-sdk';
 import invert from 'invert-color';
-import { Metadata } from 'features/peerSlices';
+import { Presence } from 'features/peerSlices';
 
 enum CursorStatus {
   Deactivated = 'deactivated',
@@ -31,10 +31,10 @@ export default class Cursor {
 
   private nameRemoveTime: number;
 
-  constructor(id: ActorID, metadata: Metadata) {
+  constructor(id: ActorID, presence: Presence) {
     this.id = id;
-    this.username = metadata.username;
-    this.color = metadata.color;
+    this.username = presence.username;
+    this.color = presence.color;
     this.height = 0;
     this.status = CursorStatus.Deactivated;
 
