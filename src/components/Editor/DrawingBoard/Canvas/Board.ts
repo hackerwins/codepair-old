@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ToolType, Color } from 'features/boardSlices';
 import { Point, Shape } from 'features/docSlices';
 import EventDispatcher from 'utils/eventDispatcher';
