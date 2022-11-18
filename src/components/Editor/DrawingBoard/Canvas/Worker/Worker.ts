@@ -16,8 +16,6 @@ export type MouseMoveCallback = (boardPresence: BoardPresence) => void;
 
 export type MouseUpCallback = (boardPresence: BoardPresence) => void;
 
-export type MouseUpCallback = (boardMetadata: BoardMetadata) => void;
-
 abstract class Worker {
   constructor(options?: Options) {
     this.options = options;
