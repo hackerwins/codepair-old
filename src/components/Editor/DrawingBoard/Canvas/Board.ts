@@ -246,9 +246,6 @@ export default class Board extends EventDispatcher {
       if (rect && rect.box.height !== 0 && rect.box.width !== 0) {
         drawRect(this.upperWrapper.getContext(), rect);
       }
-      if (!eraserPoints && !line && !rect) {
-        this.clear(this.upperWrapper);
-      }
     }
   }
 
