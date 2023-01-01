@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import ReactGA from 'react-ga';
+import ReactGA from 'react-ga4';
 import App from 'app/App';
 import store from 'app/store';
 
