@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { RouteComponentProps } from 'react-router';
 import { useLocation } from 'react-router-dom';
-import ReactGA from 'react-ga';
+import ReactGA from 'react-ga4';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 
 import NavBar from 'components/NavBar';
@@ -29,8 +29,7 @@ export default function DocPage(props: RouteComponentProps<DocPageProps>) {
 
   useEffect(() => {
     if (`${process.env.REACT_APP_GOOGLE_ANALYTICS}`) {
-      ReactGA.set({ page: location.pathname });
-      ReactGA.pageview(location.pathname);
+      ReactGA.send('pageview');
     }
   }, [location]);
 
