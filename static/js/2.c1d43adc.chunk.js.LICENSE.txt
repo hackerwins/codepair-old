@@ -1,0 +1,854 @@
+/*
+object-assign
+(c) Sindre Sorhus
+@license MIT
+*/
+
+/*!
+           * The buffer module from node.js, for the browser.
+           *
+           * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+           * @license  MIT
+           */
+
+/*!
+           * The buffer module from node.js, for the browser.
+           *
+           * @author   Feross Aboukhadijeh <https://feross.org>
+           * @license  MIT
+           */
+
+/*!
+ * 
+ * yorkie-js-sdk for building collaborative editing applications.
+ *  - Version: v0.2.15
+ *  - Date: 2022-08-08T04:25Z
+ *  - Homepage: https://yorkie.dev
+ *
+ * Copyright 2020 The Yorkie Authors. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+/*!
+ * The buffer module from node.js, for the browser.
+ *
+ * @author   Feross Aboukhadijeh <http://feross.org>
+ * @license  MIT
+ */
+
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+***************************************************************************** */
+
+/*! ../../util/error */
+
+/*! ../../util/heap */
+
+/*! ../../util/llrb_tree */
+
+/*! ../../util/logger */
+
+/*! ../../util/splay_tree */
+
+/*! ../../yorkie/v1/resources_pb.js */
+
+/*! ../api/converter */
+
+/*! ../api/yorkie/v1/resources_pb */
+
+/*! ../api/yorkie/v1/yorkie_grpc_web_pb */
+
+/*! ../api/yorkie/v1/yorkie_pb */
+
+/*! ../assert */
+
+/*! ../crdt/array */
+
+/*! ../crdt/counter */
+
+/*! ../crdt/element */
+
+/*! ../crdt/object */
+
+/*! ../crdt/primitive */
+
+/*! ../crdt/rga_tree_split */
+
+/*! ../crdt/rich_text */
+
+/*! ../crdt/text */
+
+/*! ../document/change/change */
+
+/*! ../document/change/change_id */
+
+/*! ../document/change/change_pack */
+
+/*! ../document/change/checkpoint */
+
+/*! ../document/crdt/array */
+
+/*! ../document/crdt/counter */
+
+/*! ../document/crdt/object */
+
+/*! ../document/crdt/primitive */
+
+/*! ../document/crdt/rga_tree_list */
+
+/*! ../document/crdt/rga_tree_split */
+
+/*! ../document/crdt/rht_pq_map */
+
+/*! ../document/crdt/rich_text */
+
+/*! ../document/crdt/text */
+
+/*! ../document/operation/add_operation */
+
+/*! ../document/operation/edit_operation */
+
+/*! ../document/operation/increase_operation */
+
+/*! ../document/operation/move_operation */
+
+/*! ../document/operation/remove_operation */
+
+/*! ../document/operation/rich_edit_operation */
+
+/*! ../document/operation/select_operation */
+
+/*! ../document/operation/set_operation */
+
+/*! ../document/operation/style_operation */
+
+/*! ../document/time/ticket */
+
+/*! ../errors */
+
+/*! ../json/strings */
+
+/*! ../operation/add_operation */
+
+/*! ../operation/edit_operation */
+
+/*! ../operation/increase_operation */
+
+/*! ../operation/move_operation */
+
+/*! ../operation/remove_operation */
+
+/*! ../operation/rich_edit_operation */
+
+/*! ../operation/select_operation */
+
+/*! ../operation/set_operation */
+
+/*! ../operation/style_operation */
+
+/*! ../time/actor_id */
+
+/*! ../time/ticket */
+
+/*! ../util/error */
+
+/*! ../util/logger */
+
+/*! ../util/observable */
+
+/*! ../util/trie */
+
+/*! ../util/uuid */
+
+/*! ./ */
+
+/*! ./actor_id */
+
+/*! ./api/converter */
+
+/*! ./array */
+
+/*! ./auth */
+
+/*! ./change */
+
+/*! ./change/change_id */
+
+/*! ./change/change_pack */
+
+/*! ./change/checkpoint */
+
+/*! ./change/context */
+
+/*! ./comparator */
+
+/*! ./core/client */
+
+/*! ./counter */
+
+/*! ./crdt/root */
+
+/*! ./document/change/change */
+
+/*! ./document/crdt/primitive */
+
+/*! ./document/crdt/rga_tree_split */
+
+/*! ./document/document */
+
+/*! ./document/json/counter */
+
+/*! ./document/json/rich_text */
+
+/*! ./document/json/text */
+
+/*! ./document/time/ticket */
+
+/*! ./element */
+
+/*! ./implementation */
+
+/*! ./internal/assert/assertion_error */
+
+/*! ./internal/errors */
+
+/*! ./internal/util/comparisons */
+
+/*! ./isArguments */
+
+/*! ./json/element */
+
+/*! ./logger */
+
+/*! ./node_modules/buffer/index.js */
+
+/*! ./node_modules/console-browserify/index.js */
+
+/*! ./node_modules/process/browser.js */
+
+/*! ./object */
+
+/*! ./operation */
+
+/*! ./polyfill */
+
+/*! ./primitive */
+
+/*! ./rga_tree_list */
+
+/*! ./rga_tree_split */
+
+/*! ./rht */
+
+/*! ./rht_pq_map */
+
+/*! ./rich_text */
+
+/*! ./shams */
+
+/*! ./shim */
+
+/*! ./support/isBuffer */
+
+/*! ./support/types */
+
+/*! ./text */
+
+/*! ./yorkie/v1/resources_pb */
+
+/*! ./yorkie_pb.js */
+
+/*! @license https://github.com/onury/invert-color */
+
+/*! assert */
+
+/*! available-typed-arrays */
+
+/*! base64-js */
+
+/*! call-bind */
+
+/*! call-bind/callBound */
+
+/*! define-properties */
+
+/*! es-abstract/helpers/getOwnPropertyDescriptor */
+
+/*! es6-object-assign */
+
+/*! foreach */
+
+/*! function-bind */
+
+/*! get-intrinsic */
+
+/*! google-protobuf */
+
+/*! google-protobuf/google/protobuf/timestamp_pb.js */
+
+/*! google-protobuf/google/protobuf/wrappers_pb.js */
+
+/*! grpc-web */
+
+/*! has */
+
+/*! has-symbols */
+
+/*! has-symbols/shams */
+
+/*! has-tostringtag/shams */
+
+/*! https://mths.be/cssesc v3.0.0 by @mathias */
+
+/*! https://mths.be/punycode v1.4.1 by @mathias */
+
+/*! ieee754 */
+
+/*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
+
+/*! inherits */
+
+/*! is-arguments */
+
+/*! is-generator-function */
+
+/*! is-nan */
+
+/*! is-typed-array */
+
+/*! js-yaml 4.1.0 https://github.com/nodeca/js-yaml @license MIT */
+
+/*! long */
+
+/*! object-is */
+
+/*! object-keys */
+
+/*! util */
+
+/*! util/ */
+
+/*! which-typed-array */
+
+/*!***********************!*\
+          !*** ./src/yorkie.ts ***!
+          \***********************/
+
+/*!**************************!*\
+          !*** ./src/core/auth.ts ***!
+          \**************************/
+
+/*!**************************!*\
+          !*** ./src/util/heap.ts ***!
+          \**************************/
+
+/*!**************************!*\
+          !*** ./src/util/trie.ts ***!
+          \**************************/
+
+/*!**************************!*\
+          !*** ./src/util/uuid.ts ***!
+          \**************************/
+
+/*!***************************!*\
+          !*** ./src/util/error.ts ***!
+          \***************************/
+
+/*!****************************!*\
+          !*** ./src/core/client.ts ***!
+          \****************************/
+
+/*!****************************!*\
+          !*** ./src/util/logger.ts ***!
+          \****************************/
+
+/*!******************************!*\
+          !*** ./src/api/converter.ts ***!
+          \******************************/
+
+/*!*******************************!*\
+          !*** ./src/util/llrb_tree.ts ***!
+          \*******************************/
+
+/*!********************************!*\
+          !*** ./src/util/comparator.ts ***!
+          \********************************/
+
+/*!********************************!*\
+          !*** ./src/util/observable.ts ***!
+          \********************************/
+
+/*!********************************!*\
+          !*** ./src/util/splay_tree.ts ***!
+          \********************************/
+
+/*!**********************************!*\
+          !*** ./src/document/crdt/rht.ts ***!
+          \**********************************/
+
+/*!**********************************!*\
+          !*** ./src/document/document.ts ***!
+          \**********************************/
+
+/*!***********************************!*\
+          !*** ./node_modules/util/util.js ***!
+          \***********************************/
+
+/*!***********************************!*\
+          !*** ./src/document/crdt/root.ts ***!
+          \***********************************/
+
+/*!***********************************!*\
+          !*** ./src/document/crdt/text.ts ***!
+          \***********************************/
+
+/*!***********************************!*\
+          !*** ./src/document/json/text.ts ***!
+          \***********************************/
+
+/*!************************************!*\
+          !*** ./node_modules/long/index.js ***!
+          \************************************/
+
+/*!************************************!*\
+          !*** ./src/document/crdt/array.ts ***!
+          \************************************/
+
+/*!************************************!*\
+          !*** ./src/document/json/array.ts ***!
+          \************************************/
+
+/*!*************************************!*\
+          !*** ./node_modules/is-nan/shim.js ***!
+          \*************************************/
+
+/*!*************************************!*\
+          !*** ./src/document/crdt/object.ts ***!
+          \*************************************/
+
+/*!*************************************!*\
+          !*** ./src/document/json/object.ts ***!
+          \*************************************/
+
+/*!*************************************!*\
+          !*** ./src/document/time/ticket.ts ***!
+          \*************************************/
+
+/*!**************************************!*\
+          !*** ./node_modules/buffer/index.js ***!
+          \**************************************/
+
+/*!**************************************!*\
+          !*** ./node_modules/is-nan/index.js ***!
+          \**************************************/
+
+/*!**************************************!*\
+          !*** ./src/document/crdt/counter.ts ***!
+          \**************************************/
+
+/*!**************************************!*\
+          !*** ./src/document/crdt/element.ts ***!
+          \**************************************/
+
+/*!**************************************!*\
+          !*** ./src/document/json/counter.ts ***!
+          \**************************************/
+
+/*!**************************************!*\
+          !*** ./src/document/json/element.ts ***!
+          \**************************************/
+
+/*!**************************************!*\
+          !*** ./src/document/json/strings.ts ***!
+          \**************************************/
+
+/*!***************************************!*\
+          !*** ./node_modules/foreach/index.js ***!
+          \***************************************/
+
+/*!***************************************!*\
+          !*** ./node_modules/has/src/index.js ***!
+          \***************************************/
+
+/*!***************************************!*\
+          !*** ./node_modules/ieee754/index.js ***!
+          \***************************************/
+
+/*!***************************************!*\
+          !*** ./src/document/change/change.ts ***!
+          \***************************************/
+
+/*!***************************************!*\
+          !*** ./src/document/time/actor_id.ts ***!
+          \***************************************/
+
+/*!****************************************!*\
+          !*** ./node_modules/grpc-web/index.js ***!
+          \****************************************/
+
+/*!****************************************!*\
+          !*** ./node_modules/object-is/shim.js ***!
+          \****************************************/
+
+/*!****************************************!*\
+          !*** ./src/api/yorkie/v1/yorkie_pb.js ***!
+          \****************************************/
+
+/*!****************************************!*\
+          !*** ./src/document/change/context.ts ***!
+          \****************************************/
+
+/*!****************************************!*\
+          !*** ./src/document/crdt/primitive.ts ***!
+          \****************************************/
+
+/*!****************************************!*\
+          !*** ./src/document/crdt/rich_text.ts ***!
+          \****************************************/
+
+/*!****************************************!*\
+          !*** ./src/document/json/rich_text.ts ***!
+          \****************************************/
+
+/*!*****************************************!*\
+          !*** ./node_modules/base64-js/index.js ***!
+          \*****************************************/
+
+/*!*****************************************!*\
+          !*** ./node_modules/call-bind/index.js ***!
+          \*****************************************/
+
+/*!*****************************************!*\
+          !*** ./node_modules/is-nan/polyfill.js ***!
+          \*****************************************/
+
+/*!*****************************************!*\
+          !*** ./node_modules/object-is/index.js ***!
+          \*****************************************/
+
+/*!*****************************************!*\
+          !*** ./node_modules/process/browser.js ***!
+          \*****************************************/
+
+/*!*****************************************!*\
+          !*** ./src/document/crdt/rht_pq_map.ts ***!
+          \*****************************************/
+
+/*!******************************************!*\
+          !*** ./src/document/change/change_id.ts ***!
+          \******************************************/
+
+/*!*******************************************!*\
+          !*** ./node_modules/has-symbols/index.js ***!
+          \*******************************************/
+
+/*!*******************************************!*\
+          !*** ./node_modules/has-symbols/shams.js ***!
+          \*******************************************/
+
+/*!*******************************************!*\
+          !*** ./node_modules/object-keys/index.js ***!
+          \*******************************************/
+
+/*!*******************************************!*\
+          !*** ./src/api/yorkie/v1/resources_pb.js ***!
+          \*******************************************/
+
+/*!*******************************************!*\
+          !*** ./src/document/change/checkpoint.ts ***!
+          \*******************************************/
+
+/*!********************************************!*\
+          !*** ./node_modules/is-arguments/index.js ***!
+          \********************************************/
+
+/*!********************************************!*\
+          !*** ./node_modules/object-is/polyfill.js ***!
+          \********************************************/
+
+/*!********************************************!*\
+          !*** ./node_modules/util/support/types.js ***!
+          \********************************************/
+
+/*!********************************************!*\
+          !*** ./src/document/change/change_pack.ts ***!
+          \********************************************/
+
+/*!********************************************!*\
+          !*** ./src/document/crdt/rga_tree_list.ts ***!
+          \********************************************/
+
+/*!*********************************************!*\
+          !*** ./node_modules/assert/build/assert.js ***!
+          \*********************************************/
+
+/*!*********************************************!*\
+          !*** ./node_modules/call-bind/callBound.js ***!
+          \*********************************************/
+
+/*!*********************************************!*\
+          !*** ./node_modules/function-bind/index.js ***!
+          \*********************************************/
+
+/*!*********************************************!*\
+          !*** ./node_modules/get-intrinsic/index.js ***!
+          \*********************************************/
+
+/*!*********************************************!*\
+          !*** ./src/document/crdt/rga_tree_split.ts ***!
+          \*********************************************/
+
+/*!*********************************************!*\
+          !*** ./src/document/operation/operation.ts ***!
+          \*********************************************/
+
+/*!**********************************************!*\
+          !*** ./node_modules/is-typed-array/index.js ***!
+          \**********************************************/
+
+/*!***********************************************!*\
+          !*** ./node_modules/has-tostringtag/shams.js ***!
+          \***********************************************/
+
+/*!***********************************************!*\
+          !*** ./node_modules/is-nan/implementation.js ***!
+          \***********************************************/
+
+/*!*************************************************!*\
+          !*** ./node_modules/define-properties/index.js ***!
+          \*************************************************/
+
+/*!*************************************************!*\
+          !*** ./node_modules/es6-object-assign/index.js ***!
+          \*************************************************/
+
+/*!*************************************************!*\
+          !*** ./node_modules/object-keys/isArguments.js ***!
+          \*************************************************/
+
+/*!*************************************************!*\
+          !*** ./node_modules/which-typed-array/index.js ***!
+          \*************************************************/
+
+/*!*************************************************!*\
+          !*** ./src/api/yorkie/v1/yorkie_grpc_web_pb.js ***!
+          \*************************************************/
+
+/*!*************************************************!*\
+          !*** ./src/document/operation/add_operation.ts ***!
+          \*************************************************/
+
+/*!*************************************************!*\
+          !*** ./src/document/operation/set_operation.ts ***!
+          \*************************************************/
+
+/*!**************************************************!*\
+          !*** ./node_modules/console-browserify/index.js ***!
+          \**************************************************/
+
+/*!**************************************************!*\
+          !*** ./node_modules/object-is/implementation.js ***!
+          \**************************************************/
+
+/*!**************************************************!*\
+          !*** ./src/document/operation/edit_operation.ts ***!
+          \**************************************************/
+
+/*!**************************************************!*\
+          !*** ./src/document/operation/move_operation.ts ***!
+          \**************************************************/
+
+/*!***************************************************!*\
+          !*** ./node_modules/inherits/inherits_browser.js ***!
+          \***************************************************/
+
+/*!***************************************************!*\
+          !*** ./src/document/operation/style_operation.ts ***!
+          \***************************************************/
+
+/*!****************************************************!*\
+          !*** ./node_modules/object-keys/implementation.js ***!
+          \****************************************************/
+
+/*!****************************************************!*\
+          !*** ./src/document/operation/remove_operation.ts ***!
+          \****************************************************/
+
+/*!****************************************************!*\
+          !*** ./src/document/operation/select_operation.ts ***!
+          \****************************************************/
+
+/*!*****************************************************!*\
+          !*** ./node_modules/is-generator-function/index.js ***!
+          \*****************************************************/
+
+/*!******************************************************!*\
+          !*** ./node_modules/assert/build/internal/errors.js ***!
+          \******************************************************/
+
+/*!******************************************************!*\
+          !*** ./node_modules/available-typed-arrays/index.js ***!
+          \******************************************************/
+
+/*!******************************************************!*\
+          !*** ./node_modules/function-bind/implementation.js ***!
+          \******************************************************/
+
+/*!******************************************************!*\
+          !*** ./node_modules/util/support/isBufferBrowser.js ***!
+          \******************************************************/
+
+/*!******************************************************!*\
+          !*** ./src/document/operation/increase_operation.ts ***!
+          \******************************************************/
+
+/*!*******************************************************!*\
+          !*** ./src/document/operation/rich_edit_operation.ts ***!
+          \*******************************************************/
+
+/*!*********************************************************!*\
+          !*** ./node_modules/google-protobuf/google-protobuf.js ***!
+          \*********************************************************/
+
+/*!****************************************************************!*\
+          !*** ./node_modules/assert/build/internal/util/comparisons.js ***!
+          \****************************************************************/
+
+/*!*********************************************************************!*\
+          !*** ./node_modules/google-protobuf/google/protobuf/wrappers_pb.js ***!
+          \*********************************************************************/
+
+/*!**********************************************************************!*\
+          !*** ./node_modules/assert/build/internal/assert/assertion_error.js ***!
+          \**********************************************************************/
+
+/*!**********************************************************************!*\
+          !*** ./node_modules/es-abstract/helpers/getOwnPropertyDescriptor.js ***!
+          \**********************************************************************/
+
+/*!**********************************************************************!*\
+          !*** ./node_modules/google-protobuf/google/protobuf/timestamp_pb.js ***!
+          \**********************************************************************/
+
+/**
+           * @license
+           * Copyright 2009 The Closure Library Authors
+           * Copyright 2020 Daniel Wirtz / The long.js Authors.
+           *
+           * Licensed under the Apache License, Version 2.0 (the "License");
+           * you may not use this file except in compliance with the License.
+           * You may obtain a copy of the License at
+           *
+           *     http://www.apache.org/licenses/LICENSE-2.0
+           *
+           * Unless required by applicable law or agreed to in writing, software
+           * distributed under the License is distributed on an "AS IS" BASIS,
+           * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+           * See the License for the specific language governing permissions and
+           * limitations under the License.
+           *
+           * SPDX-License-Identifier: Apache-2.0
+           */
+
+/**
+   *  @preserve  JavaScript implementation of
+   *  Algorithm for Automatically Fitting Digitized Curves
+   *  by Philip J. Schneider
+   *  "Graphics Gems", Academic Press, 1990
+   *
+   *  The MIT License (MIT)
+   *
+   *  https://github.com/soswow/fit-curves
+   */
+
+/**
+ * A better abstraction over CSS.
+ *
+ * @copyright Oleg Isonen (Slobodskoi) / Isonen 2014-present
+ * @website https://github.com/cssinjs/jss
+ * @license MIT
+ */
+
+/** @license React v0.19.1
+ * scheduler.production.min.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/** @license React v16.13.1
+ * react-dom.production.min.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/** @license React v16.13.1
+ * react-is.production.min.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/** @license React v16.13.1
+ * react.production.min.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**!
+ * @fileOverview Kickass library to create and place poppers near their reference elements.
+ * @version 1.16.1-lts
+ * @license
+ * Copyright (c) 2016 Federico Zivolo and contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
