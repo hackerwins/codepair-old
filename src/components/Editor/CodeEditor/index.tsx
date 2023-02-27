@@ -186,7 +186,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       changes.forEach((change) => {
         const { actor, from, to } = change;
         if (change.type === 'content') {
-          const content = change.content || '';
+          const content = change.value?.content || '';
           if (actor !== client.getID()) {
             const fromPos = editor.posFromIndex(from);
             const toPos = editor.posFromIndex(to);

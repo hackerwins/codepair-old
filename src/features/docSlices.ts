@@ -170,7 +170,7 @@ const docSlice = createSlice({
       client?.deactivate();
     },
     createDocument(state, action: PayloadAction<string>) {
-      state.doc = new yorkie.Document<CodePairDoc>(`codepairs$${action.payload}`);
+      state.doc = new yorkie.Document<CodePairDoc>(`codepairs-${action.payload}`);
     },
     detachDocument(state) {
       const { doc, client } = state;
