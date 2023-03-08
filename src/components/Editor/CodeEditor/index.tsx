@@ -153,6 +153,17 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       }
     });
 
+    editor.on('mousedown', (instance: CodeMirror.Editor, event: MouseEvent) => {
+      if (event.metaKey) {
+        const pos = editor.coordsChar({ left: event.clientX, top: event.clientY });
+        const token = editor.getTokenAt(pos);
+
+        if (token.type === 'link') {
+          window.open(token.string, token.string);
+        }
+      }
+    });
+
     // local to remote
     editor.on('beforeChange', (instance: CodeMirror.Editor, change: CodeMirror.EditorChange) => {
       if (change.origin === 'yorkie' || change.origin === 'setValue') {
