@@ -190,12 +190,22 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
     }
   }, []);
 
-  const toggleTableOfContents = useCallback(() => {
+  const toggleTableOfContents = useCallback((cm) => {
     const el = document.getElementById('tableOfContents');
 
     if (el) {
       const { display } = el.style;
       el.style.display = display === 'none' ? 'block' : 'none';
+
+      if (el.style.display === 'block') {
+        if (cm) {
+          const toc = generateTableOfContents(cm);
+
+          if (toc.isCached === false) {
+            displayTableOfContents(toc.headings);
+          }
+        }
+      }
     }
   }, []);
 
@@ -264,16 +274,23 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       }
     });
 
-    // local to remote
-    editor.on('beforeChange', (instance: CodeMirror.Editor, change: CodeMirror.EditorChange) => {
-      if (change.origin === 'yorkie' || change.origin === 'setValue') {
-        return;
-      }
+    editor.on('change', (instance: CodeMirror.Editor) => {
+      const el = document.getElementById('tableOfContents');
+
+      // Don't fire unless tableOfContents is visible
+      if (el?.style.display !== 'block') return;
 
       const toc = generateTableOfContents(instance);
 
       if (toc.isCached === false) {
         displayTableOfContents(toc.headings);
+      }
+    });
+
+    // local to remote
+    editor.on('beforeChange', (instance: CodeMirror.Editor, change: CodeMirror.EditorChange) => {
+      if (change.origin === 'yorkie' || change.origin === 'setValue') {
+        return;
       }
 
       const from = editor.indexFromPos(change.from);
@@ -346,7 +363,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
     if (tableOfContents) {
       tableOfContents.addEventListener('click', (event) => {
         if ((event.target as any)?.classList.contains('close')) {
-          toggleTableOfContents();
+          toggleTableOfContents(editor);
         }
       });
     }
@@ -386,7 +403,9 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
         '|',
         {
           name: 'table-of-contents',
-          action: toggleTableOfContents,
+          action: ({ codemirror }) => {
+            toggleTableOfContents(codemirror);
+          },
           text: 'Table of Contents',
           title: 'Table of Contents',
         },
