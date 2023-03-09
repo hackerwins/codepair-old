@@ -192,3 +192,35 @@
   top: 0px;
   left: 0px;
 }
+
+.fullscreen button.table-of-contents {
+  display: none;
+}
+
+#tableOfContents {
+  position: absolute;
+  top: 112px;
+  right: 46px;
+  bottom: 0px;
+  width: 300px;
+  flex: 0 0 auto;
+  background-color: #fafafb;
+  border: 1px solid #e0e0e0;
+  border-bottom: none;
+  overflow: auto;
+}
+
+[data-theme='dark'] {
+  #tableOfContents {
+    background-color: rgba(255, 255, 255, 0.1);
+    // outline: 5px dashed #000;
+    border: 1px solid #303030;
+
+    ul > li a {
+      color: #fff !important;
+      &:hover {
+        text-shadow: 0px 0px 10px black;
+      }
+    }
+  }
+}

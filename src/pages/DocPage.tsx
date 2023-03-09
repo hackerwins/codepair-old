@@ -6,6 +6,8 @@ import { createStyles, makeStyles } from '@material-ui/core/styles';
 
 import NavBar from 'components/NavBar';
 import Editor from 'components/Editor';
+import { AppState } from 'app/rootReducer';
+import { useSelector } from 'react-redux';
 
 type DocPageProps = {
   docKey: string;
@@ -20,6 +22,7 @@ const useStyles = makeStyles(() =>
 );
 
 export default function DocPage(props: RouteComponentProps<DocPageProps>) {
+  const menu = useSelector((state: AppState) => state.settingState.menu);
   const classes = useStyles();
   const location = useLocation();
   const {
@@ -34,7 +37,7 @@ export default function DocPage(props: RouteComponentProps<DocPageProps>) {
   }, [location]);
 
   return (
-    <div className={classes.root}>
+    <div className={classes.root} data-theme={menu.theme}>
       <NavBar />
       <Editor docKey={docKey} />
     </div>

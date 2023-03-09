@@ -27,6 +27,86 @@ interface CodeEditorProps {
   forwardedRef: React.MutableRefObject<CodeMirror.Editor | null>;
 }
 
+interface Heading {
+  level: number;
+  text: string;
+  originalText?: string;
+}
+
+let cachedTableOfContents: Heading[] = [];
+
+function generateTableOfContents(editorInstance: CodeMirror.Editor) {
+  const doc = editorInstance.getDoc();
+  const count = doc.lineCount();
+  const headings = [];
+
+  for (let i = 0; i < count; i += 1) {
+    const line = doc.getLine(i);
+    const match = line.match(/^(#+)\s+(.*)/);
+    if (match) {
+      const level = match[1].length;
+      const text = match[2];
+      headings.push({ level, text, originalText: line });
+    }
+  }
+
+  const returnValue = {
+    isCached: true,
+    headings: [] as any[],
+  };
+
+  if (headings.length !== cachedTableOfContents.length) {
+    cachedTableOfContents = headings;
+    returnValue.headings = headings;
+    returnValue.isCached = false;
+    return returnValue;
+  }
+
+  if (headings.length > 0) {
+    for (let i = 0; i < headings.length; i += 1) {
+      if (headings[i].text !== cachedTableOfContents[i].text) {
+        cachedTableOfContents = headings;
+        returnValue.headings = headings;
+        returnValue.isCached = false;
+        break;
+      } else if (headings[i].level !== cachedTableOfContents[i].level) {
+        cachedTableOfContents = headings;
+        returnValue.headings = headings;
+        returnValue.isCached = false;
+        break;
+      }
+    }
+  }
+
+  return returnValue;
+}
+
+function displayTableOfContents(list: Heading[]) {
+  const toc = document.getElementById('tableOfContents');
+  if (toc) {
+    toc.innerHTML = `
+    <h3 style="padding: 5px 10px;margin:0px;">
+      <button 
+        class="close" 
+        style="font-size:20px;border:0px;background:transparent;cursor:pointer;float:right;"
+      >&times;</button>
+    </h3>
+    <ul style="list-style-type: none;padding-left: 0px;padding: 10px;">${list
+      .map((heading) => {
+        return `
+          <li class="level-${heading.level}" 
+              data-text="${heading.originalText}" 
+              style="padding-left: ${(heading.level - 1) * 10}px;margin-bottom: 5px;"
+          >
+            <a href="#${encodeURIComponent(heading.originalText || '')}" 
+              style="text-decoration: none;color:black;">${heading.text}</a>
+          </li>
+        `;
+      })
+      .join('')}</ul>`;
+  }
+}
+
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     dark: {
@@ -99,6 +179,35 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
     setEditor(cm);
   }, []);
 
+  const goHeadingLink = useCallback((cm: CodeMirror.Editor) => {
+    const searchText = decodeURIComponent(window.location.hash.replace('#', ''));
+    const cursor = (cm as any).getSearchCursor(searchText);
+
+    if (cursor.find()) {
+      cm.setCursor(cursor.from());
+      cm.scrollIntoView(cursor.from());
+    }
+  }, []);
+
+  const toggleTableOfContents = useCallback((cm) => {
+    const el = document.getElementById('tableOfContents');
+
+    if (el) {
+      const { display } = el.style;
+      el.style.display = display === 'none' ? 'block' : 'none';
+
+      if (el.style.display === 'block') {
+        if (cm) {
+          const toc = generateTableOfContents(cm);
+
+          if (toc.isCached === false) {
+            displayTableOfContents(toc.headings);
+          }
+        }
+      }
+    }
+  }, []);
+
   useEffect(() => {
     for (const [id, peer] of Object.entries(peers)) {
       if (cursorMapRef.current.has(id) && peer.status === ConnectionStatus.Disconnected) {
@@ -161,6 +270,19 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
         if (token.type?.includes('link')) {
           window.open(token.string, token.string);
         }
+      }
+    });
+
+    editor.on('change', (instance: CodeMirror.Editor) => {
+      const el = document.getElementById('tableOfContents');
+
+      // Don't fire unless tableOfContents is visible
+      if (el?.style.display !== 'block') return;
+
+      const toc = generateTableOfContents(instance);
+
+      if (toc.isCached === false) {
+        displayTableOfContents(toc.headings);
       }
     });
 
@@ -228,7 +350,33 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
     editor.setOption('keyMap', menu.codeKeyMap);
     editor.getDoc().clearHistory();
     editor.focus();
-  }, [client, doc, editor, forwardedRef, menu]);
+
+    const toc = generateTableOfContents(editor);
+
+    if (toc.isCached === false) {
+      displayTableOfContents(toc.headings);
+    }
+
+    const tableOfContents = document.getElementById('tableOfContents');
+
+    if (tableOfContents) {
+      tableOfContents.addEventListener('click', (event) => {
+        if ((event.target as any)?.classList.contains('close')) {
+          toggleTableOfContents(editor);
+        }
+      });
+    }
+
+    // set table of contents event
+    // When a hashchange event occurs, move inside the codemirror with location.hash.
+    window.addEventListener('hashchange', () => {
+      goHeadingLink(editor);
+    });
+
+    setTimeout(() => {
+      goHeadingLink(editor);
+    }, 1000);
+  }, [client, doc, editor, forwardedRef, menu, goHeadingLink, toggleTableOfContents]);
 
   const options = useMemo(() => {
     const opts = {
@@ -248,6 +396,14 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
         'image',
         'table',
         '|',
+        {
+          name: 'table-of-contents',
+          action: ({ codemirror }) => {
+            toggleTableOfContents(codemirror);
+          },
+          className: 'fa fa-bars',
+          title: 'Table of Contents',
+        },
         'side-by-side',
         'preview',
         'fullscreen',
@@ -282,7 +438,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       };
     }
     return opts;
-  }, [preview, menu]);
+  }, [preview, menu, toggleTableOfContents]);
 
   return (
     <SimpleMDEReact
