@@ -368,8 +368,8 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       });
     }
 
-    // tableOfContents 이벤트 설정
-    // hash change 이벤트가 벌어질 때 location.hash 를 가지고 codemirror 내부를 이동한다.
+    // set table of contents event
+    // When a hashchange event occurs, move inside the codemirror with location.hash.
     window.addEventListener('hashchange', () => {
       goHeadingLink(editor);
     });
