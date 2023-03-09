@@ -158,7 +158,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
         const pos = editor.coordsChar({ left: event.clientX, top: event.clientY });
         const token = editor.getTokenAt(pos);
 
-        if (token.type === 'link') {
+        if (token.type?.includes('link')) {
           window.open(token.string, token.string);
         }
       }
