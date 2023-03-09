@@ -39,18 +39,6 @@ const useStyles = makeStyles(() =>
        */
       pointerEvents: (tool: ToolType) => (tool === ToolType.None ? 'none' : 'auto'),
     },
-    sidebarMenu: {
-      position: 'absolute',
-      top: 112,
-      right: SIDEBAR_WIDTH,
-      bottom: 0,
-      width: 300,
-      flex: '0 0 auto',
-      backgroundColor: '#fafafb',
-      border: '1px solid #e0e0e0',
-      borderBottom: 'none',
-      overflow: 'auto',
-    },
   }),
 );
 
@@ -93,7 +81,7 @@ export default function Editor({ tool }: EditorProps) {
       <div className={classes.editor} ref={divRef}>
         <div className={classes.codeEditor}>
           <CodeEditor forwardedRef={codeEditorRef} />
-          <div className={classes.sidebarMenu} id="tableOfContents" style={{ display: 'none' }} />
+          <div id="tableOfContents" style={{ display: 'none' }} />
         </div>
         <div className={classes.canvas}>
           <DrawingBoard width={width} height={height} />
