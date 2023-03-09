@@ -86,7 +86,6 @@ function displayTableOfContents(list: Heading[]) {
   if (toc) {
     toc.innerHTML = `
     <h3 style="padding: 5px 10px;margin:0px;">
-      Table Of Contents 
       <button 
         class="close" 
         style="font-size:20px;border:0px;background:transparent;cursor:pointer;float:right;"
@@ -97,7 +96,7 @@ function displayTableOfContents(list: Heading[]) {
         return `
           <li class="level-${heading.level}" 
               data-text="${heading.originalText}" 
-              style="padding-left: ${(heading.level - 1) * 20}px;margin-bottom: 5px;"
+              style="padding-left: ${(heading.level - 1) * 10}px;margin-bottom: 5px;"
           >
             <a href="#${encodeURIComponent(heading.originalText || '')}" 
               style="text-decoration: none;color:black;">${heading.text}</a>
@@ -397,18 +396,17 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
         'image',
         'table',
         '|',
-        'side-by-side',
-        'preview',
-        'fullscreen',
-        '|',
         {
           name: 'table-of-contents',
           action: ({ codemirror }) => {
             toggleTableOfContents(codemirror);
           },
-          text: 'Table of Contents',
+          className: 'fa fa-bars',
           title: 'Table of Contents',
         },
+        'side-by-side',
+        'preview',
+        'fullscreen',
       ],
       unorderedListStyle: '-',
       status: false,
