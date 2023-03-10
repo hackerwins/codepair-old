@@ -400,7 +400,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
           action: ({ codemirror }) => {
             toggleTableOfContents(codemirror);
           },
-          className: 'fa fa-bars',
+          className: 'fa fa-sitemap',
           title: 'Table of Contents',
         },
         'side-by-side',
