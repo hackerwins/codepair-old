@@ -351,6 +351,9 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
     editor.getDoc().clearHistory();
     editor.focus();
 
+    // link to heading
+    goHeadingLink(editor);
+
     const toc = generateTableOfContents(editor);
 
     if (toc.isCached === false) {
@@ -372,10 +375,6 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
     window.addEventListener('hashchange', () => {
       goHeadingLink(editor);
     });
-
-    setTimeout(() => {
-      goHeadingLink(editor);
-    }, 1000);
   }, [client, doc, editor, forwardedRef, menu, goHeadingLink, toggleTableOfContents]);
 
   const options = useMemo(() => {

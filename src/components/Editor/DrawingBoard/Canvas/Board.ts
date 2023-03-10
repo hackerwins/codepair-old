@@ -148,7 +148,7 @@ export default class Board extends EventDispatcher {
     if (tool === ToolType.Selector) {
       return new SelectorWorker(this.update, this);
     }
-    if (tool === ToolType.None || tool === ToolType.Clear) {
+    if (tool === ToolType.None || tool === ToolType.Clear || tool === ToolType.Settings) {
       return new NoneWorker(this.update, this);
     }
     throw new TypeError(`Undefined tool: ${tool}`);

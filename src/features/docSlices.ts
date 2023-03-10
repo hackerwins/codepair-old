@@ -3,6 +3,7 @@ import yorkie, { Client, Document, Text, TimeTicket } from 'yorkie-js-sdk';
 import anonymous from 'anonymous-animals-gen';
 import randomColor from 'randomcolor';
 import { Presence } from 'features/peerSlices';
+import { SettingState } from './settingSlices';
 
 export enum Preview {
   HTML = 'html',
@@ -112,12 +113,14 @@ export const activateClient = createAsyncThunk<ActivateClientResult, undefined, 
   async (_: undefined, thunkApi) => {
     try {
       const { name, animal } = anonymous.generate();
+      const state: SettingState = (thunkApi.getState() as any).settingState;
+      const { userName, userColor } = state.menu;
       const options = {
         apiKey: '',
         presence: {
-          username: name,
+          username: userName || name,
           image: animal,
-          color: randomColor(),
+          color: userColor || randomColor(),
           board: '',
         },
       };

@@ -1,5 +1,6 @@
+import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { ActorID } from 'yorkie-js-sdk';
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { DocState } from './docSlices';
 
 export interface Presence {
   username: string;
@@ -61,6 +62,24 @@ const peerSlice = createSlice({
     },
   },
 });
+
+export const updatePresenceColor = createAsyncThunk<undefined, string, { rejectValue: string }>(
+  'presence/update',
+  (newColor, thunkApi) => {
+    try {
+      const state = thunkApi.getState() as any;
+      const { docState }: { docState: DocState } = state;
+      const { client } = docState;
+
+      const userColor = newColor;
+      client?.updatePresence('color', userColor);
+
+      return undefined;
+    } catch (err) {
+      return thunkApi.rejectWithValue((err as Error).message);
+    }
+  },
+);
 
 export const { syncPeer } = peerSlice.actions;
 export default peerSlice.reducer;

@@ -8,11 +8,23 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
 import FormControl from '@material-ui/core/FormControl';
+import TextField from '@material-ui/core/TextField';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 
 import { Preview, setPreview } from 'features/docSlices';
-import { Theme, CodeKeyMap, TabSize, setDarkMode, setCodeKeyMap, setTabSize } from 'features/settingSlices';
+import {
+  Theme,
+  CodeKeyMap,
+  TabSize,
+  setDarkMode,
+  setCodeKeyMap,
+  setTabSize,
+  setUserName,
+  setUserColor,
+} from 'features/settingSlices';
 import { AppState } from 'app/rootReducer';
+import { debounce } from '@material-ui/core';
+import { updatePresenceColor } from 'features/peerSlices';
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -35,6 +47,7 @@ const useStyles = makeStyles((theme) =>
       justifyContent: 'space-between',
       fontSize: '15px',
       marginTop: '12px',
+      pointerEvents: 'none',
     },
     itemTitle: {
       whiteSpace: 'nowrap',
@@ -46,6 +59,7 @@ const useStyles = makeStyles((theme) =>
       paddingLeft: '12px',
       borderRadius: '4px',
       textAlign: 'left',
+      pointerEvents: 'auto',
     },
   }),
 );
@@ -54,9 +68,17 @@ export default function Settings() {
   const dispatch = useDispatch();
   const classes = useStyles();
 
+  const client = useSelector((state: AppState) => state.docState.client);
   const doc = useSelector((state: AppState) => state.docState.doc);
   const preview = useSelector((state: AppState) => state.docState.preview);
   const menu = useSelector((state: AppState) => state.settingState.menu);
+
+  const debounceSave = useCallback(
+    debounce((value) => {
+      dispatch(setUserName(value));
+    }, 2000),
+    [],
+  );
 
   useEffect(() => {
     if (!doc) {
@@ -73,6 +95,26 @@ export default function Settings() {
       unsubscribe();
     };
   }, [doc]);
+
+  const handleInputUserName = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const { value } = event.target;
+      debounceSave(value);
+    },
+    [debounceSave],
+  );
+
+  const handleInputUserColor = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const { value } = event.target;
+      if (client) {
+        dispatch(updatePresenceColor(value));
+      }
+
+      dispatch(setUserColor(value));
+    },
+    [dispatch],
+  );
 
   const handlePreviewChange = useCallback(
     (event: ChangeEvent<{ name?: string; value: unknown }>) => {
@@ -113,6 +155,23 @@ export default function Settings() {
         </header>
       </Box>
       <div className={classes.list}>
+        <div className={classes.item}>
+          <div className={classes.itemTitle}>Name</div>
+          <FormControl className={classes.itemInfo}>
+            <TextField
+              id="standard-basic"
+              variant="standard"
+              defaultValue={menu.userName}
+              onInput={handleInputUserName}
+            />
+          </FormControl>
+        </div>
+        <div className={classes.item}>
+          <div className={classes.itemTitle}>Color</div>
+          <FormControl className={classes.itemInfo}>
+            <input type="color" defaultValue={menu.userColor} onChange={handleInputUserColor} />
+          </FormControl>
+        </div>
         <div className={classes.item}>
           <div className={classes.itemTitle}>Preview</div>
           <FormControl className={classes.itemInfo}>
