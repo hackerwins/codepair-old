@@ -65,7 +65,7 @@ export default class Cursor {
 
         if (this.nameHolder) {
           /**
-           * nameEl is being reused.
+           * nameHolder is being reused.
            * In order to keep the name visible while the mouse is hovering,
            * It need to delete the css class containing animation when it is mouseenter and add it when it is mouseleave.
            */
