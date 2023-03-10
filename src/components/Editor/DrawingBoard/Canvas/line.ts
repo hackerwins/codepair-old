@@ -45,16 +45,36 @@ export function drawTrace(context: CanvasRenderingContext2D, line: CanvasLine) {
  * drawLine draws a line with bezier curves.
  */
 export function drawLine(context: CanvasRenderingContext2D, line: CanvasLine) {
-  if (line.points.length < 3) {
-    return;
-  }
-
-  const points = [];
+  let points: number[][] = [];
   for (const p of line.points) {
     points.push([p.x, p.y]);
   }
 
-  const curves = fitCurve(points, 2);
+  if (points.length <= 100) {
+    points = points
+      .map((p, index) => {
+        if (index > 0) {
+          const prevP = points[index - 1];
+          const currentP = p;
+
+          // how to create 10 points between two points
+          const diffX = (currentP[0] - prevP[0]) / 10;
+          const diffY = (currentP[1] - prevP[1]) / 10;
+
+          const newPoints = [];
+          for (let i = 1; i < 10; i += 1) {
+            newPoints.push([prevP[0] + diffX * i, prevP[1] + diffY * i]);
+          }
+
+          return newPoints;
+        }
+
+        return [];
+      })
+      .flat();
+  }
+
+  const curves = fitCurve(points, 3);
   if (!curves.length) {
     return;
   }
