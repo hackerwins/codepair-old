@@ -31,6 +31,10 @@ export default class Cursor {
 
   private nameRemoveTime: number;
 
+  private nameHolder?: HTMLSpanElement;
+
+  private cursorHolder?: HTMLSpanElement;
+
   constructor(id: ActorID, presence: Presence) {
     this.id = id;
     this.username = presence.username;
@@ -48,19 +52,51 @@ export default class Cursor {
     this.removeCursor();
     this.status = CursorStatus.Activated;
     const cursorCoords = cm.cursorCoords(cursorPos);
-    const cursorHolder = document.createElement('span');
     this.height = cursorCoords.bottom - cursorCoords.top;
 
-    cursorHolder.classList.add('codePair-cursor');
-    cursorHolder.style.borderLeftColor = this.color;
-    cursorHolder.style.height = `${this.height}px`;
+    if (!this.cursorHolder) {
+      this.cursorHolder = document.createElement('span');
+      this.cursorHolder.classList.add('codePair-cursor');
+      this.cursorHolder.style.borderLeftColor = this.color;
+      this.cursorHolder.addEventListener('mouseenter', () => {
+        if (this.nameRemoveTimeMap.has(this.id)) {
+          clearTimeout(this.nameRemoveTimeMap.get(this.id)!);
+        }
 
+        if (this.nameHolder) {
+          /**
+           * nameHolder is being reused.
+           * In order to keep the name visible while the mouse is hovering,
+           * It need to delete the css class containing animation when it is mouseenter and add it when it is mouseleave.
+           */
+          this.nameHolder.classList.remove('text-remove');
+          this.cursorHolder?.appendChild(this.nameHolder);
+        }
+      });
+
+      this.cursorHolder.addEventListener('mouseleave', () => {
+        if (this.nameHolder) {
+          this.nameHolder.classList.add('text-remove');
+          this.nameHolder.style.animationDuration = `${this.nameAnimationDuration}s`;
+          this.nameHolder.style.animationDelay = `${this.nameAnimationDelay}s`;
+        }
+      });
+
+      this.nameHolder?.addEventListener('animationend', () => {
+        if (this.nameHolder?.classList.contains('text-remove')) {
+          this.nameRemoveTimeMap.delete(this.id);
+        }
+      });
+    }
+
+    this.cursorHolder.style.height = `${this.height}px`;
+    this.cursorHolder.setAttribute('data-pos', cursorCoords.top < 130 ? 'top' : 'bottom');
     this.marker = cm.setBookmark(cursorPos, {
-      widget: cursorHolder,
+      widget: this.cursorHolder,
       insertLeft: true,
     });
 
-    this.showCursorNameReserve(cursorHolder);
+    this.showCursorNameReserve(this.cursorHolder);
   }
 
   updateLine(cm: CodeMirror.Editor, fromPos: CodeMirror.Position, toPos: CodeMirror.Position) {
@@ -79,42 +115,40 @@ export default class Cursor {
 
   // when user's cursor hover, show name
   private showCursorNameReserve(cursorHolder: Element) {
-    const nameHolder = document.createElement('span');
-    nameHolder.classList.add('codePair-name');
+    if (!this.nameHolder) {
+      this.nameHolder = document.createElement('span');
+      this.nameHolder.classList.add('codePair-name');
+      this.nameHolder.textContent = this.username;
+      this.nameHolder.style.backgroundColor = this.color;
+      this.nameHolder.style.color = invert(this.color, true);
+    }
 
-    cursorHolder.addEventListener('mouseenter', () => {
-      if (this.nameRemoveTimeMap.has(this.id)) {
-        clearTimeout(this.nameRemoveTimeMap.get(this.id)!);
-      }
+    if (this.nameHolder.parentElement !== cursorHolder) {
+      cursorHolder.appendChild(this.nameHolder);
+    }
 
-      nameHolder.textContent = this.username;
-      nameHolder.style.top = `-${this.height}px`;
-      nameHolder.style.backgroundColor = this.color;
-      nameHolder.style.color = invert(this.color, true);
+    // 커서가 변경 되었을 때는 항상 표시
+    this.nameHolder.classList.remove('text-remove');
+    this.resetRemoveNameReserve(this.nameHolder);
+  }
 
-      /**
-       * nameEl is being reused.
-       * In order to keep the name visible while the mouse is hovering,
-       * It need to delete the css class containing animation when it is mouseenter and add it when it is mouseleave.
-       */
-      nameHolder.classList.remove('text-remove');
-      cursorHolder.appendChild(nameHolder);
-    });
+  private resetRemoveNameReserve(nameHolder?: HTMLSpanElement) {
+    if (this.nameRemoveTimeMap.has(this.id)) {
+      clearTimeout(this.nameRemoveTimeMap.get(this.id)!);
+    }
 
-    cursorHolder.addEventListener('mouseleave', () => {
-      nameHolder.classList.add('text-remove');
-      nameHolder.style.animationDuration = `${this.nameAnimationDuration}s`;
-      nameHolder.style.animationDelay = `${this.nameAnimationDelay}s`;
-
-      this.removeNameReserve(nameHolder);
-    });
+    this.removeNameReserve(nameHolder);
   }
 
   // After animate, It should actually be deleted it.
-  private removeNameReserve(nameHolder: HTMLSpanElement) {
+  private removeNameReserve(nameHolder?: HTMLSpanElement) {
     const timeoutId = setTimeout(() => {
-      nameHolder.parentNode!.removeChild(nameHolder);
-      this.nameRemoveTimeMap.delete(this.id);
+      if (nameHolder) {
+        nameHolder.classList.add('text-remove');
+        const { style } = nameHolder;
+        style.animationDuration = `${this.nameAnimationDuration}s`;
+        style.animationDelay = `${this.nameAnimationDelay}s`;
+      }
     }, this.nameRemoveTime);
 
     this.nameRemoveTimeMap.set(this.id, timeoutId);

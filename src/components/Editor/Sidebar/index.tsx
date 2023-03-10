@@ -55,13 +55,18 @@ export default function Sidebar() {
     dispatch(setTool(nextTool));
   };
 
-  const handleSettingsClick = useCallback((event: MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  }, []);
+  const handleSettingsClick = useCallback(
+    (event: MouseEvent<HTMLButtonElement>) => {
+      dispatch(setTool(ToolType.Settings));
+      setAnchorEl(event.currentTarget);
+    },
+    [dispatch],
+  );
 
   const handleSettingsClose = useCallback(() => {
     setAnchorEl(undefined);
-  }, []);
+    dispatch(setTool(ToolType.None));
+  }, [dispatch]);
 
   return (
     <div className={classes.root}>

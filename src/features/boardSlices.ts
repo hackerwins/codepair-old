@@ -16,6 +16,7 @@ export enum ToolType {
   Rect,
   Selector,
   Clear,
+  Settings,
 }
 
 export interface BoardState {
