@@ -31,14 +31,20 @@
   border-left-style: solid;
   border-left-width: 2.5px;
   padding: 0px;
+
+  &[data-pos='top'] .codePair-name {
+    bottom: calc(0% - 10px) !important;
+  }
 }
 
 .codePair-name {
   white-space: nowrap;
   position: absolute;
+  display: inline-block;
   left: -2px;
   padding: 1px 4px;
   border-radius: 2px 2px 2px 0px;
+  bottom: 100%;
 }
 
 .EasyMDEContainer {

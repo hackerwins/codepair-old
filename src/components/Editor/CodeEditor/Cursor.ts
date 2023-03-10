@@ -58,8 +58,6 @@ export default class Cursor {
       this.cursorHolder = document.createElement('span');
       this.cursorHolder.classList.add('codePair-cursor');
       this.cursorHolder.style.borderLeftColor = this.color;
-      this.cursorHolder.style.height = `${this.height}px`;
-
       this.cursorHolder.addEventListener('mouseenter', () => {
         if (this.nameRemoveTimeMap.has(this.id)) {
           clearTimeout(this.nameRemoveTimeMap.get(this.id)!);
@@ -91,6 +89,8 @@ export default class Cursor {
       });
     }
 
+    this.cursorHolder.style.height = `${this.height}px`;
+    this.cursorHolder.setAttribute('data-pos', cursorCoords.top < 130 ? 'top' : 'bottom');
     this.marker = cm.setBookmark(cursorPos, {
       widget: this.cursorHolder,
       insertLeft: true,
@@ -121,7 +121,6 @@ export default class Cursor {
       this.nameHolder.textContent = this.username;
       this.nameHolder.style.backgroundColor = this.color;
       this.nameHolder.style.color = invert(this.color, true);
-      this.nameHolder.style.bottom = `100%`;
     }
 
     if (this.nameHolder.parentElement !== cursorHolder) {
