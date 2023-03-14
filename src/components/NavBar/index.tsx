@@ -57,6 +57,7 @@ function MenuAppBar() {
       <AppBar position="static" className={classes.appBar}>
         <Toolbar>
           <IconButton
+            size="small"
             onClick={() => {
               dispatch(toggleLinkTab());
             }}

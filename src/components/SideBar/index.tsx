@@ -22,13 +22,13 @@ import {
   Menu,
   MenuItem,
   Snackbar,
+  Typography,
 } from '@material-ui/core';
 import {
   ExpandMore,
   ChevronRight,
   MoreHoriz,
   Add,
-  Dashboard,
   Delete,
   InsertDriveFile,
   CreateNewFolder,
@@ -39,6 +39,9 @@ import {
   FileCopy,
   Update,
   AccountTree,
+  ChevronLeft,
+  Folder,
+  FolderOpen,
 } from '@material-ui/icons';
 import { useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
@@ -58,6 +61,7 @@ import {
   setLinkName,
   setLinkOpens,
   toggleLinkOpen,
+  toggleLinkTab,
 } from 'features/linkSlices';
 
 interface SideBarProps {
@@ -130,8 +134,9 @@ const useStyles = makeStyles((theme) =>
       right: 0,
       bottom: 0,
       flexShrink: 0,
+      transform: (props: SideBarProps) => `translateX(${props.open ? 0 : -SIDEBAR_WIDTH}px) translateZ(0)`,
       [`& .MuiDrawer-paper`]: {
-        width: (props: SideBarProps) => (props.open ? SIDEBAR_WIDTH : 0),
+        width: SIDEBAR_WIDTH,
         boxSizing: 'border-box',
         position: 'absolute',
         transition: 'width 225ms cubic-bezier(0, 0, 0.2, 1) 0ms',
@@ -146,6 +151,25 @@ const useStyles = makeStyles((theme) =>
       [`& .MuiTypography-root`]: {
         fontSize: '0.875rem',
         paddingLeft: 8,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+      },
+    },
+    listSubHeader: {
+      'line-height': 1.5,
+      [`&:hover .group-item-button`]: {
+        visibility: 'visible !important',
+      },
+    },
+    listItem: {
+      '&:hover': {
+        backgroundColor: 'rgba(0, 0, 0, 0.04)',
+      },
+    },
+    sidebarItem: {
+      [`&:hover .sidebar-item-more`]: {
+        visibility: 'visible !important',
       },
     },
     level0: {
@@ -396,9 +420,22 @@ function GroupMoreMenu({ startRename, startDeleteGroup, startAddGroup, startAddC
           option === '-' ? (
             <Divider key={`${option}-${Date.now()}`} />
           ) : (
-            <MenuItem key={option} onClick={() => handleClose(option)} disableRipple>
+            <MenuItem
+              key={option}
+              onClick={() => handleClose(option)}
+              disableRipple
+              style={{
+                color: option === 'Delete' ? 'red' : undefined,
+              }}
+            >
               <ListItemIcon>
-                {option === 'Delete' ? <Delete /> : undefined}
+                {option === 'Delete' ? (
+                  <Delete
+                    style={{
+                      color: 'red',
+                    }}
+                  />
+                ) : undefined}
                 {option === 'Rename' ? <InsertDriveFile /> : undefined}
                 {option === 'Add next group' ? <CreateNewFolder /> : undefined}
                 {option === 'Add child group' ? <AccountTree /> : undefined}
@@ -419,6 +456,7 @@ interface GroupItemProps {
 
 function GroupItem({ group, level }: GroupItemProps) {
   const dispatch = useDispatch();
+  const opens = useSelector((state: AppState) => state.linkState.opens);
   const classes = useStyles({
     open: true,
   });
@@ -465,7 +503,7 @@ function GroupItem({ group, level }: GroupItemProps) {
   }, [level, classes]);
   return (
     <ListSubheader
-      className={className}
+      className={[className, classes.listSubHeader].join(' ')}
       style={{
         display: 'flex',
         // justifyContent: 'space-between',
@@ -476,7 +514,11 @@ function GroupItem({ group, level }: GroupItemProps) {
         setIsRename(true);
       }}
     >
-      <Dashboard onClick={() => dispatch(toggleLinkOpen(group.id))} style={{ flex: 'none' }} />
+      {opens[group.id] ? (
+        <FolderOpen onClick={() => dispatch(toggleLinkOpen(group.id))} style={{ flex: 'none' }} />
+      ) : (
+        <Folder onClick={() => dispatch(toggleLinkOpen(group.id))} style={{ flex: 'none' }} />
+      )}
       {isRename ? (
         <Input
           defaultValue={textRef.current}
@@ -495,38 +537,53 @@ function GroupItem({ group, level }: GroupItemProps) {
           style={{
             flex: 1,
             paddingLeft: 8,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
           }}
+          title={group.name}
         >
           {group.name}
         </div>
       )}
-      <IconButton
-        disableRipple
+      <div
+        className="group-item-button"
         style={{
           flex: 'none',
-        }}
-        onClick={() => {
-          dispatch(newLink({ parentId: group.id, name: 'New Link' }));
+          display: 'flex',
+          alignItems: 'center',
+          visibility: 'hidden',
         }}
       >
-        <Add fontSize="small" />
-      </IconButton>
-      {isRename ? undefined : (
-        <GroupMoreMenu
-          startRename={() => {
-            setIsRename(true);
+        <IconButton
+          disableRipple
+          size="small"
+          style={{
+            flex: 'none',
           }}
-          startDeleteGroup={() => {
-            handleClickOpen();
+          onClick={() => {
+            dispatch(newLink({ parentId: group.id, name: 'New Link' }));
           }}
-          startAddGroup={() => {
-            dispatch(newGroupAt({ id: group.id, name: 'New Group' }));
-          }}
-          startAddChildGroup={() => {
-            dispatch(newChildGroupAt({ parentId: group.id, name: 'New Group' }));
-          }}
-        />
-      )}
+        >
+          <Add />
+        </IconButton>
+        {isRename ? undefined : (
+          <GroupMoreMenu
+            startRename={() => {
+              setIsRename(true);
+            }}
+            startDeleteGroup={() => {
+              handleClickOpen();
+            }}
+            startAddGroup={() => {
+              dispatch(newGroupAt({ id: group.id, name: 'New Group' }));
+            }}
+            startAddChildGroup={() => {
+              dispatch(newChildGroupAt({ parentId: group.id, name: 'New Group' }));
+            }}
+          />
+        )}
+      </div>
       <Dialog
         open={open}
         onClose={handleClose}
@@ -535,9 +592,7 @@ function GroupItem({ group, level }: GroupItemProps) {
       >
         <DialogTitle id="alert-dialog-title">Confirm</DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            If you delete the link, it cannot be recovered.Are you sure you want to delete it anyway?
-          </DialogContentText>
+          <DialogContentText id="alert-dialog-description">Are you sure to delete this group?</DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
@@ -662,7 +717,12 @@ function SidebarItem({ item, level }: SidebarItemProps) {
   }, [level, classes]);
 
   return (
-    <ListItem className={className} button selected={docKey === item.fileLink} disableRipple>
+    <ListItem
+      className={[className, classes.sidebarItem].join(' ')}
+      button
+      selected={docKey === item.fileLink}
+      disableRipple
+    >
       {item.links?.length ? (
         <MoreIcon open={opens[item.id]} onClick={setOpenCallback} />
       ) : (
@@ -690,6 +750,7 @@ function SidebarItem({ item, level }: SidebarItemProps) {
         <ListItemText
           primary={item.name}
           className={classes.listItemText}
+          title={item.name}
           onClick={(e) => {
             // open link to new tab if meta key is pressed
             if (e.metaKey) {
@@ -715,39 +776,50 @@ function SidebarItem({ item, level }: SidebarItemProps) {
           }}
         />
       )}
-      {isRename ? undefined : (
-        <MoreMenu
-          startOpenLinkAsNewTab={() => {
-            if (item.fileLink) {
-              switch (item.linkType) {
-                case 'pairy':
-                  window.open(`/${item.fileLink}`, item.fileLink);
-                  break;
-                default:
-                  window.open(item.fileLink, '_blank');
+      <div
+        className="sidebar-item-more"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flex: 'none',
+          visibility: 'hidden',
+        }}
+      >
+        {isRename ? undefined : (
+          <MoreMenu
+            startOpenLinkAsNewTab={() => {
+              if (item.fileLink) {
+                switch (item.linkType) {
+                  case 'pairy':
+                    window.open(`/${item.fileLink}`, item.fileLink);
+                    break;
+                  default:
+                    window.open(item.fileLink, '_blank');
+                }
               }
-            }
-          }}
-          startRename={() => {
-            setIsRename(true);
-          }}
-          startUpdateLink={() => {
-            handleUpdateLink();
-          }}
-          startCopyLink={() => {
-            handleCopyLink();
-          }}
-          startDeleteLink={() => {
-            handleClickOpen();
-          }}
-          startAddLink={() => {
-            handleCreateLink('Untitled name');
-          }}
-          startAddCurrentPage={() => {
-            handleCreateCurrentPage();
-          }}
-        />
-      )}
+            }}
+            startRename={() => {
+              setIsRename(true);
+            }}
+            startUpdateLink={() => {
+              handleUpdateLink();
+            }}
+            startCopyLink={() => {
+              handleCopyLink();
+            }}
+            startDeleteLink={() => {
+              handleClickOpen();
+            }}
+            startAddLink={() => {
+              handleCreateLink('Untitled name');
+            }}
+            startAddCurrentPage={() => {
+              handleCreateCurrentPage();
+            }}
+          />
+        )}
+      </div>
       <Dialog
         open={open}
         onClose={handleClose}
@@ -892,6 +964,20 @@ export function SideBar() {
 
   return (
     <Drawer variant="permanent" className={classes.drawer} open={linkState.openTab}>
+      <ListSubheader style={{ backgroundColor: 'white', borderBottom: '1px solid #ececec' }}>
+        <Box display="flex" alignItems="center" justifyContent="space-between">
+          <Typography variant="h6" style={{ fontWeight: 400, fontSize: 14 }}>
+            Links
+          </Typography>
+          <IconButton
+            onClick={() => {
+              dispatch(toggleLinkTab());
+            }}
+          >
+            {open ? <ChevronLeft /> : <ChevronRight />}
+          </IconButton>
+        </Box>
+      </ListSubheader>
       {linkState.groups.map((group) => {
         return <GroupView key={group.id} group={group} />;
       })}

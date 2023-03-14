@@ -84,8 +84,11 @@ const linkSlice = createSlice({
 
     removeGroup(state, action: PayloadAction<{ id: string }>) {
       const { id } = action.payload;
-
-      state.groups = state.groups.filter((group) => group.id !== id);
+      traverse(state, state.groups, (item, parent) => {
+        if (item.id === id) {
+          parent.links = parent.links.filter((link: any) => link.id !== id);
+        }
+      });
 
       SettingModel.setValue(state);
     },
