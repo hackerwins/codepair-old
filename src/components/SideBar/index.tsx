@@ -42,6 +42,7 @@ import {
   FolderOpen,
   SubdirectoryArrowLeft,
   Star,
+  AccountTree,
 } from '@material-ui/icons';
 import { useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
@@ -258,6 +259,7 @@ interface MoreMenuProps {
 }
 function MoreMenu({ item, startRename }: MoreMenuProps) {
   const dispatch = useDispatch();
+  const favorite = useSelector((state: AppState) => state.linkState.favorite);
   const classes = useStyles({ open: true });
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const { docKey } = useParams<{ docKey: string }>();
@@ -401,7 +403,13 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
                 {option === 'Open link as new tab' ? <OpenInBrowser /> : undefined}
                 {option === 'Copy' ? <FileCopy /> : undefined}
                 {option === 'Update link' ? <Update /> : undefined}
-                {option === 'Favorite' ? <Star /> : undefined}
+                {option === 'Favorite' ? (
+                  <Star
+                    style={{
+                      color: favorite.includes(item.id) ? 'blue' : undefined,
+                    }}
+                  />
+                ) : undefined}
               </ListItemIcon>
               <ListItemText primary={option} />
             </MenuItem>
@@ -448,6 +456,7 @@ interface GroupMoreMenuProps {
 
 function GroupMoreMenu({ group, startRename }: GroupMoreMenuProps) {
   const dispatch = useDispatch();
+  const favorite = useSelector((state: AppState) => state.linkState.favorite);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -527,7 +536,13 @@ function GroupMoreMenu({ group, startRename }: GroupMoreMenuProps) {
                 {option === 'Rename' ? <InsertDriveFile /> : undefined}
                 {option === 'Add next group' ? <CreateNewFolder /> : undefined}
                 {option === 'Add child group' ? <SubdirectoryArrowLeft /> : undefined}
-                {option === 'Favorite' ? <Star /> : undefined}
+                {option === 'Favorite' ? (
+                  <Star
+                    style={{
+                      color: favorite.includes(group.id) ? 'blue' : undefined,
+                    }}
+                  />
+                ) : undefined}
                 {option === 'Copy' ? <FileCopy /> : undefined}
               </ListItemIcon>
               <ListItemText primary={option} />
@@ -948,7 +963,7 @@ export function SideBar() {
             <Star
               fontSize="small"
               style={{
-                marginRight: 4,
+                marginRight: 6,
               }}
             />{' '}
             Favorite
@@ -980,6 +995,12 @@ export function SideBar() {
             variant="h6"
             style={{ fontWeight: 400, fontSize: 14, height: 40, display: 'flex', alignItems: 'center' }}
           >
+            <AccountTree
+              fontSize="small"
+              style={{
+                marginRight: 6,
+              }}
+            />
             Links
           </Typography>
         </Box>
