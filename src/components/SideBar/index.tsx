@@ -33,15 +33,14 @@ import {
   InsertDriveFile,
   CreateNewFolder,
   Message,
-  Bookmark,
   Edit,
   OpenInBrowser,
   FileCopy,
   Update,
-  AccountTree,
   ChevronLeft,
   Folder,
   FolderOpen,
+  SubdirectoryArrowLeft,
 } from '@material-ui/icons';
 import { useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
@@ -345,8 +344,8 @@ function MoreMenu({
                     }}
                   />
                 ) : undefined}
-                {option === 'Add link' ? <Add /> : undefined}
-                {option === 'Add current page' ? <Bookmark /> : undefined}
+                {option === 'Add link' ? <SubdirectoryArrowLeft /> : undefined}
+                {option === 'Add current page' ? <SubdirectoryArrowLeft /> : undefined}
                 {option === 'Rename' ? <Edit /> : undefined}
                 {option === 'Open link as new tab' ? <OpenInBrowser /> : undefined}
                 {option === 'Copy link' ? <FileCopy /> : undefined}
@@ -438,7 +437,7 @@ function GroupMoreMenu({ startRename, startDeleteGroup, startAddGroup, startAddC
                 ) : undefined}
                 {option === 'Rename' ? <InsertDriveFile /> : undefined}
                 {option === 'Add next group' ? <CreateNewFolder /> : undefined}
-                {option === 'Add child group' ? <AccountTree /> : undefined}
+                {option === 'Add child group' ? <SubdirectoryArrowLeft /> : undefined}
               </ListItemIcon>
               <ListItemText primary={option} />
             </MenuItem>
@@ -456,6 +455,7 @@ interface GroupItemProps {
 
 function GroupItem({ group, level }: GroupItemProps) {
   const dispatch = useDispatch();
+  const textInputRef = useRef<HTMLInputElement>(null);
   const opens = useSelector((state: AppState) => state.linkState.opens);
   const classes = useStyles({
     open: true,
@@ -515,18 +515,30 @@ function GroupItem({ group, level }: GroupItemProps) {
       }}
     >
       {opens[group.id] ? (
-        <FolderOpen onClick={() => dispatch(toggleLinkOpen(group.id))} style={{ flex: 'none' }} />
+        <IconButton size="small" onClick={() => dispatch(toggleLinkOpen(group.id))} style={{ flex: 'none' }}>
+          <FolderOpen />
+        </IconButton>
       ) : (
-        <Folder onClick={() => dispatch(toggleLinkOpen(group.id))} style={{ flex: 'none' }} />
+        <IconButton size="small" onClick={() => dispatch(toggleLinkOpen(group.id))} style={{ flex: 'none' }}>
+          <Folder />
+        </IconButton>
       )}
       {isRename ? (
         <Input
+          ref={textInputRef}
+          autoFocus
           defaultValue={textRef.current}
+          onBlur={() => {
+            setIsRename(false);
+            dispatch(setLinkName({ id: group.id, name: textRef.current }));
+          }}
           onChange={(e) => {
             textRef.current = e.target.value;
           }}
           onKeyUp={(e) => {
-            if (e.key === 'Enter') {
+            if (e.key === 'Escape') {
+              setIsRename(false);
+            } else if (e.key === 'Enter') {
               setIsRename(false);
               dispatch(setLinkName({ id: group.id, name: textRef.current }));
             }
