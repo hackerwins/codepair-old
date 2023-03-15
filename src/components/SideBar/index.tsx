@@ -723,16 +723,7 @@ function SidebarItem({ item, level }: SidebarItemProps) {
       selected={docKey === item.fileLink}
       disableRipple
     >
-      {item.links?.length ? (
-        <MoreIcon open={opens[item.id]} onClick={setOpenCallback} />
-      ) : (
-        <Message
-          fontSize="small"
-          style={{
-            color: 'rgba(0, 0, 0, 0.2)',
-          }}
-        />
-      )}
+      {item.links?.length ? <MoreIcon open={opens[item.id]} onClick={setOpenCallback} /> : <Message fontSize="small" />}
       {isRename ? (
         <Input
           defaultValue={textRef.current}
@@ -890,7 +881,7 @@ interface GroupViewProps {
 function GroupView({ group }: GroupViewProps) {
   const opens = useSelector((state: AppState) => state.linkState.opens);
   return (
-    <Box style={{ backgroundColor: 'white' }}>
+    <Box>
       <GroupItem group={group} level={0} />
       <Collapse in={opens[group.id]} timeout="auto" unmountOnExit>
         <SideBarItemList links={[...group.links]} level={1} />
@@ -964,7 +955,7 @@ export function SideBar() {
 
   return (
     <Drawer variant="permanent" className={classes.drawer} open={linkState.openTab}>
-      <ListSubheader style={{ backgroundColor: 'white', borderBottom: '1px solid #ececec' }}>
+      <ListSubheader>
         <Box display="flex" alignItems="center" justifyContent="space-between">
           <Typography variant="h6" style={{ fontWeight: 400, fontSize: 14 }}>
             Links
