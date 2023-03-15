@@ -38,13 +38,12 @@ import {
   FileCopy,
   Update,
   ChevronLeft,
-  Folder,
-  FolderOpen,
   SubdirectoryArrowLeft,
   Star,
   AccountTree,
+  FolderOpen,
 } from '@material-ui/icons';
-import { useParams } from 'react-router';
+import { useHistory, useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppState } from 'app/rootReducer';
 import {
@@ -634,15 +633,15 @@ function GroupItem({ group, level }: GroupItemProps) {
         setIsRename(true);
       }}
     >
-      {opens[group.id] ? (
-        <IconButton size="small" onClick={() => dispatch(toggleLinkOpen(group.id))} style={{ flex: 'none' }}>
-          <FolderOpen />
-        </IconButton>
-      ) : (
-        <IconButton size="small" onClick={() => dispatch(toggleLinkOpen(group.id))} style={{ flex: 'none' }}>
-          <Folder />
-        </IconButton>
-      )}
+      <IconButton
+        size="small"
+        onClick={() => dispatch(toggleLinkOpen(group.id))}
+        style={{ flex: 'none' }}
+        disableRipple
+      >
+        {opens[group.id] ? <ExpandMore fontSize="small" /> : <ChevronRight fontSize="small" />}
+      </IconButton>
+
       {isRename ? (
         <Input
           autoFocus
@@ -667,13 +666,19 @@ function GroupItem({ group, level }: GroupItemProps) {
         <div
           style={{
             flex: 1,
-            paddingLeft: 8,
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
+            display: 'flex',
+            alignItems: 'center',
           }}
           title={group.name}
         >
+          <FolderOpen
+            style={{
+              marginRight: 8,
+            }}
+          />
           {group.name}
         </div>
       )}
@@ -719,6 +724,7 @@ interface SidebarItemProps {
 function SidebarItem({ item, level }: SidebarItemProps) {
   const dispatch = useDispatch();
   const opens = useSelector((state: AppState) => state.linkState.opens);
+  const history = useHistory();
   const textRef = useRef<string>(item.name);
   const [isRename, setIsRename] = useState(false);
   const { docKey } = useParams<{ docKey: string }>();
@@ -813,7 +819,7 @@ function SidebarItem({ item, level }: SidebarItemProps) {
             if (item.fileLink) {
               switch (item.linkType) {
                 case 'pairy':
-                  window.location.href = `/${item.fileLink}`;
+                  history.push(`/${item.fileLink}`, { name: item.name });
                   break;
                 default:
                   window.open(item.fileLink, '_blank');

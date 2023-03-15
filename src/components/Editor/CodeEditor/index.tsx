@@ -347,8 +347,11 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
     // sync text of document and editor
     syncText = () => {
       const text = doc.getRoot().content;
-      text.onChanges(changeEventHandler);
-      editor.setValue(text.toString());
+
+      if (text) {
+        text.onChanges(changeEventHandler);
+        editor.setValue(text.toString());
+      }
     };
     syncText();
     editor.addKeyMap(menu.codeKeyMap);
