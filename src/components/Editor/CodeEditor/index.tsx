@@ -42,6 +42,11 @@ function generateTableOfContents(editorInstance: CodeMirror.Editor) {
 
   for (let i = 0; i < count; i += 1) {
     const line = doc.getLine(i);
+
+    // check only header
+    const tokens = editorInstance.getTokenTypeAt({ line: i, ch: 1 }) || '';
+    if (tokens?.includes('header') === false) continue;
+
     const match = line.match(/^(#+)\s+(.*)/);
     if (match) {
       const level = match[1].length;
