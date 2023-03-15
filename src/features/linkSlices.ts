@@ -1,3 +1,4 @@
+import { AppState } from 'app/rootReducer';
 import BrowserStorage from 'utils/storage';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
@@ -27,6 +28,7 @@ export interface OpenState {
 export interface LinkState {
   openTab: boolean;
   opens: OpenState;
+  favorite: string[];
   groups: GroupType[];
 }
 
@@ -34,14 +36,15 @@ const SettingModel = new BrowserStorage<LinkState>('$$codepair$$link');
 
 const initialLinkState: LinkState = SettingModel.getValue({
   openTab: false,
+  favorite: [],
   groups: [],
   opens: {},
 });
 
-function traverse(parent: any, data: any[], callback: (item: any, parent: any) => void) {
+function traverse(parent: any, data: any[], callback: (item: any, parent: any, depth: number) => void, depth = 0) {
   data.forEach((item) => {
-    callback(item, parent);
-    traverse(item, item.links || [], callback);
+    callback(item, parent, depth + 1);
+    traverse(item, item.links || [], callback, depth + 1);
   });
 }
 
@@ -55,11 +58,30 @@ function findOne(data: any[], callback: (item: any) => boolean) {
   return result;
 }
 
+function copyTextToClipboard(text: string) {
+  window.navigator.clipboard.writeText(text);
+}
+
 const linkSlice = createSlice({
   name: 'link',
   initialState: initialLinkState,
 
   reducers: {
+    toggleFavorite(state, action: PayloadAction<string>) {
+      const { payload } = action;
+
+      let favorite = state.favorite || [];
+
+      if (!favorite.includes(payload)) {
+        favorite.push(payload);
+      } else {
+        favorite = favorite.filter((id) => id !== payload);
+      }
+
+      state.favorite = favorite;
+
+      SettingModel.setValue(state);
+    },
     toggleLinkTab(state) {
       state.openTab = !state.openTab;
 
@@ -219,10 +241,57 @@ const linkSlice = createSlice({
 
       SettingModel.setValue(state);
     },
+    copyMarkdownTextForGroup(state, action: PayloadAction<string>) {
+      const id = action.payload;
+
+      const foundItem = findOne(state.groups, (item) => item.id === id);
+
+      if (foundItem) {
+        const list: {
+          item: ItemType;
+          depth: number;
+        }[] = [
+          {
+            item: foundItem,
+            depth: 0,
+          },
+        ];
+        traverse(foundItem, foundItem.links, (item, _, depth) => {
+          list.push({ item, depth });
+        });
+
+        const text = list
+          .map((it) => {
+            const { item, depth } = it;
+            const prefix = '  '.repeat(depth);
+
+            if (item.type === 'group') {
+              return `${prefix}- ${item.name}`;
+            }
+
+            let link = item.fileLink;
+
+            if (item.linkType === 'pairy') {
+              link = `/${item.fileLink}`;
+            }
+
+            return `${prefix}- [${item.name}](${link})`;
+          })
+          .join('\n');
+
+        copyTextToClipboard(text);
+      }
+    },
   },
 });
 
+export function favoriteSelector(state: AppState): ItemType[] {
+  return state.linkState.favorite?.map((id) => findOne(state.linkState.groups, (item) => item.id === id)) || [];
+}
+
 export const {
+  copyMarkdownTextForGroup,
+  toggleFavorite,
   toggleLinkTab,
   toggleLinkOpen,
   setLinkName,

@@ -41,11 +41,14 @@ import {
   Folder,
   FolderOpen,
   SubdirectoryArrowLeft,
+  Star,
 } from '@material-ui/icons';
 import { useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppState } from 'app/rootReducer';
 import {
+  copyMarkdownTextForGroup,
+  favoriteSelector,
   GroupType,
   ItemType,
   LinkItemType,
@@ -59,6 +62,7 @@ import {
   setLinkFileLink,
   setLinkName,
   setLinkOpens,
+  toggleFavorite,
   toggleLinkOpen,
   toggleLinkTab,
 } from 'features/linkSlices';
@@ -234,59 +238,106 @@ function MoreIcon({ open, onClick }: { open: boolean; onClick: () => void }) {
   );
 }
 
-const ITEM_HEIGHT = 48;
-
 const options = [
+  'Favorite',
+  '-',
   'Add link',
   'Add current page',
   'Rename',
-  'Delete link',
+  'Delete',
   'Update link',
   '-',
   'Open link as new tab',
-  'Copy link',
+  'Copy',
 ];
-const groupOptions = ['Add child group', 'Add next group', 'Rename', '-', 'Delete'];
+const groupOptions = ['Favorite', '-', 'Add child group', 'Add next group', 'Rename', '-', 'Delete', '-', 'Copy'];
 
 interface MoreMenuProps {
-  startAddLink: () => void;
+  item: LinkItemType;
   startRename: () => void;
-  startUpdateLink: () => void;
-  startOpenLinkAsNewTab: () => void;
-  startCopyLink: () => void;
-  startDeleteLink: () => void;
-  startAddCurrentPage: () => void;
 }
-function MoreMenu({
-  startRename,
-  startOpenLinkAsNewTab,
-  startUpdateLink,
-  startCopyLink,
-  startDeleteLink,
-  startAddLink,
-  startAddCurrentPage,
-}: MoreMenuProps) {
+function MoreMenu({ item, startRename }: MoreMenuProps) {
+  const dispatch = useDispatch();
   const classes = useStyles({ open: true });
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const { docKey } = useParams<{ docKey: string }>();
   const open = Boolean(anchorEl);
+
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+
+  const handleClickDialogOpen = () => {
+    setDialogOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+  };
+
+  const [openSnackbar, setOpenSnackbar] = React.useState(false);
+
+  const handleClickOpenSnackbar = () => {
+    setOpenSnackbar(true);
+  };
+
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+  };
+
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
+
+  const handleDeleteLink = useCallback(() => {
+    dispatch(removeLink({ id: item.id }));
+  }, [dispatch, item.id]);
+
+  const handleCreateLink = useCallback(
+    (name: string) => {
+      dispatch(newLink({ parentId: item.id, name }));
+    },
+    [item.id, dispatch],
+  );
+
+  const handleUpdateLink = useCallback(() => {
+    dispatch(setLinkFileLink({ id: item.id, name: getTitle(), fileLink: docKey }));
+  }, [item.id, dispatch, docKey]);
+
+  const handleCreateCurrentPage = useCallback(() => {
+    dispatch(newLinkByCurrentPage({ parentId: item.id, name: getTitle(), fileLink: docKey }));
+  }, [item.id, docKey, dispatch]);
+
   const handleClose = (command: string) => {
-    if (command === 'Open link as new tab') {
-      startOpenLinkAsNewTab();
+    if (command === 'Favorite') {
+      dispatch(toggleFavorite(item.id));
+    } else if (command === 'Open link as new tab') {
+      if (item.fileLink) {
+        switch (item.linkType) {
+          case 'pairy':
+            window.open(`/${item.fileLink}`, item.fileLink);
+            break;
+          default:
+            window.open(item.fileLink, '_blank');
+        }
+      }
     } else if (command === 'Rename') {
       startRename();
-    } else if (command === 'Copy link') {
-      startCopyLink();
-    } else if (command === 'Delete link') {
-      startDeleteLink();
+    } else if (command === 'Copy') {
+      let link = item.fileLink || '';
+      if (item.linkType === 'pairy') {
+        link = `${window.location.origin}/${item.fileLink}`;
+      }
+
+      window.navigator.clipboard.writeText(link).then(() => {
+        handleClickOpenSnackbar();
+      });
+    } else if (command === 'Delete') {
+      handleClickDialogOpen();
     } else if (command === 'Add link') {
-      startAddLink();
+      handleCreateLink('Untitled name');
     } else if (command === 'Add current page') {
-      startAddCurrentPage();
+      handleCreateCurrentPage();
     } else if (command === 'Update link') {
-      startUpdateLink();
+      handleUpdateLink();
     }
 
     setAnchorEl(null);
@@ -323,13 +374,13 @@ function MoreMenu({
       >
         {options.map((option) =>
           option === '-' ? (
-            <Divider key={`${option}-${Date.now()}`} />
+            <Divider key={`${option}-${Date.now()}-${Math.random()}`} />
           ) : (
             <MenuItem
               key={option}
               onClick={() => handleClose(option)}
               style={{
-                color: option === 'Delete link' ? 'red' : undefined,
+                color: option === 'Delete' ? 'red' : undefined,
               }}
             >
               <ListItemIcon
@@ -337,7 +388,7 @@ function MoreMenu({
                   minWidth: 30,
                 }}
               >
-                {option === 'Delete link' ? (
+                {option === 'Delete' ? (
                   <Delete
                     style={{
                       color: 'red',
@@ -348,28 +399,68 @@ function MoreMenu({
                 {option === 'Add current page' ? <SubdirectoryArrowLeft /> : undefined}
                 {option === 'Rename' ? <Edit /> : undefined}
                 {option === 'Open link as new tab' ? <OpenInBrowser /> : undefined}
-                {option === 'Copy link' ? <FileCopy /> : undefined}
+                {option === 'Copy' ? <FileCopy /> : undefined}
                 {option === 'Update link' ? <Update /> : undefined}
+                {option === 'Favorite' ? <Star /> : undefined}
               </ListItemIcon>
               <ListItemText primary={option} />
             </MenuItem>
           ),
         )}
       </Menu>
+      <Dialog
+        open={dialogOpen}
+        onClose={handleDialogClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">Confirm</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            If you delete the link, it cannot be recovered.Are you sure you want to delete it anyway?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogClose}>Cancel</Button>
+          <Button onClick={handleDeleteLink} autoFocus variant="contained" color="primary">
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={1000}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        onClose={handleCloseSnackbar}
+        message="Copy"
+      />
     </div>
   );
 }
 
 interface GroupMoreMenuProps {
+  group: GroupType;
   startRename: () => void;
-  startDeleteGroup: () => void;
-  startAddGroup: () => void;
-  startAddChildGroup: () => void;
 }
 
-function GroupMoreMenu({ startRename, startDeleteGroup, startAddGroup, startAddChildGroup }: GroupMoreMenuProps) {
+function GroupMoreMenu({ group, startRename }: GroupMoreMenuProps) {
+  const dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+
+  const handleClickDialogOpen = () => {
+    setDialogOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+  };
+
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -377,11 +468,15 @@ function GroupMoreMenu({ startRename, startDeleteGroup, startAddGroup, startAddC
     if (command === 'Rename') {
       startRename();
     } else if (command === 'Delete') {
-      startDeleteGroup();
+      handleClickDialogOpen();
     } else if (command === 'Add next group') {
-      startAddGroup();
+      dispatch(newGroupAt({ id: group.id, name: 'New Group' }));
     } else if (command === 'Add child group') {
-      startAddChildGroup();
+      dispatch(newChildGroupAt({ parentId: group.id, name: 'New Group' }));
+    } else if (command === 'Favorite') {
+      dispatch(toggleFavorite(group.id));
+    } else if (command === 'Copy') {
+      dispatch(copyMarkdownTextForGroup(group.id));
     }
 
     setAnchorEl(null);
@@ -400,12 +495,6 @@ function GroupMoreMenu({ startRename, startDeleteGroup, startAddGroup, startAddC
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
-        PaperProps={{
-          style: {
-            maxHeight: ITEM_HEIGHT * 4.5,
-            width: 200,
-          },
-        }}
         anchorOrigin={{
           vertical: 'top',
           horizontal: 'left',
@@ -417,7 +506,7 @@ function GroupMoreMenu({ startRename, startDeleteGroup, startAddGroup, startAddC
       >
         {groupOptions.map((option) =>
           option === '-' ? (
-            <Divider key={`${option}-${Date.now()}`} />
+            <Divider key={`${option}-${Date.now()}-${Math.random()}`} />
           ) : (
             <MenuItem
               key={option}
@@ -438,12 +527,39 @@ function GroupMoreMenu({ startRename, startDeleteGroup, startAddGroup, startAddC
                 {option === 'Rename' ? <InsertDriveFile /> : undefined}
                 {option === 'Add next group' ? <CreateNewFolder /> : undefined}
                 {option === 'Add child group' ? <SubdirectoryArrowLeft /> : undefined}
+                {option === 'Favorite' ? <Star /> : undefined}
+                {option === 'Copy' ? <FileCopy /> : undefined}
               </ListItemIcon>
               <ListItemText primary={option} />
             </MenuItem>
           ),
         )}
       </Menu>
+      <Dialog
+        open={dialogOpen}
+        onClose={handleDialogClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">Confirm</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">Are you sure to delete this group?</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogClose}>Cancel</Button>
+          <Button
+            onClick={() => {
+              dispatch(removeGroup({ id: group.id }));
+              handleDialogClose();
+            }}
+            autoFocus
+            variant="contained"
+            color="primary"
+          >
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }
@@ -455,23 +571,12 @@ interface GroupItemProps {
 
 function GroupItem({ group, level }: GroupItemProps) {
   const dispatch = useDispatch();
-  const textInputRef = useRef<HTMLInputElement>(null);
   const opens = useSelector((state: AppState) => state.linkState.opens);
   const classes = useStyles({
     open: true,
   });
   const [isRename, setIsRename] = useState(false);
   const textRef = useRef<string>(group.name);
-
-  const [open, setOpen] = React.useState(false);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
 
   const className = useMemo(() => {
     switch (level) {
@@ -525,7 +630,6 @@ function GroupItem({ group, level }: GroupItemProps) {
       )}
       {isRename ? (
         <Input
-          ref={textInputRef}
           autoFocus
           defaultValue={textRef.current}
           onBlur={() => {
@@ -581,46 +685,13 @@ function GroupItem({ group, level }: GroupItemProps) {
         </IconButton>
         {isRename ? undefined : (
           <GroupMoreMenu
+            group={group}
             startRename={() => {
               setIsRename(true);
-            }}
-            startDeleteGroup={() => {
-              handleClickOpen();
-            }}
-            startAddGroup={() => {
-              dispatch(newGroupAt({ id: group.id, name: 'New Group' }));
-            }}
-            startAddChildGroup={() => {
-              dispatch(newChildGroupAt({ parentId: group.id, name: 'New Group' }));
             }}
           />
         )}
       </div>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">Confirm</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">Are you sure to delete this group?</DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button
-            onClick={() => {
-              dispatch(removeGroup({ id: group.id }));
-              handleClose();
-            }}
-            autoFocus
-            variant="contained"
-            color="primary"
-          >
-            OK
-          </Button>
-        </DialogActions>
-      </Dialog>
     </ListSubheader>
   );
 }
@@ -638,59 +709,9 @@ function SidebarItem({ item, level }: SidebarItemProps) {
   const { docKey } = useParams<{ docKey: string }>();
   const classes = useStyles({ open: opens[item.id] });
 
-  const [open, setOpen] = React.useState(false);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const [openSnackbar, setOpenSnackbar] = React.useState(false);
-
-  const handleClickOpenSnackbar = () => {
-    setOpenSnackbar(true);
-  };
-
-  const handleCloseSnackbar = () => {
-    setOpenSnackbar(false);
-  };
-
   const setOpenCallback = useCallback(() => {
     dispatch(toggleLinkOpen(item.id));
   }, [item.id, dispatch]);
-
-  const handleCreateLink = useCallback(
-    (name: string) => {
-      dispatch(newLink({ parentId: item.id, name }));
-    },
-    [item.id, dispatch],
-  );
-
-  const handleDeleteLink = useCallback(() => {
-    dispatch(removeLink({ id: item.id }));
-  }, [item.id, dispatch]);
-
-  const handleUpdateLink = useCallback(() => {
-    dispatch(setLinkFileLink({ id: item.id, name: getTitle(), fileLink: docKey }));
-  }, [item.id, dispatch, docKey]);
-
-  const handleCopyLink = useCallback(() => {
-    let link = item.fileLink || '';
-    if (item.linkType === 'pairy') {
-      link = `${window.location.origin}/${item.fileLink}`;
-    }
-
-    window.navigator.clipboard.writeText(link).then(() => {
-      handleClickOpenSnackbar();
-    });
-  }, [item]);
-
-  const handleCreateCurrentPage = useCallback(() => {
-    dispatch(newLinkByCurrentPage({ parentId: item.id, name: getTitle(), fileLink: docKey }));
-  }, [item.id, docKey, dispatch]);
 
   const handleRename = useCallback(
     (name: string) => {
@@ -738,12 +759,19 @@ function SidebarItem({ item, level }: SidebarItemProps) {
       {item.links?.length ? <MoreIcon open={opens[item.id]} onClick={setOpenCallback} /> : <Message fontSize="small" />}
       {isRename ? (
         <Input
+          autoFocus
           defaultValue={textRef.current}
+          onBlur={() => {
+            setIsRename(false);
+            handleRename(textRef.current);
+          }}
           onChange={(e) => {
             textRef.current = e.target.value;
           }}
           onKeyUp={(e) => {
-            if (e.key === 'Enter') {
+            if (e.key === 'Escape') {
+              setIsRename(false);
+            } else if (e.key === 'Enter') {
               setIsRename(false);
               handleRename(textRef.current);
             }
@@ -791,67 +819,13 @@ function SidebarItem({ item, level }: SidebarItemProps) {
       >
         {isRename ? undefined : (
           <MoreMenu
-            startOpenLinkAsNewTab={() => {
-              if (item.fileLink) {
-                switch (item.linkType) {
-                  case 'pairy':
-                    window.open(`/${item.fileLink}`, item.fileLink);
-                    break;
-                  default:
-                    window.open(item.fileLink, '_blank');
-                }
-              }
-            }}
+            item={item}
             startRename={() => {
               setIsRename(true);
-            }}
-            startUpdateLink={() => {
-              handleUpdateLink();
-            }}
-            startCopyLink={() => {
-              handleCopyLink();
-            }}
-            startDeleteLink={() => {
-              handleClickOpen();
-            }}
-            startAddLink={() => {
-              handleCreateLink('Untitled name');
-            }}
-            startAddCurrentPage={() => {
-              handleCreateCurrentPage();
             }}
           />
         )}
       </div>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">Confirm</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            If you delete the link, it cannot be recovered.Are you sure you want to delete it anyway?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleDeleteLink} autoFocus variant="contained" color="primary">
-            OK
-          </Button>
-        </DialogActions>
-      </Dialog>
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={1000}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
-        }}
-        onClose={handleCloseSnackbar}
-        message="Copy link"
-      />
     </ListItem>
   );
 }
@@ -905,6 +879,7 @@ function GroupView({ group }: GroupViewProps) {
 export function SideBar() {
   const dispatch = useDispatch();
   const linkState = useSelector((state: AppState) => state.linkState);
+  const favorites = useSelector(favoriteSelector);
   const open = useSelector((state: AppState) => state.linkState.openTab);
   const linkRef = useRef<boolean>(false);
   const classes = useStyles({ open });
@@ -969,8 +944,14 @@ export function SideBar() {
     <Drawer variant="permanent" className={classes.drawer} open={linkState.openTab}>
       <ListSubheader>
         <Box display="flex" alignItems="center" justifyContent="space-between">
-          <Typography variant="h6" style={{ fontWeight: 400, fontSize: 14 }}>
-            Links
+          <Typography variant="h6" style={{ fontWeight: 400, fontSize: 14, display: 'flex', alignItems: 'center' }}>
+            <Star
+              fontSize="small"
+              style={{
+                marginRight: 4,
+              }}
+            />{' '}
+            Favorite
           </Typography>
           <IconButton
             onClick={() => {
@@ -979,6 +960,28 @@ export function SideBar() {
           >
             {open ? <ChevronLeft /> : <ChevronRight />}
           </IconButton>
+        </Box>
+      </ListSubheader>
+      {favorites.map((it) => {
+        return it.type === 'group' ? (
+          <GroupView key={it.id} group={it} />
+        ) : (
+          <SidebarItem key={it.id} item={it} level={0} />
+        );
+      })}
+      <Divider
+        style={{
+          margin: '8px 0',
+        }}
+      />
+      <ListSubheader>
+        <Box display="flex" alignItems="center" justifyContent="space-between">
+          <Typography
+            variant="h6"
+            style={{ fontWeight: 400, fontSize: 14, height: 40, display: 'flex', alignItems: 'center' }}
+          >
+            Links
+          </Typography>
         </Box>
       </ListSubheader>
       {linkState.groups.map((group) => {
