@@ -4,6 +4,7 @@ import anonymous from 'anonymous-animals-gen';
 import randomColor from 'randomcolor';
 import { Presence } from 'features/peerSlices';
 import { SettingState } from './settingSlices';
+import { LinkItemType } from './linkSlices';
 
 export enum Preview {
   HTML = 'html',
@@ -98,6 +99,7 @@ export interface DocState {
   loading: boolean;
   errorMessage: string;
   status: DocStatus;
+  headings: LinkItemType[];
 }
 
 const initialState: DocState = {
@@ -106,7 +108,49 @@ const initialState: DocState = {
   loading: true,
   errorMessage: '',
   status: DocStatus.Connect,
+  headings: [],
 };
+
+interface Heading {
+  level: number;
+  text: string;
+  originalText?: string;
+}
+
+function generateTableOfContents(editorInstance: CodeMirror.Editor): Heading[] {
+  const doc = editorInstance.getDoc();
+  const count = doc.lineCount();
+  const headings = [];
+
+  for (let i = 0; i < count; i += 1) {
+    const line = doc.getLine(i);
+
+    // check only header
+    const tokens = editorInstance.getTokenTypeAt({ line: i, ch: 1 }) || '';
+    if (tokens?.includes('header') === false) continue;
+
+    const match = line.match(/^(#+)\s+(.*)/);
+    if (match) {
+      const level = match[1].length;
+      const text = match[2];
+      headings.push({ level, text, originalText: line });
+    }
+  }
+
+  return headings;
+}
+
+export function getTableOfContents(): Heading[] {
+  const cm = document.querySelector('.CodeMirror');
+
+  if (cm) {
+    const { CodeMirror } = cm as any;
+
+    return generateTableOfContents(CodeMirror);
+  }
+
+  return [];
+}
 
 export const activateClient = createAsyncThunk<ActivateClientResult, undefined, { rejectValue: string }>(
   'doc/activate',
@@ -192,6 +236,19 @@ const docSlice = createSlice({
     setStatus(state, action: PayloadAction<DocStatus>) {
       state.status = action.payload;
     },
+
+    updateHeadings(state) {
+      state.headings = getTableOfContents().map((it, index) => {
+        return {
+          type: 'link',
+          id: `heading-#${encodeURIComponent(it.originalText || '')}-${index}`,
+          name: it.text,
+          level: it.level - 1,
+          fileLink: `${window.location.pathname}#${encodeURIComponent(it.originalText || '')}`,
+          linkType: 'heading',
+        } as LinkItemType;
+      });
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(activateClient.fulfilled, (state, { payload }) => {
@@ -218,6 +275,7 @@ export const {
   setPreview,
   setCodeMode,
   setStatus,
+  updateHeadings,
 } = docSlice.actions;
 export default docSlice.reducer;
 

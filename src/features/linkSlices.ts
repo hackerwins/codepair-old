@@ -27,15 +27,19 @@ export interface OpenState {
 
 export interface LinkState {
   openTab: boolean;
+  openTabValue: TabValueType;
   opens: OpenState;
-  favorite: string[];
+  favorite: (string | LinkItemType)[];
   groups: GroupType[];
 }
+
+export type TabValueType = 'all' | 'links' | 'toc';
 
 const SettingModel = new BrowserStorage<LinkState>('$$codepair$$link');
 
 const initialLinkState: LinkState = SettingModel.getValue({
   openTab: false,
+  openTabValue: 'links',
   favorite: [],
   groups: [],
   opens: {},
@@ -67,26 +71,66 @@ const linkSlice = createSlice({
   initialState: initialLinkState,
 
   reducers: {
-    toggleFavorite(state, action: PayloadAction<string>) {
+    toggleFavorite(state, action: PayloadAction<string | LinkItemType>) {
       const { payload } = action;
 
       let favorite = state.favorite || [];
 
-      if (!favorite.includes(payload)) {
-        favorite.push(payload);
-      } else {
-        favorite = favorite.filter((id) => id !== payload);
+      if (typeof payload === 'string') {
+        if (!favorite.includes(payload)) {
+          favorite.push(payload);
+        } else {
+          favorite = favorite.filter((id) => id !== payload);
+        }
+      } else if (typeof payload === 'object') {
+        const { fileLink } = payload;
+
+        if (!favorite.some((item) => (item as any)?.fileLink === fileLink)) {
+          favorite.push(payload);
+        } else {
+          favorite = favorite.filter((item) => (item as any)?.fileLink === fileLink);
+        }
       }
 
       state.favorite = favorite;
 
       SettingModel.setValue(state);
     },
-    toggleLinkTab(state) {
-      state.openTab = !state.openTab;
+    toggleLinkTab(state, action: PayloadAction<TabValueType>) {
+      const tabValue = action.payload || 'links';
+
+      if (tabValue === 'all') {
+        if (state.openTab) {
+          state.openTab = false;
+          SettingModel.setValue(state);
+          return;
+        }
+
+        state.openTab = true;
+        SettingModel.setValue(state);
+
+        return;
+      }
+
+      if (state.openTabValue === tabValue) {
+        state.openTab = !state.openTab;
+        SettingModel.setValue(state);
+        return;
+      }
+
+      state.openTab = true;
+      state.openTabValue = tabValue;
 
       SettingModel.setValue(state);
     },
+
+    setTabValue(state, action: PayloadAction<TabValueType>) {
+      const tabValue = action.payload || 'links';
+
+      state.openTabValue = tabValue;
+      SettingModel.setValue(state);
+    },
+
     toggleLinkOpen(state, action: PayloadAction<string>) {
       const { payload } = action;
       state.opens[payload] = !state.opens[payload];
@@ -286,12 +330,21 @@ const linkSlice = createSlice({
 });
 
 export function favoriteSelector(state: AppState): ItemType[] {
-  return state.linkState.favorite?.map((id) => findOne(state.linkState.groups, (item) => item.id === id)) || [];
+  return (
+    state.linkState.favorite?.map((id) => {
+      if (typeof id !== 'string') {
+        return id;
+      }
+
+      return findOne(state.linkState.groups, (item) => item.id === id);
+    }) || []
+  );
 }
 
 export const {
   copyMarkdownTextForGroup,
   toggleFavorite,
+  setTabValue,
   toggleLinkTab,
   toggleLinkOpen,
   setLinkName,

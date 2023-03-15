@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { ChangeEvent, Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Box,
   Button,
@@ -22,6 +22,7 @@ import {
   Menu,
   MenuItem,
   Snackbar,
+  Tab,
   Typography,
 } from '@material-ui/core';
 import {
@@ -62,10 +63,14 @@ import {
   setLinkFileLink,
   setLinkName,
   setLinkOpens,
+  setTabValue,
+  TabValueType,
   toggleFavorite,
   toggleLinkOpen,
   toggleLinkTab,
 } from 'features/linkSlices';
+import { TabContext, TabList, TabPanel } from '@material-ui/lab';
+import { Theme } from 'features/settingSlices';
 
 interface SideBarProps {
   open: boolean;
@@ -130,6 +135,13 @@ const useStyles = makeStyles((theme) =>
       padding: '15px 16px',
       backgroundColor: '#f5f5f5',
     },
+    tabListDark: {
+      backgroundColor: '#303030',
+    },
+    tabListLight: {
+      backgroundColor: '#fafafa',
+      borderBottom: '1px solid #e8e8e8',
+    },
     drawer: {
       position: 'absolute',
       left: 0,
@@ -148,6 +160,10 @@ const useStyles = makeStyles((theme) =>
       [`& .MuiListItem-root`]: {
         paddingTop: 2,
         paddingBottom: 2,
+      },
+
+      [`& .MuiTabPanel-root`]: {
+        padding: 0,
       },
     },
     listItemText: {
@@ -247,9 +263,10 @@ const options = [
   'Delete',
   'Update link',
   '-',
-  'Open link as new tab',
+  'Open in Browser',
   'Copy',
 ];
+const headingOptions = ['Favorite', '-', 'Open in Browser', 'Copy'];
 const groupOptions = ['Favorite', '-', 'Add child group', 'Add next group', 'Rename', '-', 'Delete', '-', 'Copy'];
 
 interface MoreMenuProps {
@@ -310,7 +327,7 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
   const handleClose = (command: string) => {
     if (command === 'Favorite') {
       dispatch(toggleFavorite(item.id));
-    } else if (command === 'Open link as new tab') {
+    } else if (command === 'Open in Browser') {
       if (item.fileLink) {
         switch (item.linkType) {
           case 'pairy':
@@ -399,7 +416,7 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
                 {option === 'Add link' ? <SubdirectoryArrowLeft /> : undefined}
                 {option === 'Add current page' ? <SubdirectoryArrowLeft /> : undefined}
                 {option === 'Rename' ? <Edit /> : undefined}
-                {option === 'Open link as new tab' ? <OpenInBrowser /> : undefined}
+                {option === 'Open in Browser' ? <OpenInBrowser /> : undefined}
                 {option === 'Copy' ? <FileCopy /> : undefined}
                 {option === 'Update link' ? <Update /> : undefined}
                 {option === 'Favorite' ? (
@@ -434,6 +451,118 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
           </Button>
         </DialogActions>
       </Dialog>
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={1000}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        onClose={handleCloseSnackbar}
+        message="Copy"
+      />
+    </div>
+  );
+}
+
+interface HeadingMoreMenuProps {
+  item: LinkItemType;
+}
+
+function HeadingMoreMenu({ item }: HeadingMoreMenuProps) {
+  const dispatch = useDispatch();
+  const favorite = useSelector((state: AppState) => state.linkState.favorite);
+  const classes = useStyles({ open: true });
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+
+  const open = Boolean(anchorEl);
+
+  const [openSnackbar, setOpenSnackbar] = React.useState(false);
+
+  const handleClickOpenSnackbar = () => {
+    setOpenSnackbar(true);
+  };
+
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+  };
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = (command: string) => {
+    if (command === 'Favorite') {
+      dispatch(toggleFavorite(item));
+    } else if (command === 'Open in Browser') {
+      if (item.fileLink) {
+        window.open(item.fileLink, '_blank');
+      }
+    } else if (command === 'Copy') {
+      const link = `${window.location.origin}${item.fileLink}`;
+
+      window.navigator.clipboard.writeText(link).then(() => {
+        handleClickOpenSnackbar();
+      });
+    }
+
+    setAnchorEl(null);
+  };
+
+  return (
+    <div>
+      <IconButton onClick={handleClick} size="small">
+        <MoreHoriz />
+      </IconButton>
+      <Menu
+        id="long-menu"
+        className={classes.moreMenu}
+        MenuListProps={{
+          'aria-labelledby': 'long-button',
+        }}
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        PaperProps={{
+          style: {
+            // maxHeight: ITEM_HEIGHT * 4.5,
+            // width: 200,
+          },
+        }}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+      >
+        {headingOptions.map((option) =>
+          option === '-' ? (
+            <Divider key={`${option}-${Date.now()}-${Math.random()}`} />
+          ) : (
+            <MenuItem key={option} onClick={() => handleClose(option)}>
+              <ListItemIcon
+                style={{
+                  minWidth: 30,
+                }}
+              >
+                {option === 'Open in Browser' ? <OpenInBrowser /> : undefined}
+                {option === 'Copy' ? <FileCopy /> : undefined}
+                {option === 'Favorite' ? (
+                  <Star
+                    style={{
+                      color: favorite.includes(item.id) ? 'blue' : undefined,
+                    }}
+                  />
+                ) : undefined}
+              </ListItemIcon>
+              <ListItemText primary={option} />
+            </MenuItem>
+          ),
+        )}
+      </Menu>
       <Snackbar
         open={openSnackbar}
         autoHideDuration={1000}
@@ -821,6 +950,9 @@ function SidebarItem({ item, level }: SidebarItemProps) {
                 case 'pairy':
                   history.push(`/${item.fileLink}`, { name: item.name });
                   break;
+                case 'heading':
+                  window.location.href = `${item.fileLink}`;
+                  break;
                 default:
                   window.open(item.fileLink, '_blank');
               }
@@ -838,7 +970,7 @@ function SidebarItem({ item, level }: SidebarItemProps) {
           visibility: 'hidden',
         }}
       >
-        {isRename ? undefined : (
+        {isRename || item.linkType === 'heading' ? undefined : (
           <MoreMenu
             item={item}
             startRename={() => {
@@ -846,6 +978,98 @@ function SidebarItem({ item, level }: SidebarItemProps) {
             }}
           />
         )}
+      </div>
+    </ListItem>
+  );
+}
+
+interface HeadingIconProps {
+  item: LinkItemType;
+}
+
+function HeadingIcon({ item }: HeadingIconProps) {
+  return (
+    <span
+      style={{
+        color: '#999',
+        fontWeight: 'bold',
+        textShadow: '1px 1px 0px #222',
+      }}
+    >
+      H{(item.level || 0) + 1}
+    </span>
+  );
+}
+
+function HeadingItem({ item, level }: SidebarItemProps) {
+  const classes = useStyles({ open: true });
+  const history = useHistory();
+
+  const className = useMemo(() => {
+    switch (level) {
+      case 0:
+        return classes.level0;
+      case 1:
+        return classes.level1;
+      case 2:
+        return classes.level2;
+      case 3:
+        return classes.level3;
+      case 4:
+        return classes.level4;
+      case 5:
+        return classes.level5;
+      case 6:
+        return classes.level6;
+      case 7:
+        return classes.level7;
+      case 8:
+        return classes.level8;
+      case 9:
+        return classes.level9;
+      case 10:
+        return classes.level10;
+      default:
+        return classes.level0;
+    }
+  }, [level, classes]);
+
+  return (
+    <ListItem
+      className={[className, classes.sidebarItem].join(' ')}
+      button
+      selected={`${window.location.pathname}${window.location.hash}` === item.fileLink}
+      disableRipple
+    >
+      <HeadingIcon item={item} />
+
+      <ListItemText
+        primary={item.name}
+        className={classes.listItemText}
+        title={item.name}
+        onClick={(e) => {
+          // open link to new tab if meta key is pressed
+          if (e.metaKey) {
+            window.open(item.fileLink, '_blank');
+            return;
+          }
+
+          if (item.fileLink) {
+            history.push(`${item.fileLink}`, { name: item.name });
+          }
+        }}
+      />
+      <div
+        className="sidebar-item-more"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flex: 'none',
+          visibility: 'hidden',
+        }}
+      >
+        <HeadingMoreMenu item={item} />
       </div>
     </ListItem>
   );
@@ -900,11 +1124,17 @@ function GroupView({ group }: GroupViewProps) {
 export function SideBar() {
   const dispatch = useDispatch();
   const linkState = useSelector((state: AppState) => state.linkState);
+  const headings = useSelector((state: AppState) => state.docState.headings);
+  const menu = useSelector((state: AppState) => state.settingState.menu);
   const favorites = useSelector(favoriteSelector);
   const open = useSelector((state: AppState) => state.linkState.openTab);
   const linkRef = useRef<boolean>(false);
   const classes = useStyles({ open });
   const { docKey } = useParams<{ docKey: string }>();
+
+  const handleChange = (event: ChangeEvent<{}>, newValue: TabValueType) => {
+    dispatch(setTabValue(newValue));
+  };
 
   const showTreeNode = useCallback(
     (id: string) => {
@@ -963,84 +1193,115 @@ export function SideBar() {
 
   return (
     <Drawer variant="permanent" className={classes.drawer} open={linkState.openTab}>
-      <ListSubheader>
-        <Box display="flex" alignItems="center" justifyContent="space-between">
-          <Typography variant="h6" style={{ fontWeight: 400, fontSize: 14, display: 'flex', alignItems: 'center' }}>
-            <Star
-              fontSize="small"
-              style={{
-                marginRight: 6,
-              }}
-            />{' '}
-            Favorite
-          </Typography>
-          <IconButton
-            onClick={() => {
-              dispatch(toggleLinkTab());
-            }}
-          >
-            {open ? <ChevronLeft /> : <ChevronRight />}
-          </IconButton>
-        </Box>
-      </ListSubheader>
-      {favorites.map((it) => {
-        return it.type === 'group' ? (
-          <GroupView key={it.id} group={it} />
-        ) : (
-          <SidebarItem key={it.id} item={it} level={0} />
-        );
-      })}
-      <Divider
-        style={{
-          margin: '8px 0',
-        }}
-      />
-      <ListSubheader>
-        <Box display="flex" alignItems="center" justifyContent="space-between">
-          <Typography
-            variant="h6"
-            style={{ fontWeight: 400, fontSize: 14, height: 40, display: 'flex', alignItems: 'center' }}
-          >
-            <AccountTree
-              fontSize="small"
-              style={{
-                marginRight: 6,
-              }}
-            />
-            Links
-          </Typography>
-        </Box>
-      </ListSubheader>
-      {linkState.groups.map((group) => {
-        return <GroupView key={group.id} group={group} />;
-      })}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          right: 0,
-          left: 0,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <Button
-          variant="outlined"
-          disableRipple
+      <TabContext value={linkState.openTabValue}>
+        <Box
           style={{
-            width: '80%',
-            margin: '0 auto',
-          }}
-          onClick={() => {
-            dispatch(newGroup('New Group'));
+            width: '100%',
           }}
         >
-          <Add fontSize="small" />
-          Group
-        </Button>
-        <Box height={30} />
-      </div>
+          <TabList
+            onChange={handleChange}
+            aria-label="lab API tabs example"
+            className={menu.theme === Theme.Dark ? classes.tabListDark : classes.tabListLight}
+          >
+            <Tab label="Links" value="links" />
+            <Tab label="ToC" value="toc" />
+          </TabList>
+        </Box>
+        <TabPanel value="links">
+          <ListSubheader>
+            <Box display="flex" alignItems="center" justifyContent="space-between">
+              <Typography variant="h6" style={{ fontWeight: 400, fontSize: 14, display: 'flex', alignItems: 'center' }}>
+                <Star
+                  fontSize="small"
+                  style={{
+                    marginRight: 6,
+                  }}
+                />{' '}
+                Favorite
+              </Typography>
+              <IconButton
+                onClick={() => {
+                  dispatch(toggleLinkTab('links'));
+                }}
+              >
+                {open ? <ChevronLeft /> : <ChevronRight />}
+              </IconButton>
+            </Box>
+          </ListSubheader>
+          {favorites.map((it) => {
+            if (!it) {
+              return null;
+            }
+
+            if (it.type === 'link' && it.linkType === 'heading') {
+              return <HeadingItem key={it.id} item={it} level={0} />;
+            }
+
+            return it.type === 'group' ? (
+              <GroupView key={it.id} group={it} />
+            ) : (
+              <SidebarItem key={it.id} item={it} level={0} />
+            );
+          })}
+          <Divider
+            style={{
+              margin: '8px 0',
+            }}
+          />
+          <ListSubheader>
+            <Box display="flex" alignItems="center" justifyContent="space-between">
+              <Typography
+                variant="h6"
+                style={{ fontWeight: 400, fontSize: 14, height: 40, display: 'flex', alignItems: 'center' }}
+              >
+                <AccountTree
+                  fontSize="small"
+                  style={{
+                    marginRight: 6,
+                  }}
+                />
+                Links
+              </Typography>
+            </Box>
+          </ListSubheader>
+          {linkState.groups.map((group) => {
+            return <GroupView key={group.id} group={group} />;
+          })}
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              right: 0,
+              left: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}
+          >
+            <Button
+              variant="outlined"
+              disableRipple
+              style={{
+                width: '80%',
+                margin: '0 auto',
+              }}
+              onClick={() => {
+                dispatch(newGroup('New Group'));
+              }}
+            >
+              <Add fontSize="small" />
+              Group
+            </Button>
+            <Box height={30} />
+          </div>
+        </TabPanel>
+        <TabPanel value="toc">
+          {headings.map((it) => {
+            return <HeadingItem key={it.id} item={it} level={it.level || 0} />;
+          })}
+        </TabPanel>
+      </TabContext>
     </Drawer>
   );
 }
