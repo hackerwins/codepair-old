@@ -13,6 +13,7 @@ import Dialog, { DialogTitle, DialogContent, DialogActions, DialogContentText } 
 import Fade from 'components/commons/Fade';
 import { AppState } from 'app/rootReducer';
 import { DocStatus } from 'features/docSlices';
+import QRCode from 'react-qr-code';
 
 const useStyles = makeStyles(() => ({
   dialog: {
@@ -92,6 +93,14 @@ export default function ShareButton() {
             <Fade show={showCopyText} onFadeout={() => setShowCopyText(false)}>
               <p>Copy!</p>
             </Fade>
+          </Box>
+          <Box my={1} style={{ marginTop: 10 }}>
+            <DialogContentText>QRCode</DialogContentText>
+          </Box>
+          <Box>
+            <IconButton aria-label="selector">
+              <QRCode value={copyUrl} style={{ width: 150, height: 150 }} />
+            </IconButton>
           </Box>
         </DialogContent>
         <DialogActions>

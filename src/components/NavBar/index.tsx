@@ -1,12 +1,15 @@
 import React, { memo } from 'react';
-import { Link } from '@material-ui/core';
+import { IconButton, Link } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
+import MenuIcon from '@material-ui/icons/Menu';
 import PeerGroup from 'components/NavBar/PeerGroup';
 import ShareButton from 'components/NavBar/ShareButton';
 import NetworkButton from 'components/NavBar/NetworkButton';
+import { useDispatch } from 'react-redux';
+import { toggleLinkTab } from 'features/linkSlices';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -15,6 +18,11 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     appBar: {
       backgroundColor: 'black',
+      color: 'white',
+    },
+    iconButton: {
+      marginRight: theme.spacing(2),
+      color: 'white',
     },
     grow: {
       flexGrow: 1,
@@ -42,11 +50,21 @@ const useStyles = makeStyles((theme: Theme) =>
 
 function MenuAppBar() {
   const classes = useStyles();
+  const dispatch = useDispatch();
 
   return (
     <div className={classes.root}>
       <AppBar position="static" className={classes.appBar}>
         <Toolbar>
+          <IconButton
+            size="small"
+            onClick={() => {
+              dispatch(toggleLinkTab());
+            }}
+            className={classes.iconButton}
+          >
+            <MenuIcon />
+          </IconButton>
           <Typography variant="h6" className={classes.title}>
             <Link href="/" underline="none">
               CodePair
