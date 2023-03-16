@@ -32,6 +32,7 @@ const useStyles = makeStyles(() =>
         left: 0,
         top: 56,
         bottom: 0,
+        zIndex: 1,
       },
       flexGrow: 0,
       flex: 'none',
