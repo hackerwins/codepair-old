@@ -11,7 +11,7 @@ import { ConnectionStatus, Presence } from 'features/peerSlices';
 import { Theme as ThemeType } from 'features/settingSlices';
 import { Preview, updateHeadings } from 'features/docSlices';
 
-import { toggleLinkTab, updateLinkNameWithHeading } from 'features/linkSlices';
+import { updateLinkNameWithHeading } from 'features/linkSlices';
 import { NAVBAR_HEIGHT } from '../Editor';
 import Cursor from './Cursor';
 import SlideView from './slideView';
@@ -289,14 +289,6 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
         'image',
         'table',
         '|',
-        {
-          name: 'table-of-contents',
-          action: () => {
-            dispatch(toggleLinkTab('toc'));
-          },
-          className: 'fa fa-sitemap',
-          title: 'Table of Contents',
-        },
         'side-by-side',
         'preview',
         'fullscreen',
