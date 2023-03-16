@@ -1,4 +1,4 @@
-import React, { ChangeEvent, Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { ChangeEvent, Fragment, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Box,
   Button,
@@ -33,16 +33,16 @@ import {
   Delete,
   InsertDriveFile,
   CreateNewFolder,
-  Message,
   Edit,
   OpenInBrowser,
   FileCopy,
   Update,
-  ChevronLeft,
   SubdirectoryArrowLeft,
   Star,
   AccountTree,
   FolderOpen,
+  EventNote,
+  ListAlt,
 } from '@material-ui/icons';
 import { useHistory, useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
@@ -67,7 +67,6 @@ import {
   TabValueType,
   toggleFavorite,
   toggleLinkOpen,
-  toggleLinkTab,
 } from 'features/linkSlices';
 import { TabContext, TabList, TabPanel } from '@material-ui/lab';
 import { Theme } from 'features/settingSlices';
@@ -164,6 +163,17 @@ const useStyles = makeStyles((theme) =>
 
       [`& .MuiTabPanel-root`]: {
         padding: 0,
+      },
+
+      [`& .MuiTab-root`]: {
+        minWidth: 0,
+        padding: '0 16px',
+        fontSize: '0.875rem',
+        textTransform: 'none',
+        color: 'rgba(0, 0, 0, 0.54)',
+        '&.Mui-selected': {
+          color: 'rgba(0, 0, 0, 0.87)',
+        },
       },
     },
     listItemText: {
@@ -906,7 +916,11 @@ function SidebarItem({ item, level }: SidebarItemProps) {
       selected={docKey === item.fileLink}
       disableRipple
     >
-      {item.links?.length ? <MoreIcon open={opens[item.id]} onClick={setOpenCallback} /> : <Message fontSize="small" />}
+      {item.links?.length ? (
+        <MoreIcon open={opens[item.id]} onClick={setOpenCallback} />
+      ) : (
+        <EventNote fontSize="small" />
+      )}
       {isRename ? (
         <Input
           autoFocus
@@ -1121,6 +1135,32 @@ function GroupView({ group }: GroupViewProps) {
   );
 }
 
+interface TabLabelProps {
+  children: ReactNode;
+}
+function TabLabel({ children }: TabLabelProps) {
+  return <span style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 4 }}>{children}</span>;
+}
+
+interface TabPanelHeaderProps {
+  children: ReactNode;
+}
+
+function TabPanelHeader({ children }: TabPanelHeaderProps) {
+  return (
+    <ListSubheader>
+      <Box display="flex" alignItems="center" justifyContent="space-between">
+        <Typography
+          variant="h6"
+          style={{ fontWeight: 400, fontSize: 14, height: 40, display: 'flex', alignItems: 'center' }}
+        >
+          {children}
+        </Typography>
+      </Box>
+    </ListSubheader>
+  );
+}
+
 export function SideBar() {
   const dispatch = useDispatch();
   const linkState = useSelector((state: AppState) => state.linkState);
@@ -1194,41 +1234,44 @@ export function SideBar() {
   return (
     <Drawer variant="permanent" className={classes.drawer} open={linkState.openTab}>
       <TabContext value={linkState.openTabValue}>
-        <Box
-          style={{
-            width: '100%',
-          }}
-        >
+        <Box>
           <TabList
             onChange={handleChange}
-            aria-label="lab API tabs example"
             className={menu.theme === Theme.Dark ? classes.tabListDark : classes.tabListLight}
+            indicatorColor="primary"
+            textColor="primary"
+            variant="scrollable"
+            scrollButtons="auto"
+            centered
           >
-            <Tab label="Links" value="links" />
-            <Tab label="ToC" value="toc" />
+            <Tab
+              label={
+                <TabLabel>
+                  <EventNote /> Note
+                </TabLabel>
+              }
+              value="links"
+            />
+            <Tab
+              label={
+                <TabLabel>
+                  <ListAlt /> H1
+                </TabLabel>
+              }
+              value="toc"
+            />
           </TabList>
         </Box>
         <TabPanel value="links">
-          <ListSubheader>
-            <Box display="flex" alignItems="center" justifyContent="space-between">
-              <Typography variant="h6" style={{ fontWeight: 400, fontSize: 14, display: 'flex', alignItems: 'center' }}>
-                <Star
-                  fontSize="small"
-                  style={{
-                    marginRight: 6,
-                  }}
-                />{' '}
-                Favorite
-              </Typography>
-              <IconButton
-                onClick={() => {
-                  dispatch(toggleLinkTab('links'));
-                }}
-              >
-                {open ? <ChevronLeft /> : <ChevronRight />}
-              </IconButton>
-            </Box>
-          </ListSubheader>
+          <TabPanelHeader>
+            <Star
+              fontSize="small"
+              style={{
+                marginRight: 6,
+              }}
+            />{' '}
+            Favorites
+          </TabPanelHeader>
           {favorites.map((it) => {
             if (!it) {
               return null;
@@ -1249,22 +1292,15 @@ export function SideBar() {
               margin: '8px 0',
             }}
           />
-          <ListSubheader>
-            <Box display="flex" alignItems="center" justifyContent="space-between">
-              <Typography
-                variant="h6"
-                style={{ fontWeight: 400, fontSize: 14, height: 40, display: 'flex', alignItems: 'center' }}
-              >
-                <AccountTree
-                  fontSize="small"
-                  style={{
-                    marginRight: 6,
-                  }}
-                />
-                Links
-              </Typography>
-            </Box>
-          </ListSubheader>
+          <TabPanelHeader>
+            <AccountTree
+              fontSize="small"
+              style={{
+                marginRight: 6,
+              }}
+            />
+            Links
+          </TabPanelHeader>
           {linkState.groups.map((group) => {
             return <GroupView key={group.id} group={group} />;
           })}
