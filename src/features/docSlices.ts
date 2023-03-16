@@ -117,12 +117,12 @@ interface Heading {
   originalText?: string;
 }
 
-function generateTableOfContents(editorInstance: CodeMirror.Editor): Heading[] {
+function generateTableOfContents(editorInstance: CodeMirror.Editor, count = Number.MAX_SAFE_INTEGER): Heading[] {
   const doc = editorInstance.getDoc();
-  const count = doc.lineCount();
+  const lineCount = doc.lineCount();
   const headings = [];
 
-  for (let i = 0; i < count; i += 1) {
+  for (let i = 0; i < lineCount; i += 1) {
     const line = doc.getLine(i);
 
     // check only header
@@ -134,19 +134,23 @@ function generateTableOfContents(editorInstance: CodeMirror.Editor): Heading[] {
       const level = match[1].length;
       const text = match[2];
       headings.push({ level, text, originalText: line });
+
+      if (headings.length >= count) {
+        break;
+      }
     }
   }
 
   return headings;
 }
 
-export function getTableOfContents(): Heading[] {
+export function getTableOfContents(count = Number.MAX_SAFE_INTEGER): Heading[] {
   const cm = document.querySelector('.CodeMirror');
 
   if (cm) {
     const { CodeMirror } = cm as any;
 
-    return generateTableOfContents(CodeMirror);
+    return generateTableOfContents(CodeMirror, count);
   }
 
   return [];

@@ -164,6 +164,11 @@ const linkSlice = createSlice({
             parent.links = parent.links.filter((link: any) => link.id !== id);
           } else {
             // root object
+
+            if (state.groups.length < 2) {
+              return;
+            }
+
             parent.groups = parent.groups.filter((link: any) => link.id !== id);
           }
         }
@@ -189,8 +194,10 @@ const linkSlice = createSlice({
       SettingModel.setValue(state);
     },
     updateLinkNameWithHeading(state) {
-      const heading = getTableOfContents()[0];
+      const heading = getTableOfContents(1)[0];
       const currentLink = window.location.pathname;
+
+      if (!heading) return;
 
       // const { id, name } = action.payload;
       const foundItem = findOne(state.groups, (item) => {

@@ -70,6 +70,7 @@ import {
 } from 'features/linkSlices';
 import { TabContext, TabList, TabPanel } from '@material-ui/lab';
 import { Theme } from 'features/settingSlices';
+import { showMessage } from 'features/messageSlices';
 
 interface SideBarProps {
   open: boolean;
@@ -601,6 +602,7 @@ interface GroupMoreMenuProps {
 
 function GroupMoreMenu({ group, startRename }: GroupMoreMenuProps) {
   const dispatch = useDispatch();
+  const groups = useSelector((state: AppState) => state.linkState.groups);
   const favorite = useSelector((state: AppState) => state.linkState.favorite);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const { docKey } = useParams<{ docKey: string }>();
@@ -628,6 +630,16 @@ function GroupMoreMenu({ group, startRename }: GroupMoreMenuProps) {
     if (command === 'Rename') {
       startRename();
     } else if (command === 'Delete') {
+      if (groups.length === 1) {
+        dispatch(
+          showMessage({
+            type: 'warning',
+            message: 'You can not delete the last group',
+          }),
+        );
+        return;
+      }
+
       handleClickDialogOpen();
     } else if (command === 'Add current page') {
       handleCreateCurrentPage();
@@ -704,31 +716,43 @@ function GroupMoreMenu({ group, startRename }: GroupMoreMenuProps) {
           ),
         )}
       </Menu>
-      <Dialog
-        open={dialogOpen}
-        onClose={handleDialogClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">Confirm</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">Are you sure to delete this group?</DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDialogClose}>Cancel</Button>
-          <Button
-            onClick={() => {
-              dispatch(removeGroup({ id: group.id }));
-              handleDialogClose();
-            }}
-            autoFocus
-            variant="contained"
-            color="primary"
-          >
-            OK
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {dialogOpen && (
+        <Dialog
+          open={dialogOpen}
+          onClose={handleDialogClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">Confirm</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">Are you sure to delete this group?</DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDialogClose}>Cancel</Button>
+            <Button
+              onClick={() => {
+                if (groups.length < 2) {
+                  dispatch(
+                    showMessage({
+                      type: 'warning',
+                      message: 'You can not delete the last group',
+                    }),
+                  );
+                  return;
+                }
+
+                dispatch(removeGroup({ id: group.id }));
+                handleDialogClose();
+              }}
+              autoFocus
+              variant="contained"
+              color="primary"
+            >
+              OK
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
     </div>
   );
 }
@@ -1310,7 +1334,7 @@ export function SideBar() {
             <Tab
               label={
                 <TabLabel>
-                  <EventNote /> Note
+                  <EventNote /> Notes
                 </TabLabel>
               }
               value="links"
@@ -1375,7 +1399,7 @@ export function SideBar() {
                 marginRight: 6,
               }}
             />
-            Group
+            Groups
           </TabPanelHeader>
           {linkState.groups.map((group) => {
             return <GroupView key={group.id} group={group} loopType="links" />;
