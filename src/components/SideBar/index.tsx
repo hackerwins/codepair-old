@@ -23,6 +23,7 @@ import {
   MenuItem,
   Snackbar,
   Tab,
+  Tooltip,
   Typography,
 } from '@material-ui/core';
 import {
@@ -881,18 +882,20 @@ function GroupItem({ group, level, loopType }: GroupItemProps) {
           visibility: 'hidden',
         }}
       >
-        <IconButton
-          disableRipple
-          size="small"
-          style={{
-            flex: 'none',
-          }}
-          onClick={() => {
-            dispatch(newLink({ parentId: group.id, name: 'New Link' }));
-          }}
-        >
-          <Add />
-        </IconButton>
+        <Tooltip title="Add new Link">
+          <IconButton
+            disableRipple
+            size="small"
+            style={{
+              flex: 'none',
+            }}
+            onClick={() => {
+              dispatch(newLink({ parentId: group.id, name: 'New Link' }));
+            }}
+          >
+            <Add />
+          </IconButton>
+        </Tooltip>
         {isRename ? undefined : (
           <GroupMoreMenu
             group={group}
@@ -1381,7 +1384,7 @@ export function SideBar() {
           />
           <TabPanelHeader
             tools={
-              <div>
+              <Tooltip title="New group">
                 <IconButton
                   size="small"
                   onClick={() => {
@@ -1390,7 +1393,7 @@ export function SideBar() {
                 >
                   <Add />
                 </IconButton>
-              </div>
+              </Tooltip>
             }
           >
             <AccountTree
