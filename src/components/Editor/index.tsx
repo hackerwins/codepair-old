@@ -120,7 +120,7 @@ export default function (props: { docKey: string }) {
     return () => {
       dispatch(attachDocLoading(true));
     };
-  }, [docKey, client, doc]);
+  }, [client, doc]);
 
   if (errorMessage) {
     return (

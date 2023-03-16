@@ -81,7 +81,6 @@ export default function Editor({ tool }: EditorProps) {
       <div className={classes.editor} ref={divRef}>
         <div className={classes.codeEditor}>
           <CodeEditor forwardedRef={codeEditorRef} />
-          <div id="tableOfContents" style={{ display: 'none' }} />
         </div>
         <div className={classes.canvas}>
           <DrawingBoard width={width} height={height} />

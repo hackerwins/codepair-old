@@ -103,7 +103,10 @@ export default function DrawingBoard({ width, height }: { width: number; height:
 
     boardRef.current?.setWidth(width);
     boardRef.current?.setHeight(height);
-    boardRef.current?.drawAll(doc!.getRoot().shapes);
+
+    if (doc?.getRoot().shapes) {
+      boardRef.current?.drawAll(doc!.getRoot().shapes);
+    }
   }, [doc, width, height]);
 
   useEffect(() => {

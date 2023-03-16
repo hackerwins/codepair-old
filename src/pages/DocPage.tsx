@@ -7,8 +7,11 @@ import { createStyles, makeStyles } from '@material-ui/core/styles';
 import NavBar from 'components/NavBar';
 import Editor from 'components/Editor';
 import { AppState } from 'app/rootReducer';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { SideBar } from 'components/SideBar';
+import { Snackbar } from '@material-ui/core';
+import { hideMessage } from 'features/messageSlices';
+import { Alert } from '@material-ui/lab';
 
 type DocPageProps = {
   docKey: string;
@@ -27,6 +30,13 @@ const useStyles = makeStyles(() =>
     },
     sidebarArea: {
       width: (props: LayoutProps) => (props.open ? SIDEBAR_WIDTH : 0),
+      '@media only screen and (max-width: 600px)': {
+        position: 'fixed',
+        left: 0,
+        top: 56,
+        bottom: 0,
+        zIndex: 1,
+      },
       flexGrow: 0,
       flex: 'none',
       position: 'relative',
@@ -46,6 +56,33 @@ const useStyles = makeStyles(() =>
     },
   }),
 );
+
+function MessagePanel() {
+  const dispatch = useDispatch();
+  const message = useSelector((state: AppState) => state.messageState);
+  const handleCloseSnackbar = () => {
+    dispatch(hideMessage());
+  };
+  return (
+    <div>
+      {message.open && (
+        <Snackbar
+          open={message.open}
+          autoHideDuration={1000}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+          onClose={handleCloseSnackbar}
+        >
+          <Alert onClose={handleCloseSnackbar} severity={message.type}>
+            {message.message}
+          </Alert>
+        </Snackbar>
+      )}
+    </div>
+  );
+}
 
 export default function DocPage(props: RouteComponentProps<DocPageProps>) {
   const openTab = useSelector((state: AppState) => state.linkState.openTab);
@@ -76,6 +113,7 @@ export default function DocPage(props: RouteComponentProps<DocPageProps>) {
           <Editor docKey={docKey} />
         </div>
       </div>
+      <MessagePanel />
     </div>
   );
 }

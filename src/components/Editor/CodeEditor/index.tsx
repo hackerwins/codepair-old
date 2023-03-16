@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useCallback, useState } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { ActorID, DocEvent, TextChange } from 'yorkie-js-sdk';
 import CodeMirror from 'codemirror';
 import SimpleMDE from 'easymde';
@@ -9,8 +9,9 @@ import SimpleMDEReact from 'react-simplemde-editor';
 import { AppState } from 'app/rootReducer';
 import { ConnectionStatus, Presence } from 'features/peerSlices';
 import { Theme as ThemeType } from 'features/settingSlices';
-import { Preview } from 'features/docSlices';
+import { Preview, updateHeadings } from 'features/docSlices';
 
+import { updateLinkNameWithHeading } from 'features/linkSlices';
 import { NAVBAR_HEIGHT } from '../Editor';
 import Cursor from './Cursor';
 import SlideView from './slideView';
@@ -25,91 +26,6 @@ const WIDGET_HEIGHT = 70;
 
 interface CodeEditorProps {
   forwardedRef: React.MutableRefObject<CodeMirror.Editor | null>;
-}
-
-interface Heading {
-  level: number;
-  text: string;
-  originalText?: string;
-}
-
-let cachedTableOfContents: Heading[] = [];
-
-function generateTableOfContents(editorInstance: CodeMirror.Editor) {
-  const doc = editorInstance.getDoc();
-  const count = doc.lineCount();
-  const headings = [];
-
-  for (let i = 0; i < count; i += 1) {
-    const line = doc.getLine(i);
-
-    // check only header
-    const tokens = editorInstance.getTokenTypeAt({ line: i, ch: 1 }) || '';
-    if (tokens?.includes('header') === false) continue;
-
-    const match = line.match(/^(#+)\s+(.*)/);
-    if (match) {
-      const level = match[1].length;
-      const text = match[2];
-      headings.push({ level, text, originalText: line });
-    }
-  }
-
-  const returnValue = {
-    isCached: true,
-    headings: [] as any[],
-  };
-
-  if (headings.length !== cachedTableOfContents.length) {
-    cachedTableOfContents = headings;
-    returnValue.headings = headings;
-    returnValue.isCached = false;
-    return returnValue;
-  }
-
-  if (headings.length > 0) {
-    for (let i = 0; i < headings.length; i += 1) {
-      if (headings[i].text !== cachedTableOfContents[i].text) {
-        cachedTableOfContents = headings;
-        returnValue.headings = headings;
-        returnValue.isCached = false;
-        break;
-      } else if (headings[i].level !== cachedTableOfContents[i].level) {
-        cachedTableOfContents = headings;
-        returnValue.headings = headings;
-        returnValue.isCached = false;
-        break;
-      }
-    }
-  }
-
-  return returnValue;
-}
-
-function displayTableOfContents(list: Heading[]) {
-  const toc = document.getElementById('tableOfContents');
-  if (toc) {
-    toc.innerHTML = `
-    <h3 style="padding: 5px 10px;margin:0px;">
-      <button 
-        class="close" 
-        style="font-size:20px;border:0px;background:transparent;cursor:pointer;float:right;"
-      >&times;</button>
-    </h3>
-    <ul style="list-style-type: none;padding-left: 0px;padding: 10px;">${list
-      .map((heading) => {
-        return `
-          <li class="level-${heading.level}" 
-              data-text="${heading.originalText}" 
-              style="padding-left: ${(heading.level - 1) * 10}px;margin-bottom: 5px;"
-          >
-            <a href="#${encodeURIComponent(heading.originalText || '')}" 
-              style="text-decoration: none;color:black;">${heading.text}</a>
-          </li>
-        `;
-      })
-      .join('')}</ul>`;
-  }
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -160,7 +76,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
   const classes = useStyles();
-
+  const dispatch = useDispatch();
   const doc = useSelector((state: AppState) => state.docState.doc);
   const preview = useSelector((state: AppState) => state.docState.preview);
   const menu = useSelector((state: AppState) => state.settingState.menu);
@@ -184,31 +100,19 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
     setEditor(cm);
   }, []);
 
-  const goHeadingLink = useCallback((cm: CodeMirror.Editor) => {
-    const searchText = decodeURIComponent(window.location.hash.replace('#', ''));
-    const cursor = (cm as any).getSearchCursor(searchText);
+  const goHeadingLink = useCallback(() => {
+    const cm = document.querySelector('.CodeMirror');
 
-    if (cursor.find()) {
-      cm.setCursor(cursor.from());
-      cm.scrollIntoView(cursor.from());
-    }
-  }, []);
+    if (cm) {
+      const { CodeMirror: cmInstance } = cm as any;
 
-  const toggleTableOfContents = useCallback((cm) => {
-    const el = document.getElementById('tableOfContents');
+      const searchText = decodeURIComponent(window.location.hash.replace('#', ''));
+      const cursor = (cmInstance as any).getSearchCursor(searchText);
 
-    if (el) {
-      const { display } = el.style;
-      el.style.display = display === 'none' ? 'block' : 'none';
-
-      if (el.style.display === 'block') {
-        if (cm) {
-          const toc = generateTableOfContents(cm);
-
-          if (toc.isCached === false) {
-            displayTableOfContents(toc.headings);
-          }
-        }
+      if (cursor.find()) {
+        cmInstance.setCursor(cursor.from());
+        cmInstance.scrollIntoView(cursor.from());
+        cmInstance.focus();
       }
     }
   }, []);
@@ -278,17 +182,9 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       }
     });
 
-    editor.on('change', (instance: CodeMirror.Editor) => {
-      const el = document.getElementById('tableOfContents');
-
-      // Don't fire unless tableOfContents is visible
-      if (el?.style.display !== 'block') return;
-
-      const toc = generateTableOfContents(instance);
-
-      if (toc.isCached === false) {
-        displayTableOfContents(toc.headings);
-      }
+    editor.on('change', () => {
+      dispatch(updateHeadings());
+      dispatch(updateLinkNameWithHeading());
     });
 
     // local to remote
@@ -347,8 +243,11 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
     // sync text of document and editor
     syncText = () => {
       const text = doc.getRoot().content;
-      text.onChanges(changeEventHandler);
-      editor.setValue(text.toString());
+
+      if (text) {
+        text.onChanges(changeEventHandler);
+        editor.setValue(text.toString());
+      }
     };
     syncText();
     editor.addKeyMap(menu.codeKeyMap);
@@ -357,30 +256,20 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
     editor.focus();
 
     // link to heading
-    goHeadingLink(editor);
-
-    const toc = generateTableOfContents(editor);
-
-    if (toc.isCached === false) {
-      displayTableOfContents(toc.headings);
-    }
-
-    const tableOfContents = document.getElementById('tableOfContents');
-
-    if (tableOfContents) {
-      tableOfContents.addEventListener('click', (event) => {
-        if ((event.target as any)?.classList.contains('close')) {
-          toggleTableOfContents(editor);
-        }
-      });
-    }
+    goHeadingLink();
 
     // set table of contents event
     // When a hashchange event occurs, move inside the codemirror with location.hash.
     window.addEventListener('hashchange', () => {
-      goHeadingLink(editor);
+      goHeadingLink();
     });
-  }, [client, doc, editor, forwardedRef, menu, goHeadingLink, toggleTableOfContents]);
+
+    window.addEventListener('popstate', () => {
+      goHeadingLink();
+    });
+
+    dispatch(updateHeadings());
+  }, [client, doc, editor, forwardedRef, menu, goHeadingLink, dispatch]);
 
   const options = useMemo(() => {
     const opts = {
@@ -400,14 +289,6 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
         'image',
         'table',
         '|',
-        {
-          name: 'table-of-contents',
-          action: ({ codemirror }) => {
-            toggleTableOfContents(codemirror);
-          },
-          className: 'fa fa-sitemap',
-          title: 'Table of Contents',
-        },
         'side-by-side',
         'preview',
         'fullscreen',
@@ -442,7 +323,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       };
     }
     return opts;
-  }, [preview, menu, toggleTableOfContents]);
+  }, [preview, menu]);
 
   return (
     <SimpleMDEReact

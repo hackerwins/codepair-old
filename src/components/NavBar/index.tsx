@@ -59,7 +59,7 @@ function MenuAppBar() {
           <IconButton
             size="small"
             onClick={() => {
-              dispatch(toggleLinkTab());
+              dispatch(toggleLinkTab('all'));
             }}
             className={classes.iconButton}
           >

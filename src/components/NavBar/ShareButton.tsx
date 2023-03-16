@@ -31,9 +31,12 @@ const useStyles = makeStyles(() => ({
     '@media only screen and (max-width: 600px)': {
       display: 'none',
     },
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   button: {
-    lineHeight: '32px',
+    lineHeight: '24px',
   },
 }));
 
