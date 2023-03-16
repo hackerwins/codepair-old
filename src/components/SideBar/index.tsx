@@ -266,7 +266,7 @@ const options = [
   'Favorite',
   '-',
   'Add link',
-  'Add current page',
+  'Add current note',
   'Rename',
   'Delete',
   'Update link',
@@ -278,7 +278,7 @@ const headingOptions = ['Favorite', '-', 'Open in Browser', 'Copy'];
 const groupOptions = [
   'Favorite',
   '-',
-  'Add current page',
+  'Add current note',
   'Add child group',
   'Add next group',
   'Rename',
@@ -371,7 +371,7 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
       handleClickDialogOpen();
     } else if (command === 'Add link') {
       handleCreateLink('Untitled name');
-    } else if (command === 'Add current page') {
+    } else if (command === 'Add current note') {
       handleCreateCurrentPage();
     } else if (command === 'Update link') {
       handleUpdateLink();
@@ -433,7 +433,7 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
                   />
                 ) : undefined}
                 {option === 'Add link' ? <SubdirectoryArrowLeft /> : undefined}
-                {option === 'Add current page' ? <SubdirectoryArrowLeft /> : undefined}
+                {option === 'Add current note' ? <SubdirectoryArrowLeft /> : undefined}
                 {option === 'Rename' ? <Edit /> : undefined}
                 {option === 'Open in Browser' ? <OpenInBrowser /> : undefined}
                 {option === 'Copy' ? <FileCopy /> : undefined}
@@ -642,7 +642,7 @@ function GroupMoreMenu({ group, startRename }: GroupMoreMenuProps) {
       }
 
       handleClickDialogOpen();
-    } else if (command === 'Add current page') {
+    } else if (command === 'Add current note') {
       handleCreateCurrentPage();
     } else if (command === 'Add next group') {
       dispatch(newGroupAt({ id: group.id, name: 'New Group' }));
@@ -700,7 +700,7 @@ function GroupMoreMenu({ group, startRename }: GroupMoreMenuProps) {
                   />
                 ) : undefined}
                 {option === 'Rename' ? <InsertDriveFile /> : undefined}
-                {option === 'Add current page' ? <SubdirectoryArrowLeft /> : undefined}
+                {option === 'Add current note' ? <SubdirectoryArrowLeft /> : undefined}
                 {option === 'Add next group' ? <CreateNewFolder /> : undefined}
                 {option === 'Add child group' ? <SubdirectoryArrowLeft /> : undefined}
                 {option === 'Favorite' ? (

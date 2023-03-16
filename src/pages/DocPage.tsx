@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { RouteComponentProps } from 'react-router';
+import { RouteComponentProps, useHistory } from 'react-router';
 import { useLocation } from 'react-router-dom';
 import ReactGA from 'react-ga4';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
@@ -11,7 +11,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { SideBar } from 'components/SideBar';
 import { Snackbar } from '@material-ui/core';
 import { hideMessage } from 'features/messageSlices';
-import { Alert } from '@material-ui/lab';
+import { Alert, SpeedDial, SpeedDialAction, SpeedDialIcon } from '@material-ui/lab';
+import { EventNote, QuestionAnswer, RecordVoiceOver } from '@material-ui/icons';
+import { recentFavoriteSelector } from 'features/linkSlices';
 
 type DocPageProps = {
   docKey: string;
@@ -84,6 +86,65 @@ function MessagePanel() {
   );
 }
 
+function SpeedDialPanel() {
+  const history = useHistory();
+  const favorites = useSelector(recentFavoriteSelector(3));
+  const [openSpeedDial, setOpenSpeedDial] = React.useState(false);
+
+  const handleSpeedDialOpen = () => {
+    setOpenSpeedDial(true);
+  };
+
+  const handleSpeedDialClose = () => {
+    setOpenSpeedDial(false);
+  };
+
+  return (
+    <SpeedDial
+      ariaLabel="SpeedDial"
+      icon={<SpeedDialIcon />}
+      onClose={handleSpeedDialClose}
+      onOpen={handleSpeedDialOpen}
+      open={openSpeedDial}
+      direction="up"
+      style={{
+        position: 'fixed',
+        bottom: 50,
+        right: 20,
+      }}
+    >
+      <SpeedDialAction
+        icon={<QuestionAnswer />}
+        tooltipTitle="Yorkie QnA"
+        onClick={() => {
+          history.push('/qna');
+        }}
+      />
+      <SpeedDialAction
+        icon={<RecordVoiceOver />}
+        tooltipTitle="Yorkie Developer QnA"
+        onClick={() => {
+          history.push('/developer-qna');
+        }}
+      />
+      {favorites.reverse().map((favorite) => {
+        return (
+          <SpeedDialAction
+            key={`${favorite.fileLink}${Math.random()}`}
+            icon={<EventNote />}
+            tooltipTitle={favorite.name}
+            onClick={() => {
+              if (favorite.fileLink) {
+                history.push(favorite.fileLink);
+              }
+            }}
+          />
+        );
+      })}
+    </SpeedDial>
+  );
+}
+
 export default function DocPage(props: RouteComponentProps<DocPageProps>) {
   const openTab = useSelector((state: AppState) => state.linkState.openTab);
   const menu = useSelector((state: AppState) => state.settingState.menu);
@@ -114,6 +175,7 @@ export default function DocPage(props: RouteComponentProps<DocPageProps>) {
         </div>
       </div>
       <MessagePanel />
+      <SpeedDialPanel />
     </div>
   );
 }
