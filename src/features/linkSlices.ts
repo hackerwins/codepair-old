@@ -1,3 +1,4 @@
+import { getTableOfContents } from 'features/docSlices';
 import { AppState } from 'app/rootReducer';
 import BrowserStorage from 'utils/storage';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
@@ -41,7 +42,14 @@ const initialLinkState: LinkState = SettingModel.getValue({
   openTab: false,
   openTabValue: 'links',
   favorite: [],
-  groups: [],
+  groups: [
+    {
+      type: 'group',
+      id: `${Date.now()}`,
+      name: 'Default Group',
+      links: [],
+    },
+  ],
   opens: {},
 });
 
@@ -141,7 +149,7 @@ const linkSlice = createSlice({
       const { id } = action.payload;
       traverse(state, state.groups, (item, parent) => {
         if (item.id === id) {
-          parent.links = parent.links.filter((link: any) => link.id !== id);
+          parent.links = parent.links?.filter((link: any) => link.id !== id) || [];
         }
       });
 
@@ -171,6 +179,20 @@ const linkSlice = createSlice({
       const foundItem = findOne(state.groups, (item) => item.id === id);
       if (foundItem) {
         foundItem.name = name;
+      }
+
+      SettingModel.setValue(state);
+    },
+    updateLinkNameWithHeading(state) {
+      const heading = getTableOfContents()[0];
+      const currentLink = window.location.pathname;
+
+      // const { id, name } = action.payload;
+      const foundItem = findOne(state.groups, (item) => {
+        return item.fileLink === currentLink;
+      });
+      if (foundItem) {
+        foundItem.name = heading.text;
       }
 
       SettingModel.setValue(state);
@@ -266,22 +288,23 @@ const linkSlice = createSlice({
     newLinkByCurrentPage(state, action: PayloadAction<{ parentId: string; name: string; fileLink: string }>) {
       const { parentId, name, fileLink } = action.payload;
 
-      traverse(state, state.groups, (item) => {
-        const temp = item;
+      const foundItem = findOne(state.groups, (item) => item.id === parentId);
 
-        if (item.id === parentId) {
-          if (!temp.links) temp.links = [];
-          temp.links = [
-            ...temp.links,
-            {
-              id: `${Date.now()}`,
-              name,
-              fileLink,
-              linkType: 'pairy',
-            },
-          ];
-        }
-      });
+      if (foundItem) {
+        if (!foundItem.links) foundItem.links = [];
+        foundItem.links = [
+          ...foundItem.links,
+          {
+            type: 'link',
+            id: `${Date.now()}`,
+            name,
+            fileLink,
+            linkType: 'pairy',
+          },
+        ];
+
+        state.opens[parentId] = true;
+      }
 
       SettingModel.setValue(state);
     },
@@ -313,13 +336,7 @@ const linkSlice = createSlice({
               return `${prefix}- ${item.name}`;
             }
 
-            let link = item.fileLink;
-
-            if (item.linkType === 'pairy') {
-              link = `/${item.fileLink}`;
-            }
-
-            return `${prefix}- [${item.name}](${link})`;
+            return `${prefix}- [${item.name}](${item.fileLink})`;
           })
           .join('\n');
 
@@ -348,6 +365,7 @@ export const {
   toggleLinkTab,
   toggleLinkOpen,
   setLinkName,
+  updateLinkNameWithHeading,
   newLinkByCurrentPage,
   setLinkFileLink,
   removeLink,

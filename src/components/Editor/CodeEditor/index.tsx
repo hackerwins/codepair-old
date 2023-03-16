@@ -11,7 +11,7 @@ import { ConnectionStatus, Presence } from 'features/peerSlices';
 import { Theme as ThemeType } from 'features/settingSlices';
 import { Preview, updateHeadings } from 'features/docSlices';
 
-import { toggleLinkTab } from 'features/linkSlices';
+import { toggleLinkTab, updateLinkNameWithHeading } from 'features/linkSlices';
 import { NAVBAR_HEIGHT } from '../Editor';
 import Cursor from './Cursor';
 import SlideView from './slideView';
@@ -184,6 +184,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
 
     editor.on('change', () => {
       dispatch(updateHeadings());
+      dispatch(updateLinkNameWithHeading());
     });
 
     // local to remote
@@ -260,6 +261,10 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
     // set table of contents event
     // When a hashchange event occurs, move inside the codemirror with location.hash.
     window.addEventListener('hashchange', () => {
+      goHeadingLink();
+    });
+
+    window.addEventListener('popstate', () => {
       goHeadingLink();
     });
 

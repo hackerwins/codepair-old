@@ -170,10 +170,6 @@ const useStyles = makeStyles((theme) =>
         padding: '0 16px',
         fontSize: '0.875rem',
         textTransform: 'none',
-        color: 'rgba(0, 0, 0, 0.54)',
-        '&.Mui-selected': {
-          color: 'rgba(0, 0, 0, 0.87)',
-        },
       },
     },
     listItemText: {
@@ -277,7 +273,18 @@ const options = [
   'Copy',
 ];
 const headingOptions = ['Favorite', '-', 'Open in Browser', 'Copy'];
-const groupOptions = ['Favorite', '-', 'Add child group', 'Add next group', 'Rename', '-', 'Delete', '-', 'Copy'];
+const groupOptions = [
+  'Favorite',
+  '-',
+  'Add current page',
+  'Add child group',
+  'Add next group',
+  'Rename',
+  '-',
+  'Delete',
+  '-',
+  'Copy',
+];
 
 interface MoreMenuProps {
   item: LinkItemType;
@@ -327,11 +334,11 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
   );
 
   const handleUpdateLink = useCallback(() => {
-    dispatch(setLinkFileLink({ id: item.id, name: getTitle(), fileLink: docKey }));
+    dispatch(setLinkFileLink({ id: item.id, name: getTitle(), fileLink: `/${docKey}` }));
   }, [item.id, dispatch, docKey]);
 
   const handleCreateCurrentPage = useCallback(() => {
-    dispatch(newLinkByCurrentPage({ parentId: item.id, name: getTitle(), fileLink: docKey }));
+    dispatch(newLinkByCurrentPage({ parentId: item.id, name: getTitle(), fileLink: `/${docKey}` }));
   }, [item.id, docKey, dispatch]);
 
   const handleClose = (command: string) => {
@@ -341,7 +348,7 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
       if (item.fileLink) {
         switch (item.linkType) {
           case 'pairy':
-            window.open(`/${item.fileLink}`, item.fileLink);
+            window.open(item.fileLink, item.fileLink);
             break;
           default:
             window.open(item.fileLink, '_blank');
@@ -352,7 +359,7 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
     } else if (command === 'Copy') {
       let link = item.fileLink || '';
       if (item.linkType === 'pairy') {
-        link = `${window.location.origin}/${item.fileLink}`;
+        link = `${window.location.origin}${item.fileLink}`;
       }
 
       window.navigator.clipboard.writeText(link).then(() => {
@@ -596,6 +603,7 @@ function GroupMoreMenu({ group, startRename }: GroupMoreMenuProps) {
   const dispatch = useDispatch();
   const favorite = useSelector((state: AppState) => state.linkState.favorite);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const { docKey } = useParams<{ docKey: string }>();
   const open = Boolean(anchorEl);
 
   const [dialogOpen, setDialogOpen] = React.useState(false);
@@ -611,11 +619,18 @@ function GroupMoreMenu({ group, startRename }: GroupMoreMenuProps) {
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
+
+  const handleCreateCurrentPage = useCallback(() => {
+    dispatch(newLinkByCurrentPage({ parentId: group.id, name: getTitle(), fileLink: `/${docKey}` }));
+  }, [group.id, docKey, dispatch]);
+
   const handleClose = (command: string) => {
     if (command === 'Rename') {
       startRename();
     } else if (command === 'Delete') {
       handleClickDialogOpen();
+    } else if (command === 'Add current page') {
+      handleCreateCurrentPage();
     } else if (command === 'Add next group') {
       dispatch(newGroupAt({ id: group.id, name: 'New Group' }));
     } else if (command === 'Add child group') {
@@ -672,6 +687,7 @@ function GroupMoreMenu({ group, startRename }: GroupMoreMenuProps) {
                   />
                 ) : undefined}
                 {option === 'Rename' ? <InsertDriveFile /> : undefined}
+                {option === 'Add current page' ? <SubdirectoryArrowLeft /> : undefined}
                 {option === 'Add next group' ? <CreateNewFolder /> : undefined}
                 {option === 'Add child group' ? <SubdirectoryArrowLeft /> : undefined}
                 {option === 'Favorite' ? (
@@ -720,11 +736,13 @@ function GroupMoreMenu({ group, startRename }: GroupMoreMenuProps) {
 interface GroupItemProps {
   group: GroupType;
   level: number;
+  loopType: LoopType;
 }
 
-function GroupItem({ group, level }: GroupItemProps) {
+function GroupItem({ group, level, loopType }: GroupItemProps) {
   const dispatch = useDispatch();
   const opens = useSelector((state: AppState) => state.linkState.opens);
+  const favorite = useSelector((state: AppState) => state.linkState.favorite);
   const classes = useStyles({
     open: true,
   });
@@ -759,11 +777,20 @@ function GroupItem({ group, level }: GroupItemProps) {
         return classes.level0;
     }
   }, [level, classes]);
+
+  const isView = useMemo(() => {
+    if (loopType !== 'favorite' && favorite.includes(group.id)) {
+      return false;
+    }
+
+    return true;
+  }, [loopType, favorite, group.id]);
+
   return (
     <ListSubheader
       className={[className, classes.listSubHeader].join(' ')}
       style={{
-        display: 'flex',
+        display: isView ? 'flex' : 'none',
         // justifyContent: 'space-between',
         alignItems: 'center',
       }}
@@ -855,14 +882,18 @@ function GroupItem({ group, level }: GroupItemProps) {
   );
 }
 
+type LoopType = 'links' | 'favorite';
+
 interface SidebarItemProps {
   item: LinkItemType;
   level: number;
+  loopType: LoopType;
 }
 
-function SidebarItem({ item, level }: SidebarItemProps) {
+function SidebarItem({ item, level, loopType }: SidebarItemProps) {
   const dispatch = useDispatch();
   const opens = useSelector((state: AppState) => state.linkState.opens);
+  const favorite = useSelector((state: AppState) => state.linkState.favorite);
   const history = useHistory();
   const textRef = useRef<string>(item.name);
   const [isRename, setIsRename] = useState(false);
@@ -879,6 +910,14 @@ function SidebarItem({ item, level }: SidebarItemProps) {
     },
     [item.id, dispatch],
   );
+
+  const isView = useMemo(() => {
+    if (loopType !== 'favorite' && favorite.includes(item.id)) {
+      return false;
+    }
+
+    return true;
+  }, [loopType, favorite, item.id]);
 
   const className = useMemo(() => {
     switch (level) {
@@ -913,8 +952,13 @@ function SidebarItem({ item, level }: SidebarItemProps) {
     <ListItem
       className={[className, classes.sidebarItem].join(' ')}
       button
-      selected={docKey === item.fileLink}
+      selected={`/${docKey}` === item.fileLink}
       disableRipple
+      style={{
+        display: isView ? 'flex' : 'none',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }}
     >
       {item.links?.length ? (
         <MoreIcon open={opens[item.id]} onClick={setOpenCallback} />
@@ -951,7 +995,7 @@ function SidebarItem({ item, level }: SidebarItemProps) {
             if (e.metaKey) {
               switch (item.linkType) {
                 case 'pairy':
-                  window.open(`/${item.fileLink}`, item.fileLink);
+                  window.open(item.fileLink, item.fileLink);
                   break;
                 default:
                   window.open(item.fileLink, '_blank');
@@ -962,10 +1006,10 @@ function SidebarItem({ item, level }: SidebarItemProps) {
             if (item.fileLink) {
               switch (item.linkType) {
                 case 'pairy':
-                  history.push(`/${item.fileLink}`, { name: item.name });
+                  history.push(item.fileLink, { name: item.name });
                   break;
                 case 'heading':
-                  window.location.href = `${item.fileLink}`;
+                  window.location.href = item.fileLink;
                   break;
                 default:
                   window.open(item.fileLink, '_blank');
@@ -1015,8 +1059,9 @@ function HeadingIcon({ item }: HeadingIconProps) {
   );
 }
 
-function HeadingItem({ item, level }: SidebarItemProps) {
+function HeadingItem({ item, level, loopType }: SidebarItemProps) {
   const classes = useStyles({ open: true });
+  const favorite = useSelector((state: AppState) => state.linkState.favorite);
 
   const className = useMemo(() => {
     switch (level) {
@@ -1047,12 +1092,25 @@ function HeadingItem({ item, level }: SidebarItemProps) {
     }
   }, [level, classes]);
 
+  const isView = useMemo(() => {
+    if (loopType !== 'favorite' && favorite.some((it) => (it as LinkItemType).fileLink === item.fileLink)) {
+      return false;
+    }
+
+    return true;
+  }, [loopType, favorite, item.fileLink]);
+
   return (
     <ListItem
       className={[className, classes.sidebarItem].join(' ')}
       button
       selected={`${window.location.pathname}${window.location.hash}` === item.fileLink}
       disableRipple
+      style={{
+        display: isView ? 'flex' : 'none',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }}
     >
       <HeadingIcon item={item} />
 
@@ -1068,7 +1126,8 @@ function HeadingItem({ item, level }: SidebarItemProps) {
           }
 
           if (item.fileLink) {
-            window.location.href = `${item.fileLink}`;
+            // window.history.pushState({}, '', item.fileLink);
+            window.location.href = item.fileLink;
           }
         }}
       />
@@ -1091,9 +1150,10 @@ function HeadingItem({ item, level }: SidebarItemProps) {
 interface SideBarItemListProps {
   links: ItemType[];
   level: number;
+  loopType: LoopType;
 }
 
-function SideBarItemList({ links, level }: SideBarItemListProps) {
+function SideBarItemList({ links, level, loopType }: SideBarItemListProps) {
   const opens = useSelector((state: AppState) => state.linkState.opens);
   return (
     <List style={{ padding: 0 }}>
@@ -1101,14 +1161,14 @@ function SideBarItemList({ links, level }: SideBarItemListProps) {
         return (
           <Fragment key={it.id}>
             {it.type === 'group' ? (
-              <GroupItem key={it.id} group={it} level={level} />
+              <GroupItem key={it.id} group={it} level={level} loopType={loopType} />
             ) : (
-              <SidebarItem key={it.id} item={it} level={level} />
+              <SidebarItem key={it.id} item={it} level={level} loopType={loopType} />
             )}
 
             {it.links && (
               <Collapse in={opens[it.id]} timeout="auto" unmountOnExit>
-                <SideBarItemList links={[...it.links]} level={level + 1} />
+                <SideBarItemList links={[...it.links]} level={level + 1} loopType={loopType} />
               </Collapse>
             )}
           </Fragment>
@@ -1120,15 +1180,16 @@ function SideBarItemList({ links, level }: SideBarItemListProps) {
 
 interface GroupViewProps {
   group: GroupType;
+  loopType: LoopType;
 }
 
-function GroupView({ group }: GroupViewProps) {
+function GroupView({ group, loopType }: GroupViewProps) {
   const opens = useSelector((state: AppState) => state.linkState.opens);
   return (
     <Box>
-      <GroupItem group={group} level={0} />
+      <GroupItem group={group} level={0} loopType={loopType} />
       <Collapse in={opens[group.id]} timeout="auto" unmountOnExit>
-        <SideBarItemList links={[...group.links]} level={1} />
+        <SideBarItemList links={[...group.links]} level={1} loopType={loopType} />
       </Collapse>
     </Box>
   );
@@ -1222,7 +1283,7 @@ export function SideBar() {
     if (linkRef.current) return;
 
     if (docKey) {
-      const findItem = findOne(linkState.groups, (item) => item.fileLink === docKey && item.linkType === 'pairy');
+      const findItem = findOne(linkState.groups, (item) => item.fileLink === `/${docKey}`);
       if (findItem) {
         showTreeNode(findItem.id);
         linkRef.current = true;
@@ -1237,8 +1298,6 @@ export function SideBar() {
           <TabList
             onChange={handleChange}
             className={menu.theme === Theme.Dark ? classes.tabListDark : classes.tabListLight}
-            indicatorColor="primary"
-            textColor="primary"
             variant="scrollable"
             scrollButtons="auto"
           >
@@ -1276,13 +1335,13 @@ export function SideBar() {
             }
 
             if (it.type === 'link' && it.linkType === 'heading') {
-              return <HeadingItem key={it.id} item={it} level={0} />;
+              return <HeadingItem key={it.id} item={it} level={0} loopType="favorite" />;
             }
 
             return it.type === 'group' ? (
-              <GroupView key={it.id} group={it} />
+              <GroupView key={it.id} group={it} loopType="favorite" />
             ) : (
-              <SidebarItem key={it.id} item={it} level={0} />
+              <SidebarItem key={it.id} item={it} level={0} loopType="favorite" />
             );
           })}
           <Divider
@@ -1300,7 +1359,7 @@ export function SideBar() {
             Links
           </TabPanelHeader>
           {linkState.groups.map((group) => {
-            return <GroupView key={group.id} group={group} />;
+            return <GroupView key={group.id} group={group} loopType="links" />;
           })}
           <div
             style={{
@@ -1332,7 +1391,7 @@ export function SideBar() {
         </TabPanel>
         <TabPanel value="toc">
           {headings.map((it) => {
-            return <HeadingItem key={it.id} item={it} level={it.level || 0} />;
+            return <HeadingItem key={it.id} item={it} level={it.level || 0} loopType="links" />;
           })}
         </TabPanel>
       </TabContext>
