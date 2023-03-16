@@ -323,7 +323,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       };
     }
     return opts;
-  }, [preview, menu, dispatch]);
+  }, [preview, menu]);
 
   return (
     <SimpleMDEReact
