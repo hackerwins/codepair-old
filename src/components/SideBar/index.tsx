@@ -1202,11 +1202,12 @@ function TabLabel({ children }: TabLabelProps) {
   return <span style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 4 }}>{children}</span>;
 }
 
-interface TabPanelHeaderProps {
+type TabPanelHeaderProps = {
   children: ReactNode;
-}
+  tools?: ReactNode;
+};
 
-function TabPanelHeader({ children }: TabPanelHeaderProps) {
+function TabPanelHeader({ children, tools = '' }: TabPanelHeaderProps) {
   return (
     <ListSubheader>
       <Box display="flex" alignItems="center" justifyContent="space-between">
@@ -1216,10 +1217,15 @@ function TabPanelHeader({ children }: TabPanelHeaderProps) {
         >
           {children}
         </Typography>
+        {tools}
       </Box>
     </ListSubheader>
   );
 }
+
+TabPanelHeader.defaultProps = {
+  tools: '',
+};
 
 export function SideBar() {
   const dispatch = useDispatch();
@@ -1349,14 +1355,27 @@ export function SideBar() {
               margin: '8px 0',
             }}
           />
-          <TabPanelHeader>
+          <TabPanelHeader
+            tools={
+              <div>
+                <IconButton
+                  size="small"
+                  onClick={() => {
+                    dispatch(newGroup('New Group'));
+                  }}
+                >
+                  <Add />
+                </IconButton>
+              </div>
+            }
+          >
             <AccountTree
               fontSize="small"
               style={{
                 marginRight: 6,
               }}
             />
-            Links
+            Group
           </TabPanelHeader>
           {linkState.groups.map((group) => {
             return <GroupView key={group.id} group={group} loopType="links" />;

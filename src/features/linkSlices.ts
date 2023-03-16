@@ -160,7 +160,12 @@ const linkSlice = createSlice({
       const { id } = action.payload;
       traverse(state, state.groups, (item, parent) => {
         if (item.id === id) {
-          parent.links = parent.links.filter((link: any) => link.id !== id);
+          if (parent?.links) {
+            parent.links = parent.links.filter((link: any) => link.id !== id);
+          } else {
+            // root object
+            parent.groups = parent.groups.filter((link: any) => link.id !== id);
+          }
         }
       });
 
