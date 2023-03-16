@@ -1017,7 +1017,6 @@ function HeadingIcon({ item }: HeadingIconProps) {
 
 function HeadingItem({ item, level }: SidebarItemProps) {
   const classes = useStyles({ open: true });
-  const history = useHistory();
 
   const className = useMemo(() => {
     switch (level) {
@@ -1069,7 +1068,7 @@ function HeadingItem({ item, level }: SidebarItemProps) {
           }
 
           if (item.fileLink) {
-            history.push(`${item.fileLink}`, { name: item.name });
+            window.location.href = `${item.fileLink}`;
           }
         }}
       />
@@ -1242,7 +1241,6 @@ export function SideBar() {
             textColor="primary"
             variant="scrollable"
             scrollButtons="auto"
-            centered
           >
             <Tab
               label={
