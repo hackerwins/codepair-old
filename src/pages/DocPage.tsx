@@ -28,7 +28,7 @@ const useStyles = makeStyles(() =>
     sidebarArea: {
       width: (props: LayoutProps) => (props.open ? SIDEBAR_WIDTH : 0),
       '@media only screen and (max-width: 600px)': {
-        position: 'absolute',
+        position: 'fixed',
         left: 0,
         top: 56,
         bottom: 0,
@@ -49,7 +49,6 @@ const useStyles = makeStyles(() =>
       height: '100%',
       display: 'flex',
       flexDirection: 'column',
-      zIndex: -1,
     },
   }),
 );
