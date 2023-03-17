@@ -36,23 +36,6 @@ export interface LinkState {
 
 export type TabValueType = 'all' | 'links' | 'toc';
 
-const SettingModel = new BrowserStorage<LinkState>('$$codepair$$link');
-
-const initialLinkState: LinkState = SettingModel.getValue({
-  openTab: false,
-  openTabValue: 'links',
-  favorite: [],
-  groups: [
-    {
-      type: 'group',
-      id: `${Date.now()}`,
-      name: 'Default Group',
-      links: [],
-    },
-  ],
-  opens: {},
-});
-
 function traverse(parent: any, data: any[], callback: (item: any, parent: any, depth: number) => void, depth = 0) {
   data.forEach((item) => {
     callback(item, parent, depth + 1);
@@ -73,6 +56,37 @@ function findOne(data: any[], callback: (item: any) => boolean) {
 function copyTextToClipboard(text: string) {
   window.navigator.clipboard.writeText(text);
 }
+
+const SettingModel = new BrowserStorage<LinkState>('$$codepair$$link');
+
+const initialLinkState: LinkState = SettingModel.getValue({
+  openTab: false,
+  openTabValue: 'links',
+  favorite: [],
+  groups: [
+    {
+      type: 'group',
+      id: `${Date.now()}`,
+      name: 'Default Group',
+      links: [],
+    },
+  ],
+  opens: {},
+});
+
+// recover old data
+traverse(initialLinkState, initialLinkState.groups, (item) => {
+  if (item.type === 'link') {
+    if (item.fileLink?.startsWith('/') !== true) {
+      item.fileLink = `/${item.fileLink}`;
+    }
+  } else if (item.linkType === 'pairy') {
+    if (item.fileLink?.startsWith('/') !== true) {
+      item.fileLink = `/${item.fileLink}`;
+    }
+    item.type = 'link';
+  }
+});
 
 const linkSlice = createSlice({
   name: 'link',
@@ -284,9 +298,10 @@ const linkSlice = createSlice({
           temp.links = [
             ...temp.links,
             {
+              type: 'link',
               id: `${Date.now()}`,
               name,
-              fileLink: `${Math.random().toString(36).substring(7)}`,
+              fileLink: `/${Math.random().toString(36).substring(7)}`,
               linkType: 'pairy',
             },
           ];
@@ -368,6 +383,23 @@ export function favoriteSelector(state: AppState): ItemType[] {
       return findOne(state.linkState.groups, (item) => item.id === id);
     }) || []
   );
+}
+
+export function recentFavoriteSelector(count: number = 10) {
+  return (state: AppState): LinkItemType[] => {
+    return (
+      state.linkState.favorite?.map((id) => {
+        if (typeof id !== 'string') {
+          return id;
+        }
+
+        return findOne(state.linkState.groups, (item) => item.id === id);
+      }) || []
+    )
+      .filter((item) => item?.fileLink)
+      .reverse()
+      .filter((_, index) => index < count);
+  };
 }
 
 export const {
