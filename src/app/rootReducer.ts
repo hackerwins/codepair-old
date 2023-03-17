@@ -6,6 +6,7 @@ import settingReducer from 'features/settingSlices';
 import boardReducer from 'features/boardSlices';
 import linkReducer from 'features/linkSlices';
 import messageReducer from 'features/messageSlices';
+import navReducer from 'features/navSlices';
 
 const rootReducer = combineReducers({
   docState: docReducer,
@@ -14,6 +15,7 @@ const rootReducer = combineReducers({
   boardState: boardReducer,
   linkState: linkReducer,
   messageState: messageReducer,
+  navState: navReducer,
 });
 
 export type AppState = ReturnType<typeof rootReducer>;

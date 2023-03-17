@@ -27,14 +27,10 @@ export interface OpenState {
 }
 
 export interface LinkState {
-  openTab: boolean;
-  openTabValue: TabValueType;
   opens: OpenState;
   favorite: (string | LinkItemType)[];
   groups: GroupType[];
 }
-
-export type TabValueType = 'all' | 'links' | 'toc';
 
 function traverse(parent: any, data: any[], callback: (item: any, parent: any, depth: number) => void, depth = 0) {
   data.forEach((item) => {
@@ -60,8 +56,6 @@ function copyTextToClipboard(text: string) {
 const SettingModel = new BrowserStorage<LinkState>('$$codepair$$link');
 
 const initialLinkState: LinkState = SettingModel.getValue({
-  openTab: false,
-  openTabValue: 'links',
   favorite: [],
   groups: [
     {
@@ -93,6 +87,13 @@ const linkSlice = createSlice({
   initialState: initialLinkState,
 
   reducers: {
+    refreshStorage(state) {
+      const newValue = SettingModel.getValue(state);
+
+      state.favorite = newValue.favorite;
+      state.groups = newValue.groups;
+      state.opens = newValue.opens;
+    },
     toggleFavorite(state, action: PayloadAction<string | LinkItemType>) {
       const { payload } = action;
 
@@ -118,44 +119,14 @@ const linkSlice = createSlice({
 
       SettingModel.setValue(state);
     },
-    toggleLinkTab(state, action: PayloadAction<TabValueType>) {
-      const tabValue = action.payload || 'links';
-
-      if (tabValue === 'all') {
-        if (state.openTab) {
-          state.openTab = false;
-          SettingModel.setValue(state);
-          return;
-        }
-
-        state.openTab = true;
-        SettingModel.setValue(state);
-
-        return;
-      }
-
-      if (state.openTabValue === tabValue) {
-        state.openTab = !state.openTab;
-        SettingModel.setValue(state);
-        return;
-      }
-
-      state.openTab = true;
-      state.openTabValue = tabValue;
-
-      SettingModel.setValue(state);
-    },
-
-    setTabValue(state, action: PayloadAction<TabValueType>) {
-      const tabValue = action.payload || 'links';
-
-      state.openTabValue = tabValue;
-      SettingModel.setValue(state);
-    },
 
     toggleLinkOpen(state, action: PayloadAction<string>) {
       const { payload } = action;
       state.opens[payload] = !state.opens[payload];
+
+      if (state.opens[payload] === false) {
+        delete state.opens[payload];
+      }
 
       SettingModel.setValue(state);
     },
@@ -403,10 +374,9 @@ export function recentFavoriteSelector(count: number = 10) {
 }
 
 export const {
+  refreshStorage,
   copyMarkdownTextForGroup,
   toggleFavorite,
-  setTabValue,
-  toggleLinkTab,
   toggleLinkOpen,
   setLinkName,
   updateLinkNameWithHeading,

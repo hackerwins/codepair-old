@@ -9,7 +9,7 @@ import PeerGroup from 'components/NavBar/PeerGroup';
 import ShareButton from 'components/NavBar/ShareButton';
 import NetworkButton from 'components/NavBar/NetworkButton';
 import { useDispatch } from 'react-redux';
-import { toggleLinkTab } from 'features/linkSlices';
+import { toggleTab } from 'features/navSlices';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -59,7 +59,7 @@ function MenuAppBar() {
           <IconButton
             size="small"
             onClick={() => {
-              dispatch(toggleLinkTab('all'));
+              dispatch(toggleTab());
             }}
             className={classes.iconButton}
           >
