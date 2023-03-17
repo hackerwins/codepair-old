@@ -147,7 +147,7 @@ function SpeedDialPanel() {
 
 export default function DocPage(props: RouteComponentProps<DocPageProps>) {
   const dispatch = useDispatch();
-  const openTab = useSelector((state: AppState) => state.linkState.openTab);
+  const openTab = useSelector((state: AppState) => state.navState.openTab);
   const menu = useSelector((state: AppState) => state.settingState.menu);
   const classes = useStyles({
     open: openTab,

@@ -27,14 +27,10 @@ export interface OpenState {
 }
 
 export interface LinkState {
-  openTab: boolean;
-  openTabValue: TabValueType;
   opens: OpenState;
   favorite: (string | LinkItemType)[];
   groups: GroupType[];
 }
-
-export type TabValueType = 'all' | 'links' | 'toc';
 
 function traverse(parent: any, data: any[], callback: (item: any, parent: any, depth: number) => void, depth = 0) {
   data.forEach((item) => {
@@ -60,8 +56,6 @@ function copyTextToClipboard(text: string) {
 const SettingModel = new BrowserStorage<LinkState>('$$codepair$$link');
 
 const initialLinkState: LinkState = SettingModel.getValue({
-  openTab: false,
-  openTabValue: 'links',
   favorite: [],
   groups: [
     {
@@ -96,8 +90,6 @@ const linkSlice = createSlice({
     refreshStorage(state) {
       const newValue = SettingModel.getValue(state);
 
-      state.openTab = newValue.openTab;
-      state.openTabValue = newValue.openTabValue;
       state.favorite = newValue.favorite;
       state.groups = newValue.groups;
       state.opens = newValue.opens;
@@ -125,40 +117,6 @@ const linkSlice = createSlice({
 
       state.favorite = favorite;
 
-      SettingModel.setValue(state);
-    },
-    toggleLinkTab(state, action: PayloadAction<TabValueType>) {
-      const tabValue = action.payload || 'links';
-
-      if (tabValue === 'all') {
-        if (state.openTab) {
-          state.openTab = false;
-          SettingModel.setValue(state);
-          return;
-        }
-
-        state.openTab = true;
-        SettingModel.setValue(state);
-
-        return;
-      }
-
-      if (state.openTabValue === tabValue) {
-        state.openTab = !state.openTab;
-        SettingModel.setValue(state);
-        return;
-      }
-
-      state.openTab = true;
-      state.openTabValue = tabValue;
-
-      SettingModel.setValue(state);
-    },
-
-    setTabValue(state, action: PayloadAction<TabValueType>) {
-      const tabValue = action.payload || 'links';
-
-      state.openTabValue = tabValue;
       SettingModel.setValue(state);
     },
 
@@ -419,8 +377,6 @@ export const {
   refreshStorage,
   copyMarkdownTextForGroup,
   toggleFavorite,
-  setTabValue,
-  toggleLinkTab,
   toggleLinkOpen,
   setLinkName,
   updateLinkNameWithHeading,

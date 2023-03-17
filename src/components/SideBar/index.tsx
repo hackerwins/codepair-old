@@ -64,14 +64,13 @@ import {
   setLinkFileLink,
   setLinkName,
   setLinkOpens,
-  setTabValue,
-  TabValueType,
   toggleFavorite,
   toggleLinkOpen,
 } from 'features/linkSlices';
 import { TabContext, TabList, TabPanel } from '@material-ui/lab';
 import { Theme } from 'features/settingSlices';
 import { showMessage } from 'features/messageSlices';
+import { NavTabType, toggleLinkTab } from 'features/navSlices';
 
 interface SideBarProps {
   open: boolean;
@@ -1257,16 +1256,17 @@ TabPanelHeader.defaultProps = {
 export function SideBar() {
   const dispatch = useDispatch();
   const linkState = useSelector((state: AppState) => state.linkState);
+  const navState = useSelector((state: AppState) => state.navState);
   const headings = useSelector((state: AppState) => state.docState.headings);
   const menu = useSelector((state: AppState) => state.settingState.menu);
   const favorites = useSelector(favoriteSelector);
-  const open = useSelector((state: AppState) => state.linkState.openTab);
+  const open = navState.openTab;
   const linkRef = useRef<boolean>(false);
   const classes = useStyles({ open });
   const { docKey } = useParams<{ docKey: string }>();
 
-  const handleChange = (event: ChangeEvent<{}>, newValue: TabValueType) => {
-    dispatch(setTabValue(newValue));
+  const handleChange = (event: ChangeEvent<{}>, newValue: NavTabType) => {
+    dispatch(toggleLinkTab(newValue));
   };
 
   const showTreeNode = useCallback(
@@ -1325,8 +1325,8 @@ export function SideBar() {
   }, [docKey, showTreeNode, linkState.groups]);
 
   return (
-    <Drawer variant="permanent" className={classes.drawer} open={linkState.openTab}>
-      <TabContext value={linkState.openTabValue}>
+    <Drawer variant="permanent" className={classes.drawer} open={open}>
+      <TabContext value={navState.openTabValue}>
         <Box>
           <TabList
             onChange={handleChange}
@@ -1340,7 +1340,7 @@ export function SideBar() {
                   <EventNote /> Notes
                 </TabLabel>
               }
-              value="links"
+              value="notes"
             />
             <Tab
               label={
@@ -1352,7 +1352,7 @@ export function SideBar() {
             />
           </TabList>
         </Box>
-        <TabPanel value="links">
+        <TabPanel value="notes">
           <TabPanelHeader>
             <Star
               fontSize="small"
