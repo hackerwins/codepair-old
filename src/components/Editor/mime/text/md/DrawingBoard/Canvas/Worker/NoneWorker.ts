@@ -1,4 +1,4 @@
-import Board from 'components/Editor/DrawingBoard/Canvas/Board';
+import Board from 'components/Editor/mime/text/md/DrawingBoard/Canvas/Board';
 import { ToolType } from 'features/boardSlices';
 import Worker from './Worker';
 

@@ -1,7 +1,7 @@
 import { TimeTicket } from 'yorkie-js-sdk';
 import { Root, Point, Line } from 'features/docSlices';
 import { ToolType } from 'features/boardSlices';
-import Board from 'components/Editor/DrawingBoard/Canvas/Board';
+import Board from 'components/Editor/mime/text/md/DrawingBoard/Canvas/Board';
 import { createLine } from '../line';
 import Worker, { MouseMoveCallback, MouseUpCallback, Options } from './Worker';
 import { compressPoints } from '../utils';

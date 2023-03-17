@@ -1,17 +1,19 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 
-import CodeEditor from 'components/Editor/CodeEditor';
-import DrawingBoard from 'components/Editor/DrawingBoard';
+import CodeEditor from 'components/Editor/mime/text/md/CodeEditor';
+import DrawingBoard from 'components/Editor/mime/text/md/DrawingBoard';
 import Sidebar from 'components/Editor/Sidebar';
 import { ToolType } from 'features/boardSlices';
+import { useSelector } from 'react-redux';
+import { AppState } from 'app/rootReducer';
 
 export const NAVBAR_HEIGHT = 64;
 const SIDEBAR_WIDTH = 46;
 
-interface EditorProps {
-  tool: ToolType;
-}
+// interface EditorProps {
+//   tool: ToolType;
+// }
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -22,6 +24,7 @@ const useStyles = makeStyles(() =>
     editor: {
       width: `calc(100% - ${SIDEBAR_WIDTH}px)`,
       flex: '0 0 auto',
+      position: 'relative',
     },
     codeEditor: {
       width: '100%',
@@ -29,9 +32,9 @@ const useStyles = makeStyles(() =>
     },
     canvas: {
       top: NAVBAR_HEIGHT,
-      height: `calc(100vh - ${NAVBAR_HEIGHT}px)`,
-      width: `calc(100% - ${SIDEBAR_WIDTH}px)`,
-      position: 'fixed',
+      height: '100%',
+      width: '100%',
+      position: 'absolute',
       /**
        * pointer-events
        *   - 'auto': Show code mirror first
@@ -42,7 +45,8 @@ const useStyles = makeStyles(() =>
   }),
 );
 
-export default function Editor({ tool }: EditorProps) {
+export default function Editor() {
+  const tool = useSelector((state: AppState) => state.boardState.toolType);
   const classes = useStyles(tool);
 
   const [width, setWidth] = useState(0);

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
 import { Box } from '@material-ui/core';
@@ -23,28 +23,39 @@ import {
   setStatus,
 } from 'features/docSlices';
 import { syncPeer } from 'features/peerSlices';
-import Editor, { NAVBAR_HEIGHT } from './Editor';
+
+const Editor = lazy(() => import('./mime/text/md/Editor'));
+const WhiteBoard = lazy(() => import('./mime/application/whiteboard/Editor'));
 
 const useStyles = makeStyles(() =>
   createStyles({
     loading: {
       display: 'flex',
-      height: `calc(100vh - ${NAVBAR_HEIGHT}px)`,
+      height: `100%`,
       alignItems: 'center',
       justifyContent: 'center',
+      position: 'absolute',
+      width: '100%',
     },
   }),
 );
 
+function LoadingView() {
+  const classes = useStyles();
+  return (
+    <Box className={classes.loading}>
+      <CircularProgress />
+    </Box>
+  );
+}
+
 // eslint-disable-next-line func-names
 export default function (props: { docKey: string }) {
   const { docKey } = props;
-  const classes = useStyles();
   const dispatch = useDispatch();
   const client = useSelector((state: AppState) => state.docState.client);
   const doc = useSelector((state: AppState) => state.docState.doc);
   const status = useSelector((state: AppState) => state.docState.status);
-  const tool = useSelector((state: AppState) => state.boardState.toolType);
   const loading = useSelector((state: AppState) => state.docState.loading);
   const errorMessage = useSelector((state: AppState) => state.docState.errorMessage);
 
@@ -133,12 +144,30 @@ export default function (props: { docKey: string }) {
   }
 
   if (loading || !client || !doc) {
-    return (
-      <Box className={classes.loading}>
-        <CircularProgress color="inherit" />
-      </Box>
-    );
+    return <LoadingView />;
   }
 
-  return <Editor tool={tool} />;
+  const { mimeType } = doc.getRoot();
+
+  switch (mimeType) {
+    case 'application/whiteboard':
+      return (
+        <Suspense fallback={<LoadingView />}>
+          <WhiteBoard />
+        </Suspense>
+      );
+    case 'text/plain':
+      return <Editor />;
+    case 'application/json':
+      return <Editor />;
+    case 'application/cell':
+      return <Editor />;
+    case 'text/markdown':
+    default:
+      return (
+        <Suspense fallback={<LoadingView />}>
+          <Editor />
+        </Suspense>
+      );
+  }
 }

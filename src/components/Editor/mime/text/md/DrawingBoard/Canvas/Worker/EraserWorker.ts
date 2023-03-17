@@ -1,6 +1,6 @@
 import { Root, Point, Box } from 'features/docSlices';
 import { ToolType } from 'features/boardSlices';
-import Board from 'components/Editor/DrawingBoard/Canvas/Board';
+import Board from 'components/Editor/mime/text/md/DrawingBoard/Canvas/Board';
 import { fixEraserPoint } from '../line';
 import Worker, { MouseDownCallback, MouseMoveCallback, MouseUpCallback } from './Worker';
 import { compressPoints, checkLineIntersection, isInnerBox, isSelectable } from '../utils';

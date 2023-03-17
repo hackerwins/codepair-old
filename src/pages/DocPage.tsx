@@ -21,6 +21,7 @@ type DocPageProps = {
 
 interface LayoutProps {
   open: boolean;
+  openInstant: boolean;
 }
 
 const SIDEBAR_WIDTH = 300;
@@ -29,6 +30,9 @@ const useStyles = makeStyles(() =>
   createStyles({
     root: {
       flexGrow: 1,
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100%',
     },
     sidebarArea: {
       width: (props: LayoutProps) => (props.open ? SIDEBAR_WIDTH : 0),
@@ -45,8 +49,7 @@ const useStyles = makeStyles(() =>
       transition: 'width 225ms cubic-bezier(0, 0, 0.2, 1) 0ms',
     },
     layout: {
-      width: '100%',
-      height: '100%',
+      flex: 1,
       display: 'flex',
       flexDirection: 'row',
     },
@@ -55,6 +58,25 @@ const useStyles = makeStyles(() =>
       height: '100%',
       display: 'flex',
       flexDirection: 'column',
+      // backgroundColor: 'black',
+      boxSizing: 'border-box',
+    },
+    instantArea: {
+      flex: 'none',
+      width: (props: LayoutProps) => (props.openInstant ? SIDEBAR_WIDTH : 0),
+      '@media only screen and (max-width: 600px)': {
+        position: 'fixed',
+        right: 0,
+        top: 56,
+        bottom: 0,
+        zIndex: 1,
+      },
+      display: 'flex',
+      flexDirection: 'column',
+      boxSizing: 'border-box',
+      borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
+      position: 'relative',
+      transition: 'width 225ms cubic-bezier(0, 0, 0.2, 1) 0ms',
     },
   }),
 );
@@ -147,10 +169,11 @@ function SpeedDialPanel() {
 
 export default function DocPage(props: RouteComponentProps<DocPageProps>) {
   const dispatch = useDispatch();
-  const openTab = useSelector((state: AppState) => state.navState.openTab);
+  const navState = useSelector((state: AppState) => state.navState);
   const menu = useSelector((state: AppState) => state.settingState.menu);
   const classes = useStyles({
-    open: openTab,
+    open: navState.openTab,
+    openInstant: navState.openInstant,
   } as LayoutProps);
   const location = useLocation();
   const {
@@ -180,6 +203,7 @@ export default function DocPage(props: RouteComponentProps<DocPageProps>) {
         <div className={classes.editorArea}>
           <Editor docKey={docKey} />
         </div>
+        <div className={classes.instantArea}>test</div>
       </div>
       <MessagePanel />
       <SpeedDialPanel />

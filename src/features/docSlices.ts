@@ -62,7 +62,15 @@ export type Shape = Line | EraserLine | Rect;
 
 export type ShapeType = Shape['type'];
 
+export type MimeType =
+  | 'text/markdown'
+  | 'text/plain'
+  | 'application/whiteboard'
+  | 'application/cell'
+  | 'application/json';
+
 export type CodePairDoc = {
+  mimeType: MimeType;
   mode: CodeMode;
   preview: Preview;
   content: Text;

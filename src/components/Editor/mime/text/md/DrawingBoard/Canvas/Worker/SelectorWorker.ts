@@ -1,6 +1,6 @@
 import { Root, Point, Shape } from 'features/docSlices';
 import { ToolType } from 'features/boardSlices';
-import Board from 'components/Editor/DrawingBoard/Canvas/Board';
+import Board from 'components/Editor/mime/text/md/DrawingBoard/Canvas/Board';
 import { isInnerBox, cloneBox, isSelectable } from '../utils';
 import Worker from './Worker';
 import * as scheduler from '../scheduler';

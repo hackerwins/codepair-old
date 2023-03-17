@@ -9,12 +9,13 @@ import PeerGroup from 'components/NavBar/PeerGroup';
 import ShareButton from 'components/NavBar/ShareButton';
 import NetworkButton from 'components/NavBar/NetworkButton';
 import { useDispatch } from 'react-redux';
-import { toggleTab } from 'features/navSlices';
+import { toggleInstant, toggleTab } from 'features/navSlices';
+import { ViewCompact } from '@material-ui/icons';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      flexGrow: 1,
+      flex: 'none',
     },
     appBar: {
       backgroundColor: 'black',
@@ -22,6 +23,9 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     iconButton: {
       marginRight: theme.spacing(2),
+      color: 'white',
+    },
+    instantIconButton: {
       color: 'white',
     },
     grow: {
@@ -81,6 +85,15 @@ function MenuAppBar() {
             <ShareButton />
             <PeerGroup />
           </div>
+          <IconButton
+            size="small"
+            onClick={() => {
+              dispatch(toggleInstant());
+            }}
+            className={classes.instantIconButton}
+          >
+            <ViewCompact />
+          </IconButton>
         </Toolbar>
       </AppBar>
     </div>
