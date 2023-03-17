@@ -38,7 +38,7 @@ function App() {
         palette: {
           type: menu.theme === Theme.Dark ? 'dark' : 'light',
           primary: {
-            main: '#d8b01a',
+            main: 'rgb(253, 196, 51)',
           },
           secondary: {
             main: '#e6b602',

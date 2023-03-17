@@ -110,8 +110,10 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       const cursor = (cmInstance as any).getSearchCursor(searchText);
 
       if (cursor.find()) {
-        cmInstance.setCursor(cursor.from());
-        cmInstance.scrollIntoView(cursor.from());
+        const pos = cursor.from();
+        const t = cmInstance.charCoords(pos, 'local').top;
+        cmInstance.scrollTo(null, t);
+        cmInstance.setCursor(pos);
         cmInstance.focus();
       }
     }
