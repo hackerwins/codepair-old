@@ -13,7 +13,7 @@ import { Snackbar } from '@material-ui/core';
 import { hideMessage } from 'features/messageSlices';
 import { Alert, SpeedDial, SpeedDialAction, SpeedDialIcon } from '@material-ui/lab';
 import { EventNote, QuestionAnswer, RecordVoiceOver } from '@material-ui/icons';
-import { recentFavoriteSelector } from 'features/linkSlices';
+import { recentFavoriteSelector, refreshStorage } from 'features/linkSlices';
 
 type DocPageProps = {
   docKey: string;
@@ -146,6 +146,7 @@ function SpeedDialPanel() {
 }
 
 export default function DocPage(props: RouteComponentProps<DocPageProps>) {
+  const dispatch = useDispatch();
   const openTab = useSelector((state: AppState) => state.linkState.openTab);
   const menu = useSelector((state: AppState) => state.settingState.menu);
   const classes = useStyles({
@@ -162,6 +163,12 @@ export default function DocPage(props: RouteComponentProps<DocPageProps>) {
       ReactGA.send('pageview');
     }
   }, [location]);
+
+  useEffect(() => {
+    window.addEventListener('storage', () => {
+      dispatch(refreshStorage());
+    });
+  }, [dispatch]);
 
   return (
     <div className={classes.root} data-theme={menu.theme}>

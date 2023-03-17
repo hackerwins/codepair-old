@@ -93,6 +93,15 @@ const linkSlice = createSlice({
   initialState: initialLinkState,
 
   reducers: {
+    refreshStorage(state) {
+      const newValue = SettingModel.getValue(state);
+
+      state.openTab = newValue.openTab;
+      state.openTabValue = newValue.openTabValue;
+      state.favorite = newValue.favorite;
+      state.groups = newValue.groups;
+      state.opens = newValue.opens;
+    },
     toggleFavorite(state, action: PayloadAction<string | LinkItemType>) {
       const { payload } = action;
 
@@ -156,6 +165,10 @@ const linkSlice = createSlice({
     toggleLinkOpen(state, action: PayloadAction<string>) {
       const { payload } = action;
       state.opens[payload] = !state.opens[payload];
+
+      if (state.opens[payload] === false) {
+        delete state.opens[payload];
+      }
 
       SettingModel.setValue(state);
     },
@@ -403,6 +416,7 @@ export function recentFavoriteSelector(count: number = 10) {
 }
 
 export const {
+  refreshStorage,
   copyMarkdownTextForGroup,
   toggleFavorite,
   setTabValue,
