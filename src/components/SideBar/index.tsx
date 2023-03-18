@@ -71,6 +71,7 @@ import { TabContext, TabList, TabPanel } from '@material-ui/lab';
 import { Theme } from 'features/settingSlices';
 import { showMessage } from 'features/messageSlices';
 import { NavTabType, toggleLinkTab } from 'features/navSlices';
+import { createDoc } from 'features/docSlices';
 
 interface SideBarProps {
   open: boolean;
@@ -265,6 +266,7 @@ const options = [
   'Favorite',
   '-',
   'Add link',
+  'Add whiteboard',
   'Add current note',
   'Rename',
   'Delete',
@@ -293,6 +295,7 @@ interface MoreMenuProps {
 }
 function MoreMenu({ item, startRename }: MoreMenuProps) {
   const dispatch = useDispatch();
+  const client = useSelector((state: AppState) => state.docState.client);
   const favorite = useSelector((state: AppState) => state.linkState.favorite);
   const classes = useStyles({ open: true });
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -334,6 +337,38 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
     [item.id, dispatch],
   );
 
+  const handleCreateWhiteboard = useCallback(
+    async (name: string) => {
+      const newDocKey = `${Math.random().toString(36).substring(7)}`;
+      const fileLink = `/${newDocKey}`;
+      const mimeType = 'application/vnd.pairy.whiteboard';
+
+      if (client) {
+        await dispatch(
+          createDoc({
+            client,
+            docKey: `codepairs-${newDocKey}`,
+            init: (root: any) => {
+              const newRoot = root;
+              if (!newRoot.mimeType) {
+                newRoot.mimeType = mimeType;
+              }
+
+              if (!newRoot.whiteboard) {
+                newRoot.whiteboard = {
+                  pages: [],
+                };
+              }
+            },
+          }),
+        );
+
+        dispatch(newLink({ parentId: item.id, name, mimeType, fileLink }));
+      }
+    },
+    [item.id, dispatch, client],
+  );
+
   const handleUpdateLink = useCallback(() => {
     dispatch(setLinkFileLink({ id: item.id, name: getTitle(), fileLink: `/${docKey}` }));
   }, [item.id, dispatch, docKey]);
@@ -370,6 +405,8 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
       handleClickDialogOpen();
     } else if (command === 'Add link') {
       handleCreateLink('Untitled name');
+    } else if (command === 'Add whiteboard') {
+      handleCreateWhiteboard('Untitled whiteboard');
     } else if (command === 'Add current note') {
       handleCreateCurrentPage();
     } else if (command === 'Update link') {
@@ -432,6 +469,7 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
                   />
                 ) : undefined}
                 {option === 'Add link' ? <SubdirectoryArrowLeft /> : undefined}
+                {option === 'Add whiteboard' ? <SubdirectoryArrowLeft /> : undefined}
                 {option === 'Add current note' ? <SubdirectoryArrowLeft /> : undefined}
                 {option === 'Rename' ? <Edit /> : undefined}
                 {option === 'Open in Browser' ? <OpenInBrowser /> : undefined}

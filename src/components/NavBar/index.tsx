@@ -8,25 +8,41 @@ import MenuIcon from '@material-ui/icons/Menu';
 import PeerGroup from 'components/NavBar/PeerGroup';
 import ShareButton from 'components/NavBar/ShareButton';
 import NetworkButton from 'components/NavBar/NetworkButton';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { toggleInstant, toggleTab } from 'features/navSlices';
 import { ViewCompact } from '@material-ui/icons';
+import { AppState } from 'app/rootReducer';
+import { Theme as ThemeType } from 'features/settingSlices';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       flex: 'none',
+      zIndex: 1,
+    },
+    appBarDark: {
+      backgroundColor: 'black',
+      color: 'white',
+      borderBottom: '1px solid #333333',
     },
     appBar: {
-      backgroundColor: 'black',
+      backgroundColor: 'white',
+      color: 'black',
+      borderBottom: '1px solid #e9e9e9',
+    },
+    iconButtonDark: {
+      marginRight: theme.spacing(2),
       color: 'white',
     },
     iconButton: {
       marginRight: theme.spacing(2),
+      color: 'black',
+    },
+    instantIconButtonDark: {
       color: 'white',
     },
     instantIconButton: {
-      color: 'white',
+      color: 'black',
     },
     grow: {
       flexGrow: 1,
@@ -53,19 +69,24 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 function MenuAppBar() {
+  const menu = useSelector((state: AppState) => state.settingState.menu);
   const classes = useStyles();
   const dispatch = useDispatch();
 
   return (
     <div className={classes.root}>
-      <AppBar position="static" className={classes.appBar}>
+      <AppBar
+        position="static"
+        className={menu.theme === ThemeType.Dark ? classes.appBarDark : classes.appBar}
+        elevation={0}
+      >
         <Toolbar>
           <IconButton
             size="small"
             onClick={() => {
               dispatch(toggleTab());
             }}
-            className={classes.iconButton}
+            className={menu.theme === ThemeType.Dark ? classes.iconButtonDark : classes.iconButton}
           >
             <MenuIcon />
           </IconButton>
@@ -90,7 +111,7 @@ function MenuAppBar() {
             onClick={() => {
               dispatch(toggleInstant());
             }}
-            className={classes.instantIconButton}
+            className={menu.theme === ThemeType.Dark ? classes.instantIconButtonDark : classes.instantIconButton}
           >
             <ViewCompact />
           </IconButton>

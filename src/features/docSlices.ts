@@ -65,7 +65,7 @@ export type ShapeType = Shape['type'];
 export type MimeType =
   | 'text/markdown'
   | 'text/plain'
-  | 'application/whiteboard'
+  | 'application/vnd.pairy.whiteboard'
   | 'application/cell'
   | 'application/json';
 
@@ -219,6 +219,26 @@ export const attachDoc = createAsyncThunk<AttachDocResult, AttachDocArgs, { reje
   },
 );
 
+export const createDoc = createAsyncThunk<boolean, CreateDocArgs, { rejectValue: string }>(
+  'doc/create',
+  async ({ client, docKey, init }, thunkApi) => {
+    try {
+      const doc = new yorkie.Document<CodePairDoc>(docKey);
+      await client.attach(doc);
+
+      if (init) {
+        doc.update(init);
+      }
+
+      await client.detach(doc);
+
+      return true;
+    } catch (err) {
+      return thunkApi.rejectWithValue((err as Error).message);
+    }
+  },
+);
+
 const docSlice = createSlice({
   name: 'doc',
   initialState,
@@ -293,4 +313,5 @@ export default docSlice.reducer;
 
 type ActivateClientResult = { client: Client<Presence> };
 type AttachDocArgs = { doc: Document<CodePairDoc>; client: Client<Presence> };
+type CreateDocArgs = { docKey: string; client: Client<Presence>; init?: (root: CodePairDoc) => void };
 type AttachDocResult = { doc: Document<CodePairDoc>; client: Client<Presence> };

@@ -258,24 +258,24 @@ const linkSlice = createSlice({
 
       SettingModel.setValue(state);
     },
-    newLink(state, action: PayloadAction<{ parentId: string; name: string }>) {
-      const { parentId, name } = action.payload;
+    newLink(state, action: PayloadAction<{ parentId: string; name: string; mimeType?: string; fileLink?: string }>) {
+      const { parentId, name, fileLink, mimeType = 'text/markdown' } = action.payload;
+
+      const newLinkInfo = {
+        type: 'link',
+        id: `${Date.now()}`,
+        name,
+        mimeType,
+        fileLink: fileLink || `/${Math.random().toString(36).substring(7)}`,
+        linkType: 'pairy',
+      };
 
       traverse(state, state.groups, (item) => {
         const temp = item;
 
         if (item.id === parentId) {
           if (!temp.links) temp.links = [];
-          temp.links = [
-            ...temp.links,
-            {
-              type: 'link',
-              id: `${Date.now()}`,
-              name,
-              fileLink: `/${Math.random().toString(36).substring(7)}`,
-              linkType: 'pairy',
-            },
-          ];
+          temp.links = [...temp.links, newLinkInfo];
 
           state.opens[parentId] = true;
         }

@@ -150,7 +150,7 @@ export default function (props: { docKey: string }) {
   const { mimeType } = doc.getRoot();
 
   switch (mimeType) {
-    case 'application/whiteboard':
+    case 'application/vnd.pairy.whiteboard':
       return (
         <Suspense fallback={<LoadingView />}>
           <WhiteBoard />

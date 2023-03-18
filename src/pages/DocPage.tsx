@@ -14,6 +14,7 @@ import { hideMessage } from 'features/messageSlices';
 import { Alert, SpeedDial, SpeedDialAction, SpeedDialIcon } from '@material-ui/lab';
 import { EventNote, QuestionAnswer, RecordVoiceOver } from '@material-ui/icons';
 import { recentFavoriteSelector, refreshStorage } from 'features/linkSlices';
+import { Theme } from 'features/settingSlices';
 
 type DocPageProps = {
   docKey: string;
@@ -49,7 +50,8 @@ const useStyles = makeStyles(() =>
       transition: 'width 225ms cubic-bezier(0, 0, 0.2, 1) 0ms',
     },
     layout: {
-      flex: 1,
+      flex: '1 1 auto',
+      height: `calc(100vh - 64px)`,
       display: 'flex',
       flexDirection: 'row',
     },
@@ -60,6 +62,7 @@ const useStyles = makeStyles(() =>
       flexDirection: 'column',
       // backgroundColor: 'black',
       boxSizing: 'border-box',
+      position: 'relative',
     },
     instantArea: {
       flex: 'none',
@@ -77,6 +80,9 @@ const useStyles = makeStyles(() =>
       borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
       position: 'relative',
       transition: 'width 225ms cubic-bezier(0, 0, 0.2, 1) 0ms',
+    },
+    instantAreaDark: {
+      'border-color': 'rgba(255, 255, 255, 0.12)',
     },
   }),
 );
@@ -197,13 +203,22 @@ export default function DocPage(props: RouteComponentProps<DocPageProps>) {
     <div className={classes.root} data-theme={menu.theme}>
       <NavBar />
       <div className={classes.layout}>
-        <div className={classes.sidebarArea}>
+        <div
+          className={classes.sidebarArea}
+          onTransitionEnd={() => {
+            window.dispatchEvent(new Event('resize'));
+          }}
+        >
           <SideBar />
         </div>
         <div className={classes.editorArea}>
           <Editor docKey={docKey} />
         </div>
-        <div className={classes.instantArea}>test</div>
+        <div
+          className={[classes.instantArea, menu.theme === Theme.Dark ? classes.instantAreaDark : undefined].join(' ')}
+        >
+          test
+        </div>
       </div>
       <MessagePanel />
       <SpeedDialPanel />

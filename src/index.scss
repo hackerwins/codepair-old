@@ -54,7 +54,8 @@
 
   .CodeMirror {
     border-bottom: none;
-    border-left: none;
+    border-left: none !important;
+    border-color: #eeeeee !important;
   }
 
   /* 
@@ -200,6 +201,12 @@
   left: 0px;
 }
 
-.fullscreen button.table-of-contents {
-  display: none;
+[data-theme='dark'] {
+  .EasyMDEContainer {
+    .CodeMirror {
+      background-color: #333333 !important;
+      color: #ffffff !important;
+      border-color: #555 !important;
+    }
+  }
 }
