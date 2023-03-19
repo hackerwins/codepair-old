@@ -10,6 +10,7 @@ export interface LinkItemType {
   level?: number;
   id: string;
   name: string;
+  mimeType?: string;
   fileLink?: string;
   linkType?: string;
   links?: LinkItemType[];

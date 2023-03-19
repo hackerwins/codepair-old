@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-export default function WhiteBoard() {
+export default function WhiteBoardEditor() {
   useEffect(() => {
     const { Konva } = window as any;
 
@@ -27,6 +27,12 @@ export default function WhiteBoard() {
       strokeWidth: 4,
       draggable: true,
     });
+
+    const tr1 = new Konva.Transformer({
+      nodes: [circle],
+      centeredScaling: true,
+    });
+    layer.add(tr1);
 
     // add the shape to the layer
     layer.add(circle);

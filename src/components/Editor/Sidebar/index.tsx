@@ -1,4 +1,4 @@
-import React, { useState, useCallback, MouseEvent } from 'react';
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import IconButton from '@material-ui/core/IconButton';
@@ -6,7 +6,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Divider from '@material-ui/core/Divider';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import TextFieldsIcon from '@material-ui/icons/TextFields';
-import SettingsIcon from '@material-ui/icons/Settings';
+
 import BrushIcon from '@material-ui/icons/Brush';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import GitHubIcon from '@material-ui/icons/GitHub';
@@ -14,8 +14,7 @@ import GitHubIcon from '@material-ui/icons/GitHub';
 import EraserIcon from 'assets/icons/Eraser';
 import MouseIcon from 'assets/icons/Mouse';
 import RectIcon from 'assets/icons/Rect';
-import Popover from 'components/commons/Popover';
-import Settings from 'components/Editor/Sidebar/Settings';
+
 import ButtonWithColor from 'components/Editor/Sidebar/ButtonWithColor';
 import { AppState } from 'app/rootReducer';
 import { ToolType, setTool } from 'features/boardSlices';
@@ -49,24 +48,10 @@ export default function Sidebar() {
   const classes = useStyles();
   const dispatch = useDispatch();
   const tool = useSelector((state: AppState) => state.boardState.toolType);
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | undefined>();
 
   const handleSelectTool = (nextTool: ToolType) => () => {
     dispatch(setTool(nextTool));
   };
-
-  const handleSettingsClick = useCallback(
-    (event: MouseEvent<HTMLButtonElement>) => {
-      dispatch(setTool(ToolType.Settings));
-      setAnchorEl(event.currentTarget);
-    },
-    [dispatch],
-  );
-
-  const handleSettingsClose = useCallback(() => {
-    setAnchorEl(undefined);
-    dispatch(setTool(ToolType.None));
-  }, [dispatch]);
 
   return (
     <div className={classes.root}>
@@ -93,19 +78,11 @@ export default function Sidebar() {
         </IconButton>
       </Tooltip>
       <Divider className={classes.divider} />
-      <Tooltip title="Settings" arrow>
-        <IconButton aria-label="settings" onClick={handleSettingsClick}>
-          <SettingsIcon fontSize="small" />
-        </IconButton>
-      </Tooltip>
       <Tooltip title="GitHub" arrow className={classes.button}>
         <IconButton aria-label="selector" href="https://github.com/yorkie-team/codepair">
           <GitHubIcon fontSize="default" />
         </IconButton>
       </Tooltip>
-      <Popover anchorEl={anchorEl} onClose={handleSettingsClose}>
-        <Settings />
-      </Popover>
     </div>
   );
 }

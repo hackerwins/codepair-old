@@ -1,5 +1,5 @@
-import React, { memo } from 'react';
-import { IconButton, Link } from '@material-ui/core';
+import React, { memo, MouseEvent, useCallback, useState } from 'react';
+import { IconButton, Link, Tooltip } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -13,6 +13,10 @@ import { toggleInstant, toggleTab } from 'features/navSlices';
 import { ViewCompact } from '@material-ui/icons';
 import { AppState } from 'app/rootReducer';
 import { Theme as ThemeType } from 'features/settingSlices';
+import Settings from 'components/Editor/Sidebar/Settings';
+import SettingsIcon from '@material-ui/icons/Settings';
+import Popover from 'components/commons/Popover';
+import { setTool, ToolType } from 'features/boardSlices';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -61,6 +65,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     items: {
       display: 'flex',
+      alignItems: 'center',
       '& > *': {
         margin: theme.spacing(1),
       },
@@ -72,6 +77,19 @@ function MenuAppBar() {
   const menu = useSelector((state: AppState) => state.settingState.menu);
   const classes = useStyles();
   const dispatch = useDispatch();
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | undefined>();
+  const handleSettingsClick = useCallback(
+    (event: MouseEvent<HTMLButtonElement>) => {
+      dispatch(setTool(ToolType.Settings));
+      setAnchorEl(event.currentTarget);
+    },
+    [dispatch],
+  );
+
+  const handleSettingsClose = useCallback(() => {
+    setAnchorEl(undefined);
+    dispatch(setTool(ToolType.None));
+  }, [dispatch]);
 
   return (
     <div className={classes.root}>
@@ -105,6 +123,14 @@ function MenuAppBar() {
           <div className={classes.items}>
             <ShareButton />
             <PeerGroup />
+            <Tooltip title="Settings" arrow>
+              <IconButton aria-label="settings" onClick={handleSettingsClick}>
+                <SettingsIcon />
+              </IconButton>
+            </Tooltip>
+            <Popover anchorEl={anchorEl} onClose={handleSettingsClose}>
+              <Settings />
+            </Popover>
           </div>
           <IconButton
             size="small"

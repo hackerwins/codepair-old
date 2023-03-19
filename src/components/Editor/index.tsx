@@ -25,7 +25,8 @@ import {
 import { syncPeer } from 'features/peerSlices';
 
 const Editor = lazy(() => import('./mime/text/md/Editor'));
-const WhiteBoard = lazy(() => import('./mime/application/whiteboard/Editor'));
+const WhiteBoardEditor = lazy(() => import('./mime/application/whiteboard/Editor'));
+const CellEditor = lazy(() => import('./mime/application/cell/Editor'));
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -153,7 +154,7 @@ export default function (props: { docKey: string }) {
     case 'application/vnd.pairy.whiteboard':
       return (
         <Suspense fallback={<LoadingView />}>
-          <WhiteBoard />
+          <WhiteBoardEditor />
         </Suspense>
       );
     case 'text/plain':
@@ -161,7 +162,11 @@ export default function (props: { docKey: string }) {
     case 'application/json':
       return <Editor />;
     case 'application/cell':
-      return <Editor />;
+      return (
+        <Suspense fallback={<LoadingView />}>
+          <CellEditor />
+        </Suspense>
+      );
     case 'text/markdown':
     default:
       return (

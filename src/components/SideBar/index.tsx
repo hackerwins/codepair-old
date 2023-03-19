@@ -44,6 +44,8 @@ import {
   FolderOpen,
   EventNote,
   ListAlt,
+  BorderAll,
+  Gesture,
 } from '@material-ui/icons';
 import { useHistory, useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
@@ -267,6 +269,7 @@ const options = [
   '-',
   'Add link',
   'Add whiteboard',
+  'Add cell',
   'Add current note',
   'Rename',
   'Delete',
@@ -369,6 +372,38 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
     [item.id, dispatch, client],
   );
 
+  const handleCreateCell = useCallback(
+    async (name: string) => {
+      const newDocKey = `${Math.random().toString(36).substring(7)}`;
+      const fileLink = `/${newDocKey}`;
+      const mimeType = 'application/cell';
+
+      if (client) {
+        await dispatch(
+          createDoc({
+            client,
+            docKey: `codepairs-${newDocKey}`,
+            init: (root: any) => {
+              const newRoot = root;
+              if (!newRoot.mimeType) {
+                newRoot.mimeType = mimeType;
+              }
+
+              if (!newRoot.cell) {
+                newRoot.cell = {
+                  pages: [],
+                };
+              }
+            },
+          }),
+        );
+
+        dispatch(newLink({ parentId: item.id, name, mimeType, fileLink }));
+      }
+    },
+    [item.id, dispatch, client],
+  );
+
   const handleUpdateLink = useCallback(() => {
     dispatch(setLinkFileLink({ id: item.id, name: getTitle(), fileLink: `/${docKey}` }));
   }, [item.id, dispatch, docKey]);
@@ -407,6 +442,8 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
       handleCreateLink('Untitled name');
     } else if (command === 'Add whiteboard') {
       handleCreateWhiteboard('Untitled whiteboard');
+    } else if (command === 'Add cell') {
+      handleCreateCell('Untitled Cell');
     } else if (command === 'Add current note') {
       handleCreateCurrentPage();
     } else if (command === 'Update link') {
@@ -470,6 +507,7 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
                 ) : undefined}
                 {option === 'Add link' ? <SubdirectoryArrowLeft /> : undefined}
                 {option === 'Add whiteboard' ? <SubdirectoryArrowLeft /> : undefined}
+                {option === 'Add cell' ? <SubdirectoryArrowLeft /> : undefined}
                 {option === 'Add current note' ? <SubdirectoryArrowLeft /> : undefined}
                 {option === 'Rename' ? <Edit /> : undefined}
                 {option === 'Open in Browser' ? <OpenInBrowser /> : undefined}
@@ -954,6 +992,23 @@ interface SidebarItemProps {
   loopType: LoopType;
 }
 
+function MimeTypeIcon({ mimeType }: { mimeType: string | undefined }) {
+  const icon = useMemo(() => {
+    switch (mimeType) {
+      case 'application/cell':
+        return <BorderAll fontSize="small" />;
+      case 'application/vnd.pairy.whiteboard':
+        return <Gesture fontSize="small" />;
+      default:
+        return undefined;
+    }
+
+    return undefined;
+  }, [mimeType]);
+
+  return icon || <EventNote fontSize="small" />;
+}
+
 function SidebarItem({ item, level, loopType }: SidebarItemProps) {
   const dispatch = useDispatch();
   const opens = useSelector((state: AppState) => state.linkState.opens);
@@ -1024,11 +1079,8 @@ function SidebarItem({ item, level, loopType }: SidebarItemProps) {
         alignItems: 'center',
       }}
     >
-      {item.links?.length ? (
-        <MoreIcon open={opens[item.id]} onClick={setOpenCallback} />
-      ) : (
-        <EventNote fontSize="small" />
-      )}
+      {item.links?.length && <MoreIcon open={opens[item.id]} onClick={setOpenCallback} />}
+      <MimeTypeIcon mimeType={item.mimeType} />
       {isRename ? (
         <Input
           autoFocus

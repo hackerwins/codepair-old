@@ -56,10 +56,11 @@ const useStyles = makeStyles(() =>
       flexDirection: 'row',
     },
     editorArea: {
-      width: '100%',
-      height: '100%',
+      flex: '1 1 auto',
+
+      // height: '100%',
       display: 'flex',
-      flexDirection: 'column',
+      // flexDirection: 'column',
       // backgroundColor: 'black',
       boxSizing: 'border-box',
       position: 'relative',
