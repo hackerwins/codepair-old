@@ -25,7 +25,7 @@ export interface PeerState {
   peers: Record<string, Peer>;
 }
 
-export interface SyncPeerPayLoad {
+export interface SyncPeersPayLoad {
   myClientID: ActorID;
   changedPeers: Record<string, Presence>;
 }
@@ -38,7 +38,7 @@ const peerSlice = createSlice({
   name: 'peer',
   initialState: initialPeerState,
   reducers: {
-    syncPeer(state, action: PayloadAction<SyncPeerPayLoad>) {
+    syncPeers(state, action: PayloadAction<SyncPeersPayLoad>) {
       const { myClientID, changedPeers } = action.payload;
       const { peers } = state;
 
@@ -81,5 +81,5 @@ export const updatePresenceColor = createAsyncThunk<undefined, string, { rejectV
   },
 );
 
-export const { syncPeer } = peerSlice.actions;
+export const { syncPeers } = peerSlice.actions;
 export default peerSlice.reducer;
