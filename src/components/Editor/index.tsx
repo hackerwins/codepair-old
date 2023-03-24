@@ -22,7 +22,7 @@ import {
   DocStatus,
   setStatus,
 } from 'features/docSlices';
-import { syncPeer } from 'features/peerSlices';
+import { syncPeers, Presence } from 'features/peerSlices';
 import Editor, { NAVBAR_HEIGHT } from './Editor';
 
 const useStyles = makeStyles(() =>
@@ -62,10 +62,13 @@ export default function (props: { docKey: string }) {
 
     const unsubscribe = client.subscribe((event) => {
       if (event.type === 'peers-changed') {
-        const documentKey = doc.getKey();
-        const changedPeers = event.value[documentKey];
+        const changedPeers = client.getPeersByDocKey(doc.getKey()).reduce((acc, peer) => {
+          acc[peer.clientID] = peer.presence;
+          return acc;
+        }, {} as Record<string, Presence>);
+
         dispatch(
-          syncPeer({
+          syncPeers({
             myClientID: client.getID()!,
             changedPeers,
           }),
