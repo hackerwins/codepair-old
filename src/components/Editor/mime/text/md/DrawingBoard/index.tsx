@@ -20,7 +20,7 @@ export default function DrawingBoard({ width, height }: { width: number; height:
     if (!canvasRef.current) {
       return;
     }
-    const board = new Board(canvasRef.current, doc!.update.bind(doc));
+    const board = new Board(canvasRef.current, doc!.update.bind(doc) as () => void);
     boardRef.current = board;
 
     return () => {

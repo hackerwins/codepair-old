@@ -18,49 +18,57 @@ import { AppDispatch } from 'app/store';
 import { AppState } from 'app/rootReducer';
 import { updatePresenceColor } from 'features/peerSlices';
 import { makeStyles } from 'styles/common';
-import { Box, debounce, FormControl, MenuItem, Select, SelectChangeEvent, Switch, TextField, Typography } from '@mui/material';
+import {
+  Box,
+  debounce,
+  FormControl,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  Switch,
+  TextField,
+  Typography,
+} from '@mui/material';
 
-const useStyles = makeStyles()((theme) =>
-  ({
-    root: {
-      minWidth: '320px',
-      borderRadius: '4px',
-    },
-    header: {
-      borderBottom: `1px solid ${theme.palette.text.disabled}`,
-    },
-    title: {
-      padding: '12px 16px',
-    },
-    list: {
-      padding: '8px 18px 18px 18px',
-      lineHeight: '19px',
-    },
-    item: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      fontSize: '15px',
-      marginTop: '12px',
-      pointerEvents: 'none',
-    },
-    itemTitle: {
-      whiteSpace: 'nowrap',
-      display: 'flex',
-      alignItems: 'center',
-    },
-    itemInfo: {
-      minWidth: 140,
-      paddingLeft: '12px',
-      borderRadius: '4px',
-      textAlign: 'left',
-      pointerEvents: 'auto',
-    },
-  }),
-);
+const useStyles = makeStyles()((theme) => ({
+  root: {
+    minWidth: '320px',
+    borderRadius: '4px',
+  },
+  header: {
+    borderBottom: `1px solid ${theme.palette.text.disabled}`,
+  },
+  title: {
+    padding: '12px 16px',
+  },
+  list: {
+    padding: '8px 18px 18px 18px',
+    lineHeight: '19px',
+  },
+  item: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    fontSize: '15px',
+    marginTop: '12px',
+    pointerEvents: 'none',
+  },
+  itemTitle: {
+    whiteSpace: 'nowrap',
+    display: 'flex',
+    alignItems: 'center',
+  },
+  itemInfo: {
+    minWidth: 140,
+    paddingLeft: '12px',
+    borderRadius: '4px',
+    textAlign: 'left',
+    pointerEvents: 'auto',
+  },
+}));
 
 export default function Settings() {
   const dispatch = useDispatch<AppDispatch>();
-  const {classes} = useStyles();
+  const { classes } = useStyles();
 
   const client = useSelector((state: AppState) => state.docState.client);
   const doc = useSelector((state: AppState) => state.docState.doc);
@@ -169,7 +177,7 @@ export default function Settings() {
         <div className={classes.item}>
           <div className={classes.itemTitle}>Preview</div>
           <FormControl className={classes.itemInfo}>
-            <Select name="preview" value={preview} onChange={handlePreviewChange} displayEmpty>
+            <Select name="preview" value={{ value: `${preview}` }} onChange={handlePreviewChange} displayEmpty>
               {Object.entries(Preview).map(([display, value]: [string, string]) => {
                 return (
                   <MenuItem value={value} key={value}>
@@ -183,7 +191,7 @@ export default function Settings() {
         <div className={classes.item}>
           <div className={classes.itemTitle}>Tab Size</div>
           <FormControl className={classes.itemInfo}>
-            <Select value={menu?.tabSize || ""} onChange={handleChange(setTabSize)} displayEmpty>
+            <Select value={{ value: `${menu?.tabSize}` }} onChange={handleChange(setTabSize)} displayEmpty>
               {Object.entries(TabSize).map(([key, tabSize]: [string, string]) => {
                 return (
                   <MenuItem value={tabSize} key={key}>
@@ -197,7 +205,7 @@ export default function Settings() {
         <div className={classes.item}>
           <div className={classes.itemTitle}>Key Binding</div>
           <FormControl className={classes.itemInfo}>
-            <Select value={menu?.codeKeyMap || ""} onChange={handleChange(setCodeKeyMap)} displayEmpty>
+            <Select value={{ value: `${menu?.codeKeyMap}` }} onChange={handleChange(setCodeKeyMap)} displayEmpty>
               {Object.entries(CodeKeyMap).map(([display, codeKeyMap]: [string, string]) => {
                 return (
                   <MenuItem value={codeKeyMap} key={codeKeyMap}>

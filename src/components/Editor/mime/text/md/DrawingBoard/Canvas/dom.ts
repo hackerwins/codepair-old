@@ -1,9 +1,19 @@
-export function addEvent(el: EventTarget, type: string, fn: EventListener, capturing?: boolean) {
-  return el.addEventListener(type, fn, capturing);
+export function addEvent(
+  el: EventTarget,
+  type: string,
+  fn: (evt: TouchyEvent) => void,
+  capturing?: boolean | undefined,
+): void {
+  return el.addEventListener(type, fn as EventListener, capturing);
 }
 
-export function removeEvent(el: EventTarget, type: string, fn: EventListener, capturing?: boolean) {
-  return el.removeEventListener(type, fn, capturing);
+export function removeEvent(
+  el: EventTarget,
+  type: string,
+  fn: (evt: TouchyEvent) => void,
+  capturing?: boolean | undefined,
+): void {
+  return el.removeEventListener(type, fn as EventListener, capturing);
 }
 
 const touch = {

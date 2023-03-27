@@ -1,6 +1,6 @@
 import CodeMirror from 'codemirror';
 
-CodeMirror.Vim.defineEx('shuffle', 'shuf', (cm, params) => {
+(CodeMirror as any).Vim.defineEx('shuffle', 'shuf', (cm: CodeMirror.Editor, params: any) => {
   const lineStart = params.line || cm.firstLine();
   const lineEnd = params.lineEnd || params.line || cm.lastLine();
   if (lineStart === lineEnd) {

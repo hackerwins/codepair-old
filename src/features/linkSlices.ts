@@ -35,7 +35,7 @@ export interface LinkState {
 
 function traverse<T>(parent: unknown, data: T[], callback: (item: T, parent: T, depth: number) => void, depth = 0) {
   data.forEach((item) => {
-    callback(item, parent, depth + 1);
+    callback(item, parent as T, depth + 1);
     traverse(item, (item as any).links || [], callback, depth + 1);
   });
 }

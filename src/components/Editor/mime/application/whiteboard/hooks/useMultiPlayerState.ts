@@ -218,6 +218,8 @@ export function useMultiplayerState(roomId: string) {
                     point: [0, 0],
                     activeShapes: [],
                     selectedIds: [],
+                    id: '',
+                    status: TDUserStatus.Connected,
                   },
                   ...(peer.presence.whiteboardUser || {
                     point: [0, 0],
