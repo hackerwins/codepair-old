@@ -14,6 +14,7 @@ import {
   setUserName,
   setUserColor,
 } from 'features/settingSlices';
+import { AppDispatch } from 'app/store';
 import { AppState } from 'app/rootReducer';
 import { updatePresenceColor } from 'features/peerSlices';
 import { makeStyles } from 'styles/common';
@@ -58,7 +59,7 @@ const useStyles = makeStyles()((theme) =>
 );
 
 export default function Settings() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const {classes} = useStyles();
 
   const client = useSelector((state: AppState) => state.docState.client);

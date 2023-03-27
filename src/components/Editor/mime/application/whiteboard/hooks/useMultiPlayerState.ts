@@ -168,7 +168,7 @@ export function useMultiplayerState(roomId: string) {
     (app: TldrawApp, user: TDUser) => {
       if (!app || client === undefined || !client.isActive()) return;
 
-      client.updatePresence('whiteboard.user', user);
+      client.updatePresence('whiteboardUser', user);
     },
     10,
     false,
@@ -206,27 +206,27 @@ export function useMultiplayerState(roomId: string) {
         // 01-1. Subscribe peers-changed event and update tldraw users state
         unsubscribe = client!.subscribe((event) => {
           if (event.type === 'peers-changed') {
-            const peers = event.value[doc!.getKey()];
+            const peers = event.value.peers[doc!.getKey()];
 
             // Compare with local user list and get leaved user list
             // Then remove leaved users
             const localUsers = Object.values(app!.room!.users);
             const remoteUsers = Object.values(peers || {})
-              .map((presence) => {
+              .map((peer) => {
                 return {
                   ...{
                     point: [0, 0],
                     activeShapes: [],
                     selectedIds: [],
                   },
-                  ...(presence['whiteboard.user'] || {
+                  ...(peer.presence.whiteboardUser || {
                     point: [0, 0],
-                    color: presence.color,
+                    color: peer.presence.color,
                     activeShapes: [],
                     selectedIds: [],
                   }),
                   metadata: {
-                    name: presence.username,
+                    name: peer.presence.username,
                   },
                 };
               })

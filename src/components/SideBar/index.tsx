@@ -2,6 +2,7 @@ import React, { Fragment, ReactNode, useCallback, useEffect, useMemo, useRef, us
 
 import { useNavigate, useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch } from 'app/store';
 import { AppState } from 'app/rootReducer';
 import {
   copyMarkdownTextForGroup,
@@ -304,7 +305,7 @@ interface MoreMenuProps {
   startRename: () => void;
 }
 function MoreMenu({ item, startRename }: MoreMenuProps) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const client = useSelector((state: AppState) => state.docState.client);
   const favorite = useSelector((state: AppState) => state.linkState.favorite);
   const { classes } = useStyles({ open: true });
@@ -571,7 +572,7 @@ interface HeadingMoreMenuProps {
 }
 
 function HeadingMoreMenu({ item }: HeadingMoreMenuProps) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const favorite = useSelector((state: AppState) => state.linkState.favorite);
   const { classes } = useStyles({ open: true });
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -684,7 +685,7 @@ interface GroupMoreMenuProps {
 }
 
 function GroupMoreMenu({ group, startRename }: GroupMoreMenuProps) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const client = useSelector((state: AppState) => state.docState.client);
   const groups = useSelector((state: AppState) => state.linkState.groups);
   const favorite = useSelector((state: AppState) => state.linkState.favorite);
@@ -893,7 +894,7 @@ interface GroupItemProps {
 }
 
 function GroupItem({ group, level, loopType }: GroupItemProps) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const opens = useSelector((state: AppState) => state.linkState.opens);
   const favorite = useSelector((state: AppState) => state.linkState.favorite);
   const { classes } = useStyles({

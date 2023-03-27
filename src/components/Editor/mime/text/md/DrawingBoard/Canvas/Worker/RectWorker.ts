@@ -3,12 +3,12 @@ import { Root, Point, Rect } from 'features/docSlices';
 import { ToolType } from 'features/boardSlices';
 import Board from 'components/Editor/mime/text/md/DrawingBoard/Canvas/Board';
 import { createRect, adjustRectBox } from '../rect';
-import Worker, { MouseMoveCallback, MouseUpCallback, Options } from './Worker';
+import Worker, { MouseMoveCallback, MouseUpCallback, Options, UpdateCallback } from './Worker';
 
 class RectWorker extends Worker {
   type = ToolType.Rect;
 
-  update: Function;
+  update: (callback: UpdateCallback) => void;
 
   board: Board;
 
@@ -16,7 +16,7 @@ class RectWorker extends Worker {
 
   private previewRect: Omit<Rect, 'getID'>;
 
-  constructor(update: Function, board: Board, options: Options) {
+  constructor(update: (callback: UpdateCallback) => void, board: Board, options: Options) {
     super(options);
     this.update = update;
     this.board = board;

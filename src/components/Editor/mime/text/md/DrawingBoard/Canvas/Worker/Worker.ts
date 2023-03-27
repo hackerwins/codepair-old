@@ -16,6 +16,8 @@ export type MouseMoveCallback = (boardPresence: BoardPresence) => void;
 
 export type MouseUpCallback = (boardPresence: BoardPresence) => void;
 
+export type UpdateCallback = (root: Root) => void;
+
 abstract class Worker {
   constructor(options?: Options) {
     this.options = options;
@@ -25,7 +27,7 @@ abstract class Worker {
 
   abstract type: ToolType;
 
-  abstract update: Function;
+  abstract update: (callback: UpdateCallback) => void;
 
   abstract mousedown(point: Point, callback?: MouseDownCallback): void;
 

@@ -39,11 +39,12 @@
     "redux": "^4.2.1",
     "tss-react": "^4.8.2",
     "unique-names-generator": "^4.7.1",
-    "yorkie-js-sdk": "^0.3.2"
+    "yorkie-js-sdk": "^0.3.3"
   },
   "devDependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@types/codemirror": "0.0.109",
+    "@types/jest": "^29.5.0",
     "@types/randomcolor": "^0.5.7",
     "@types/react": "^18.0.28",
     "@types/react-copy-to-clipboard": "^5.0.4",

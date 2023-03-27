@@ -8,7 +8,7 @@ export interface Presence {
   color: string;
   image: string; // Currently all anonymous images
   board: string;
-  'whiteboard.user': TDUser;
+  whiteboardUser: TDUser;
 }
 
 export enum ConnectionStatus {

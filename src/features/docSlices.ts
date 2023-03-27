@@ -84,7 +84,7 @@ export type CodePairDoc = {
       [key: string]: TDBinding;
     };
     assets: {
-      [key: number]: TDAsset;
+      [key: string]: TDAsset;
     };
   };
 };

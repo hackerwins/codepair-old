@@ -2,14 +2,14 @@ import { Root, Point, Box } from 'features/docSlices';
 import { ToolType } from 'features/boardSlices';
 import Board from 'components/Editor/mime/text/md/DrawingBoard/Canvas/Board';
 import { fixEraserPoint } from '../line';
-import Worker, { MouseDownCallback, MouseMoveCallback, MouseUpCallback } from './Worker';
+import Worker, { MouseDownCallback, MouseMoveCallback, MouseUpCallback, UpdateCallback } from './Worker';
 import { compressPoints, checkLineIntersection, isInnerBox, isSelectable } from '../utils';
 import * as scheduler from '../scheduler';
 
 class EraserWorker extends Worker {
   type = ToolType.Eraser;
 
-  update = (_: Root) => undefined;
+  update: (callback: UpdateCallback) => void;
 
   board: Board;
 
@@ -17,7 +17,7 @@ class EraserWorker extends Worker {
 
   private selectPoint: Point[] = [];
 
-  constructor(update: (root: Root) => undefined, board: Board) {
+  constructor(update: (root: UpdateCallback) => void, board: Board) {
     super();
     this.update = update;
     this.board = board;

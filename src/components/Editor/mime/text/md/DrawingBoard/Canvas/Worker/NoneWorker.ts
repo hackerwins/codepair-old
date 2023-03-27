@@ -1,15 +1,15 @@
 import Board from 'components/Editor/mime/text/md/DrawingBoard/Canvas/Board';
 import { ToolType } from 'features/boardSlices';
-import Worker from './Worker';
+import Worker, { UpdateCallback } from './Worker';
 
 class NoneWorker extends Worker {
   type = ToolType.None;
 
-  update: Function;
+  update: (callback: UpdateCallback) => void;
 
   board: Board;
 
-  constructor(update: Function, board: Board) {
+  constructor(update: (callback: UpdateCallback) => void, board: Board) {
     super();
     this.update = update;
     this.board = board;

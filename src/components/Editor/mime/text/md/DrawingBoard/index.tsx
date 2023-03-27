@@ -51,11 +51,9 @@ export default function DrawingBoard({ width, height }: { width: number; height:
 
     const unsubscribe = client.subscribe((event) => {
       if (event.type === 'peers-changed') {
-        const documentKey = doc.getKey();
-        const changedPeers = event.value[documentKey];
-
-        for (const peerKey of Object.keys(changedPeers)) {
-          boardRef.current?.updatePresence(peerKey, changedPeers[peerKey]);
+        const peers = event.value.peers[doc.getKey()];
+        for (const { clientID, presence } of peers) {
+          boardRef.current?.updatePresence(clientID, presence);
         }
       }
     });

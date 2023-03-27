@@ -1,6 +1,7 @@
 import React, { lazy, Suspense, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
+import { AppDispatch } from 'app/store';
 import { AppState } from 'app/rootReducer';
 import {
   activateClient,
@@ -16,7 +17,7 @@ import {
   DocStatus,
   setStatus,
 } from 'features/docSlices';
-import { syncPeer } from 'features/peerSlices';
+import { syncPeer, Presence } from 'features/peerSlices';
 import { makeStyles } from 'styles/common';
 import { Alert, Box, CircularProgress, Snackbar } from '@mui/material';
 import WhiteBoardEditor from './mime/application/whiteboard/Editor';
@@ -47,7 +48,7 @@ function LoadingView() {
 // eslint-disable-next-line func-names
 export default function BaseEditor(props: { docKey: string }) {
   const { docKey } = props;
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const client = useSelector((state: AppState) => state.docState.client);
   const doc = useSelector((state: AppState) => state.docState.doc);
   const status = useSelector((state: AppState) => state.docState.status);
@@ -68,8 +69,10 @@ export default function BaseEditor(props: { docKey: string }) {
 
     const unsubscribe = client.subscribe((event) => {
       if (event.type === 'peers-changed') {
-        const documentKey = doc.getKey();
-        const changedPeers = event.value[documentKey];
+        const changedPeers = client.getPeersByDocKey(doc.getKey()).reduce((acc, peer) => {
+          acc[peer.clientID] = peer.presence;
+          return acc;
+        }, {} as Record<string, Presence>);
         dispatch(
           syncPeer({
             myClientID: client.getID()!,

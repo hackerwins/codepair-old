@@ -2,19 +2,19 @@ import { Root, Point, Shape } from 'features/docSlices';
 import { ToolType } from 'features/boardSlices';
 import Board from 'components/Editor/mime/text/md/DrawingBoard/Canvas/Board';
 import { isInnerBox, cloneBox, isSelectable } from '../utils';
-import Worker from './Worker';
+import Worker, { UpdateCallback } from './Worker';
 import * as scheduler from '../scheduler';
 
 class SelectorWorker extends Worker {
   type = ToolType.Selector;
 
-  update: Function;
+  update: (callback: UpdateCallback) => void;
 
   board: Board;
 
   private selectedShape?: { shape: Shape; point: Point };
 
-  constructor(update: Function, board: Board) {
+  constructor(update: (callback: UpdateCallback) => void, board: Board) {
     super();
     this.update = update;
     this.board = board;

@@ -3,13 +3,13 @@ import { Root, Point, Line } from 'features/docSlices';
 import { ToolType } from 'features/boardSlices';
 import Board from 'components/Editor/mime/text/md/DrawingBoard/Canvas/Board';
 import { createLine } from '../line';
-import Worker, { MouseMoveCallback, MouseUpCallback, Options } from './Worker';
+import Worker, { MouseMoveCallback, MouseUpCallback, UpdateCallback, Options } from './Worker';
 import { compressPoints } from '../utils';
 
 class LineWorker extends Worker {
   type = ToolType.Line;
 
-  update: Function;
+  update: (callback: UpdateCallback) => void;
 
   board: Board;
 
@@ -17,7 +17,7 @@ class LineWorker extends Worker {
 
   private previewLine: Omit<Line, 'getID'>;
 
-  constructor(update: Function, board: Board, options: Options) {
+  constructor(update: (callback: UpdateCallback) => void, board: Board, options: Options) {
     super(options);
     this.update = update;
     this.board = board;
