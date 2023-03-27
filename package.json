@@ -15,7 +15,6 @@
     "@mui/icons-material": "^5.11.11",
     "@mui/lab": "^5.0.0-alpha.123",
     "@mui/material": "^5.11.13",
-    "@radix-ui/react-popover": "1.0.5",
     "@react-hook/throttle": "^2.2.0",
     "@reduxjs/toolkit": "^1.9.3",
     "@sentry/react": "^7.43.0",
