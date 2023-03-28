@@ -3,9 +3,11 @@ import { CursorComponent } from '@tldraw/core';
 
 // A custom cursor component.
 // Component overrides for the tldraw renderer
-const CustomCursor: CursorComponent<{ name: 'Anonymous' }> = ({
+const CustomCursor: CursorComponent = ({
   color,
-  metadata,
+  metadata = {
+    name: 'Anonymous',
+  },
 }: {
   color: string;
   metadata?: {

@@ -5,9 +5,14 @@ import ButtonWithColor from 'components/Editor/Sidebar/ButtonWithColor';
 import { AppState } from 'app/rootReducer';
 import { ToolType, setTool } from 'features/boardSlices';
 import { makeStyles } from 'styles/common';
-import { Divider, IconButton, Tooltip } from '@mui/material';
+import { IconButton, Tooltip } from '@mui/material';
 import { Theme as ThemeType } from 'features/settingSlices';
-import { AutoFixHigh, Brush, DeleteOutline, GitHub, Mouse, Rectangle, TextFields } from '@mui/icons-material';
+import AutoFixHigh from '@mui/icons-material/AutoFixHigh';
+import Brush from '@mui/icons-material/Brush';
+import DeleteOutline from '@mui/icons-material/DeleteOutline';
+import Mouse from '@mui/icons-material/Mouse';
+import Rectangle from '@mui/icons-material/Rectangle';
+import TextFields from '@mui/icons-material/TextFields';
 
 const useStyles = makeStyles()((theme) => ({
   root: {

@@ -1,6 +1,6 @@
 import { TDShape, TDBinding, TDAsset } from '@tldraw/tldraw';
-import { createSlice, PayloadAction, createAsyncThunk, Dispatch } from '@reduxjs/toolkit';
-import yorkie, { Client, Document, JSONObject, Text, TimeTicket } from 'yorkie-js-sdk';
+import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
+import yorkie, { Client, Document, Text, TimeTicket } from 'yorkie-js-sdk';
 import anonymous from 'anonymous-animals-gen';
 import randomColor from 'randomcolor';
 import { Presence } from './peerSlices';
@@ -262,7 +262,7 @@ const docSlice = createSlice({
       client?.deactivate();
     },
     createDocument(state, action: PayloadAction<string>) {
-      const { doc, client } = state;
+      const { doc } = state;
 
       state.doc = new yorkie.Document<CodePairDoc>(`codepairs-${action.payload}`);
 

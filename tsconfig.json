@@ -18,6 +18,7 @@
     "baseUrl": "src",
     "paths": {
       "app/*": ["app/*"],
+      "constants/*": ["constants/*"],
       "components/*": ["components/*"],
       "features/*": ["features/*"],
       "hooks/*": ["hooks/*"],

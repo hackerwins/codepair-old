@@ -4,7 +4,8 @@ import { AppState } from 'app/rootReducer';
 import { DocStatus } from 'features/docSlices';
 import { makeStyles } from 'styles/common';
 import { Box, Button, Popover, Typography } from '@mui/material';
-import { CloudDone, CloudOff } from '@mui/icons-material';
+import CloudDone from '@mui/icons-material/CloudDone';
+import CloudOff from '@mui/icons-material/CloudOff';
 
 interface NetworkAlertProps {
   title: string;

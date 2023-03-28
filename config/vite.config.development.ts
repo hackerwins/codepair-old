@@ -31,6 +31,7 @@ export default defineConfig({
     alias: [
       { find: 'app', replacement: path.resolve(ROOT, 'src/app') },
       { find: 'features', replacement: path.resolve(ROOT, 'src/features') },
+      { find: 'constants', replacement: path.resolve(ROOT, 'src/constants') },
       { find: 'pages', replacement: path.resolve(ROOT, 'src/pages') },
       { find: 'components', replacement: path.resolve(ROOT, 'src/components') },
       { find: 'utils', replacement: path.resolve(ROOT, 'src/utils') },

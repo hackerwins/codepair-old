@@ -28,28 +28,27 @@ import { showMessage } from 'features/messageSlices';
 import { NavTabType, toggleLinkTab } from 'features/navSlices';
 import { createDoc } from 'features/docSlices';
 import { makeStyles } from 'styles/common';
-import {
-  AccountTree,
-  Add,
-  BorderAll,
-  ChevronRight,
-  CreateNewFolder,
-  Delete,
-  Edit,
-  EventNote,
-  ExpandMore,
-  FileCopy,
-  FolderOpen,
-  Gesture,
-  GitHub,
-  InsertDriveFile,
-  ListAlt,
-  MoreHoriz,
-  OpenInBrowser,
-  Star,
-  SubdirectoryArrowLeft,
-  Update,
-} from '@mui/icons-material';
+import AccountTree from '@mui/icons-material/AccountTree';
+import Add from '@mui/icons-material/Add';
+import BorderAll from '@mui/icons-material/BorderAll';
+import ChevronRight from '@mui/icons-material/ChevronRight';
+import CreateNewFolder from '@mui/icons-material/CreateNewFolder';
+import Delete from '@mui/icons-material/Delete';
+import Edit from '@mui/icons-material/Edit';
+import EventNote from '@mui/icons-material/EventNote';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import FileCopy from '@mui/icons-material/FileCopy';
+import FolderOpen from '@mui/icons-material/FolderOpen';
+import Gesture from '@mui/icons-material/Gesture';
+import SubdirectoryArrowLeft from '@mui/icons-material/SubdirectoryArrowLeft';
+import MoreHoriz from '@mui/icons-material/MoreHoriz';
+import Star from '@mui/icons-material/Star';
+import OpenInBrowser from '@mui/icons-material/OpenInBrowser';
+import InsertDriveFile from '@mui/icons-material/InsertDriveFile';
+import ListAlt from '@mui/icons-material/ListAlt';
+import GitHub from '@mui/icons-material/GitHub';
+import Update from '@mui/icons-material/Update';
+
 import {
   Box,
   Button,
@@ -1418,7 +1417,7 @@ export function SideBar() {
       const parentList: string[] = [];
       let currentDepth = -1;
 
-      function searchPath(data: unknown[], depth = 0, callback: (item: any) => boolean): boolean {
+      function searchPath(data: unknown[], depth: number, callback: (item: any) => boolean): boolean {
         let found = false;
         for (let i = 0; i < data.length; i += 1) {
           parentList[depth] = (data[i] as any).id;

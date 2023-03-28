@@ -10,7 +10,9 @@ import Settings from 'components/Editor/Sidebar/Settings';
 import { setTool, ToolType } from 'features/boardSlices';
 import { makeStyles } from 'styles/common';
 import { AppBar, IconButton, Link, Popover, Theme, Toolbar, Tooltip, Typography } from '@mui/material';
-import { Menu, SettingsSuggest, SmartToy } from '@mui/icons-material';
+import Menu from '@mui/icons-material/Menu';
+import SettingsSuggest from '@mui/icons-material/SettingsSuggest';
+import SmartToy from '@mui/icons-material/SmartToy';
 
 const useStyles = makeStyles()((theme: Theme) => ({
   root: {

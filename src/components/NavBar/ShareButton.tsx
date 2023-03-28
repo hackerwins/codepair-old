@@ -17,7 +17,9 @@ import {
   IconButton,
   Typography,
 } from '@mui/material';
-import { Close, FileCopy, Group } from '@mui/icons-material';
+import Close from '@mui/icons-material/Close';
+import FileCopy from '@mui/icons-material/FileCopy';
+import Group from '@mui/icons-material/Group';
 
 import CopyToClipboard from 'react-copy-to-clipboard';
 

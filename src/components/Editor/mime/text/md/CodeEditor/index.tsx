@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ActorID, DocEvent, TextChange } from 'yorkie-js-sdk';
 import CodeMirror from 'codemirror';
 import SimpleMDE from 'easymde';
-import SimpleMDEReact, { GetCodemirrorInstance } from 'react-simplemde-editor';
+import SimpleMDEReact from 'react-simplemde-editor';
 
 import { AppState } from 'app/rootReducer';
 import { ConnectionStatus, Presence } from 'features/peerSlices';
@@ -11,17 +11,17 @@ import { Theme as ThemeType } from 'features/settingSlices';
 import { Preview, updateHeadings } from 'features/docSlices';
 
 import { updateLinkNameWithHeading } from 'features/linkSlices';
-import { NAVBAR_HEIGHT } from '../Editor';
-import Cursor from './Cursor';
-import SlideView from './slideView';
+import { makeStyles } from 'styles/common';
+import { Theme } from '@mui/material';
+import { NAVBAR_HEIGHT } from 'constants/editor';
 
 import 'easymde/dist/easymde.min.css';
 import 'codemirror/keymap/sublime';
 import 'codemirror/keymap/emacs';
 import 'codemirror/keymap/vim';
 import './codemirror/shuffle';
-import { makeStyles } from 'styles/common';
-import { Theme } from '@mui/material';
+import Cursor from './Cursor';
+import SlideView from './slideView';
 
 const WIDGET_HEIGHT = 70;
 
@@ -147,6 +147,41 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       cursor?.updateLine(editor, fromPos, toPos);
     };
 
+    // remote to local
+    const changeEventHandler = (changes: TextChange[]) => {
+      changes.forEach((change) => {
+        const { actor, from, to } = change;
+        if (change.type === 'content') {
+          const content = change.value?.content || '';
+          if (actor !== client.getID()) {
+            const fromPos = editor.posFromIndex(from);
+            const toPos = editor.posFromIndex(to);
+            editor.replaceRange(content, fromPos, toPos, 'yorkie');
+          }
+        } else if (change.type === 'selection') {
+          if (actor !== client.getID()) {
+            let fromPos = editor.posFromIndex(from);
+            let toPos = editor.posFromIndex(to);
+            updateCursor(actor, toPos);
+            if (from > to) {
+              [toPos, fromPos] = [fromPos, toPos];
+            }
+            updateLine(actor, fromPos, toPos);
+          }
+        }
+      });
+    };
+
+    // sync text of document and editor
+    const syncText = () => {
+      const text = doc.getRoot().content;
+
+      if (text) {
+        text.onChanges(changeEventHandler);
+        editor.setValue(text.toString());
+      }
+    };
+
     doc.subscribe((event: DocEvent) => {
       if (event.type === 'remote-change') {
         // display remote cursors
@@ -215,40 +250,6 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       });
     });
 
-    // remote to local
-    const changeEventHandler = (changes: TextChange[]) => {
-      changes.forEach((change) => {
-        const { actor, from, to } = change;
-        if (change.type === 'content') {
-          const content = change.value?.content || '';
-          if (actor !== client.getID()) {
-            const fromPos = editor.posFromIndex(from);
-            const toPos = editor.posFromIndex(to);
-            editor.replaceRange(content, fromPos, toPos, 'yorkie');
-          }
-        } else if (change.type === 'selection') {
-          if (actor !== client.getID()) {
-            let fromPos = editor.posFromIndex(from);
-            let toPos = editor.posFromIndex(to);
-            updateCursor(actor, toPos);
-            if (from > to) {
-              [toPos, fromPos] = [fromPos, toPos];
-            }
-            updateLine(actor, fromPos, toPos);
-          }
-        }
-      });
-    };
-
-    // sync text of document and editor
-    const syncText = () => {
-      const text = doc.getRoot().content;
-
-      if (text) {
-        text.onChanges(changeEventHandler);
-        editor.setValue(text.toString());
-      }
-    };
     syncText();
     editor.addKeyMap(menu.codeKeyMap);
     editor.setOption('keyMap', menu.codeKeyMap);

@@ -3,13 +3,16 @@ import { Theme } from 'features/settingSlices';
 import { AppState } from 'app/rootReducer';
 import { useSelector } from 'react-redux';
 import { useCallback, useEffect, useState } from 'react';
-import { TDUserStatus, TDAsset, TDBinding, TDShape, TDUser, TldrawApp } from '@tldraw/tldraw';
+import { TDUserStatus, TDAsset, TDBinding, TDShape, TDUser, TldrawApp, DrawShape } from '@tldraw/tldraw';
 import { useThrottleCallback } from '@react-hook/throttle';
 import randomColor from 'randomcolor';
 import { uniqueNamesGenerator, names } from 'unique-names-generator';
 import { Unsubscribe } from 'yorkie-js-sdk';
 
-function updateDiff(oldShape: any, newShape: TDShape) {
+function updateDiff(oldV: TDShape, newV: TDShape) {
+  const oldShape = oldV;
+  const newShape = newV;
+
   if (oldShape.type !== newShape.type) {
     oldShape.type = newShape.type;
   }
@@ -23,24 +26,29 @@ function updateDiff(oldShape: any, newShape: TDShape) {
   }
 
   if (newShape.type === 'draw') {
-    if (oldShape.points.length !== newShape.points.length) {
-      oldShape.points = newShape.points;
+    const oldDrawShape = oldShape as DrawShape;
+
+    if (oldDrawShape.points.length !== newShape.points.length) {
+      oldDrawShape.points = newShape.points;
     } else {
       let hasChanged = false;
-      for (let i = 0; i < newShape.points.length; i++) {
-        if (oldShape.points[i][0] !== newShape.points[i][0] || oldShape.points[i][1] !== newShape.points[i][1]) {
+      for (let i = 0; i < newShape.points.length; i += 1) {
+        if (
+          oldDrawShape.points[i][0] !== newShape.points[i][0] ||
+          oldDrawShape.points[i][1] !== newShape.points[i][1]
+        ) {
           hasChanged = true;
           break;
         }
       }
 
       if (hasChanged) {
-        oldShape.points = newShape.points;
+        oldDrawShape.points = newShape.points;
       }
-    }
 
-    if (oldShape.isComplete !== newShape.isComplete) {
-      oldShape.isComplete = newShape.isComplete;
+      if (oldDrawShape.isComplete !== newShape.isComplete) {
+        oldDrawShape.isComplete = newShape.isComplete;
+      }
     }
 
     if (oldShape.name !== newShape.name) {
@@ -92,19 +100,19 @@ export function useMultiplayerState(roomId: string) {
 
   // Callbacks --------------
   const onMount = useCallback(
-    (app: TldrawApp) => {
-      app.loadRoom(roomId);
-      app.setIsLoading(true);
-      app.pause();
+    (tldrawApp: TldrawApp) => {
+      tldrawApp.loadRoom(roomId);
+      tldrawApp.setIsLoading(true);
+      tldrawApp.pause();
 
-      setApp(app);
+      setApp(tldrawApp);
 
       const randomName = uniqueNamesGenerator({
         dictionaries: [names],
       });
 
       // On mount, create new user
-      app.updateUsers([
+      tldrawApp.updateUsers([
         {
           id: mePeer!.id,
           point: [0, 0],
@@ -116,16 +124,21 @@ export function useMultiplayerState(roomId: string) {
         },
       ]);
     },
-    [roomId],
+    [roomId, mePeer, menu],
   );
 
   // Update Yorkie doc when the app's shapes change.
   // Prevent overloading yorkie update api call by throttle
   const onChangePage = useThrottleCallback(
-    (app: TldrawApp, shapes: Record<string, TDShape | undefined>, bindings: Record<string, TDBinding | undefined>) => {
-      if (!app || client === undefined || doc === undefined) return;
+    (
+      tldrawApp: TldrawApp,
+      shapes: Record<string, TDShape | undefined>,
+      bindings: Record<string, TDBinding | undefined>,
+    ) => {
+      if (!tldrawApp || client === undefined || doc === undefined) return;
 
-      doc.update((root: CodePairDoc) => {
+      doc.update((currentRoot: CodePairDoc) => {
+        const root = currentRoot;
         Object.entries(shapes).forEach(([id, shape]) => {
           if (!shape) {
             delete root.whiteboard!.shapes[id];
@@ -150,7 +163,7 @@ export function useMultiplayerState(roomId: string) {
 
         // Should store app.document.assets which is global asset storage referenced by inner page assets
         // Document key for assets should be asset.id (string), not index
-        Object.entries(app.assets).forEach(([, asset]) => {
+        Object.entries(tldrawApp.assets).forEach(([, asset]) => {
           if (!asset.id) {
             delete root.whiteboard!.assets[asset.id];
           } else {
@@ -165,8 +178,8 @@ export function useMultiplayerState(roomId: string) {
 
   // Handle presence updates when the user's pointer / selection changes
   const onChangePresence = useThrottleCallback(
-    (app: TldrawApp, user: TDUser) => {
-      if (!app || client === undefined || !client.isActive()) return;
+    (tldrawApp: TldrawApp, user: TDUser) => {
+      if (!tldrawApp || client === undefined || !client.isActive()) return;
 
       client.updatePresence('whiteboardUser', user);
     },
@@ -178,14 +191,8 @@ export function useMultiplayerState(roomId: string) {
 
   useEffect(() => {
     if (!app) return;
-    // Detach & deactive yorkie client before unload
-    function handleDisconnect() {
-      if (client === undefined || doc === undefined) return;
-    }
-
     let stillAlive = true;
     let unsubscribe: Unsubscribe;
-    window.addEventListener('beforeunload', handleDisconnect);
 
     // Subscribe to changes
     function handleChanges() {
@@ -245,7 +252,8 @@ export function useMultiplayerState(roomId: string) {
         });
 
         // 03. Initialize document if document not exists.
-        doc!.update((root) => {
+        doc!.update((currentRoot) => {
+          const root = currentRoot;
           if (!root.whiteboard) {
             root.whiteboard = {
               shapes: {},
@@ -298,12 +306,11 @@ export function useMultiplayerState(roomId: string) {
     setupDocument();
 
     return () => {
-      window.removeEventListener('beforeunload', handleDisconnect);
       stillAlive = false;
 
       unsubscribe?.();
     };
-  }, [app]);
+  }, [app, client, doc, roomId, mePeer]);
 
   return {
     onMount,

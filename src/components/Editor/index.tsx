@@ -60,7 +60,7 @@ export default function BaseEditor(props: { docKey: string }) {
     return () => {
       dispatch(deactivateClient());
     };
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     if (!client || !doc) {
@@ -103,14 +103,14 @@ export default function BaseEditor(props: { docKey: string }) {
     return () => {
       unsubscribe();
     };
-  }, [client, doc, status]);
+  }, [client, doc, status, dispatch]);
 
   useEffect(() => {
     dispatch(createDocument(docKey));
     return () => {
       dispatch(detachDocument());
     };
-  }, [docKey]);
+  }, [docKey, dispatch]);
 
   useEffect(() => {
     async function attachDocAsync() {
@@ -129,7 +129,7 @@ export default function BaseEditor(props: { docKey: string }) {
     return () => {
       dispatch(attachDocLoading(true));
     };
-  }, [client, doc]);
+  }, [client, doc, dispatch]);
 
   if (errorMessage) {
     return (

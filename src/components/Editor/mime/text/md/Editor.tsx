@@ -4,12 +4,10 @@ import { useSelector } from 'react-redux';
 import { AppState } from 'app/rootReducer';
 import { ToolType } from 'features/boardSlices';
 import { makeStyles } from 'styles/common';
+import { NAVBAR_HEIGHT } from 'constants/editor';
 import CodeEditor from './CodeEditor';
 import DrawingBoard from './DrawingBoard';
 import Sidebar from '../../../Sidebar';
-
-export const NAVBAR_HEIGHT = 90;
-const SIDEBAR_WIDTH = 46;
 
 const useStyles = makeStyles<{ tool: ToolType }>()((theme, props) => ({
   root: {
