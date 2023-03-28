@@ -1,6 +1,6 @@
 {
-  "name": "new-pairy",
-  "version": "0.0.0",
+  "name": "codepair",
+  "version": "1.0.0",
   "scripts": {
     "dev": "vite --config ./config/vite.config.development.ts",
     "build": "tsc && vite build --config ./config/vite.config.ts",
