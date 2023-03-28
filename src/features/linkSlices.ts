@@ -286,6 +286,8 @@ const linkSlice = createSlice({
       });
 
       SettingModel.setValue(state);
+
+      window.location.href = newLinkInfo.fileLink;
     },
     newLinkByCurrentPage(state, action: PayloadAction<{ parentId: string; name: string; fileLink: string }>) {
       const { parentId, name, fileLink } = action.payload;
@@ -309,6 +311,8 @@ const linkSlice = createSlice({
       }
 
       SettingModel.setValue(state);
+
+      window.location.href = fileLink;
     },
     copyMarkdownTextForGroup(state, action: PayloadAction<string>) {
       const id = action.payload;
@@ -375,6 +379,11 @@ export function recentFavoriteSelector(count = 10) {
       .reverse()
       .filter((_, index) => index < count);
   };
+}
+
+export function findCurrentPageLink(state: AppState): LinkItemType {
+  const { pathname } = window.location;
+  return findOne(state.linkState.groups, (item) => item.fileLink === pathname);
 }
 
 export const {

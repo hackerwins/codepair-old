@@ -264,16 +264,16 @@ const docSlice = createSlice({
     createDocument(state, action: PayloadAction<string>) {
       const { doc } = state;
 
-      state.doc = new yorkie.Document<CodePairDoc>(`codepairs-${action.payload}`);
-
       if (doc) {
         state.client?.detach(doc);
       }
+
+      state.doc = new yorkie.Document<CodePairDoc>(`codepairs-${action.payload}`);
     },
     detachDocument(state) {
       const { doc, client } = state;
-      state.doc = undefined;
       client?.detach(doc as Document<CodePairDoc>);
+      state.doc = undefined;
     },
     attachDocLoading(state, action: PayloadAction<boolean>) {
       state.loading = action.payload;

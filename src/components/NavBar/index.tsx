@@ -9,10 +9,14 @@ import { Theme as ThemeType } from 'features/settingSlices';
 import Settings from 'components/Editor/Sidebar/Settings';
 import { setTool, ToolType } from 'features/boardSlices';
 import { makeStyles } from 'styles/common';
-import { AppBar, IconButton, Link, Popover, Theme, Toolbar, Tooltip, Typography } from '@mui/material';
+import { AppBar, Button, IconButton, Link, Popover, Theme, Toolbar, Tooltip, Typography } from '@mui/material';
 import Menu from '@mui/icons-material/Menu';
 import SettingsSuggest from '@mui/icons-material/SettingsSuggest';
 import SmartToy from '@mui/icons-material/SmartToy';
+import EventNote from '@mui/icons-material/EventNote';
+import Gesture from '@mui/icons-material/Gesture';
+import { createDoc } from 'features/docSlices';
+import { findCurrentPageLink, newLink } from 'features/linkSlices';
 
 const useStyles = makeStyles()((theme: Theme) => ({
   root: {
@@ -21,7 +25,7 @@ const useStyles = makeStyles()((theme: Theme) => ({
     backgroundColor: theme.palette.mode === ThemeType.Dark ? '#333333' : '#ececec',
   },
   appBar: {
-    backgroundColor: theme.palette.mode === ThemeType.Dark ? 'black' : 'white',
+    backgroundColor: theme.palette.mode === ThemeType.Dark ? 'black' : '#fafafa',
     color: theme.palette.mode === ThemeType.Dark ? 'white' : 'black',
     borderBottom: theme.palette.mode === ThemeType.Dark ? '1px solid #333333' : '1px solid #e9e9e9',
   },
@@ -37,6 +41,11 @@ const useStyles = makeStyles()((theme: Theme) => ({
   },
   grow: {
     flexGrow: 1,
+    display: 'flex',
+    gap: 10,
+  },
+  addButton: {
+    color: theme.palette.mode === ThemeType.Dark ? 'white' : 'black',
   },
   title: {
     fontWeight: 'bold',
@@ -63,6 +72,9 @@ function MenuAppBar() {
   const menu = useSelector((state: AppState) => state.settingState.menu);
   const { classes } = useStyles();
   const dispatch = useDispatch();
+  const client = useSelector((state: AppState) => state.docState.client);
+  const currentItem = useSelector(findCurrentPageLink);
+
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | undefined>();
   const handleSettingsClick = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => {
@@ -77,26 +89,87 @@ function MenuAppBar() {
     dispatch(setTool(ToolType.None));
   }, [dispatch]);
 
+  const handleCreateWhiteboard = useCallback(
+    async (name: string) => {
+      const newDocKey = `${Math.random().toString(36).substring(7)}`;
+      const fileLink = `/${newDocKey}`;
+      const mimeType = 'application/vnd.pairy.whiteboard';
+
+      if (client) {
+        dispatch(
+          createDoc({
+            client,
+            docKey: `codepairs-${newDocKey}`,
+            init: (root: any) => {
+              const newRoot = root;
+              if (!newRoot.mimeType) {
+                newRoot.mimeType = mimeType;
+              }
+
+              newRoot.whiteboard = {
+                shapes: {},
+                bindings: {},
+                assets: {},
+              };
+            },
+          }) as any,
+        );
+
+        setTimeout(() => {
+          dispatch(newLink({ parentId: currentItem.id, name, mimeType, fileLink }));
+        }, 1000);
+      }
+    },
+    [currentItem?.id, dispatch, client],
+  );
+
+  const handleCreateLink = useCallback(
+    (name: string) => {
+      dispatch(newLink({ parentId: currentItem.id, name }));
+    },
+    [currentItem?.id, dispatch],
+  );
+
   return (
     <div className={classes.root}>
       <AppBar position="static" className={classes.appBar} elevation={0}>
         <Toolbar>
-          <IconButton
-            size="small"
-            onClick={() => {
-              dispatch(toggleTab());
+          <div
+            style={{
+              width: 270,
+              display: 'flex',
             }}
-            className={classes.iconButton}
           >
-            <Menu />
-          </IconButton>
-          <Typography variant="h6" className={classes.title}>
-            <Link href="/" underline="none">
-              CodePair
-            </Link>
-          </Typography>
-          <NetworkButton />
-          <div className={classes.grow} />
+            <IconButton
+              size="small"
+              onClick={() => {
+                dispatch(toggleTab());
+              }}
+              className={classes.iconButton}
+            >
+              <Menu />
+            </IconButton>
+            <Typography variant="h6" className={classes.title}>
+              <Link href="/" underline="none">
+                CodePair
+              </Link>
+            </Typography>
+            <NetworkButton />
+          </div>
+          <div className={classes.grow}>
+            <Button size="small" className={classes.addButton} onClick={() => handleCreateLink('Untitled note')}>
+              <EventNote /> &nbsp;
+              <Typography>Note</Typography>
+            </Button>
+            <Button
+              size="small"
+              className={classes.addButton}
+              onClick={() => handleCreateWhiteboard('Untitled artboard')}
+            >
+              <Gesture fontSize="small" /> &nbsp;
+              <Typography>Whiteboard</Typography>
+            </Button>
+          </div>
           <div className={classes.items}>
             <ShareButton />
             <PeerGroup />

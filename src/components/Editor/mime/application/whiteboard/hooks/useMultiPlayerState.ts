@@ -253,6 +253,7 @@ export function useMultiplayerState(roomId: string) {
 
         // 03. Initialize document if document not exists.
         doc!.update((currentRoot) => {
+          console.log(doc?.getKey());
           const root = currentRoot;
           if (!root.whiteboard) {
             root.whiteboard = {
@@ -281,11 +282,11 @@ export function useMultiplayerState(roomId: string) {
         });
 
         // 05. Sync client to sync document with other peers.
-        await client!.sync();
+        // await client!.sync();
 
         if (stillAlive) {
           // Update the document with initial content
-          // handleChanges();
+          handleChanges();
 
           // Zoom to fit the content & finish loading
           if (app) {
