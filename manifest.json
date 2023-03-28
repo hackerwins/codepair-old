@@ -1,42 +1,163 @@
 {
-  "short_name": "CodePair",
-  "name": "Yorkie CodePair",
-  "icons": [
-    {
-      "src": "/android-icon-36x36.png",
-      "sizes": "36x36",
-      "type": "image/png",
-      "density": "0.75"
-    },
-    {
-      "src": "/android-icon-48x48.png",
-      "sizes": "48x48",
-      "type": "image/png",
-      "density": "1.0"
-    },
-    {
-      "src": "/android-icon-72x72.png",
-      "sizes": "72x72",
-      "type": "image/png",
-      "density": "1.5"
-    },
-    {
-      "src": "/android-icon-96x96.png",
-      "sizes": "96x96",
-      "type": "image/png",
-      "density": "2.0"
-    },
-    {
-      "src": "/android-icon-144x144.png",
-      "sizes": "144x144",
-      "type": "image/png",
-      "density": "3.0"
-    },
-    {
-      "src": "/android-icon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "density": "4.0"
-    }
-  ]
+  "index.css": {
+    "file": "assets/index-1e6ceda7.css",
+    "src": "index.css"
+  },
+  "index.html": {
+    "assets": [
+      "assets/caveat-brush-latin-ext-400-normal-55169dbf.woff2",
+      "assets/caveat-brush-all-400-normal-a398717e.woff",
+      "assets/caveat-brush-latin-400-normal-750c6acb.woff2",
+      "assets/crimson-pro-all-400-normal-3300d058.woff",
+      "assets/crimson-pro-latin-ext-400-normal-e5337719.woff2",
+      "assets/crimson-pro-latin-400-normal-d920d3f1.woff2",
+      "assets/recursive-all-400-normal-5e1e372f.woff",
+      "assets/recursive-vietnamese-400-normal-e3a3be37.woff2",
+      "assets/recursive-latin-ext-400-normal-763cb0b2.woff2",
+      "assets/recursive-latin-400-normal-344b9fd4.woff2",
+      "assets/source-code-pro-cyrillic-ext-400-normal-82671b2d.woff2",
+      "assets/source-code-pro-all-400-normal-b1e02d3f.woff",
+      "assets/source-code-pro-cyrillic-400-normal-96444050.woff2",
+      "assets/source-code-pro-greek-400-normal-03b0faf3.woff2",
+      "assets/source-code-pro-latin-ext-400-normal-77f76588.woff2",
+      "assets/source-code-pro-latin-400-normal-d055168e.woff2",
+      "assets/source-sans-pro-cyrillic-ext-400-normal-4ba425fa.woff2",
+      "assets/source-sans-pro-all-400-normal-56cfd2ea.woff",
+      "assets/source-sans-pro-cyrillic-400-normal-0acd59e1.woff2",
+      "assets/source-sans-pro-greek-ext-400-normal-f2a19d8c.woff2",
+      "assets/source-sans-pro-greek-400-normal-9755c83c.woff2",
+      "assets/source-sans-pro-vietnamese-400-normal-6e0839c2.woff2",
+      "assets/source-sans-pro-latin-ext-400-normal-ee519845.woff2",
+      "assets/source-sans-pro-latin-400-normal-c124c88c.woff2"
+    ],
+    "css": [
+      "assets/index-1e6ceda7.css"
+    ],
+    "dynamicImports": [
+      "src/components/Editor/mime/text/md/Editor.tsx",
+      "src/components/Editor/mime/application/cell/Editor.tsx"
+    ],
+    "file": "assets/index-c624eacc.js",
+    "isEntry": true,
+    "src": "index.html"
+  },
+  "node_modules/@fontsource/caveat-brush/files/caveat-brush-all-400-normal.woff": {
+    "file": "assets/caveat-brush-all-400-normal-a398717e.woff",
+    "src": "node_modules/@fontsource/caveat-brush/files/caveat-brush-all-400-normal.woff"
+  },
+  "node_modules/@fontsource/caveat-brush/files/caveat-brush-latin-400-normal.woff2": {
+    "file": "assets/caveat-brush-latin-400-normal-750c6acb.woff2",
+    "src": "node_modules/@fontsource/caveat-brush/files/caveat-brush-latin-400-normal.woff2"
+  },
+  "node_modules/@fontsource/caveat-brush/files/caveat-brush-latin-ext-400-normal.woff2": {
+    "file": "assets/caveat-brush-latin-ext-400-normal-55169dbf.woff2",
+    "src": "node_modules/@fontsource/caveat-brush/files/caveat-brush-latin-ext-400-normal.woff2"
+  },
+  "node_modules/@fontsource/crimson-pro/files/crimson-pro-all-400-normal.woff": {
+    "file": "assets/crimson-pro-all-400-normal-3300d058.woff",
+    "src": "node_modules/@fontsource/crimson-pro/files/crimson-pro-all-400-normal.woff"
+  },
+  "node_modules/@fontsource/crimson-pro/files/crimson-pro-latin-400-normal.woff2": {
+    "file": "assets/crimson-pro-latin-400-normal-d920d3f1.woff2",
+    "src": "node_modules/@fontsource/crimson-pro/files/crimson-pro-latin-400-normal.woff2"
+  },
+  "node_modules/@fontsource/crimson-pro/files/crimson-pro-latin-ext-400-normal.woff2": {
+    "file": "assets/crimson-pro-latin-ext-400-normal-e5337719.woff2",
+    "src": "node_modules/@fontsource/crimson-pro/files/crimson-pro-latin-ext-400-normal.woff2"
+  },
+  "node_modules/@fontsource/recursive/files/recursive-all-400-normal.woff": {
+    "file": "assets/recursive-all-400-normal-5e1e372f.woff",
+    "src": "node_modules/@fontsource/recursive/files/recursive-all-400-normal.woff"
+  },
+  "node_modules/@fontsource/recursive/files/recursive-latin-400-normal.woff2": {
+    "file": "assets/recursive-latin-400-normal-344b9fd4.woff2",
+    "src": "node_modules/@fontsource/recursive/files/recursive-latin-400-normal.woff2"
+  },
+  "node_modules/@fontsource/recursive/files/recursive-latin-ext-400-normal.woff2": {
+    "file": "assets/recursive-latin-ext-400-normal-763cb0b2.woff2",
+    "src": "node_modules/@fontsource/recursive/files/recursive-latin-ext-400-normal.woff2"
+  },
+  "node_modules/@fontsource/recursive/files/recursive-vietnamese-400-normal.woff2": {
+    "file": "assets/recursive-vietnamese-400-normal-e3a3be37.woff2",
+    "src": "node_modules/@fontsource/recursive/files/recursive-vietnamese-400-normal.woff2"
+  },
+  "node_modules/@fontsource/source-code-pro/files/source-code-pro-all-400-normal.woff": {
+    "file": "assets/source-code-pro-all-400-normal-b1e02d3f.woff",
+    "src": "node_modules/@fontsource/source-code-pro/files/source-code-pro-all-400-normal.woff"
+  },
+  "node_modules/@fontsource/source-code-pro/files/source-code-pro-cyrillic-400-normal.woff2": {
+    "file": "assets/source-code-pro-cyrillic-400-normal-96444050.woff2",
+    "src": "node_modules/@fontsource/source-code-pro/files/source-code-pro-cyrillic-400-normal.woff2"
+  },
+  "node_modules/@fontsource/source-code-pro/files/source-code-pro-cyrillic-ext-400-normal.woff2": {
+    "file": "assets/source-code-pro-cyrillic-ext-400-normal-82671b2d.woff2",
+    "src": "node_modules/@fontsource/source-code-pro/files/source-code-pro-cyrillic-ext-400-normal.woff2"
+  },
+  "node_modules/@fontsource/source-code-pro/files/source-code-pro-greek-400-normal.woff2": {
+    "file": "assets/source-code-pro-greek-400-normal-03b0faf3.woff2",
+    "src": "node_modules/@fontsource/source-code-pro/files/source-code-pro-greek-400-normal.woff2"
+  },
+  "node_modules/@fontsource/source-code-pro/files/source-code-pro-latin-400-normal.woff2": {
+    "file": "assets/source-code-pro-latin-400-normal-d055168e.woff2",
+    "src": "node_modules/@fontsource/source-code-pro/files/source-code-pro-latin-400-normal.woff2"
+  },
+  "node_modules/@fontsource/source-code-pro/files/source-code-pro-latin-ext-400-normal.woff2": {
+    "file": "assets/source-code-pro-latin-ext-400-normal-77f76588.woff2",
+    "src": "node_modules/@fontsource/source-code-pro/files/source-code-pro-latin-ext-400-normal.woff2"
+  },
+  "node_modules/@fontsource/source-sans-pro/files/source-sans-pro-all-400-normal.woff": {
+    "file": "assets/source-sans-pro-all-400-normal-56cfd2ea.woff",
+    "src": "node_modules/@fontsource/source-sans-pro/files/source-sans-pro-all-400-normal.woff"
+  },
+  "node_modules/@fontsource/source-sans-pro/files/source-sans-pro-cyrillic-400-normal.woff2": {
+    "file": "assets/source-sans-pro-cyrillic-400-normal-0acd59e1.woff2",
+    "src": "node_modules/@fontsource/source-sans-pro/files/source-sans-pro-cyrillic-400-normal.woff2"
+  },
+  "node_modules/@fontsource/source-sans-pro/files/source-sans-pro-cyrillic-ext-400-normal.woff2": {
+    "file": "assets/source-sans-pro-cyrillic-ext-400-normal-4ba425fa.woff2",
+    "src": "node_modules/@fontsource/source-sans-pro/files/source-sans-pro-cyrillic-ext-400-normal.woff2"
+  },
+  "node_modules/@fontsource/source-sans-pro/files/source-sans-pro-greek-400-normal.woff2": {
+    "file": "assets/source-sans-pro-greek-400-normal-9755c83c.woff2",
+    "src": "node_modules/@fontsource/source-sans-pro/files/source-sans-pro-greek-400-normal.woff2"
+  },
+  "node_modules/@fontsource/source-sans-pro/files/source-sans-pro-greek-ext-400-normal.woff2": {
+    "file": "assets/source-sans-pro-greek-ext-400-normal-f2a19d8c.woff2",
+    "src": "node_modules/@fontsource/source-sans-pro/files/source-sans-pro-greek-ext-400-normal.woff2"
+  },
+  "node_modules/@fontsource/source-sans-pro/files/source-sans-pro-latin-400-normal.woff2": {
+    "file": "assets/source-sans-pro-latin-400-normal-c124c88c.woff2",
+    "src": "node_modules/@fontsource/source-sans-pro/files/source-sans-pro-latin-400-normal.woff2"
+  },
+  "node_modules/@fontsource/source-sans-pro/files/source-sans-pro-latin-ext-400-normal.woff2": {
+    "file": "assets/source-sans-pro-latin-ext-400-normal-ee519845.woff2",
+    "src": "node_modules/@fontsource/source-sans-pro/files/source-sans-pro-latin-ext-400-normal.woff2"
+  },
+  "node_modules/@fontsource/source-sans-pro/files/source-sans-pro-vietnamese-400-normal.woff2": {
+    "file": "assets/source-sans-pro-vietnamese-400-normal-6e0839c2.woff2",
+    "src": "node_modules/@fontsource/source-sans-pro/files/source-sans-pro-vietnamese-400-normal.woff2"
+  },
+  "src/components/Editor/mime/application/cell/Editor.tsx": {
+    "file": "assets/Editor-3a1ec889.js",
+    "imports": [
+      "index.html"
+    ],
+    "isDynamicEntry": true,
+    "src": "src/components/Editor/mime/application/cell/Editor.tsx"
+  },
+  "src/components/Editor/mime/text/md/Editor.css": {
+    "file": "assets/Editor-7ac63a43.css",
+    "src": "src/components/Editor/mime/text/md/Editor.css"
+  },
+  "src/components/Editor/mime/text/md/Editor.tsx": {
+    "css": [
+      "assets/Editor-7ac63a43.css"
+    ],
+    "file": "assets/Editor-d0bb22c9.js",
+    "imports": [
+      "index.html"
+    ],
+    "isDynamicEntry": true,
+    "src": "src/components/Editor/mime/text/md/Editor.tsx"
+  }
 }
