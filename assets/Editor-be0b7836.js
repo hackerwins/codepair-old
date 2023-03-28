@@ -1,0 +1,1 @@
+import{r as t,j as e}from"./index-86005ad0.js";function r(){return t.useEffect(()=>{window.x_spreadsheet("#container")},[]),e("div",{id:"container",style:{top:0,left:0,right:0,bottom:0,position:"absolute"}})}export{r as default};
