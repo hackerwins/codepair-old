@@ -5,7 +5,7 @@
     "dev": "vite --config ./config/vite.config.development.ts",
     "build": "tsc && vite build --config ./config/vite.config.ts",
     "preview": "vite preview",
-    "lint": "eslint . --fix --ext .ts,.tsx",
+    "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint --fix . --ext .ts,.tsx",
     "test": "vitest run",
     "test:watch": "vitest"

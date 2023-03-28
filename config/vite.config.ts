@@ -1,8 +1,6 @@
 import { defineConfig } from 'vite';
 import path from 'path';
 import react from '@vitejs/plugin-react';
-// import eslint from 'vite-plugin-eslint';
-// import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
 
 const ROOT = path.resolve(__dirname, '..');
@@ -25,17 +23,7 @@ export default defineConfig({
     outDir: 'dist',
     emptyOutDir: true,
   },
-  plugins: [
-    react({
-      // include: '**/*.tsx',
-    }),
-    // nodePolyfills({
-    //   // Whether to polyfill `node:` protocol imports.
-    //   // protocolImports: true,
-    // }),
-    // eslint(),
-    // splitVendorChunkPlugin(),
-  ],
+  plugins: [react()],
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
     alias: [
