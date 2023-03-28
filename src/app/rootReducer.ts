@@ -1,12 +1,12 @@
 import { combineReducers } from 'redux';
 
-import docReducer from 'features/docSlices';
-import peerReducer from 'features/peerSlices';
-import settingReducer from 'features/settingSlices';
-import boardReducer from 'features/boardSlices';
-import linkReducer from 'features/linkSlices';
-import messageReducer from 'features/messageSlices';
-import navReducer from 'features/navSlices';
+import docReducer from '../features/docSlices';
+import peerReducer from '../features/peerSlices';
+import settingReducer from '../features/settingSlices';
+import boardReducer from '../features/boardSlices';
+import linkReducer from '../features/linkSlices';
+import messageReducer from '../features/messageSlices';
+import navReducer from '../features/navSlices';
 
 const rootReducer = combineReducers({
   docState: docReducer,

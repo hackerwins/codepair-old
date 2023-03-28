@@ -1,10 +1,11 @@
+import { describe, it, expect, vi } from 'vitest';
 import EventDispatcher from './eventDispatcher';
 
 describe('EventDispatcher', () => {
   it('should emit event', () => {
     const eventDispatcher = new EventDispatcher();
 
-    const handler = jest.fn();
+    const handler = vi.fn();
 
     eventDispatcher.addEventListener('bar', handler);
     eventDispatcher.emit('bar');
@@ -15,8 +16,8 @@ describe('EventDispatcher', () => {
   it('should emit event width multiple handlers', () => {
     const eventDispatcher = new EventDispatcher();
 
-    const handler1 = jest.fn();
-    const handler2 = jest.fn();
+    const handler1 = vi.fn();
+    const handler2 = vi.fn();
 
     eventDispatcher.addEventListener('bar', handler1);
     eventDispatcher.addEventListener('bar', handler2);
@@ -29,7 +30,7 @@ describe('EventDispatcher', () => {
   it('should remove event listener by handler', () => {
     const eventDispatcher = new EventDispatcher();
 
-    const handler = jest.fn();
+    const handler = vi.fn();
 
     eventDispatcher.addEventListener('bar', handler);
     eventDispatcher.removeEventListener('bar', handler);
@@ -41,7 +42,7 @@ describe('EventDispatcher', () => {
   it('should remove event listener by name', () => {
     const eventDispatcher = new EventDispatcher();
 
-    const handler = jest.fn();
+    const handler = vi.fn();
 
     eventDispatcher.addEventListener('bar', handler);
     eventDispatcher.removeEventListener('bar');

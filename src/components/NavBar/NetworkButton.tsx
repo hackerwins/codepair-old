@@ -1,15 +1,11 @@
 import React, { useState, useCallback, MouseEvent } from 'react';
 import { useSelector } from 'react-redux';
-import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
-import CloudDoneIcon from '@material-ui/icons/CloudDone';
-import CloudOffIcon from '@material-ui/icons/CloudOff';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
-
-import Popover from 'components/commons/Popover';
 import { AppState } from 'app/rootReducer';
 import { DocStatus } from 'features/docSlices';
+import { makeStyles } from 'styles/common';
+import { Box, Button, Popover, Typography } from '@mui/material';
+import CloudDone from '@mui/icons-material/CloudDone';
+import CloudOff from '@mui/icons-material/CloudOff';
 
 interface NetworkAlertProps {
   title: string;
@@ -17,22 +13,20 @@ interface NetworkAlertProps {
   content: string;
 }
 
-const useStyles = makeStyles(() =>
-  createStyles({
-    root: {
-      width: '380px',
+const useStyles = makeStyles()(() => ({
+  root: {
+    width: '380px',
+  },
+  title: {
+    backgroundColor: 'hsla(0,0%,100%,0.1)',
+    '& > *': {
+      fontWeight: 'bold',
     },
-    title: {
-      backgroundColor: 'hsla(0,0%,100%,0.1)',
-      '& > *': {
-        fontWeight: 'bold',
-      },
-    },
-  }),
-);
+  },
+}));
 
 function NetworkAlert({ title, subTitle, content }: NetworkAlertProps) {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <div className={classes.root}>
@@ -65,11 +59,12 @@ function NetworkDisconnect(props: { hasLocalChanges: boolean }) {
 
   return (
     <>
-      <Button aria-label="doc-status" color="secondary" startIcon={<CloudOffIcon />} onClick={handleOpen}>
+      <Button aria-label="doc-status" color="secondary" startIcon={<CloudOff />} onClick={handleOpen}>
         Working offline
       </Button>
 
       <Popover
+        open={!!anchorEl}
         anchorEl={anchorEl}
         onClose={handleClose}
         anchorOrigin={{
@@ -104,10 +99,11 @@ function NetworkConnect() {
   return (
     <>
       <Button aria-label="doc-status" color="secondary" onClick={handleOpen}>
-        <CloudDoneIcon />
+        <CloudDone />
       </Button>
 
       <Popover
+        open={!!anchorEl}
         anchorEl={anchorEl}
         onClose={handleClose}
         anchorOrigin={{

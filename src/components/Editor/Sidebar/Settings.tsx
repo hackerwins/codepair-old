@@ -2,14 +2,6 @@
 import React, { useCallback, useEffect, ChangeEvent } from 'react';
 import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import { useSelector, useDispatch } from 'react-redux';
-import Box from '@material-ui/core/Box';
-import Switch from '@material-ui/core/Switch';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
-import Typography from '@material-ui/core/Typography';
-import FormControl from '@material-ui/core/FormControl';
-import TextField from '@material-ui/core/TextField';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
 
 import { Preview, setPreview } from 'features/docSlices';
 import {
@@ -22,51 +14,51 @@ import {
   setUserName,
   setUserColor,
 } from 'features/settingSlices';
+import { AppDispatch } from 'app/store';
 import { AppState } from 'app/rootReducer';
-import { debounce } from '@material-ui/core';
 import { updatePresenceColor } from 'features/peerSlices';
+import { makeStyles } from 'styles/common';
+import { Box, debounce, FormControl, NativeSelect, Switch, TextField, Typography } from '@mui/material';
 
-const useStyles = makeStyles((theme) =>
-  createStyles({
-    root: {
-      minWidth: '320px',
-      borderRadius: '4px',
-    },
-    header: {
-      borderBottom: `1px solid ${theme.palette.text.disabled}`,
-    },
-    title: {
-      padding: '12px 16px',
-    },
-    list: {
-      padding: '8px 18px 18px 18px',
-      lineHeight: '19px',
-    },
-    item: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      fontSize: '15px',
-      marginTop: '12px',
-      pointerEvents: 'none',
-    },
-    itemTitle: {
-      whiteSpace: 'nowrap',
-      display: 'flex',
-      alignItems: 'center',
-    },
-    itemInfo: {
-      minWidth: 140,
-      paddingLeft: '12px',
-      borderRadius: '4px',
-      textAlign: 'left',
-      pointerEvents: 'auto',
-    },
-  }),
-);
+const useStyles = makeStyles()((theme) => ({
+  root: {
+    minWidth: '320px',
+    borderRadius: '4px',
+  },
+  header: {
+    borderBottom: `1px solid ${theme.palette.text.disabled}`,
+  },
+  title: {
+    padding: '12px 16px',
+  },
+  list: {
+    padding: '8px 18px 18px 18px',
+    lineHeight: '19px',
+  },
+  item: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    fontSize: '15px',
+    marginTop: '12px',
+    pointerEvents: 'none',
+  },
+  itemTitle: {
+    whiteSpace: 'nowrap',
+    display: 'flex',
+    alignItems: 'center',
+  },
+  itemInfo: {
+    minWidth: 140,
+    paddingLeft: '12px',
+    borderRadius: '4px',
+    textAlign: 'left',
+    pointerEvents: 'auto',
+  },
+}));
 
 export default function Settings() {
-  const dispatch = useDispatch();
-  const classes = useStyles();
+  const dispatch = useDispatch<AppDispatch>();
+  const { classes } = useStyles();
 
   const client = useSelector((state: AppState) => state.docState.client);
   const doc = useSelector((state: AppState) => state.docState.doc);
@@ -82,7 +74,7 @@ export default function Settings() {
 
   useEffect(() => {
     if (!doc) {
-      return () => {};
+      return;
     }
 
     const unsubscribe = doc.subscribe((event) => {
@@ -117,7 +109,7 @@ export default function Settings() {
   );
 
   const handlePreviewChange = useCallback(
-    (event: ChangeEvent<{ name?: string; value: unknown }>) => {
+    (event: ChangeEvent<HTMLSelectElement>) => {
       if (!doc) {
         return;
       }
@@ -133,13 +125,13 @@ export default function Settings() {
   );
 
   function handleChange<T>(action: ActionCreatorWithPayload<T>) {
-    return (event: ChangeEvent<{ name?: string; value: unknown }>) => {
+    return (event: ChangeEvent<HTMLSelectElement>) => {
       dispatch(action(event.target.value as T));
     };
   }
 
   const handleThemeChanged = useCallback(
-    (input, checked) => {
+    (_input: ChangeEvent<HTMLInputElement>, checked: boolean) => {
       dispatch(setDarkMode(checked));
     },
     [dispatch, setDarkMode],
@@ -175,43 +167,43 @@ export default function Settings() {
         <div className={classes.item}>
           <div className={classes.itemTitle}>Preview</div>
           <FormControl className={classes.itemInfo}>
-            <Select name="preview" value={preview} onChange={handlePreviewChange} displayEmpty>
+            <NativeSelect name="preview" value={preview} onChange={handlePreviewChange}>
               {Object.entries(Preview).map(([display, value]: [string, string]) => {
                 return (
-                  <MenuItem value={value} key={value}>
+                  <option value={value} key={value}>
                     {display}
-                  </MenuItem>
+                  </option>
                 );
               })}
-            </Select>
+            </NativeSelect>
           </FormControl>
         </div>
         <div className={classes.item}>
           <div className={classes.itemTitle}>Tab Size</div>
           <FormControl className={classes.itemInfo}>
-            <Select value={menu.tabSize} onChange={handleChange(setTabSize)} displayEmpty>
+            <NativeSelect value={menu?.tabSize} onChange={handleChange(setTabSize)}>
               {Object.entries(TabSize).map(([key, tabSize]: [string, string]) => {
                 return (
-                  <MenuItem value={tabSize} key={key}>
+                  <option value={tabSize} key={key}>
                     {`${tabSize} spaces`}
-                  </MenuItem>
+                  </option>
                 );
               })}
-            </Select>
+            </NativeSelect>
           </FormControl>
         </div>
         <div className={classes.item}>
           <div className={classes.itemTitle}>Key Binding</div>
           <FormControl className={classes.itemInfo}>
-            <Select value={menu.codeKeyMap} onChange={handleChange(setCodeKeyMap)} displayEmpty>
+            <NativeSelect name="codeKeyMap" value={menu?.codeKeyMap} onChange={handleChange(setCodeKeyMap)}>
               {Object.entries(CodeKeyMap).map(([display, codeKeyMap]: [string, string]) => {
                 return (
-                  <MenuItem value={codeKeyMap} key={codeKeyMap}>
+                  <option value={codeKeyMap} key={codeKeyMap}>
                     {display}
-                  </MenuItem>
+                  </option>
                 );
               })}
-            </Select>
+            </NativeSelect>
           </FormControl>
         </div>
         <div className={classes.item}>

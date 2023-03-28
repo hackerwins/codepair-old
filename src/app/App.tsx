@@ -1,25 +1,37 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import { Router, Route, Redirect, Switch } from 'react-router-dom';
-import { createBrowserHistory } from 'history';
+import {
+  RouterProvider,
+  createBrowserRouter,
+  createRoutesFromChildren,
+  Navigate,
+  useLocation,
+  useNavigationType,
+  matchRoutes,
+} from 'react-router-dom';
+import { CacheProvider } from '@emotion/react';
+import createCache from '@emotion/cache';
 import * as Sentry from '@sentry/react';
 import { Integrations } from '@sentry/tracing';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
-import { AppState } from 'app/rootReducer';
+
+import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 import { Theme } from 'features/settingSlices';
-
 import DocPage from 'pages/DocPage';
+import { AppState } from './rootReducer';
 
-const history = createBrowserHistory();
-
-if (process.env.NODE_ENV === 'production') {
+if (import.meta.env.PROD) {
   Sentry.init({
-    dsn: `${process.env.REACT_APP_SENTRY_DSN}`,
-    release: `codepair@${process.env.REACT_APP_GIT_HASH}`,
+    dsn: `${import.meta.env.VITE_APP_SENTRY_DSN}`,
+    release: `codepair@${import.meta.env.VITE_APP_GIT_HASH}`,
     integrations: [
       new Integrations.BrowserTracing({
-        routingInstrumentation: Sentry.reactRouterV5Instrumentation(history),
+        routingInstrumentation: Sentry.reactRouterV6Instrumentation(
+          React.useEffect,
+          useLocation,
+          useNavigationType,
+          createRoutesFromChildren,
+          matchRoutes,
+        ),
       }),
     ],
 
@@ -30,13 +42,29 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <Navigate replace to={`/${Math.random().toString(36).substring(7)}`} />,
+  },
+  {
+    path: '/:docKey',
+    element: <DocPage />,
+  },
+]);
+
+export const muiCache = createCache({
+  key: 'mui',
+  prepend: true,
+});
+
 function App() {
   const menu = useSelector((state: AppState) => state.settingState.menu);
   const theme = useMemo(
     () =>
-      createMuiTheme({
+      createTheme({
         palette: {
-          type: menu.theme === Theme.Dark ? 'dark' : 'light',
+          mode: menu.theme === Theme.Dark ? 'dark' : 'light',
           primary: {
             main: 'rgb(253, 196, 51)',
           },
@@ -48,19 +76,13 @@ function App() {
     [menu],
   );
 
-  const handleRender = useCallback(() => <Redirect to={`/${Math.random().toString(36).substring(7)}`} />, []);
-
   return (
-    <ThemeProvider theme={theme}>
-      {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-      <CssBaseline />
-      <Router history={history}>
-        <Switch>
-          <Route path="/" exact render={handleRender} />
-          <Route path="/:docKey" exact component={DocPage} />
-        </Switch>
-      </Router>
-    </ThemeProvider>
+    <CacheProvider value={muiCache}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <RouterProvider router={router} />
+      </ThemeProvider>
+    </CacheProvider>
   );
 }
 

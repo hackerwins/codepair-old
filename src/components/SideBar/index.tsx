@@ -1,52 +1,8 @@
-import React, { ChangeEvent, Fragment, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  Box,
-  Button,
-  Collapse,
-  createStyles,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Divider,
-  Drawer,
-  IconButton,
-  Input,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  ListSubheader,
-  makeStyles,
-  Menu,
-  MenuItem,
-  Snackbar,
-  Tab,
-  Tooltip,
-  Typography,
-} from '@material-ui/core';
-import {
-  ExpandMore,
-  ChevronRight,
-  MoreHoriz,
-  Add,
-  Delete,
-  InsertDriveFile,
-  CreateNewFolder,
-  Edit,
-  OpenInBrowser,
-  FileCopy,
-  Update,
-  SubdirectoryArrowLeft,
-  Star,
-  AccountTree,
-  FolderOpen,
-  EventNote,
-  ListAlt,
-} from '@material-ui/icons';
-import { useHistory, useParams } from 'react-router';
+import React, { Fragment, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
+import { useNavigate, useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch } from 'app/store';
 import { AppState } from 'app/rootReducer';
 import {
   copyMarkdownTextForGroup,
@@ -67,10 +23,59 @@ import {
   toggleFavorite,
   toggleLinkOpen,
 } from 'features/linkSlices';
-import { TabContext, TabList, TabPanel } from '@material-ui/lab';
 import { Theme } from 'features/settingSlices';
 import { showMessage } from 'features/messageSlices';
 import { NavTabType, toggleLinkTab } from 'features/navSlices';
+import { createDoc } from 'features/docSlices';
+import { makeStyles } from 'styles/common';
+import AccountTree from '@mui/icons-material/AccountTree';
+import Add from '@mui/icons-material/Add';
+import BorderAll from '@mui/icons-material/BorderAll';
+import ChevronRight from '@mui/icons-material/ChevronRight';
+import CreateNewFolder from '@mui/icons-material/CreateNewFolder';
+import Delete from '@mui/icons-material/Delete';
+import Edit from '@mui/icons-material/Edit';
+import EventNote from '@mui/icons-material/EventNote';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import FileCopy from '@mui/icons-material/FileCopy';
+import FolderOpen from '@mui/icons-material/FolderOpen';
+import Gesture from '@mui/icons-material/Gesture';
+import SubdirectoryArrowLeft from '@mui/icons-material/SubdirectoryArrowLeft';
+import MoreHoriz from '@mui/icons-material/MoreHoriz';
+import Star from '@mui/icons-material/Star';
+import OpenInBrowser from '@mui/icons-material/OpenInBrowser';
+import InsertDriveFile from '@mui/icons-material/InsertDriveFile';
+import ListAlt from '@mui/icons-material/ListAlt';
+import GitHub from '@mui/icons-material/GitHub';
+import Update from '@mui/icons-material/Update';
+
+import {
+  Box,
+  Button,
+  Collapse,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Divider,
+  Drawer,
+  IconButton,
+  Input,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  ListSubheader,
+  Menu,
+  MenuItem,
+  Snackbar,
+  Tab,
+  Tooltip,
+  Typography,
+} from '@mui/material';
+
+import { TabContext, TabList, TabPanel } from '@mui/lab';
 
 interface SideBarProps {
   open: boolean;
@@ -128,112 +133,115 @@ function getTitle() {
   return title;
 }
 
-const useStyles = makeStyles((theme) =>
-  createStyles({
-    title: {
-      flexGrow: 1,
-      padding: '15px 16px',
-      backgroundColor: '#f5f5f5',
-    },
-    tabListDark: {
-      backgroundColor: '#303030',
-    },
-    tabListLight: {
-      backgroundColor: '#fafafa',
-      borderBottom: '1px solid #e8e8e8',
-    },
-    drawer: {
+const useStyles = makeStyles<SideBarProps>()((theme, props) => ({
+  title: {
+    flexGrow: 1,
+    padding: '15px 16px',
+    backgroundColor: '#f5f5f5',
+  },
+  tabListDark: {
+    backgroundColor: '#33333',
+  },
+  tabListLight: {
+    backgroundColor: '#fafafa',
+    borderBottom: '1px solid #e8e8e8',
+  },
+  drawer: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    right: 0,
+    bottom: 0,
+    flexShrink: 0,
+    transform: `translateX(${props.open ? 0 : -SIDEBAR_WIDTH}px) translateZ(0)`,
+    [`& .MuiDrawer-paper`]: {
+      width: SIDEBAR_WIDTH,
+      boxSizing: 'border-box',
       position: 'absolute',
-      left: 0,
-      top: 0,
-      right: 0,
-      bottom: 0,
-      flexShrink: 0,
-      transform: (props: SideBarProps) => `translateX(${props.open ? 0 : -SIDEBAR_WIDTH}px) translateZ(0)`,
-      [`& .MuiDrawer-paper`]: {
-        width: SIDEBAR_WIDTH,
-        boxSizing: 'border-box',
-        position: 'absolute',
-        transition: 'width 225ms cubic-bezier(0, 0, 0.2, 1) 0ms',
-      },
+      transition: 'width 225ms cubic-bezier(0, 0, 0.2, 1) 0ms',
+    },
 
-      [`& .MuiListItem-root`]: {
-        paddingTop: 2,
-        paddingBottom: 2,
-      },
+    [`& .MuiListItem-root`]: {
+      paddingTop: 2,
+      paddingBottom: 2,
+    },
 
-      [`& .MuiTabPanel-root`]: {
-        padding: 0,
-      },
+    [`& .MuiTabPanel-root`]: {
+      padding: 0,
+    },
 
-      [`& .MuiTab-root`]: {
-        minWidth: 0,
-        padding: '0 16px',
-        fontSize: '0.875rem',
-        textTransform: 'none',
-      },
+    [`& .MuiTab-root`]: {
+      minWidth: 0,
+      padding: '0 16px',
+      fontSize: '0.875rem',
+      textTransform: 'none',
     },
-    listItemText: {
-      [`& .MuiTypography-root`]: {
-        fontSize: '0.875rem',
-        paddingLeft: 8,
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-      },
+  },
+  listItemText: {
+    [`& .MuiTypography-root`]: {
+      fontSize: '0.875rem',
+      paddingLeft: 8,
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
     },
-    listSubHeader: {
-      'line-height': 1.5,
-      [`&:hover .group-item-button`]: {
-        visibility: 'visible !important',
-      },
+  },
+  listSubHeader: {
+    lineHeight: 1.5,
+    [`&:hover .group-item-button`]: {
+      visibility: 'visible !important' as any,
     },
-    listItem: {
-      '&:hover': {
-        backgroundColor: 'rgba(0, 0, 0, 0.04)',
-      },
+  },
+  listItem: {
+    '&:hover': {
+      backgroundColor: 'rgba(0, 0, 0, 0.04)',
     },
-    sidebarItem: {
-      [`&:hover .sidebar-item-more`]: {
-        visibility: 'visible !important',
-      },
+  },
+  sidebarItem: {
+    [`&:hover .sidebar-item-more`]: {
+      visibility: 'visible !important' as any,
     },
-    level0: {
-      paddingLeft: theme.spacing(1),
+  },
+  level0: {
+    paddingLeft: theme.spacing(1),
+  },
+  level1: {
+    paddingLeft: theme.spacing(3),
+  },
+  level2: {
+    paddingLeft: theme.spacing(5),
+  },
+  level3: {
+    paddingLeft: theme.spacing(7),
+  },
+  level4: {
+    paddingLeft: theme.spacing(9),
+  },
+  level5: {
+    paddingLeft: theme.spacing(10),
+  },
+  level6: {
+    paddingLeft: theme.spacing(12),
+  },
+  level7: {
+    paddingLeft: theme.spacing(14),
+  },
+  level8: {
+    paddingLeft: theme.spacing(16),
+  },
+  level9: {
+    paddingLeft: theme.spacing(18),
+  },
+  level10: {
+    paddingLeft: theme.spacing(20),
+  },
+  moreMenu: {},
+  tooltip: {
+    '& .MuiTooltip-tooltip': {
+      fontSize: '1.5rem',
     },
-    level1: {
-      paddingLeft: theme.spacing(3),
-    },
-    level2: {
-      paddingLeft: theme.spacing(5),
-    },
-    level3: {
-      paddingLeft: theme.spacing(7),
-    },
-    level4: {
-      paddingLeft: theme.spacing(9),
-    },
-    level5: {
-      paddingLeft: theme.spacing(10),
-    },
-    level6: {
-      paddingLeft: theme.spacing(12),
-    },
-    level7: {
-      paddingLeft: theme.spacing(14),
-    },
-    level8: {
-      paddingLeft: theme.spacing(16),
-    },
-    level9: {
-      paddingLeft: theme.spacing(18),
-    },
-    level10: {
-      paddingLeft: theme.spacing(20),
-    },
-    moreMenu: {},
-  }),
-);
+  },
+}));
 
 interface OpenState {
   [key: string]: boolean;
@@ -264,7 +272,9 @@ function MoreIcon({ open, onClick }: { open: boolean; onClick: () => void }) {
 const options = [
   'Favorite',
   '-',
-  'Add link',
+  'Add Note',
+  'Add Whiteboard',
+  'Add cell',
   'Add current note',
   'Rename',
   'Delete',
@@ -277,6 +287,8 @@ const headingOptions = ['Favorite', '-', 'Open in Browser', 'Copy'];
 const groupOptions = [
   'Favorite',
   '-',
+  'Add Note',
+  'Add Whiteboard',
   'Add current note',
   'Add child group',
   'Add next group',
@@ -292,9 +304,10 @@ interface MoreMenuProps {
   startRename: () => void;
 }
 function MoreMenu({ item, startRename }: MoreMenuProps) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
+  const client = useSelector((state: AppState) => state.docState.client);
   const favorite = useSelector((state: AppState) => state.linkState.favorite);
-  const classes = useStyles({ open: true });
+  const { classes } = useStyles({ open: true });
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const { docKey } = useParams<{ docKey: string }>();
   const open = Boolean(anchorEl);
@@ -334,6 +347,70 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
     [item.id, dispatch],
   );
 
+  const handleCreateWhiteboard = useCallback(
+    async (name: string) => {
+      const newDocKey = `${Math.random().toString(36).substring(7)}`;
+      const fileLink = `/${newDocKey}`;
+      const mimeType = 'application/vnd.pairy.whiteboard';
+
+      if (client) {
+        await dispatch(
+          createDoc({
+            client,
+            docKey: `codepairs-${newDocKey}`,
+            init: (root: any) => {
+              const newRoot = root;
+              if (!newRoot.mimeType) {
+                newRoot.mimeType = mimeType;
+              }
+
+              newRoot.whiteboard = {
+                shapes: {},
+                bindings: {},
+                assets: {},
+              };
+            },
+          }),
+        );
+
+        dispatch(newLink({ parentId: item.id, name, mimeType, fileLink }));
+      }
+    },
+    [item.id, dispatch, client],
+  );
+
+  const handleCreateCell = useCallback(
+    async (name: string) => {
+      const newDocKey = `${Math.random().toString(36).substring(7)}`;
+      const fileLink = `/${newDocKey}`;
+      const mimeType = 'application/cell';
+
+      if (client) {
+        dispatch(
+          createDoc({
+            client,
+            docKey: `codepairs-${newDocKey}`,
+            init: (root: any) => {
+              const newRoot = root;
+              if (!newRoot.mimeType) {
+                newRoot.mimeType = mimeType;
+              }
+
+              if (!newRoot.cell) {
+                newRoot.cell = {
+                  pages: [],
+                };
+              }
+            },
+          }),
+        );
+
+        dispatch(newLink({ parentId: item.id, name, mimeType, fileLink }));
+      }
+    },
+    [item.id, dispatch, client],
+  );
+
   const handleUpdateLink = useCallback(() => {
     dispatch(setLinkFileLink({ id: item.id, name: getTitle(), fileLink: `/${docKey}` }));
   }, [item.id, dispatch, docKey]);
@@ -368,8 +445,12 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
       });
     } else if (command === 'Delete') {
       handleClickDialogOpen();
-    } else if (command === 'Add link') {
+    } else if (command === 'Add Note') {
       handleCreateLink('Untitled name');
+    } else if (command === 'Add Whiteboard') {
+      handleCreateWhiteboard('Untitled whiteboard');
+    } else if (command === 'Add cell') {
+      handleCreateCell('Untitled Cell');
     } else if (command === 'Add current note') {
       handleCreateCurrentPage();
     } else if (command === 'Update link') {
@@ -431,7 +512,9 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
                     }}
                   />
                 ) : undefined}
-                {option === 'Add link' ? <SubdirectoryArrowLeft /> : undefined}
+                {option === 'Add Note' ? <SubdirectoryArrowLeft /> : undefined}
+                {option === 'Add Whiteboard' ? <SubdirectoryArrowLeft /> : undefined}
+                {option === 'Add cell' ? <SubdirectoryArrowLeft /> : undefined}
                 {option === 'Add current note' ? <SubdirectoryArrowLeft /> : undefined}
                 {option === 'Rename' ? <Edit /> : undefined}
                 {option === 'Open in Browser' ? <OpenInBrowser /> : undefined}
@@ -488,9 +571,9 @@ interface HeadingMoreMenuProps {
 }
 
 function HeadingMoreMenu({ item }: HeadingMoreMenuProps) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const favorite = useSelector((state: AppState) => state.linkState.favorite);
-  const classes = useStyles({ open: true });
+  const { classes } = useStyles({ open: true });
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const open = Boolean(anchorEl);
@@ -601,7 +684,8 @@ interface GroupMoreMenuProps {
 }
 
 function GroupMoreMenu({ group, startRename }: GroupMoreMenuProps) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
+  const client = useSelector((state: AppState) => state.docState.client);
   const groups = useSelector((state: AppState) => state.linkState.groups);
   const favorite = useSelector((state: AppState) => state.linkState.favorite);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -626,6 +710,45 @@ function GroupMoreMenu({ group, startRename }: GroupMoreMenuProps) {
     dispatch(newLinkByCurrentPage({ parentId: group.id, name: getTitle(), fileLink: `/${docKey}` }));
   }, [group.id, docKey, dispatch]);
 
+  const handleCreateLink = useCallback(
+    (name: string) => {
+      dispatch(newLink({ parentId: group.id, name }));
+    },
+    [group.id, dispatch],
+  );
+
+  const handleCreateWhiteboard = useCallback(
+    async (name: string) => {
+      const newDocKey = `${Math.random().toString(36).substring(7)}`;
+      const fileLink = `/${newDocKey}`;
+      const mimeType = 'application/vnd.pairy.whiteboard';
+
+      if (client) {
+        await dispatch(
+          createDoc({
+            client,
+            docKey: `codepairs-${newDocKey}`,
+            init: (root: any) => {
+              const newRoot = root;
+              if (!newRoot.mimeType) {
+                newRoot.mimeType = mimeType;
+              }
+
+              newRoot.whiteboard = {
+                shapes: {},
+                bindings: {},
+                assets: {},
+              };
+            },
+          }),
+        );
+
+        dispatch(newLink({ parentId: group.id, name, mimeType, fileLink }));
+      }
+    },
+    [group.id, dispatch, client],
+  );
+
   const handleClose = (command: string) => {
     if (command === 'Rename') {
       startRename();
@@ -641,6 +764,10 @@ function GroupMoreMenu({ group, startRename }: GroupMoreMenuProps) {
       }
 
       handleClickDialogOpen();
+    } else if (command === 'Add Note') {
+      handleCreateLink('Untitled name');
+    } else if (command === 'Add Whiteboard') {
+      handleCreateWhiteboard('Untitled whiteboard');
     } else if (command === 'Add current note') {
       handleCreateCurrentPage();
     } else if (command === 'Add next group') {
@@ -700,6 +827,8 @@ function GroupMoreMenu({ group, startRename }: GroupMoreMenuProps) {
                 ) : undefined}
                 {option === 'Rename' ? <InsertDriveFile /> : undefined}
                 {option === 'Add current note' ? <SubdirectoryArrowLeft /> : undefined}
+                {option === 'Add Note' ? <SubdirectoryArrowLeft /> : undefined}
+                {option === 'Add Whiteboard' ? <SubdirectoryArrowLeft /> : undefined}
                 {option === 'Add next group' ? <CreateNewFolder /> : undefined}
                 {option === 'Add child group' ? <SubdirectoryArrowLeft /> : undefined}
                 {option === 'Favorite' ? (
@@ -764,10 +893,10 @@ interface GroupItemProps {
 }
 
 function GroupItem({ group, level, loopType }: GroupItemProps) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const opens = useSelector((state: AppState) => state.linkState.opens);
   const favorite = useSelector((state: AppState) => state.linkState.favorite);
-  const classes = useStyles({
+  const { classes } = useStyles({
     open: true,
   });
   const [isRename, setIsRename] = useState(false);
@@ -916,15 +1045,32 @@ interface SidebarItemProps {
   loopType: LoopType;
 }
 
+function MimeTypeIcon({ mimeType }: { mimeType: string | undefined }) {
+  const icon = useMemo(() => {
+    switch (mimeType) {
+      case 'application/cell':
+        return <BorderAll fontSize="small" />;
+      case 'application/vnd.pairy.whiteboard':
+        return <Gesture fontSize="small" />;
+      default:
+        return undefined;
+    }
+
+    return undefined;
+  }, [mimeType]);
+
+  return icon || <EventNote fontSize="small" />;
+}
+
 function SidebarItem({ item, level, loopType }: SidebarItemProps) {
   const dispatch = useDispatch();
   const opens = useSelector((state: AppState) => state.linkState.opens);
   const favorite = useSelector((state: AppState) => state.linkState.favorite);
-  const history = useHistory();
+  const navigate = useNavigate();
   const textRef = useRef<string>(item.name);
   const [isRename, setIsRename] = useState(false);
   const { docKey } = useParams<{ docKey: string }>();
-  const classes = useStyles({ open: opens[item.id] });
+  const { classes } = useStyles({ open: opens[item.id] });
 
   const setOpenCallback = useCallback(() => {
     dispatch(toggleLinkOpen(item.id));
@@ -986,11 +1132,8 @@ function SidebarItem({ item, level, loopType }: SidebarItemProps) {
         alignItems: 'center',
       }}
     >
-      {item.links?.length ? (
-        <MoreIcon open={opens[item.id]} onClick={setOpenCallback} />
-      ) : (
-        <EventNote fontSize="small" />
-      )}
+      {item.links?.length && <MoreIcon open={opens[item.id]} onClick={setOpenCallback} />}
+      <MimeTypeIcon mimeType={item.mimeType} />
       {isRename ? (
         <Input
           autoFocus
@@ -1032,7 +1175,7 @@ function SidebarItem({ item, level, loopType }: SidebarItemProps) {
             if (item.fileLink) {
               switch (item.linkType) {
                 case 'pairy':
-                  history.push(item.fileLink, { name: item.name });
+                  navigate(item.fileLink);
                   break;
                 case 'heading':
                   window.location.href = item.fileLink;
@@ -1086,7 +1229,7 @@ function HeadingIcon({ item }: HeadingIconProps) {
 }
 
 function HeadingItem({ item, level, loopType }: SidebarItemProps) {
-  const classes = useStyles({ open: true });
+  const { classes } = useStyles({ open: true });
   const favorite = useSelector((state: AppState) => state.linkState.favorite);
 
   const className = useMemo(() => {
@@ -1262,10 +1405,10 @@ export function SideBar() {
   const favorites = useSelector(favoriteSelector);
   const open = navState.openTab;
   const linkRef = useRef<boolean>(false);
-  const classes = useStyles({ open });
+  const { classes } = useStyles({ open });
   const { docKey } = useParams<{ docKey: string }>();
 
-  const handleChange = (event: ChangeEvent<{}>, newValue: NavTabType) => {
+  const handleChange = (event: React.SyntheticEvent<Element, Event>, newValue: NavTabType) => {
     dispatch(toggleLinkTab(newValue));
   };
 
@@ -1274,17 +1417,17 @@ export function SideBar() {
       const parentList: string[] = [];
       let currentDepth = -1;
 
-      function searchPath(data: any[], depth = 0, callback: (item: any) => boolean): boolean {
+      function searchPath(data: unknown[], depth: number, callback: (item: any) => boolean): boolean {
         let found = false;
         for (let i = 0; i < data.length; i += 1) {
-          parentList[depth] = data[i].id;
+          parentList[depth] = (data[i] as any).id;
           if (callback(data[i])) {
             currentDepth = depth;
             found = true;
             break;
           }
-          if (data[i].links) {
-            if (searchPath(data[i].links, depth + 1, callback)) {
+          if ((data[i] as any).links) {
+            if (searchPath((data[i] as any).links, depth + 1, callback)) {
               found = true;
               break;
             }
@@ -1384,7 +1527,7 @@ export function SideBar() {
           />
           <TabPanelHeader
             tools={
-              <Tooltip title="New group">
+              <Tooltip title="New group" className={classes.tooltip} placement="top">
                 <IconButton
                   size="small"
                   onClick={() => {
@@ -1418,21 +1561,43 @@ export function SideBar() {
               alignItems: 'center',
             }}
           >
-            <Button
-              variant="outlined"
-              disableRipple
+            <Divider />
+            <Box
               style={{
-                width: '80%',
-                margin: '0 auto',
-              }}
-              onClick={() => {
-                dispatch(newGroup('New Group'));
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '8px 0',
+                gap: 8,
               }}
             >
-              <Add fontSize="small" />
-              Group
-            </Button>
-            <Box height={30} />
+              <Button
+                href="https://github.com/yorkie-team/codepair"
+                style={{
+                  fontSize: 16,
+                }}
+              >
+                <svg width="40" height="38" viewBox="0 0 40 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M11.8574 11.4048L18.8525 21.4507C19.2947 22.086 20.1683 22.2423 20.8036 21.8001C20.9398 21.7052 21.0581 21.5869 21.153 21.4507L28.148 11.4048C29.0327 10.1343 28.7198 8.3872 27.4495 7.5027C26.9794 7.17549 26.4205 7 25.8477 7H14.1577C12.6095 7 11.3545 8.25503 11.3545 9.80322C11.3547 10.3758 11.5302 10.9347 11.8574 11.4048Z"
+                    fill="#514C49"
+                  />
+                  <path
+                    d="M22.8637 29.5446C23.3612 29.8283 23.9338 29.9528 24.5042 29.9014L37.2991 28.7469C38.3271 28.6542 39.0851 27.7457 38.9924 26.7178C38.9876 26.6636 38.9803 26.6096 38.9706 26.556C38.5862 24.4114 37.8296 22.3507 36.7352 20.4668C35.6407 18.5829 34.2255 16.9048 32.5532 15.5085C31.761 14.8471 30.5825 14.953 29.9211 15.7455C29.8862 15.7872 29.8532 15.8305 29.8219 15.8752L22.4807 26.418C22.1535 26.888 21.978 27.4469 21.978 28.0198V27.9849C21.978 28.3055 22.0604 28.6208 22.2176 28.9002C22.3826 29.1751 22.6155 29.4029 22.8942 29.5617"
+                    fill="#FDC433"
+                  />
+                  <path
+                    d="M17.8492 28.7605C17.6844 29.097 17.4222 29.376 17.0969 29.5616L17.1365 29.539C16.6391 29.8227 16.0665 29.9472 15.4961 29.8959L2.70114 28.7414C2.64694 28.7365 2.59295 28.7293 2.53935 28.7196C1.52348 28.5375 0.847507 27.5663 1.02965 26.5505C1.41407 24.4057 2.17064 22.3451 3.26489 20.4611C4.35914 18.577 5.77455 16.8993 7.44706 15.5028C7.48877 15.4679 7.53208 15.4349 7.57681 15.4037C8.42384 14.8139 9.58841 15.0225 10.1784 15.8695L17.5196 26.4124C17.8468 26.8825 18.0223 27.4414 18.0223 28.0142V27.9685C18.0223 28.343 17.9096 28.7091 17.6991 29.019"
+                    fill="#FDC433"
+                  />
+                </svg>
+                Yorkie
+              </Button>
+              <Button href="https://github.com/yorkie-team">
+                <GitHub /> &nbsp;GitHub
+              </Button>
+            </Box>
+            <Box height={20} />
           </div>
         </TabPanel>
         <TabPanel value="toc">

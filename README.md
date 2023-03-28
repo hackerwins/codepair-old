@@ -17,7 +17,7 @@ Next, Let's starts CodePair in the development mode.
 
 ```
 npm install
-npm start
+npm run dev
 ```
 
 ## Deploying

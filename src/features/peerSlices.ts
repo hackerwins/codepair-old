@@ -1,3 +1,4 @@
+import { TDUser } from '@tldraw/tldraw';
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { ActorID } from 'yorkie-js-sdk';
 import { DocState } from './docSlices';
@@ -7,6 +8,7 @@ export interface Presence {
   color: string;
   image: string; // Currently all anonymous images
   board: string;
+  whiteboardUser?: TDUser;
 }
 
 export enum ConnectionStatus {
@@ -22,15 +24,17 @@ export interface Peer {
 }
 
 export interface PeerState {
+  me: Peer | null;
   peers: Record<string, Peer>;
 }
 
-export interface SyncPeersPayLoad {
+export interface SyncPeerPayLoad {
   myClientID: ActorID;
   changedPeers: Record<string, Presence>;
 }
 
 const initialPeerState: PeerState = {
+  me: null,
   peers: {},
 };
 
@@ -38,7 +42,7 @@ const peerSlice = createSlice({
   name: 'peer',
   initialState: initialPeerState,
   reducers: {
-    syncPeers(state, action: PayloadAction<SyncPeersPayLoad>) {
+    syncPeer(state, action: PayloadAction<SyncPeerPayLoad>) {
       const { myClientID, changedPeers } = action.payload;
       const { peers } = state;
 
@@ -57,6 +61,10 @@ const peerSlice = createSlice({
             isMine: myClientID === clientID,
           };
           state.peers[clientID] = peer;
+
+          if (peer.isMine) {
+            state.me = peer;
+          }
         }
       }
     },
@@ -81,5 +89,5 @@ export const updatePresenceColor = createAsyncThunk<undefined, string, { rejectV
   },
 );
 
-export const { syncPeers } = peerSlice.actions;
+export const { syncPeer } = peerSlice.actions;
 export default peerSlice.reducer;

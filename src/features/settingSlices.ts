@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import BrowserStorage from 'utils/storage';
+import BrowserStorage from '../utils/storage';
 
 export enum Theme {
   Dark = 'dark',

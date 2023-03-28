@@ -1,10 +1,8 @@
 import React from 'react';
-import Typography from '@material-ui/core/Typography';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
 
 import PeerListItem from 'components/NavBar/PeerListItem';
 import usePeer from 'hooks/usePeer';
+import { List, ListItem, Typography } from '@mui/material';
 
 export default function PeerList() {
   const { activePeers } = usePeer();

@@ -1,17 +1,14 @@
 import React, { useState, useCallback, MouseEvent } from 'react';
 import { useSelector } from 'react-redux';
-import Avatar from '@material-ui/core/Avatar';
-import AvatarGroup from '@material-ui/lab/AvatarGroup';
-import Tooltip from '@material-ui/core/Tooltip';
-import { makeStyles } from '@material-ui/core/styles';
 import anonymous from 'anonymous-animals-gen';
 
-import Popover from 'components/commons/Popover';
 import PeerList from 'components/NavBar/PeerList';
 import { AppState } from 'app/rootReducer';
 import usePeer from 'hooks/usePeer';
+import { makeStyles } from 'styles/common';
+import { Avatar, AvatarGroup, Popover, Tooltip } from '@mui/material';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   group: {
     '& > *': {
       cursor: 'pointer',
@@ -28,6 +25,7 @@ const useStyles = makeStyles((theme) => ({
       height: '100%',
       borderRadius: '50%',
       border: `2px solid ${theme.palette.secondary.main}`,
+      boxSizing: 'border-box',
     },
   },
 }));
@@ -35,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
 const MAX_PEER_VIEW = 4;
 
 export default function PeerGroup() {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const client = useSelector((state: AppState) => state.docState.client);
   const peers = useSelector((state: AppState) => state.peerState.peers);
   const { activePeers } = usePeer();
@@ -77,7 +75,7 @@ export default function PeerGroup() {
           );
         })}
       </AvatarGroup>
-      <Popover anchorEl={anchorEl} onClose={handleViewListClose}>
+      <Popover open={!!anchorEl} anchorEl={anchorEl} onClose={handleViewListClose}>
         <PeerList />
       </Popover>
     </>

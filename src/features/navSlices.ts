@@ -5,11 +5,13 @@ export type NavTabType = 'notes' | 'toc';
 export interface NavState {
   openTab: boolean;
   openTabValue: NavTabType;
+  openInstant: boolean;
 }
 
 const initialNavState: NavState = {
   openTab: false,
   openTabValue: 'notes',
+  openInstant: false,
 };
 
 const navSlice = createSlice({
@@ -23,8 +25,11 @@ const navSlice = createSlice({
     toggleLinkTab(state, action: PayloadAction<NavTabType>) {
       state.openTabValue = action.payload;
     },
+    toggleInstant(state) {
+      state.openInstant = !state.openInstant;
+    },
   },
 });
 
-export const { toggleTab, toggleLinkTab } = navSlice.actions;
+export const { toggleTab, toggleLinkTab, toggleInstant } = navSlice.actions;
 export default navSlice.reducer;

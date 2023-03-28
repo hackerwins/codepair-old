@@ -1,5 +1,9 @@
+import { describe, it, expect } from 'vitest';
 import BrowserStorage from './storage';
 
+/**
+ * @vitest-environment jsdom
+ */
 describe('BrowserStorage', () => {
   it('should get default data when storage have no data', () => {
     const browserStorage = new BrowserStorage('test');
