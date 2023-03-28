@@ -1,3 +1,4 @@
+import React from 'react';
 import { Tldraw, useFileSystem } from '@tldraw/tldraw';
 import CustomCursor from './CustomCursor';
 import { useMultiplayerState } from './hooks/useMultiPlayerState';

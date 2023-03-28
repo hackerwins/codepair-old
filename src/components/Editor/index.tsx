@@ -118,8 +118,6 @@ export default function BaseEditor(props: { docKey: string }) {
         return;
       }
 
-      console.log(client);
-
       dispatch(attachDocLoading(true));
       await dispatch(attachDoc({ client, doc }));
       dispatch(setCodeMode(doc.getRoot().mode || CodeMode.Markdown));

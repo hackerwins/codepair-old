@@ -1,8 +1,17 @@
+import React from 'react';
 import { CursorComponent } from '@tldraw/core';
 
 // A custom cursor component.
 // Component overrides for the tldraw renderer
-const CustomCursor: CursorComponent<{ name: 'Anonymous' }> = ({ color, metadata }) => {
+const CustomCursor: CursorComponent<{ name: 'Anonymous' }> = ({
+  color,
+  metadata,
+}: {
+  color: string;
+  metadata?: {
+    name: string;
+  };
+}) => {
   return (
     <div
       style={{
