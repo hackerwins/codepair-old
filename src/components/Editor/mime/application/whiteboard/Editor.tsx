@@ -21,7 +21,7 @@ export default function WhiteBoardEditor() {
         id="whiteboard-editor"
         components={component}
         autofocus
-        disableAssets={true}
+        disableAssets
         showPages={false}
         showMultiplayerMenu={false}
         showMenu={false}

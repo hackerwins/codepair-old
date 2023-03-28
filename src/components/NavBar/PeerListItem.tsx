@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import { ListItem } from '@mui/material';
 import { Peer } from 'features/peerSlices';
 import { makeStyles } from 'styles/common';
@@ -14,7 +14,7 @@ const useStyles = makeStyles<PeerListItemProps>()((theme, props) => ({
 }));
 
 export default function PeerListItem(props: PeerListItemProps) {
-  const {classes} = useStyles(props);
+  const { classes } = useStyles(props);
   const { peer } = props;
 
   return <ListItem className={classes.root}>{peer.presence.username}</ListItem>;

@@ -88,7 +88,7 @@ export function useMultiplayerState(roomId: string) {
   const menu = useSelector((state: AppState) => state.settingState.menu);
   const [app, setApp] = useState<TldrawApp>();
   const [loading, setLoading] = useState(true);
-  const darkMode = menu.theme === Theme.Dark ? true : false;
+  const darkMode = menu.theme === Theme.Dark;
 
   // Callbacks --------------
   const onMount = useCallback(

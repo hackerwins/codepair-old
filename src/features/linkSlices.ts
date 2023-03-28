@@ -1,7 +1,7 @@
-import { getTableOfContents } from '../features/docSlices';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { getTableOfContents } from './docSlices';
 import { AppState } from '../app/rootReducer';
 import BrowserStorage from '../utils/storage';
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export type ItemType = LinkItemType | GroupType;
 

@@ -13,11 +13,11 @@ import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 import * as Sentry from '@sentry/react';
 import { Integrations } from '@sentry/tracing';
-import { AppState } from './rootReducer';
 
 import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 import { Theme } from 'features/settingSlices';
 import DocPage from 'pages/DocPage';
+import { AppState } from './rootReducer';
 
 if (import.meta.env.PROD) {
   Sentry.init({

@@ -2,12 +2,11 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 
 import { useSelector } from 'react-redux';
 import { AppState } from 'app/rootReducer';
+import { ToolType } from 'features/boardSlices';
+import { makeStyles } from 'styles/common';
 import CodeEditor from './CodeEditor';
 import DrawingBoard from './DrawingBoard';
 import Sidebar from '../../../Sidebar';
-
-import { ToolType } from 'features/boardSlices';
-import { makeStyles } from 'styles/common';
 
 export const NAVBAR_HEIGHT = 90;
 const SIDEBAR_WIDTH = 46;

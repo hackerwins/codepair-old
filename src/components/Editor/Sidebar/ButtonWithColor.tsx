@@ -2,45 +2,42 @@
 import React, { useCallback, useState, MouseEvent } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
-
 import { AppState } from 'app/rootReducer';
 import { ToolType, setTool, Color, setColor } from 'features/boardSlices';
 import { makeStyles } from 'styles/common';
 import { Avatar, Badge, Box, IconButton, Popover, SvgIcon, SvgIconProps, Tooltip } from '@mui/material';
 
-
-const useStyles = makeStyles<{ color: Color }>()((theme, {color}) =>
-  ({
-    button: {
-      marginLeft: 3,
-      marginRight: 3,
-      padding: 8,
+const useStyles = makeStyles<{ color: Color }>()((theme, { color }) => ({
+  button: {
+    marginLeft: 3,
+    marginRight: 3,
+    padding: 8,
+  },
+  select: {
+    marginLeft: 3,
+    marginRight: 3,
+    padding: 8,
+    color: theme.palette.primary.main,
+  },
+  box: {
+    width: '184px',
+    display: 'flex',
+    flexWrap: 'wrap',
+    '& > *': {
+      margin: theme.spacing(1),
     },
-    select: {
-      marginLeft: 3,
-      marginRight: 3,
-      padding: 8,
-      color: theme.palette.primary.main,
+  },
+  colorIcon: {
+    '&:hover': {
+      cursor: 'pointer',
     },
-    box: {
-      width: '184px',
-      display: 'flex',
-      flexWrap: 'wrap',
-      '& > *': {
-        margin: theme.spacing(1),
-      },
-    },
-    colorIcon: {
-      '&:hover': {
-        cursor: 'pointer',
-      },
-      width: theme.spacing(3.1),
-      height: theme.spacing(3.1),
-    },
-    badge: {
-      backgroundColor: color,
-    },
-  }));
+    width: theme.spacing(3.1),
+    height: theme.spacing(3.1),
+  },
+  badge: {
+    backgroundColor: color,
+  },
+}));
 
 interface ButtonWithColorProps extends SvgIconProps {
   tooltip: string;
@@ -53,7 +50,7 @@ export default function ButtonWithColor({ toolType, Icon, tooltip, fontSize }: B
   const currentToolType = useSelector((state: AppState) => state.boardState.toolType);
   const color = useSelector((state: AppState) => state.boardState.color);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | undefined>();
-  const {classes} = useStyles({ color });
+  const { classes } = useStyles({ color });
 
   const handleOpen = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => {

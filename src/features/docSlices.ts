@@ -3,7 +3,7 @@ import { createSlice, PayloadAction, createAsyncThunk, Dispatch } from '@reduxjs
 import yorkie, { Client, Document, JSONObject, Text, TimeTicket } from 'yorkie-js-sdk';
 import anonymous from 'anonymous-animals-gen';
 import randomColor from 'randomcolor';
-import { Presence } from '../features/peerSlices';
+import { Presence } from './peerSlices';
 import { SettingState } from './settingSlices';
 import { LinkItemType } from './linkSlices';
 

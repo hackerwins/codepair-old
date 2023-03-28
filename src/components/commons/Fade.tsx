@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useRef, ReactNode } from 'react';
-import {Fade as MaterialFade} from '@mui/material';
+import { Fade as MaterialFade } from '@mui/material';
 
 interface FadeProps {
   timeout?: number;

@@ -12,22 +12,20 @@ interface NetworkAlertProps {
   content: string;
 }
 
-const useStyles = makeStyles()(() =>
-  ({
-    root: {
-      width: '380px',
+const useStyles = makeStyles()(() => ({
+  root: {
+    width: '380px',
+  },
+  title: {
+    backgroundColor: 'hsla(0,0%,100%,0.1)',
+    '& > *': {
+      fontWeight: 'bold',
     },
-    title: {
-      backgroundColor: 'hsla(0,0%,100%,0.1)',
-      '& > *': {
-        fontWeight: 'bold',
-      },
-    },
-  }),
-);
+  },
+}));
 
 function NetworkAlert({ title, subTitle, content }: NetworkAlertProps) {
-  const {classes} = useStyles();
+  const { classes } = useStyles();
 
   return (
     <div className={classes.root}>

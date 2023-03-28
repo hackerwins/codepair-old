@@ -6,7 +6,17 @@ import { AppState } from 'app/rootReducer';
 import { DocStatus } from 'features/docSlices';
 import QRCode from 'react-qr-code';
 import { makeStyles } from 'styles/common';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  IconButton,
+  Typography,
+} from '@mui/material';
 import { Close, FileCopy, Group } from '@mui/icons-material';
 
 import CopyToClipboard from 'react-copy-to-clipboard';
@@ -37,7 +47,7 @@ const useStyles = makeStyles()(() => ({
 }));
 
 export default function ShareButton() {
-  const {classes} = useStyles();
+  const { classes } = useStyles();
   const status = useSelector((state: AppState) => state.docState.status);
   const [open, setOpen] = useState(false);
   const [showCopyText, setShowCopyText] = useState(false);
@@ -74,8 +84,8 @@ export default function ShareButton() {
         Share
       </Button>
       <Dialog open={open} onClose={closeModal} className={classes.dialog}>
-        <DialogTitle>Share Code
-        
+        <DialogTitle>
+          Share Code
           <IconButton aria-label="close" onClick={closeModal}>
             <Close />
           </IconButton>
