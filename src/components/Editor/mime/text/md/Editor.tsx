@@ -1,13 +1,10 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useRef, useCallback } from 'react';
 
 import { useSelector } from 'react-redux';
 import { AppState } from 'app/rootReducer';
 import { ToolType } from 'features/boardSlices';
 import { makeStyles } from 'styles/common';
-import { NAVBAR_HEIGHT } from 'constants/editor';
 import CodeEditor from './CodeEditor';
-import DrawingBoard from './DrawingBoard';
-import Sidebar from '../../../Sidebar';
 
 const useStyles = makeStyles<{ tool: ToolType }>()((theme, props) => ({
   root: {
@@ -42,9 +39,6 @@ export default function Editor() {
   const tool = useSelector((state: AppState) => state.boardState.toolType);
   const { classes } = useStyles({ tool });
 
-  const [width, setWidth] = useState(0);
-  const [height, setHeight] = useState(0);
-
   const divRef = useRef<HTMLDivElement>(null);
   const codeEditorRef = useRef<CodeMirror.Editor>(null);
 
@@ -54,34 +48,11 @@ export default function Editor() {
     }
   }, [tool]);
 
-  useEffect(() => {
-    const onResize = () => {
-      if (!divRef.current) {
-        return;
-      }
-
-      const rect = divRef.current?.getBoundingClientRect();
-      setWidth(rect.width);
-      setHeight(rect.height - NAVBAR_HEIGHT);
-    };
-
-    onResize();
-    window.addEventListener('resize', onResize);
-
-    return () => {
-      window.removeEventListener('resize', onResize);
-    };
-  }, []);
-
   return (
     <div className={classes.root} onClick={handleClickEditor} aria-hidden="true">
-      <Sidebar />
       <div className={classes.editor} ref={divRef}>
         <div className={classes.codeEditor}>
           <CodeEditor forwardedRef={codeEditorRef} />
-        </div>
-        <div className={classes.canvas}>
-          <DrawingBoard width={width} height={height} />
         </div>
       </div>
     </div>
