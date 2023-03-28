@@ -37,7 +37,7 @@
       "src/components/Editor/mime/text/md/Editor.tsx",
       "src/components/Editor/mime/application/cell/Editor.tsx"
     ],
-    "file": "assets/index-c624eacc.js",
+    "file": "assets/index-0da269ce.js",
     "isEntry": true,
     "src": "index.html"
   },
@@ -138,7 +138,7 @@
     "src": "node_modules/@fontsource/source-sans-pro/files/source-sans-pro-vietnamese-400-normal.woff2"
   },
   "src/components/Editor/mime/application/cell/Editor.tsx": {
-    "file": "assets/Editor-3a1ec889.js",
+    "file": "assets/Editor-cb1380aa.js",
     "imports": [
       "index.html"
     ],
@@ -153,7 +153,7 @@
     "css": [
       "assets/Editor-7ac63a43.css"
     ],
-    "file": "assets/Editor-d0bb22c9.js",
+    "file": "assets/Editor-b28398eb.js",
     "imports": [
       "index.html"
     ],
