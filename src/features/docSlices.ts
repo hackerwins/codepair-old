@@ -1,8 +1,9 @@
-import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
-import yorkie, { Client, Document, Text, TimeTicket } from 'yorkie-js-sdk';
+import { TDShape, TDBinding, TDAsset } from '@tldraw/tldraw';
+import { createSlice, PayloadAction, createAsyncThunk, Dispatch } from '@reduxjs/toolkit';
+import yorkie, { Client, Document, JSONObject, Text, TimeTicket } from 'yorkie-js-sdk';
 import anonymous from 'anonymous-animals-gen';
 import randomColor from 'randomcolor';
-import { Presence } from 'features/peerSlices';
+import { Presence } from '../features/peerSlices';
 import { SettingState } from './settingSlices';
 import { LinkItemType } from './linkSlices';
 
@@ -62,11 +63,30 @@ export type Shape = Line | EraserLine | Rect;
 
 export type ShapeType = Shape['type'];
 
+export type MimeType =
+  | 'text/markdown'
+  | 'text/plain'
+  | 'application/vnd.pairy.whiteboard'
+  | 'application/cell'
+  | 'application/json';
+
 export type CodePairDoc = {
+  mimeType: MimeType;
   mode: CodeMode;
   preview: Preview;
   content: Text;
   shapes: Array<Shape>;
+  whiteboard?: {
+    shapes: {
+      [key: string]: TDShape;
+    };
+    bindings: {
+      [key: string]: TDBinding;
+    };
+    assets: {
+      [key: string]: TDAsset;
+    };
+  };
 };
 
 // TODO(ppeeou): refer to yorkie-sdk-js ArrayProxy
@@ -173,11 +193,11 @@ export const activateClient = createAsyncThunk<ActivateClientResult, undefined, 
         },
       };
 
-      if (`${process.env.REACT_APP_YORKIE_API_KEY}`) {
-        options.apiKey = `${process.env.REACT_APP_YORKIE_API_KEY}`;
+      if (`${import.meta.env.VITE_APP_YORKIE_API_KEY}`) {
+        options.apiKey = `${import.meta.env.VITE_APP_YORKIE_API_KEY}`;
       }
 
-      const client = new yorkie.Client(`${process.env.REACT_APP_YORKIE_RPC_ADDR}`, options);
+      const client = new yorkie.Client(`${import.meta.env.VITE_APP_YORKIE_RPC_ADDR}`, options);
 
       await client.activate();
       return { client };
@@ -204,7 +224,28 @@ export const attachDoc = createAsyncThunk<AttachDocResult, AttachDocArgs, { reje
         }
       });
       await client.sync();
+      (doc as any).attached = true;
       return { doc, client };
+    } catch (err) {
+      return thunkApi.rejectWithValue((err as Error).message);
+    }
+  },
+);
+
+export const createDoc = createAsyncThunk<boolean, CreateDocArgs, { rejectValue: string }>(
+  'doc/create',
+  async ({ client, docKey, init }, thunkApi) => {
+    try {
+      const doc = new yorkie.Document<CodePairDoc>(docKey);
+      await client.attach(doc);
+
+      if (init) {
+        await doc.update(init);
+      }
+
+      await client.detach(doc);
+
+      return true;
     } catch (err) {
       return thunkApi.rejectWithValue((err as Error).message);
     }
@@ -221,7 +262,13 @@ const docSlice = createSlice({
       client?.deactivate();
     },
     createDocument(state, action: PayloadAction<string>) {
+      const { doc, client } = state;
+
       state.doc = new yorkie.Document<CodePairDoc>(`codepairs-${action.payload}`);
+
+      if (doc) {
+        state.client?.detach(doc);
+      }
     },
     detachDocument(state) {
       const { doc, client } = state;
@@ -285,4 +332,5 @@ export default docSlice.reducer;
 
 type ActivateClientResult = { client: Client<Presence> };
 type AttachDocArgs = { doc: Document<CodePairDoc>; client: Client<Presence> };
+type CreateDocArgs = { docKey: string; client: Client<Presence>; init?: (root: CodePairDoc) => void };
 type AttachDocResult = { doc: Document<CodePairDoc>; client: Client<Presence> };

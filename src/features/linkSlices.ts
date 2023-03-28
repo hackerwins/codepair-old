@@ -1,6 +1,6 @@
-import { getTableOfContents } from 'features/docSlices';
-import { AppState } from 'app/rootReducer';
-import BrowserStorage from 'utils/storage';
+import { getTableOfContents } from '../features/docSlices';
+import { AppState } from '../app/rootReducer';
+import BrowserStorage from '../utils/storage';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export type ItemType = LinkItemType | GroupType;
@@ -10,6 +10,7 @@ export interface LinkItemType {
   level?: number;
   id: string;
   name: string;
+  mimeType?: string;
   fileLink?: string;
   linkType?: string;
   links?: LinkItemType[];
@@ -32,10 +33,10 @@ export interface LinkState {
   groups: GroupType[];
 }
 
-function traverse(parent: any, data: any[], callback: (item: any, parent: any, depth: number) => void, depth = 0) {
+function traverse<T>(parent: unknown, data: T[], callback: (item: T, parent: T, depth: number) => void, depth = 0) {
   data.forEach((item) => {
-    callback(item, parent, depth + 1);
-    traverse(item, item.links || [], callback, depth + 1);
+    callback(item, parent as T, depth + 1);
+    traverse(item, (item as any).links || [], callback, depth + 1);
   });
 }
 
@@ -69,16 +70,17 @@ const initialLinkState: LinkState = SettingModel.getValue({
 });
 
 // recover old data
-traverse(initialLinkState, initialLinkState.groups, (item) => {
-  if (item.type === 'link') {
-    if (item.fileLink?.startsWith('/') !== true) {
-      item.fileLink = `/${item.fileLink}`;
+traverse<ItemType>(initialLinkState, initialLinkState.groups, (item) => {
+  const currentItem = item as LinkItemType;
+  if (currentItem.type === 'link') {
+    if (currentItem.fileLink?.startsWith('/') !== true) {
+      currentItem.fileLink = `/${currentItem.fileLink}`;
     }
-  } else if (item.linkType === 'pairy') {
-    if (item.fileLink?.startsWith('/') !== true) {
-      item.fileLink = `/${item.fileLink}`;
+  } else if (currentItem.linkType === 'pairy') {
+    if (currentItem.fileLink?.startsWith('/') !== true) {
+      currentItem.fileLink = `/${currentItem.fileLink}`;
     }
-    item.type = 'link';
+    currentItem.type = 'link';
   }
 });
 
@@ -143,7 +145,7 @@ const linkSlice = createSlice({
 
     removeGroup(state, action: PayloadAction<{ id: string }>) {
       const { id } = action.payload;
-      traverse(state, state.groups, (item, parent) => {
+      traverse<ItemType>(state, state.groups, (item, parent) => {
         if (item.id === id) {
           if (parent?.links) {
             parent.links = parent.links.filter((link: any) => link.id !== id);
@@ -154,7 +156,9 @@ const linkSlice = createSlice({
               return;
             }
 
-            parent.groups = parent.groups.filter((link: any) => link.id !== id);
+            const currentParent = parent as unknown as LinkState;
+
+            currentParent.groups = currentParent.groups.filter((link: any) => link.id !== id);
           }
         }
       });
@@ -258,24 +262,24 @@ const linkSlice = createSlice({
 
       SettingModel.setValue(state);
     },
-    newLink(state, action: PayloadAction<{ parentId: string; name: string }>) {
-      const { parentId, name } = action.payload;
+    newLink(state, action: PayloadAction<{ parentId: string; name: string; mimeType?: string; fileLink?: string }>) {
+      const { parentId, name, fileLink, mimeType = 'text/markdown' } = action.payload;
 
-      traverse(state, state.groups, (item) => {
+      const newLinkInfo = {
+        type: 'link',
+        id: `${Date.now()}`,
+        name,
+        mimeType,
+        fileLink: fileLink || `/${Math.random().toString(36).substring(7)}`,
+        linkType: 'pairy',
+      };
+
+      traverse<ItemType>(state, state.groups, (item) => {
         const temp = item;
 
         if (item.id === parentId) {
           if (!temp.links) temp.links = [];
-          temp.links = [
-            ...temp.links,
-            {
-              type: 'link',
-              id: `${Date.now()}`,
-              name,
-              fileLink: `/${Math.random().toString(36).substring(7)}`,
-              linkType: 'pairy',
-            },
-          ];
+          temp.links = [...temp.links, newLinkInfo] as ItemType[];
 
           state.opens[parentId] = true;
         }
@@ -321,7 +325,7 @@ const linkSlice = createSlice({
             depth: 0,
           },
         ];
-        traverse(foundItem, foundItem.links, (item, _, depth) => {
+        traverse<ItemType>(foundItem, foundItem.links, (item, _, depth) => {
           list.push({ item, depth });
         });
 
@@ -356,7 +360,7 @@ export function favoriteSelector(state: AppState): ItemType[] {
   );
 }
 
-export function recentFavoriteSelector(count: number = 10) {
+export function recentFavoriteSelector(count = 10) {
   return (state: AppState): LinkItemType[] => {
     return (
       state.linkState.favorite?.map((id) => {

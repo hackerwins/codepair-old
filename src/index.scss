@@ -2,6 +2,11 @@
 @import 'codemirror/theme/monokai.css';
 @import 'codemirror/theme/xq-light.css';
 
+html,
+body {
+  overflow: hidden;
+}
+
 /**
   * CodeEditor
   */
@@ -50,11 +55,13 @@
 .EasyMDEContainer {
   .editor-toolbar {
     border: none;
+    border-radius: 0px;
   }
 
   .CodeMirror {
     border-bottom: none;
-    border-left: none;
+    border-left: none !important;
+    border-color: #eeeeee !important;
   }
 
   /* 
@@ -200,6 +207,12 @@
   left: 0px;
 }
 
-.fullscreen button.table-of-contents {
-  display: none;
+[data-theme='dark'] {
+  .EasyMDEContainer {
+    .CodeMirror {
+      background-color: #333333 !important;
+      color: #ffffff !important;
+      border-color: #555 !important;
+    }
+  }
 }

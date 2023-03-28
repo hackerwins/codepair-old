@@ -1,21 +1,20 @@
-import React from 'react';
-import ListItem from '@material-ui/core/ListItem';
-import { makeStyles } from '@material-ui/core/styles';
-
+import React from "react";
+import { ListItem } from '@mui/material';
 import { Peer } from 'features/peerSlices';
+import { makeStyles } from 'styles/common';
 
 interface PeerListItemProps {
   peer: Peer;
 }
 
-const useStyles = makeStyles(() => ({
-  root: (props: PeerListItemProps) => ({
+const useStyles = makeStyles<PeerListItemProps>()((theme, props) => ({
+  root: {
     color: props.peer.presence.color,
-  }),
+  },
 }));
 
 export default function PeerListItem(props: PeerListItemProps) {
-  const classes = useStyles(props);
+  const {classes} = useStyles(props);
   const { peer } = props;
 
   return <ListItem className={classes.root}>{peer.presence.username}</ListItem>;

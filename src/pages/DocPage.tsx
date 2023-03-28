@@ -1,19 +1,18 @@
 import React, { useEffect } from 'react';
-import { RouteComponentProps, useHistory } from 'react-router';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import ReactGA from 'react-ga4';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
 
-import NavBar from 'components/NavBar';
-import Editor from 'components/Editor';
-import { AppState } from 'app/rootReducer';
 import { useDispatch, useSelector } from 'react-redux';
-import { SideBar } from 'components/SideBar';
-import { Snackbar } from '@material-ui/core';
+import { Alert, Snackbar, SpeedDial, SpeedDialAction, SpeedDialIcon } from '@mui/material';
+import NavBar from 'components/NavBar';
 import { hideMessage } from 'features/messageSlices';
-import { Alert, SpeedDial, SpeedDialAction, SpeedDialIcon } from '@material-ui/lab';
-import { EventNote, QuestionAnswer, RecordVoiceOver } from '@material-ui/icons';
+import { AppState } from 'app/rootReducer';
 import { recentFavoriteSelector, refreshStorage } from 'features/linkSlices';
+import { EventNote, QuestionAnswer, RecordVoiceOver } from '@mui/icons-material';
+import { SideBar } from 'components/SideBar';
+import Editor from 'components/Editor';
+import { Theme } from 'features/settingSlices';
+import { makeStyles } from 'styles/common';
 
 type DocPageProps = {
   docKey: string;
@@ -21,43 +20,67 @@ type DocPageProps = {
 
 interface LayoutProps {
   open: boolean;
+  openInstant: boolean;
 }
 
 const SIDEBAR_WIDTH = 300;
 
-const useStyles = makeStyles(() =>
-  createStyles({
-    root: {
-      flexGrow: 1,
+const useStyles = makeStyles<LayoutProps>()((theme, props) => ({
+  root: {
+    flexGrow: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+  },
+  sidebarArea: {
+    width: props.open ? SIDEBAR_WIDTH : 0,
+    '@media only screen and (max-width: 600px)': {
+      position: 'fixed',
+      left: 0,
+      top: 56,
+      bottom: 0,
+      zIndex: 1,
     },
-    sidebarArea: {
-      width: (props: LayoutProps) => (props.open ? SIDEBAR_WIDTH : 0),
-      '@media only screen and (max-width: 600px)': {
-        position: 'fixed',
-        left: 0,
-        top: 56,
-        bottom: 0,
-        zIndex: 1,
-      },
-      flexGrow: 0,
-      flex: 'none',
-      position: 'relative',
-      transition: 'width 225ms cubic-bezier(0, 0, 0.2, 1) 0ms',
+    flexGrow: 0,
+    flex: 'none',
+    position: 'relative',
+    transition: 'width 225ms cubic-bezier(0, 0, 0.2, 1) 0ms',
+  },
+  layout: {
+    flex: '1 1 auto',
+    height: `calc(100vh - 64px)`,
+    display: 'flex',
+    flexDirection: 'row',
+  },
+  editorArea: {
+    flex: '1 1 auto',
+
+    // height: '100%',
+    display: 'flex',
+    // flexDirection: 'column',
+    // backgroundColor: 'black',
+    boxSizing: 'border-box',
+    position: 'relative',
+  },
+  instantArea: {
+    flex: 'none',
+    width: props.openInstant ? SIDEBAR_WIDTH : 0,
+    '@media only screen and (max-width: 600px)': {
+      position: 'fixed',
+      right: 0,
+      top: 56,
+      bottom: 0,
+      zIndex: 1,
     },
-    layout: {
-      width: '100%',
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'row',
-    },
-    editorArea: {
-      width: '100%',
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-    },
-  }),
-);
+    display: 'flex',
+    flexDirection: 'column',
+    boxSizing: 'border-box',
+    borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
+    borderColor: theme.palette.mode === Theme.Dark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)',
+    position: 'relative',
+    transition: 'width 225ms cubic-bezier(0, 0, 0.2, 1) 0ms',
+  },
+}));
 
 function MessagePanel() {
   const dispatch = useDispatch();
@@ -87,7 +110,7 @@ function MessagePanel() {
 }
 
 function SpeedDialPanel() {
-  const history = useHistory();
+  const navigate = useNavigate();
   const favorites = useSelector(recentFavoriteSelector(3));
   const [openSpeedDial, setOpenSpeedDial] = React.useState(false);
 
@@ -117,14 +140,14 @@ function SpeedDialPanel() {
         icon={<QuestionAnswer />}
         tooltipTitle="Yorkie QnA"
         onClick={() => {
-          history.push('/qna');
+          navigate('/qna');
         }}
       />
       <SpeedDialAction
         icon={<RecordVoiceOver />}
         tooltipTitle="Yorkie Developer QnA"
         onClick={() => {
-          history.push('/developer-qna');
+          navigate('/developer-qna');
         }}
       />
       {favorites.reverse().map((favorite) => {
@@ -135,7 +158,7 @@ function SpeedDialPanel() {
             tooltipTitle={favorite.name}
             onClick={() => {
               if (favorite.fileLink) {
-                history.push(favorite.fileLink);
+                navigate(favorite.fileLink);
               }
             }}
           />
@@ -145,21 +168,19 @@ function SpeedDialPanel() {
   );
 }
 
-export default function DocPage(props: RouteComponentProps<DocPageProps>) {
+export default function DocPage() {
   const dispatch = useDispatch();
-  const openTab = useSelector((state: AppState) => state.navState.openTab);
+  const navState = useSelector((state: AppState) => state.navState);
   const menu = useSelector((state: AppState) => state.settingState.menu);
-  const classes = useStyles({
-    open: openTab,
+  const { classes } = useStyles({
+    open: navState.openTab,
+    openInstant: navState.openInstant,
   } as LayoutProps);
   const location = useLocation();
-  const {
-    match: { params },
-  } = props;
-  const { docKey } = params;
+  const { docKey = '' } = useParams<DocPageProps>();
 
   useEffect(() => {
-    if (`${process.env.REACT_APP_GOOGLE_ANALYTICS}`) {
+    if (`${import.meta.env.VITE_APP_GOOGLE_ANALYTICS}`) {
       ReactGA.send('pageview');
     }
   }, [location]);
@@ -174,12 +195,18 @@ export default function DocPage(props: RouteComponentProps<DocPageProps>) {
     <div className={classes.root} data-theme={menu.theme}>
       <NavBar />
       <div className={classes.layout}>
-        <div className={classes.sidebarArea}>
+        <div
+          className={classes.sidebarArea}
+          onTransitionEnd={() => {
+            window.dispatchEvent(new Event('resize'));
+          }}
+        >
           <SideBar />
         </div>
         <div className={classes.editorArea}>
           <Editor docKey={docKey} />
         </div>
+        <div className={classes.instantArea}>test</div>
       </div>
       <MessagePanel />
       <SpeedDialPanel />

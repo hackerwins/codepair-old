@@ -2,20 +2,15 @@
 import React, { useCallback, useState, MouseEvent } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
-import Badge from '@material-ui/core/Badge';
-import Avatar from '@material-ui/core/Avatar';
-import IconButton from '@material-ui/core/IconButton';
-import Tooltip from '@material-ui/core/Tooltip';
-import Box from '@material-ui/core/Box';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
 
-import Popover from 'components/commons/Popover';
 import { AppState } from 'app/rootReducer';
 import { ToolType, setTool, Color, setColor } from 'features/boardSlices';
-import SvgIcon, { SvgIconProps } from '@material-ui/core/SvgIcon';
+import { makeStyles } from 'styles/common';
+import { Avatar, Badge, Box, IconButton, Popover, SvgIcon, SvgIconProps, Tooltip } from '@mui/material';
 
-const useStyles = makeStyles((theme) =>
-  createStyles({
+
+const useStyles = makeStyles<{ color: Color }>()((theme, {color}) =>
+  ({
     button: {
       marginLeft: 3,
       marginRight: 3,
@@ -43,10 +38,9 @@ const useStyles = makeStyles((theme) =>
       height: theme.spacing(3.1),
     },
     badge: {
-      backgroundColor: ({ color }: { color: Color }) => color,
+      backgroundColor: color,
     },
-  }),
-);
+  }));
 
 interface ButtonWithColorProps extends SvgIconProps {
   tooltip: string;
@@ -59,7 +53,7 @@ export default function ButtonWithColor({ toolType, Icon, tooltip, fontSize }: B
   const currentToolType = useSelector((state: AppState) => state.boardState.toolType);
   const color = useSelector((state: AppState) => state.boardState.color);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | undefined>();
-  const classes = useStyles({ color });
+  const {classes} = useStyles({ color });
 
   const handleOpen = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => {
@@ -112,6 +106,7 @@ export default function ButtonWithColor({ toolType, Icon, tooltip, fontSize }: B
       </Tooltip>
 
       <Popover
+        open={Boolean(anchorEl)}
         anchorEl={anchorEl}
         onClose={handleClose}
         anchorOrigin={{

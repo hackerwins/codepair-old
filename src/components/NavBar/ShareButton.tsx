@@ -1,21 +1,17 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
-import Typography from '@material-ui/core/Typography';
-import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
-import GroupIcon from '@material-ui/icons/Group';
-import FileCopyIcon from '@material-ui/icons/FileCopy';
-import { makeStyles } from '@material-ui/core/styles';
 
-import Dialog, { DialogTitle, DialogContent, DialogActions, DialogContentText } from 'components/commons/Dialog';
 import Fade from 'components/commons/Fade';
 import { AppState } from 'app/rootReducer';
 import { DocStatus } from 'features/docSlices';
 import QRCode from 'react-qr-code';
+import { makeStyles } from 'styles/common';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Typography } from '@mui/material';
+import { Close, FileCopy, Group } from '@mui/icons-material';
 
-const useStyles = makeStyles(() => ({
+import CopyToClipboard from 'react-copy-to-clipboard';
+
+const useStyles = makeStyles()(() => ({
   dialog: {
     borderRadius: '4px',
   },
@@ -41,7 +37,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 export default function ShareButton() {
-  const classes = useStyles();
+  const {classes} = useStyles();
   const status = useSelector((state: AppState) => state.docState.status);
   const [open, setOpen] = useState(false);
   const [showCopyText, setShowCopyText] = useState(false);
@@ -71,14 +67,19 @@ export default function ShareButton() {
         size="small"
         color="primary"
         variant="contained"
-        startIcon={<GroupIcon />}
+        startIcon={<Group />}
         onClick={openModal}
         disabled={status === DocStatus.Disconnect}
       >
         Share
       </Button>
       <Dialog open={open} onClose={closeModal} className={classes.dialog}>
-        <DialogTitle onClose={closeModal}>Share Code</DialogTitle>
+        <DialogTitle>Share Code
+        
+          <IconButton aria-label="close" onClick={closeModal}>
+            <Close />
+          </IconButton>
+        </DialogTitle>
         <DialogContent dividers>
           <Box my={3}>
             <Typography>Anyone can access the code in real time through this URL.</Typography>
@@ -90,7 +91,7 @@ export default function ShareButton() {
             <input readOnly ref={inputRef} className={classes.input} value={copyUrl} onFocus={onFocus} />
             <CopyToClipboard text={copyUrl} onCopy={onCopy}>
               <IconButton color="primary">
-                <FileCopyIcon />
+                <FileCopy />
               </IconButton>
             </CopyToClipboard>
             <Fade show={showCopyText} onFadeout={() => setShowCopyText(false)}>

@@ -1,12 +1,7 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
-import { Box } from '@material-ui/core';
-import Snackbar from '@material-ui/core/Snackbar';
-import Alert from '@material-ui/lab/Alert';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { AppDispatch } from 'app/store';
 import { AppState } from 'app/rootReducer';
 import {
   activateClient,
@@ -22,29 +17,41 @@ import {
   DocStatus,
   setStatus,
 } from 'features/docSlices';
-import { syncPeers, Presence } from 'features/peerSlices';
-import Editor, { NAVBAR_HEIGHT } from './Editor';
+import { syncPeer, Presence } from 'features/peerSlices';
+import { makeStyles } from 'styles/common';
+import { Alert, Box, CircularProgress, Snackbar } from '@mui/material';
+import WhiteBoardEditor from './mime/application/whiteboard/Editor';
 
-const useStyles = makeStyles(() =>
-  createStyles({
-    loading: {
-      display: 'flex',
-      height: `calc(100vh - ${NAVBAR_HEIGHT}px)`,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-  }),
-);
+const Editor = lazy(() => import('./mime/text/md/Editor'));
+const CellEditor = lazy(() => import('./mime/application/cell/Editor'));
+
+const useStyles = makeStyles()(() => ({
+  loading: {
+    display: 'flex',
+    height: `100%`,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    width: '100%',
+  },
+}));
+
+function LoadingView() {
+  const { classes } = useStyles();
+  return (
+    <Box className={classes.loading}>
+      <CircularProgress />
+    </Box>
+  );
+}
 
 // eslint-disable-next-line func-names
-export default function (props: { docKey: string }) {
+export default function BaseEditor(props: { docKey: string }) {
   const { docKey } = props;
-  const classes = useStyles();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const client = useSelector((state: AppState) => state.docState.client);
   const doc = useSelector((state: AppState) => state.docState.doc);
   const status = useSelector((state: AppState) => state.docState.status);
-  const tool = useSelector((state: AppState) => state.boardState.toolType);
   const loading = useSelector((state: AppState) => state.docState.loading);
   const errorMessage = useSelector((state: AppState) => state.docState.errorMessage);
 
@@ -57,7 +64,7 @@ export default function (props: { docKey: string }) {
 
   useEffect(() => {
     if (!client || !doc) {
-      return () => {};
+      return;
     }
 
     const unsubscribe = client.subscribe((event) => {
@@ -66,9 +73,8 @@ export default function (props: { docKey: string }) {
           acc[peer.clientID] = peer.presence;
           return acc;
         }, {} as Record<string, Presence>);
-
         dispatch(
-          syncPeers({
+          syncPeer({
             myClientID: client.getID()!,
             changedPeers,
           }),
@@ -136,12 +142,30 @@ export default function (props: { docKey: string }) {
   }
 
   if (loading || !client || !doc) {
-    return (
-      <Box className={classes.loading}>
-        <CircularProgress color="inherit" />
-      </Box>
-    );
+    return <LoadingView />;
   }
 
-  return <Editor tool={tool} />;
+  const { mimeType } = doc.getRoot();
+
+  switch (mimeType) {
+    case 'application/vnd.pairy.whiteboard':
+      return <WhiteBoardEditor />;
+    case 'text/plain':
+      return <Editor />;
+    case 'application/json':
+      return <Editor />;
+    case 'application/cell':
+      return (
+        <Suspense fallback={<LoadingView />}>
+          <CellEditor />
+        </Suspense>
+      );
+    case 'text/markdown':
+    default:
+      return (
+        <Suspense fallback={<LoadingView />}>
+          <Editor />
+        </Suspense>
+      );
+  }
 }
