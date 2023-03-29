@@ -128,7 +128,6 @@ export function useMultiplayerState(roomId: string) {
       tldrawApp.updateUsers([
         {
           id: `${client!.getID()}`,
-          id: `${client!.getID()}`,
           point: [0, 0],
           color: menu?.userColor || randomColor(),
           status: TDUserStatus.Connected,
