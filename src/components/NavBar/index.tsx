@@ -111,15 +111,19 @@ function MenuAppBar() {
               </Popover>
             )}
           </div>
-          <IconButton
-            size="small"
-            onClick={() => {
-              dispatch(toggleInstant());
-            }}
-            className={menu.theme === ThemeType.Dark ? classes.instantIconButtonDark : classes.instantIconButton}
-          >
-            <SmartToy />
-          </IconButton>
+          {
+            import.meta.env.NODE_ENV === 'development' && (
+              <IconButton
+                size="small"
+                onClick={() => {
+                  dispatch(toggleInstant());
+                }}
+                className={menu.theme === ThemeType.Dark ? classes.instantIconButtonDark : classes.instantIconButton}
+              >
+                <SmartToy />
+              </IconButton>
+            )
+          }
         </Toolbar>
       </AppBar>
     </div>
