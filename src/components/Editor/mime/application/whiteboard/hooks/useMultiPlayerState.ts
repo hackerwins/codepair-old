@@ -262,7 +262,7 @@ export function useMultiplayerState(roomId: string) {
                 };
               })
               .filter(Boolean);
-            const leavedUsers = localUsers.filter(({ id: id1 }) => !remoteUsers.some(({ id: id2 }) => id2 === id1));
+            const leavedUsers = localUsers.filter(({ id: id1 }) => !remoteUsers.some((user) => user?.id === id1));
 
             leavedUsers.forEach((user) => {
               app?.removeUser(user.id);
