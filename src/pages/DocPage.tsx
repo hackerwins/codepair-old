@@ -35,6 +35,9 @@ const useStyles = makeStyles<LayoutProps>()((theme, props) => ({
     flexDirection: 'column',
     height: '100%',
   },
+  sidebarAreaBackground: {
+    backgroundColor: theme.palette.mode === Theme.Dark ? '#121212' : '#fff',
+  },
   sidebarArea: {
     width: props.open ? SIDEBAR_WIDTH : 0,
     '@media only screen and (max-width: 600px)': {
@@ -48,10 +51,14 @@ const useStyles = makeStyles<LayoutProps>()((theme, props) => ({
     flex: 'none',
     position: 'relative',
     display: 'flex',
+    overflow: 'hidden',
     flexDirection: 'column',
     transition: 'width 225ms cubic-bezier(0, 0, 0.2, 1) 0ms',
   },
   layout: {
+    '@media only screen and (max-width: 600px)': {
+      height: `100vh`,
+    },
     flex: '1 1 auto',
     height: `calc(100vh - 64px)`,
     display: 'flex',
@@ -215,11 +222,14 @@ export default function DocPage() {
             <SideBar />
           </div>
           <div
+            className={classes.sidebarAreaBackground}
             style={{
               flex: 'none',
               display: 'flex',
+              width: '100%',
               justifyContent: 'center',
-              borderRight: '1px solid #e0e0e0',
+              boxSizing: 'border-box',
+              borderRight: '1px solid rgba(255, 255, 255, 0.12)',
             }}
           >
             <Box

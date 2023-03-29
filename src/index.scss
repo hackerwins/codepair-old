@@ -55,7 +55,7 @@ body {
 
 .editor-toolbar {
   border: none !important;
-  border-radius: 0px;
+  border-radius: 0px !important;
 }
 
 .CodeMirror {
@@ -64,50 +64,52 @@ body {
   border-color: #eeeeee !important;
 }
 
+.EasyMDEContainer {
+  /* 
+   * Make vim command visible.
+   * issue ref https://github.com/yorkie-team/codepair/issues/148  
+   */
+  .CodeMirror-dialog {
+    &.CodeMirror-dialog-bottom {
+      position: absolute;
+      z-index: 2;
+      bottom: 10px;
+    }
+  }
+
+  .cm-s-easymde .cm-header-1 {
+    font-size: 28px;
+    line-height: 60px;
+  }
+
+  .cm-s-easymde .cm-header-2 {
+    font-size: 21px;
+    line-height: 60px;
+  }
+
+  .cm-s-easymde .cm-header-3 {
+    font-size: 18px;
+    line-height: 43px;
+  }
+
+  .cm-s-easymde .cm-header-4 {
+    font-size: 14px;
+    line-height: 40px;
+  }
+
+  .cm-s-easymde .cm-header-5 {
+    font-size: 12px;
+    line-height: 36px;
+  }
+
+  .cm-s-easymde .cm-header-6 {
+    font-size: 10px;
+    line-height: 34px;
+  }
+}
+
 [data-theme='light'] {
   .EasyMDEContainer {
-    /* 
-     * Make vim command visible.
-     * issue ref https://github.com/yorkie-team/codepair/issues/148  
-     */
-    .CodeMirror-dialog {
-      &.CodeMirror-dialog-bottom {
-        position: absolute;
-        z-index: 2;
-        bottom: 10px;
-      }
-    }
-
-    .cm-s-easymde .cm-header-1 {
-      font-size: 28px;
-      line-height: 60px;
-    }
-
-    .cm-s-easymde .cm-header-2 {
-      font-size: 21px;
-      line-height: 50px;
-    }
-
-    .cm-s-easymde .cm-header-3 {
-      font-size: 18px;
-      line-height: 43px;
-    }
-
-    .cm-s-easymde .cm-header-4 {
-      font-size: 14px;
-      line-height: 40px;
-    }
-
-    .cm-s-easymde .cm-header-5 {
-      font-size: 12px;
-      line-height: 36px;
-    }
-
-    .cm-s-easymde .cm-header-6 {
-      font-size: 10px;
-      line-height: 34px;
-    }
-
     .CodeMirror-line span.cm-keyword {
       color: #708;
     }
@@ -129,7 +131,7 @@ body {
     }
 
     .CodeMirror-line span.cm-property {
-      color: black;
+      color: rgb(0, 120, 6);
     }
 
     .CodeMirror-line span.cm-operator {
@@ -174,6 +176,86 @@ body {
 
     .CodeMirror-line span.cm-hr {
       color: #999;
+    }
+
+    .CodeMirror-line span.cm-strikethrough {
+      color: rgb(12, 120, 45);
+      text-decoration: line-through;
+    }
+
+    .CodeMirror-line span.cm-strong {
+      color: rgb(46, 4, 235);
+    }
+
+    /* List level 1 */
+    .CodeMirror-line span.cm-formatting-task {
+      --color: #046a9a;
+      color: var(--color);
+    }
+    .CodeMirror-line span.cm-formatting-task + span.cm-variable-2,
+    .CodeMirror-line span.cm-formatting-task + span.cm-variable-2 + span.cm-variable-2,
+    .CodeMirror-line span.cm-formatting-task + span.cm-variable-2 + span.cm-variable-2 + span.cm-variable-2 {
+      --color: #046a9a;
+      color: var(--color);
+      // font-weight: bold;
+      text-decoration: line-through;
+    }
+
+    .CodeMirror-line span.cm-formatting-link-string.cm-string.cm-url,
+    .CodeMirror-line span.cm-formatting-link-string + span.cm-variable-2 {
+      --color: #e9e512;
+      color: var(--color);
+    }
+
+    /* List level 1 */
+    .CodeMirror-line span.cm-meta.cm-formatting-task,
+    .CodeMirror-line span.cm-meta.cm-formatting-task + span.cm-variable-2 {
+      --color: #ff6060;
+      color: var(--color);
+      text-decoration: none;
+    }
+
+    /* List level 2 */
+    .CodeMirror-line span.cm-variable-3 {
+      // color: #17572d;
+    }
+
+    /* List level 2 */
+    .CodeMirror-line span.cm-formatting-task + span.cm-variable-3,
+    .CodeMirror-line span.cm-formatting-task + span.cm-variable-3 + span.cm-variable-3,
+    .CodeMirror-line span.cm-formatting-task + span.cm-variable-3 + span.cm-variable-3 + span.cm-variable-3 {
+      --color: #3c9dc9;
+      color: var(--color);
+      // font-weight: bold;
+      text-decoration: line-through;
+    }
+
+    .CodeMirror-line span.cm-meta.cm-formatting-task + span.cm-variable-3 {
+      --color: #ff6060;
+      color: var(--color);
+      text-decoration: none;
+    }
+
+    /* List level 3 = Cyan*/
+    .CodeMirror-line span.cm-keyword {
+      color: #10b4b4;
+    }
+
+    /*Link text = orange*/
+    .CodeMirror-line span.cm-link-text {
+      color: #e3ae48 !important;
+    }
+
+    /*URL = blue*/
+    .CodeMirror-line span.cm-link,
+    .CodeMirror-line span.cm-string.cm-url {
+      color: #119ccf !important;
+      // font-weight: bold;
+    }
+
+    /* Exclamation mark on image marker */
+    .CodeMirror-line span.cm-image-marker {
+      color: #00ff00 !important;
     }
   }
 }
@@ -240,6 +322,195 @@ body {
       background-color: #333333 !important;
       color: #ffffff !important;
       border-color: #555 !important;
+    }
+
+    .CodeMirror-dialog {
+      &.CodeMirror-dialog-bottom {
+        position: absolute;
+        z-index: 2;
+        bottom: 10px;
+
+        input {
+          background-color: #333333 !important;
+          color: #ffffff !important;
+          border-color: #555 !important;
+          border-style: solid;
+          caret-color: white;
+          border: none;
+          outline: none;
+        }
+      }
+    }
+
+    .CodeMirror-line span.cm-keyword {
+      color: #708;
+    }
+
+    .CodeMirror-line span.cm-atom {
+      color: #219;
+    }
+
+    .CodeMirror-line span.cm-number {
+      color: #164;
+    }
+
+    .CodeMirror-line span.cm-def {
+      color: rgb(93, 93, 238);
+    }
+
+    .CodeMirror-line span.cm-variable {
+      color: white;
+    }
+
+    .CodeMirror-line span.cm-property {
+      color: rgb(56, 234, 175);
+    }
+
+    .CodeMirror-line span.cm-formatting-header {
+      color: rgb(102, 102, 102);
+    }
+
+    .CodeMirror-line span.cm-formatting-header.cm-formatting-header-1,
+    .CodeMirror-line span.cm-formatting-header + .cm-header-1 {
+      color: rgb(0, 149, 255);
+    }
+
+    .CodeMirror-line span.cm-formatting-header.cm-formatting-header-2 {
+      color: rgb(0, 149, 255);
+    }
+
+    .CodeMirror-line span.cm-formatting-header.cm-formatting-header-3 {
+      color: rgb(0, 149, 255);
+    }
+
+    .CodeMirror-line span.cm-property.cm-formatting-task {
+      color: rgb(0, 149, 255);
+    }
+
+    .CodeMirror-line span.cm-operator {
+      color: rgb(102, 102, 102);
+    }
+
+    .CodeMirror-line span.cm-string {
+      color: rgb(245, 88, 88);
+    }
+
+    .CodeMirror-line span.cm-string-2 {
+      color: #f50;
+    }
+
+    .CodeMirror-line span.cm-meta {
+      color: rgb(255, 116, 116);
+    }
+
+    .CodeMirror-line span.cm-error {
+      color: #f00;
+    }
+
+    .CodeMirror-line span.cm-qualifier {
+      color: #555;
+    }
+
+    .CodeMirror-line span.cm-builtin {
+      color: #30a;
+    }
+
+    .CodeMirror-line span.cm-bracket {
+      color: #997;
+    }
+
+    .CodeMirror-line span.cm-tag {
+      color: #170;
+    }
+
+    .CodeMirror-line span.cm-attribute {
+      color: #00c;
+    }
+
+    .CodeMirror-line span.cm-hr {
+      color: #999;
+    }
+
+    /* List level 1 */
+    .CodeMirror-line span.cm-variable-2 {
+      // color: #f0bc88;
+      // font-weight: bold;
+    }
+
+    /* List level 1 */
+    .CodeMirror-line span.cm-formatting-task + span.cm-variable-2,
+    .CodeMirror-line span.cm-formatting-task + span.cm-variable-2 + span.cm-variable-2,
+    .CodeMirror-line span.cm-formatting-task + span.cm-variable-2 + span.cm-variable-2 + span.cm-variable-2 {
+      --color: rgb(0, 149, 255);
+      color: var(--color);
+      // font-weight: bold;
+      text-decoration: line-through;
+    }
+
+    .CodeMirror-line span.cm-formatting-link-string.cm-string.cm-url,
+    .CodeMirror-line span.cm-formatting-link-string + span.cm-variable-2 {
+      --color: #e9e512;
+      color: var(--color);
+    }
+
+    /* List level 1 */
+    .CodeMirror-line span.cm-meta.cm-formatting-task + span.cm-variable-2 {
+      --color: #ff6060;
+      color: var(--color);
+      text-decoration: none;
+    }
+
+    /* List level 2 */
+    .CodeMirror-line span.cm-variable-3 {
+      // color: #67e892;
+    }
+
+    /* List level 2 */
+    .CodeMirror-line span.cm-formatting-task + span.cm-variable-3,
+    .CodeMirror-line span.cm-formatting-task + span.cm-variable-3 + span.cm-variable-3,
+    .CodeMirror-line span.cm-formatting-task + span.cm-variable-3 + span.cm-variable-3 + span.cm-variable-3 {
+      --color: rgb(0, 149, 255);
+      color: var(--color);
+      // font-weight: bold;
+      text-decoration: line-through;
+    }
+
+    .CodeMirror-line span.cm-meta.cm-formatting-task + span.cm-variable-3 {
+      --color: #ff6060;
+      color: var(--color);
+      text-decoration: none;
+    }
+
+    /* List level 3 = Cyan*/
+    .CodeMirror-line span.cm-keyword {
+      color: #10b4b4;
+    }
+
+    /*Link text = orange*/
+    .CodeMirror-line span.cm-link-text {
+      color: #e3ae48 !important;
+    }
+
+    /*URL = blue*/
+    .CodeMirror-line span.cm-link,
+    .CodeMirror-line span.cm-string.cm-url {
+      color: #0f82af;
+      // font-weight: bold;
+      text-underline-offset: 5px;
+    }
+
+    /* Exclamation mark on image marker */
+    .CodeMirror-line span.cm-image-marker {
+      color: #00ff00 !important;
+    }
+
+    .CodeMirror-line span.cm-strikethrough {
+      color: #ff6060;
+      text-decoration: line-through;
+    }
+
+    .CodeMirror-line span.cm-strong {
+      color: rgb(165, 145, 255);
     }
 
     .editor-toolbar.fullscreen {
