@@ -63,12 +63,13 @@ export type Shape = Line | EraserLine | Rect;
 
 export type ShapeType = Shape['type'];
 
-export type MimeType =
-  | 'text/markdown'
-  | 'text/plain'
-  | 'application/vnd.pairy.whiteboard'
-  | 'application/cell'
-  | 'application/json';
+export enum MimeType {
+  MARKDOWN = 'text/markdown',
+  PLAIN = 'text/plain',
+  WHITEBOARD = 'application/vnd.pairy.whiteboard',
+  CELL = 'application/cell',
+  JSON = 'application/json',
+}
 
 export type CodePairDoc = {
   mimeType: MimeType;
@@ -264,16 +265,16 @@ const docSlice = createSlice({
     createDocument(state, action: PayloadAction<string>) {
       const { doc } = state;
 
-      state.doc = new yorkie.Document<CodePairDoc>(`codepairs-${action.payload}`);
-
       if (doc) {
         state.client?.detach(doc);
       }
+
+      state.doc = new yorkie.Document<CodePairDoc>(`codepairs-${action.payload}`);
     },
     detachDocument(state) {
       const { doc, client } = state;
-      state.doc = undefined;
       client?.detach(doc as Document<CodePairDoc>);
+      state.doc = undefined;
     },
     attachDocLoading(state, action: PayloadAction<boolean>) {
       state.loading = action.payload;

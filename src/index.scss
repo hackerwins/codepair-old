@@ -53,126 +53,128 @@ body {
   bottom: 100%;
 }
 
-.EasyMDEContainer {
-  .editor-toolbar {
-    border: none;
-    border-radius: 0px;
-  }
+.editor-toolbar {
+  border: none !important;
+  border-radius: 0px;
+}
 
-  .CodeMirror {
-    border-bottom: none;
-    border-left: none !important;
-    border-color: #eeeeee !important;
-  }
+.CodeMirror {
+  border-bottom: none;
+  border-left: none !important;
+  border-color: #eeeeee !important;
+}
 
-  /* 
-   * Make vim command visible.
-   * issue ref https://github.com/yorkie-team/codepair/issues/148  
-   */
-  .CodeMirror-dialog {
-    &.CodeMirror-dialog-bottom {
-      position: absolute;
-      z-index: 2;
-      bottom: 10px;
+[data-theme='light'] {
+  .EasyMDEContainer {
+    /* 
+     * Make vim command visible.
+     * issue ref https://github.com/yorkie-team/codepair/issues/148  
+     */
+    .CodeMirror-dialog {
+      &.CodeMirror-dialog-bottom {
+        position: absolute;
+        z-index: 2;
+        bottom: 10px;
+      }
     }
-  }
 
-  .cm-s-easymde .cm-header-1 {
-    font-size: 28px;
-    line-height: 60px;
-  }
+    .cm-s-easymde .cm-header-1 {
+      font-size: 28px;
+      line-height: 60px;
+    }
 
-  .cm-s-easymde .cm-header-2 {
-    font-size: 21px;
-    line-height: 50px;
-  }
+    .cm-s-easymde .cm-header-2 {
+      font-size: 21px;
+      line-height: 50px;
+    }
 
-  .cm-s-easymde .cm-header-3 {
-    font-size: 18px;
-    line-height: 43px;
-  }
+    .cm-s-easymde .cm-header-3 {
+      font-size: 18px;
+      line-height: 43px;
+    }
 
-  .cm-s-easymde .cm-header-4 {
-    font-size: 14px;
-    line-height: 40px;
-  }
+    .cm-s-easymde .cm-header-4 {
+      font-size: 14px;
+      line-height: 40px;
+    }
 
-  .cm-s-easymde .cm-header-5 {
-    font-size: 12px;
-    line-height: 36px;
-  }
+    .cm-s-easymde .cm-header-5 {
+      font-size: 12px;
+      line-height: 36px;
+    }
 
-  .cm-s-easymde .cm-header-6 {
-    font-size: 10px;
-    line-height: 34px;
-  }
+    .cm-s-easymde .cm-header-6 {
+      font-size: 10px;
+      line-height: 34px;
+    }
 
-  .CodeMirror-line span.cm-keyword {
-    color: #708;
-  }
+    .CodeMirror-line span.cm-keyword {
+      color: #708;
+    }
 
-  .CodeMirror-line span.cm-atom {
-    color: #219;
-  }
+    .CodeMirror-line span.cm-atom {
+      color: #219;
+    }
 
-  .CodeMirror-line span.cm-number {
-    color: #164;
-  }
+    .CodeMirror-line span.cm-number {
+      color: #164;
+    }
 
-  .CodeMirror-line span.cm-def {
-    color: #00f;
-  }
+    .CodeMirror-line span.cm-def {
+      color: #00f;
+    }
 
-  .CodeMirror-line span.cm-variable {
-    color: black;
-  }
+    .CodeMirror-line span.cm-variable {
+      color: black;
+    }
 
-  .CodeMirror-line span.cm-property {
-    color: black;
-  }
+    .CodeMirror-line span.cm-property {
+      color: black;
+    }
 
-  .CodeMirror-line span.cm-operator {
-    color: black;
-  }
+    .CodeMirror-line span.cm-operator {
+      color: black;
+    }
 
-  .CodeMirror-line span.cm-string {
-    color: #a11;
-  }
+    .CodeMirror-line span.cm-string {
+      color: #a11;
+    }
 
-  .CodeMirror-line span.cm-string-2 {
-    color: #f50;
-  }
+    .CodeMirror-line span.cm-string-2 {
+      color: #f50;
+    }
 
-  .CodeMirror-line span.cm-meta {
-    color: #555;
-  }
+    .CodeMirror-line span.cm-meta {
+      color: #555;
+    }
 
-  .CodeMirror-line span.cm-error {
-    color: #f00;
-  }
+    .CodeMirror-line span.cm-error {
+      color: #f00;
+    }
 
-  .CodeMirror-line span.cm-qualifier {
-    color: #555;
-  }
+    .CodeMirror-line span.cm-qualifier {
+      color: #555;
+    }
 
-  .CodeMirror-line span.cm-builtin {
-    color: #30a;
-  }
+    .CodeMirror-line span.cm-builtin {
+      color: #30a;
+    }
 
-  .CodeMirror-line span.cm-bracket {
-    color: #997;
-  }
+    .CodeMirror-line span.cm-bracket {
+      color: #997;
+    }
 
-  .CodeMirror-line span.cm-tag {
-    color: #170;
-  }
+    .CodeMirror-line span.cm-tag {
+      color: #170;
+    }
 
-  .CodeMirror-line span.cm-attribute {
-    color: #00c;
-  }
+    .CodeMirror-line span.cm-attribute {
+      color: #00c;
+    }
 
-  .CodeMirror-line span.cm-hr {
-    color: #999;
+    .CodeMirror-line span.cm-hr {
+      color: #999;
+    }
   }
 }
 

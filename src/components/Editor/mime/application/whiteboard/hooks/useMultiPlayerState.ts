@@ -3,7 +3,16 @@ import { Theme } from 'features/settingSlices';
 import { AppState } from 'app/rootReducer';
 import { useSelector } from 'react-redux';
 import { useCallback, useEffect, useState } from 'react';
-import { TDUserStatus, TDAsset, TDBinding, TDShape, TDUser, TldrawApp, DrawShape } from '@tldraw/tldraw';
+import {
+  TDUserStatus,
+  TDAsset,
+  TDBinding,
+  TDShape,
+  TDUser,
+  TldrawApp,
+  DrawShape,
+  RectangleShape,
+} from '@tldraw/tldraw';
 import { useThrottleCallback } from '@react-hook/throttle';
 import randomColor from 'randomcolor';
 import { uniqueNamesGenerator, names } from 'unique-names-generator';
@@ -62,6 +71,11 @@ function updateDiff(oldV: TDShape, newV: TDShape) {
     if (oldShape.point[0] !== newShape.point[0] || oldShape.point[1] !== newShape.point[1]) {
       oldShape.point = newShape.point;
     }
+  } else if (newShape.type === 'rectangle') {
+    const oldDrawShape = oldShape as RectangleShape;
+    if (oldDrawShape.size[0] !== newShape.size[0] || oldDrawShape.size[1] !== newShape.size[1]) {
+      oldDrawShape.size = newShape.size;
+    }
   }
 
   if (oldShape.rotation !== newShape.rotation) {
@@ -92,7 +106,6 @@ function updateDiff(oldV: TDShape, newV: TDShape) {
 export function useMultiplayerState(roomId: string) {
   const client = useSelector((state: AppState) => state.docState.client);
   const doc = useSelector((state: AppState) => state.docState.doc);
-  const mePeer = useSelector((state: AppState) => state.peerState.me);
   const menu = useSelector((state: AppState) => state.settingState.menu);
   const [app, setApp] = useState<TldrawApp>();
   const [loading, setLoading] = useState(true);
@@ -114,7 +127,7 @@ export function useMultiplayerState(roomId: string) {
       // On mount, create new user
       tldrawApp.updateUsers([
         {
-          id: mePeer!.id,
+          id: `${client!.getID()}`,
           point: [0, 0],
           color: menu?.userColor || randomColor(),
           status: TDUserStatus.Connected,
@@ -124,7 +137,7 @@ export function useMultiplayerState(roomId: string) {
         },
       ]);
     },
-    [roomId, mePeer, menu],
+    [roomId, client, menu],
   );
 
   // Update Yorkie doc when the app's shapes change.
@@ -181,7 +194,10 @@ export function useMultiplayerState(roomId: string) {
     (tldrawApp: TldrawApp, user: TDUser) => {
       if (!tldrawApp || client === undefined || !client.isActive()) return;
 
-      client.updatePresence('whiteboardUser', user);
+      client.updatePresence('whiteboardUser', {
+        ...client.getPresence().whiteboardUser,
+        ...user,
+      });
     },
     10,
     false,
@@ -225,7 +241,7 @@ export function useMultiplayerState(roomId: string) {
                     point: [0, 0],
                     activeShapes: [],
                     selectedIds: [],
-                    id: '',
+                    id: client?.getID() || '',
                     status: TDUserStatus.Connected,
                   },
                   ...(peer.presence.whiteboardUser || {
@@ -285,7 +301,7 @@ export function useMultiplayerState(roomId: string) {
 
         if (stillAlive) {
           // Update the document with initial content
-          // handleChanges();
+          handleChanges();
 
           // Zoom to fit the content & finish loading
           if (app) {
@@ -310,7 +326,7 @@ export function useMultiplayerState(roomId: string) {
 
       unsubscribe?.();
     };
-  }, [app, client, doc, roomId, mePeer]);
+  }, [app, client, doc, roomId]);
 
   return {
     onMount,
