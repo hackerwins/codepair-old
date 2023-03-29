@@ -181,7 +181,10 @@ export function useMultiplayerState(roomId: string) {
     (tldrawApp: TldrawApp, user: TDUser) => {
       if (!tldrawApp || client === undefined || !client.isActive()) return;
 
-      client.updatePresence('whiteboardUser', user);
+      client.updatePresence('whiteboardUser', {
+        ...client.getPresence().whiteboardUser,
+        ...user,
+      });
     },
     10,
     false,
@@ -225,7 +228,7 @@ export function useMultiplayerState(roomId: string) {
                     point: [0, 0],
                     activeShapes: [],
                     selectedIds: [],
-                    id: '',
+                    id: client?.getID() || '',
                     status: TDUserStatus.Connected,
                   },
                   ...(peer.presence.whiteboardUser || {
@@ -253,7 +256,6 @@ export function useMultiplayerState(roomId: string) {
 
         // 03. Initialize document if document not exists.
         doc!.update((currentRoot) => {
-          console.log(doc?.getKey());
           const root = currentRoot;
           if (!root.whiteboard) {
             root.whiteboard = {
