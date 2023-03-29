@@ -49,6 +49,8 @@ const useStyles = makeStyles()((theme: Theme) => ({
   },
   addButton: {
     color: theme.palette.mode === ThemeType.Dark ? 'white' : 'black',
+    display: 'flex',
+    gap: 10,
   },
   title: {
     fontWeight: 'bold',
@@ -191,6 +193,17 @@ function MenuAppBar() {
               </Popover>
             )}
           </div>
+          {import.meta.env.NODE_ENV === 'development' && (
+            <IconButton
+              size="small"
+              onClick={() => {
+                dispatch(toggleInstant());
+              }}
+              className={menu.theme === ThemeType.Dark ? classes.instantIconButtonDark : classes.instantIconButton}
+            >
+              <SmartToy />
+            </IconButton>
+          )}
           {import.meta.env.NODE_ENV === 'development' && (
             <IconButton
               size="small"

@@ -128,6 +128,7 @@ export function useMultiplayerState(roomId: string) {
       tldrawApp.updateUsers([
         {
           id: `${client!.getID()}`,
+          id: `${client!.getID()}`,
           point: [0, 0],
           color: menu?.userColor || randomColor(),
           status: TDUserStatus.Connected,
@@ -307,6 +308,7 @@ export function useMultiplayerState(roomId: string) {
 
         if (stillAlive) {
           // Update the document with initial content
+          handleChanges();
           handleChanges();
 
           // Zoom to fit the content & finish loading

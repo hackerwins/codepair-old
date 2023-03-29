@@ -63,6 +63,11 @@ body {
   border-left: none !important;
   border-color: #eeeeee !important;
 }
+.CodeMirror {
+  border-bottom: none;
+  border-left: none !important;
+  border-color: #eeeeee !important;
+}
 
 .EasyMDEContainer {
   /* 
@@ -84,7 +89,7 @@ body {
 
   .cm-s-easymde .cm-header-2 {
     font-size: 21px;
-    line-height: 60px;
+    line-height: 50px;
   }
 
   .cm-s-easymde .cm-header-3 {
@@ -117,7 +122,13 @@ body {
     .CodeMirror-line span.cm-atom {
       color: #219;
     }
+    .CodeMirror-line span.cm-atom {
+      color: #219;
+    }
 
+    .CodeMirror-line span.cm-number {
+      color: #164;
+    }
     .CodeMirror-line span.cm-number {
       color: #164;
     }
@@ -125,7 +136,13 @@ body {
     .CodeMirror-line span.cm-def {
       color: #00f;
     }
+    .CodeMirror-line span.cm-def {
+      color: #00f;
+    }
 
+    .CodeMirror-line span.cm-variable {
+      color: black;
+    }
     .CodeMirror-line span.cm-variable {
       color: black;
     }
@@ -137,7 +154,13 @@ body {
     .CodeMirror-line span.cm-operator {
       color: black;
     }
+    .CodeMirror-line span.cm-operator {
+      color: black;
+    }
 
+    .CodeMirror-line span.cm-string {
+      color: #a11;
+    }
     .CodeMirror-line span.cm-string {
       color: #a11;
     }
@@ -145,7 +168,13 @@ body {
     .CodeMirror-line span.cm-string-2 {
       color: #f50;
     }
+    .CodeMirror-line span.cm-string-2 {
+      color: #f50;
+    }
 
+    .CodeMirror-line span.cm-meta {
+      color: #555;
+    }
     .CodeMirror-line span.cm-meta {
       color: #555;
     }
@@ -153,7 +182,13 @@ body {
     .CodeMirror-line span.cm-error {
       color: #f00;
     }
+    .CodeMirror-line span.cm-error {
+      color: #f00;
+    }
 
+    .CodeMirror-line span.cm-qualifier {
+      color: #555;
+    }
     .CodeMirror-line span.cm-qualifier {
       color: #555;
     }
@@ -161,7 +196,13 @@ body {
     .CodeMirror-line span.cm-builtin {
       color: #30a;
     }
+    .CodeMirror-line span.cm-builtin {
+      color: #30a;
+    }
 
+    .CodeMirror-line span.cm-bracket {
+      color: #997;
+    }
     .CodeMirror-line span.cm-bracket {
       color: #997;
     }
@@ -169,7 +210,13 @@ body {
     .CodeMirror-line span.cm-tag {
       color: #170;
     }
+    .CodeMirror-line span.cm-tag {
+      color: #170;
+    }
 
+    .CodeMirror-line span.cm-attribute {
+      color: #00c;
+    }
     .CodeMirror-line span.cm-attribute {
       color: #00c;
     }
