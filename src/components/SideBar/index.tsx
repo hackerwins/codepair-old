@@ -26,7 +26,7 @@ import {
 import { Theme } from 'features/settingSlices';
 import { showMessage } from 'features/messageSlices';
 import { NavTabType, toggleLinkTab } from 'features/navSlices';
-import { createDoc } from 'features/docSlices';
+import { createDoc, MimeType } from 'features/docSlices';
 import { makeStyles } from 'styles/common';
 import AccountTree from '@mui/icons-material/AccountTree';
 import Add from '@mui/icons-material/Add';
@@ -202,37 +202,37 @@ const useStyles = makeStyles<SideBarProps>()((theme, props) => ({
     },
   },
   level0: {
-    paddingLeft: theme.spacing(1),
+    paddingLeft: theme.spacing(0),
   },
   level1: {
     paddingLeft: theme.spacing(3),
   },
   level2: {
-    paddingLeft: theme.spacing(5),
+    paddingLeft: theme.spacing(6),
   },
   level3: {
-    paddingLeft: theme.spacing(7),
-  },
-  level4: {
     paddingLeft: theme.spacing(9),
   },
-  level5: {
-    paddingLeft: theme.spacing(10),
-  },
-  level6: {
+  level4: {
     paddingLeft: theme.spacing(12),
   },
-  level7: {
-    paddingLeft: theme.spacing(14),
+  level5: {
+    paddingLeft: theme.spacing(15),
   },
-  level8: {
-    paddingLeft: theme.spacing(16),
-  },
-  level9: {
+  level6: {
     paddingLeft: theme.spacing(18),
   },
+  level7: {
+    paddingLeft: theme.spacing(21),
+  },
+  level8: {
+    paddingLeft: theme.spacing(24),
+  },
+  level9: {
+    paddingLeft: theme.spacing(27),
+  },
   level10: {
-    paddingLeft: theme.spacing(20),
+    paddingLeft: theme.spacing(30),
   },
   moreMenu: {},
   tooltip: {
@@ -1219,6 +1219,7 @@ function HeadingIcon({ item }: HeadingIconProps) {
       style={{
         color: '#999',
         fontWeight: 'bold',
+        paddingLeft: 10,
         textShadow: '1px 1px 0px #222',
       }}
     >
@@ -1399,6 +1400,7 @@ export function SideBar() {
   const dispatch = useDispatch();
   const linkState = useSelector((state: AppState) => state.linkState);
   const navState = useSelector((state: AppState) => state.navState);
+  const doc = useSelector((state: AppState) => state.docState.doc);
   const headings = useSelector((state: AppState) => state.docState.headings);
   const menu = useSelector((state: AppState) => state.settingState.menu);
   const favorites = useSelector(favoriteSelector);
@@ -1406,6 +1408,8 @@ export function SideBar() {
   const linkRef = useRef<boolean>(false);
   const { classes } = useStyles({ open });
   const { docKey } = useParams<{ docKey: string }>();
+  const root = doc?.getRoot();
+  const mimeType = root?.mimeType || MimeType.MARKDOWN;
 
   const handleChange = (event: React.SyntheticEvent<Element, Event>, newValue: NavTabType) => {
     dispatch(toggleLinkTab(newValue));
@@ -1484,14 +1488,16 @@ export function SideBar() {
               }
               value="notes"
             />
-            <Tab
-              label={
-                <TabLabel>
-                  <ListAlt /> H1
-                </TabLabel>
-              }
-              value="toc"
-            />
+            {mimeType === MimeType.MARKDOWN ? (
+              <Tab
+                label={
+                  <TabLabel>
+                    <ListAlt /> H1
+                  </TabLabel>
+                }
+                value="toc"
+              />
+            ) : undefined}
           </TabList>
         </Box>
         <TabPanel value="notes">
@@ -1551,11 +1557,14 @@ export function SideBar() {
           })}
           <Box height={100} />
         </TabPanel>
-        <TabPanel value="toc">
-          {headings.map((it) => {
-            return <HeadingItem key={it.id} item={it} level={it.level || 0} loopType="links" />;
-          })}
-        </TabPanel>
+
+        {mimeType === MimeType.MARKDOWN ? (
+          <TabPanel value="toc">
+            {headings.map((it) => {
+              return <HeadingItem key={it.id} item={it} level={it.level || 0} loopType="links" />;
+            })}
+          </TabPanel>
+        ) : undefined}
       </TabContext>
     </Drawer>
   );

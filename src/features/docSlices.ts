@@ -63,12 +63,13 @@ export type Shape = Line | EraserLine | Rect;
 
 export type ShapeType = Shape['type'];
 
-export type MimeType =
-  | 'text/markdown'
-  | 'text/plain'
-  | 'application/vnd.pairy.whiteboard'
-  | 'application/cell'
-  | 'application/json';
+export enum MimeType {
+  MARKDOWN = 'text/markdown',
+  PLAIN = 'text/plain',
+  WHITEBOARD = 'application/vnd.pairy.whiteboard',
+  CELL = 'application/cell',
+  JSON = 'application/json',
+}
 
 export type CodePairDoc = {
   mimeType: MimeType;

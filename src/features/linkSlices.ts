@@ -287,7 +287,7 @@ const linkSlice = createSlice({
 
       SettingModel.setValue(state);
 
-      window.location.href = newLinkInfo.fileLink;
+      window.location.replace(newLinkInfo.fileLink);
     },
     newLinkByCurrentPage(state, action: PayloadAction<{ parentId: string; name: string; fileLink: string }>) {
       const { parentId, name, fileLink } = action.payload;
@@ -312,7 +312,7 @@ const linkSlice = createSlice({
 
       SettingModel.setValue(state);
 
-      window.location.href = fileLink;
+      window.location.replace(fileLink);
     },
     copyMarkdownTextForGroup(state, action: PayloadAction<string>) {
       const id = action.payload;

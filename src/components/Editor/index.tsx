@@ -17,8 +17,8 @@ import {
   DocStatus,
   setStatus,
 } from 'features/docSlices';
-import { syncPeer, Presence } from 'features/peerSlices';
 import { makeStyles } from 'styles/common';
+import { Presence, syncPeer } from 'features/peerSlices';
 import { Alert, Box, CircularProgress, Snackbar } from '@mui/material';
 import WhiteBoardEditor from './mime/application/whiteboard/Editor';
 
@@ -56,11 +56,13 @@ export default function BaseEditor(props: { docKey: string }) {
   const errorMessage = useSelector((state: AppState) => state.docState.errorMessage);
 
   useEffect(() => {
+    // To call other documents according to the docKey
+    // Add logic to activate and deactivate the client.
     dispatch(activateClient());
     return () => {
       dispatch(deactivateClient());
     };
-  }, [dispatch]);
+  }, [dispatch, docKey]);
 
   useEffect(() => {
     if (!client || !doc) {
