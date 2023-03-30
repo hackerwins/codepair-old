@@ -63,7 +63,7 @@ const useStyles = makeStyles()((theme: Theme) => ({
     '& .CodeMirror-line span.cm-operator': { color: '#fff' },
     '& .CodeMirror-line span.cm-string': { color: '#e6db74' },
     '& .CodeMirror-line span.cm-string-2': { color: '#e6db74' },
-    '& .CodeMirror-line span.cm-meta': { color: '#555' },
+    '& .CodeMirror-line span.cm-meta': { color: '#afafaf' },
     '& .CodeMirror-line span.cm-error': { background: '#f92672', color: '#f8f8f0' },
     '& .CodeMirror-line span.cm-qualifier': { color: '#555' },
     '& .CodeMirror-line span.cm-builtin': { color: '#66d9ef' },
@@ -71,6 +71,7 @@ const useStyles = makeStyles()((theme: Theme) => ({
     '& .CodeMirror-line span.cm-tag': { color: '#bc6283' },
     '& .CodeMirror-line span.cm-attribute': { color: '#97b757' },
     '& .CodeMirror-line span.cm-hr': { color: '#999' },
+    '& .CodeMirror-line span.cm-link': { color: '#ff0000' },
   },
 }));
 

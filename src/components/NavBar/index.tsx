@@ -40,12 +40,17 @@ const useStyles = makeStyles()((theme: Theme) => ({
     color: 'black',
   },
   grow: {
+    '@media only screen and (max-width: 600px)': {
+      display: 'none',
+    },
     flexGrow: 1,
     display: 'flex',
     gap: 10,
   },
   addButton: {
     color: theme.palette.mode === ThemeType.Dark ? 'white' : 'black',
+    display: 'flex',
+    gap: 10,
   },
   title: {
     fontWeight: 'bold',
@@ -157,18 +162,22 @@ function MenuAppBar() {
             <NetworkButton />
           </div>
           <div className={classes.grow}>
-            <Button size="small" className={classes.addButton} onClick={() => handleCreateLink('Untitled note')}>
-              <EventNote /> &nbsp;
-              <Typography>Note</Typography>
-            </Button>
-            <Button
-              size="small"
-              className={classes.addButton}
-              onClick={() => handleCreateWhiteboard('Untitled artboard')}
-            >
-              <Gesture fontSize="small" /> &nbsp;
-              <Typography>Whiteboard</Typography>
-            </Button>
+            <Tooltip title="Add note" arrow>
+              <Button size="small" className={classes.addButton} onClick={() => handleCreateLink('Untitled note')}>
+                <EventNote /> &nbsp;
+                <Typography>Note</Typography>
+              </Button>
+            </Tooltip>
+            <Tooltip title="Add whiteboard" arrow>
+              <Button
+                size="small"
+                className={classes.addButton}
+                onClick={() => handleCreateWhiteboard('Untitled artboard')}
+              >
+                <Gesture fontSize="small" /> &nbsp;
+                <Typography>Whiteboard</Typography>
+              </Button>
+            </Tooltip>
           </div>
           <div className={classes.items}>
             <ShareButton />
@@ -184,6 +193,17 @@ function MenuAppBar() {
               </Popover>
             )}
           </div>
+          {import.meta.env.NODE_ENV === 'development' && (
+            <IconButton
+              size="small"
+              onClick={() => {
+                dispatch(toggleInstant());
+              }}
+              className={menu.theme === ThemeType.Dark ? classes.instantIconButtonDark : classes.instantIconButton}
+            >
+              <SmartToy />
+            </IconButton>
+          )}
           {import.meta.env.NODE_ENV === 'development' && (
             <IconButton
               size="small"

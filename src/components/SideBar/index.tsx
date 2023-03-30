@@ -473,12 +473,6 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
-        PaperProps={{
-          style: {
-            // maxHeight: ITEM_HEIGHT * 4.5,
-            // width: 200,
-          },
-        }}
         anchorOrigin={{
           vertical: 'top',
           horizontal: 'left',
@@ -623,12 +617,6 @@ function HeadingMoreMenu({ item }: HeadingMoreMenuProps) {
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
-        PaperProps={{
-          style: {
-            // maxHeight: ITEM_HEIGHT * 4.5,
-            // width: 200,
-          },
-        }}
         anchorOrigin={{
           vertical: 'top',
           horizontal: 'left',

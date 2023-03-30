@@ -195,6 +195,15 @@ export function useMultiplayerState(roomId: string) {
       if (!tldrawApp || client === undefined || !client.isActive()) return;
 
       client.updatePresence('whiteboardUser', {
+        ...{
+          id: `${client.getID()}`,
+          point: [0, 0],
+          color: menu?.userColor || randomColor(),
+          status: TDUserStatus.Connected,
+          activeShapes: [],
+          selectedIds: [],
+          metadata: { name: menu?.userName }, // <-- custom metadata
+        },
         ...client.getPresence().whiteboardUser,
         ...user,
       });
@@ -230,40 +239,37 @@ export function useMultiplayerState(roomId: string) {
         unsubscribe = client!.subscribe((event) => {
           if (event.type === 'peers-changed') {
             const peers = event.value.peers[doc!.getKey()];
-
             // Compare with local user list and get leaved user list
             // Then remove leaved users
-            const localUsers = Object.values(app!.room!.users);
+            const localUsers = Object.values(app!.room!.users).filter(Boolean);
+
             const remoteUsers = Object.values(peers || {})
               .map((peer) => {
+                if (!peer.presence.whiteboardUser) return null;
                 return {
                   ...{
                     point: [0, 0],
                     activeShapes: [],
                     selectedIds: [],
-                    id: client?.getID() || '',
+                    id: `${peer?.clientID}`,
                     status: TDUserStatus.Connected,
-                  },
-                  ...(peer.presence.whiteboardUser || {
-                    point: [0, 0],
                     color: peer.presence.color,
-                    activeShapes: [],
-                    selectedIds: [],
-                  }),
-                  metadata: {
-                    name: peer.presence.username,
+                    metadata: {
+                      name: peer.presence.username,
+                    },
                   },
+                  ...(peer.presence.whiteboardUser || {}),
                 };
               })
               .filter(Boolean);
-            const leavedUsers = localUsers.filter(({ id: id1 }) => !remoteUsers.some(({ id: id2 }) => id2 === id1));
+            const leavedUsers = localUsers.filter(({ id: id1 }) => !remoteUsers.some((user) => user?.id === id1));
 
             leavedUsers.forEach((user) => {
               app?.removeUser(user.id);
             });
 
             // Then update users
-            app?.updateUsers(remoteUsers);
+            app?.updateUsers(remoteUsers as any);
           }
         });
 
@@ -301,6 +307,7 @@ export function useMultiplayerState(roomId: string) {
 
         if (stillAlive) {
           // Update the document with initial content
+          handleChanges();
           handleChanges();
 
           // Zoom to fit the content & finish loading
