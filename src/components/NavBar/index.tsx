@@ -41,9 +41,6 @@ const useStyles = makeStyles()((theme: Theme) => ({
     '@media only screen and (max-width: 600px)': {
       display: 'none',
     },
-    '@media only screen and (max-width: 600px)': {
-      display: 'none',
-    },
     flexGrow: 1,
     display: 'flex',
     gap: 10,
