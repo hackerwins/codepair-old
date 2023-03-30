@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { getTableOfContents, MimeType } from './docSlices';
+import { MimeType } from 'constants/editor';
+import { getTableOfContents } from './docSlices';
 import { AppState } from '../app/rootReducer';
 import BrowserStorage from '../utils/storage';
 

@@ -229,7 +229,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       }
     });
 
-    editor.on('mousedown', (_: CodeMirror.Editor, event: MouseEvent) => {
+    editor.on('mousedown', ((_: CodeMirror.Editor, event: MouseEvent) => {
       if (event.metaKey) {
         const pos = editor.coordsChar({ left: event.clientX, top: event.clientY });
         const token = editor.getTokenAt(pos);
@@ -238,7 +238,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
           window.open(token.string, token.string);
         }
       }
-    });
+    }) as any);
 
     editor.on('change', () => {
       dispatch(updateHeadings());
