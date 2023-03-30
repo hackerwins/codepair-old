@@ -1,24 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, ChangeEvent } from 'react';
-import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import { useSelector, useDispatch } from 'react-redux';
 
 import { Preview, setPreview } from 'features/docSlices';
-import {
-  Theme,
-  CodeKeyMap,
-  TabSize,
-  setDarkMode,
-  setCodeKeyMap,
-  setTabSize,
-  setUserName,
-  setUserColor,
-} from 'features/settingSlices';
+import { setUserName, setUserColor } from 'features/settingSlices';
 import { AppDispatch } from 'app/store';
 import { AppState } from 'app/rootReducer';
 import { updatePresenceColor } from 'features/peerSlices';
 import { makeStyles } from 'styles/common';
-import { Box, debounce, FormControl, NativeSelect, Switch, TextField, Typography } from '@mui/material';
+import { Box, debounce, FormControl, TextField, Typography } from '@mui/material';
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -62,7 +52,6 @@ export default function Settings() {
 
   const client = useSelector((state: AppState) => state.docState.client);
   const doc = useSelector((state: AppState) => state.docState.doc);
-  const preview = useSelector((state: AppState) => state.docState.preview);
   const menu = useSelector((state: AppState) => state.settingState.menu);
 
   const debounceSave = useCallback(
@@ -108,35 +97,6 @@ export default function Settings() {
     [dispatch],
   );
 
-  const handlePreviewChange = useCallback(
-    (event: ChangeEvent<HTMLSelectElement>) => {
-      if (!doc) {
-        return;
-      }
-      const value = event.target.value as Preview;
-      doc.update((root) => {
-        // eslint-disable-next-line no-param-reassign
-        root.preview = value;
-      });
-
-      dispatch(setPreview(value));
-    },
-    [doc, dispatch],
-  );
-
-  function handleChange<T>(action: ActionCreatorWithPayload<T>) {
-    return (event: ChangeEvent<HTMLSelectElement>) => {
-      dispatch(action(event.target.value as T));
-    };
-  }
-
-  const handleThemeChanged = useCallback(
-    (_input: ChangeEvent<HTMLInputElement>, checked: boolean) => {
-      dispatch(setDarkMode(checked));
-    },
-    [dispatch, setDarkMode],
-  );
-
   return (
     <div className={classes.root}>
       <Box>
@@ -162,54 +122,6 @@ export default function Settings() {
           <div className={classes.itemTitle}>Color</div>
           <FormControl className={classes.itemInfo}>
             <input type="color" defaultValue={menu.userColor} onChange={handleInputUserColor} />
-          </FormControl>
-        </div>
-        <div className={classes.item}>
-          <div className={classes.itemTitle}>Preview</div>
-          <FormControl className={classes.itemInfo}>
-            <NativeSelect name="preview" value={preview} onChange={handlePreviewChange}>
-              {Object.entries(Preview).map(([display, value]: [string, string]) => {
-                return (
-                  <option value={value} key={value}>
-                    {display}
-                  </option>
-                );
-              })}
-            </NativeSelect>
-          </FormControl>
-        </div>
-        <div className={classes.item}>
-          <div className={classes.itemTitle}>Tab Size</div>
-          <FormControl className={classes.itemInfo}>
-            <NativeSelect value={menu?.tabSize} onChange={handleChange(setTabSize)}>
-              {Object.entries(TabSize).map(([key, tabSize]: [string, string]) => {
-                return (
-                  <option value={tabSize} key={key}>
-                    {`${tabSize} spaces`}
-                  </option>
-                );
-              })}
-            </NativeSelect>
-          </FormControl>
-        </div>
-        <div className={classes.item}>
-          <div className={classes.itemTitle}>Key Binding</div>
-          <FormControl className={classes.itemInfo}>
-            <NativeSelect name="codeKeyMap" value={menu?.codeKeyMap} onChange={handleChange(setCodeKeyMap)}>
-              {Object.entries(CodeKeyMap).map(([display, codeKeyMap]: [string, string]) => {
-                return (
-                  <option value={codeKeyMap} key={codeKeyMap}>
-                    {display}
-                  </option>
-                );
-              })}
-            </NativeSelect>
-          </FormControl>
-        </div>
-        <div className={classes.item}>
-          <div className={classes.itemTitle}>Dark Mode</div>
-          <FormControl className={classes.itemInfo}>
-            <Switch checked={menu.theme === Theme.Dark} onChange={handleThemeChanged} />
           </FormControl>
         </div>
       </div>

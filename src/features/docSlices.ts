@@ -3,6 +3,7 @@ import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import yorkie, { Client, Document, Text, TimeTicket } from 'yorkie-js-sdk';
 import anonymous from 'anonymous-animals-gen';
 import randomColor from 'randomcolor';
+import { MimeType } from 'constants/editor';
 import { Presence } from './peerSlices';
 import { SettingState } from './settingSlices';
 import { LinkItemType } from './linkSlices';
@@ -62,14 +63,6 @@ export interface Rect extends BaseShape {
 export type Shape = Line | EraserLine | Rect;
 
 export type ShapeType = Shape['type'];
-
-export enum MimeType {
-  MARKDOWN = 'text/markdown',
-  PLAIN = 'text/plain',
-  WHITEBOARD = 'application/vnd.pairy.whiteboard',
-  CELL = 'application/cell',
-  JSON = 'application/json',
-}
 
 export type CodePairDoc = {
   mimeType: MimeType;

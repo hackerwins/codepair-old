@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef } from 'react';
 
 import { useSelector } from 'react-redux';
 import { AppState } from 'app/rootReducer';
@@ -42,14 +42,8 @@ export default function Editor() {
   const divRef = useRef<HTMLDivElement>(null);
   const codeEditorRef = useRef<CodeMirror.Editor>(null);
 
-  const handleClickEditor = useCallback(() => {
-    if (tool === ToolType.None) {
-      codeEditorRef.current?.focus();
-    }
-  }, [tool]);
-
   return (
-    <div className={classes.root} onClick={handleClickEditor} aria-hidden="true">
+    <div className={classes.root} aria-hidden="true">
       <div className={classes.editor} ref={divRef}>
         <div className={classes.codeEditor}>
           <CodeEditor forwardedRef={codeEditorRef} />

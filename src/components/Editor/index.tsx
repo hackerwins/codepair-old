@@ -24,6 +24,7 @@ import WhiteBoardEditor from './mime/application/whiteboard/Editor';
 
 const Editor = lazy(() => import('./mime/text/md/Editor'));
 const CellEditor = lazy(() => import('./mime/application/cell/Editor'));
+const MilkdownEditor = lazy(() => import('./mime/text/milkdown/Editor'));
 
 const useStyles = makeStyles()(() => ({
   loading: {
@@ -152,8 +153,12 @@ export default function BaseEditor(props: { docKey: string }) {
   switch (mimeType) {
     case 'application/vnd.pairy.whiteboard':
       return <WhiteBoardEditor />;
-    case 'text/plain':
-      return <Editor />;
+    case 'text/milkdown':
+      return (
+        <Suspense fallback={<LoadingView />}>
+          <MilkdownEditor />
+        </Suspense>
+      );
     case 'application/json':
       return <Editor />;
     case 'application/cell':
