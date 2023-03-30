@@ -41,6 +41,9 @@ const useStyles = makeStyles()((theme: Theme) => ({
     '@media only screen and (max-width: 600px)': {
       display: 'none',
     },
+    '@media only screen and (max-width: 600px)': {
+      display: 'none',
+    },
     flexGrow: 1,
     display: 'flex',
     gap: 10,
@@ -172,7 +175,7 @@ function MenuAppBar() {
             )}
             <ThemeButton />
           </div>
-          {import.meta.env.MODE === 'development' && (
+          {import.meta.env.NODE_ENV === 'development' && (
             <IconButton
               size="small"
               onClick={() => {
