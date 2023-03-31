@@ -1,7 +1,6 @@
 import React, { memo, MouseEvent, useCallback, useState } from 'react';
 import PeerGroup from 'components/NavBar/PeerGroup';
 import ShareButton from 'components/NavBar/ShareButton';
-import NetworkButton from 'components/NavBar/NetworkButton';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleInstant, toggleTab } from 'features/navSlices';
 import { AppState } from 'app/rootReducer';
@@ -9,7 +8,7 @@ import { Theme as ThemeType } from 'features/settingSlices';
 import Settings from 'components/Editor/Sidebar/Settings';
 import { setTool, ToolType } from 'features/boardSlices';
 import { makeStyles } from 'styles/common';
-import { AppBar, IconButton, Link, Popover, Theme, Toolbar, Tooltip, Typography } from '@mui/material';
+import { AppBar, IconButton, Popover, Theme, Toolbar, Tooltip } from '@mui/material';
 import SettingsSuggest from '@mui/icons-material/SettingsSuggest';
 import SmartToy from '@mui/icons-material/SmartToy';
 
@@ -98,7 +97,6 @@ function MenuAppBar() {
         <Toolbar>
           <div
             style={{
-              width: 270,
               display: 'flex',
             }}
           >
@@ -134,12 +132,6 @@ function MenuAppBar() {
                 />
               </svg>
             </IconButton>
-            <Typography variant="h6" className={classes.title}>
-              <Link href="/" underline="none">
-                CodePair
-              </Link>
-            </Typography>
-            <NetworkButton />
           </div>
           <div className={classes.grow}>
             <LinkNavigation />
