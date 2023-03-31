@@ -64,6 +64,7 @@ const initialLinkState: LinkState = SettingModel.getValue({
   opens: {},
 });
 
+// @deprecated this will be removed in the future
 // rename groups to links
 if ((initialLinkState as any).groups?.length > 0) {
   initialLinkState.links = (initialLinkState as any).groups || [];
@@ -85,6 +86,7 @@ traverse<ItemType>(initialLinkState, initialLinkState.links, (item) => {
     currentItem.type = 'link';
   }
 });
+// @deprecated this will be removed in the future
 
 const linkSlice = createSlice({
   name: 'link',
