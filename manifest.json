@@ -35,9 +35,10 @@
     ],
     "dynamicImports": [
       "src/components/Editor/mime/text/md/Editor.tsx",
-      "src/components/Editor/mime/application/cell/Editor.tsx"
+      "src/components/Editor/mime/application/cell/Editor.tsx",
+      "src/components/Editor/mime/text/milkdown/Editor.tsx"
     ],
-    "file": "assets/index-1c55cfc7.js",
+    "file": "assets/index-77cbb046.js",
     "isEntry": true,
     "src": "index.html"
   },
@@ -138,7 +139,7 @@
     "src": "node_modules/@fontsource/source-sans-pro/files/source-sans-pro-vietnamese-400-normal.woff2"
   },
   "src/components/Editor/mime/application/cell/Editor.tsx": {
-    "file": "assets/Editor-19b4c2ea.js",
+    "file": "assets/Editor-95cf24df.js",
     "imports": [
       "index.html"
     ],
@@ -153,11 +154,26 @@
     "css": [
       "assets/Editor-7ac63a43.css"
     ],
-    "file": "assets/Editor-8f8f58c5.js",
+    "file": "assets/Editor-ee1d167f.js",
     "imports": [
       "index.html"
     ],
     "isDynamicEntry": true,
     "src": "src/components/Editor/mime/text/md/Editor.tsx"
+  },
+  "src/components/Editor/mime/text/milkdown/Editor.css": {
+    "file": "assets/Editor-6a0bf5f1.css",
+    "src": "src/components/Editor/mime/text/milkdown/Editor.css"
+  },
+  "src/components/Editor/mime/text/milkdown/Editor.tsx": {
+    "css": [
+      "assets/Editor-6a0bf5f1.css"
+    ],
+    "file": "assets/Editor-c266cb31.js",
+    "imports": [
+      "index.html"
+    ],
+    "isDynamicEntry": true,
+    "src": "src/components/Editor/mime/text/milkdown/Editor.tsx"
   }
 }
