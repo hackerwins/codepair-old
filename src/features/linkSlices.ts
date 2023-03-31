@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { MimeType } from 'constants/editor';
 import { getTableOfContents } from './docSlices';
 import { AppState } from '../app/rootReducer';
 import BrowserStorage from '../utils/storage';
@@ -10,10 +11,10 @@ export interface LinkItemType {
   level?: number;
   id: string;
   name: string;
-  mimeType?: string;
+  mimeType?: MimeType;
   fileLink?: string;
   linkType?: string;
-  links?: LinkItemType[];
+  links?: ItemType[];
 }
 
 export interface GroupType {
@@ -30,19 +31,20 @@ export interface OpenState {
 export interface LinkState {
   opens: OpenState;
   favorite: (string | LinkItemType)[];
-  groups: GroupType[];
+  links: ItemType[];
 }
 
 function traverse<T>(parent: unknown, data: T[], callback: (item: T, parent: T, depth: number) => void, depth = 0) {
-  data.forEach((item) => {
+  data.filter(Boolean).forEach((item) => {
     callback(item, parent as T, depth + 1);
+    if (!item) return;
     traverse(item, (item as any).links || [], callback, depth + 1);
   });
 }
 
 function findOne(data: any[], callback: (item: any) => boolean) {
   let result: any = null;
-  traverse(null, data, (item) => {
+  traverse(null, data.filter(Boolean), (item) => {
     if (callback(item)) {
       result = item;
     }
@@ -58,20 +60,21 @@ const SettingModel = new BrowserStorage<LinkState>('$$codepair$$link');
 
 const initialLinkState: LinkState = SettingModel.getValue({
   favorite: [],
-  groups: [
-    {
-      type: 'group',
-      id: `${Date.now()}`,
-      name: 'Default Group',
-      links: [],
-    },
-  ],
+  links: [],
   opens: {},
 });
 
+// @deprecated this will be removed in the future
+// rename groups to links
+if ((initialLinkState as any).groups?.length > 0) {
+  initialLinkState.links = (initialLinkState as any).groups || [];
+}
+delete (initialLinkState as any).groups;
+
 // recover old data
-traverse<ItemType>(initialLinkState, initialLinkState.groups, (item) => {
+traverse<ItemType>(initialLinkState, initialLinkState.links, (item) => {
   const currentItem = item as LinkItemType;
+  if (!item) return;
   if (currentItem.type === 'link') {
     if (currentItem.fileLink?.startsWith('/') !== true) {
       currentItem.fileLink = `/${currentItem.fileLink}`;
@@ -83,6 +86,7 @@ traverse<ItemType>(initialLinkState, initialLinkState.groups, (item) => {
     currentItem.type = 'link';
   }
 });
+// @deprecated this will be removed in the future
 
 const linkSlice = createSlice({
   name: 'link',
@@ -93,7 +97,8 @@ const linkSlice = createSlice({
       const newValue = SettingModel.getValue(state);
 
       state.favorite = newValue.favorite;
-      state.groups = newValue.groups;
+      state.links = (newValue as any).groups || [];
+      state.links = state.links.concat(newValue.links || []);
       state.opens = newValue.opens;
     },
     toggleFavorite(state, action: PayloadAction<string | LinkItemType>) {
@@ -134,7 +139,7 @@ const linkSlice = createSlice({
     },
     removeLink(state, action: PayloadAction<{ id: string }>) {
       const { id } = action.payload;
-      traverse(state, state.groups, (item, parent) => {
+      traverse(state, state.links, (item, parent) => {
         if (item.id === id) {
           parent.links = parent.links?.filter((link: any) => link.id !== id) || [];
         }
@@ -143,28 +148,6 @@ const linkSlice = createSlice({
       SettingModel.setValue(state);
     },
 
-    removeGroup(state, action: PayloadAction<{ id: string }>) {
-      const { id } = action.payload;
-      traverse<ItemType>(state, state.groups, (item, parent) => {
-        if (item.id === id) {
-          if (parent?.links) {
-            parent.links = parent.links.filter((link: any) => link.id !== id);
-          } else {
-            // root object
-
-            if (state.groups.length < 2) {
-              return;
-            }
-
-            const currentParent = parent as unknown as LinkState;
-
-            currentParent.groups = currentParent.groups.filter((link: any) => link.id !== id);
-          }
-        }
-      });
-
-      SettingModel.setValue(state);
-    },
     setLinkOpens(state, action: PayloadAction<OpenState>) {
       state.opens = {
         ...state.opens,
@@ -175,7 +158,7 @@ const linkSlice = createSlice({
     },
     setLinkName(state, action: PayloadAction<{ id: string; name: string }>) {
       const { id, name } = action.payload;
-      const foundItem = findOne(state.groups, (item) => item.id === id);
+      const foundItem = findOne(state.links, (item) => item.id === id);
       if (foundItem) {
         foundItem.name = name;
       }
@@ -189,7 +172,7 @@ const linkSlice = createSlice({
       if (!heading) return;
 
       // const { id, name } = action.payload;
-      const foundItem = findOne(state.groups, (item) => {
+      const foundItem = findOne(state.links, (item) => {
         return item.fileLink === currentLink;
       });
       if (foundItem) {
@@ -200,64 +183,10 @@ const linkSlice = createSlice({
     },
     setLinkFileLink(state, action: PayloadAction<{ id: string; name: string; fileLink: string }>) {
       const { id, name, fileLink } = action.payload;
-      const foundItem = findOne(state.groups, (item) => item.id === id);
+      const foundItem = findOne(state.links, (item) => item.id === id);
       if (foundItem) {
         foundItem.fileLink = fileLink;
         foundItem.name = name;
-      }
-
-      SettingModel.setValue(state);
-    },
-    newGroup(state, action: PayloadAction<string>) {
-      const { payload } = action;
-      state.groups = [
-        ...state.groups,
-        {
-          type: 'group',
-          id: `${Date.now()}`,
-          name: payload,
-          links: [],
-        },
-      ];
-
-      SettingModel.setValue(state);
-    },
-    newGroupAt(state, action: PayloadAction<{ id: string; name: string }>) {
-      const { payload } = action;
-
-      const newGroups: GroupType[] = [];
-      state.groups.forEach((group) => {
-        newGroups.push(group);
-        if (group.id === payload.id) {
-          newGroups.push({
-            type: 'group',
-            id: `${Date.now()}`,
-            name: payload.name,
-            links: [],
-          });
-        }
-      });
-
-      state.groups = newGroups;
-
-      SettingModel.setValue(state);
-    },
-    newChildGroupAt(state, action: PayloadAction<{ parentId: string; name: string }>) {
-      const { payload } = action;
-
-      const foundGroupItem = findOne(state.groups, (item) => item.id === payload.parentId);
-
-      if (foundGroupItem) {
-        const newGroup = {
-          type: 'group',
-          id: `${Date.now()}`,
-          name: payload.name,
-          links: [],
-        };
-
-        foundGroupItem.links = [...foundGroupItem.links, newGroup];
-
-        state.opens[payload.parentId] = true;
       }
 
       SettingModel.setValue(state);
@@ -272,9 +201,12 @@ const linkSlice = createSlice({
         mimeType,
         fileLink: fileLink || `/${Math.random().toString(36).substring(7)}`,
         linkType: 'pairy',
+        links: [],
       };
 
-      traverse<ItemType>(state, state.groups, (item) => {
+      let checkParentId = false;
+
+      traverse<ItemType>(state, state.links, (item) => {
         const temp = item;
 
         if (item.id === parentId) {
@@ -282,17 +214,86 @@ const linkSlice = createSlice({
           temp.links = [...temp.links, newLinkInfo] as ItemType[];
 
           state.opens[parentId] = true;
+          checkParentId = true;
         }
       });
+
+      // add root node if not found parent id
+      if (!checkParentId) {
+        state.links = [...state.links, newLinkInfo] as ItemType[];
+      }
 
       SettingModel.setValue(state);
 
       window.location.replace(newLinkInfo.fileLink);
     },
+
+    moveLink(
+      state,
+      action: PayloadAction<{
+        id: string;
+        updateAction: 'after' | 'before' | 'child';
+        targetId: string;
+      }>,
+    ) {
+      const { id, updateAction, targetId } = action.payload;
+
+      let oldParent: ItemType | null = null;
+      let currentItem: ItemType | null = null;
+
+      traverse<ItemType>(state, state.links, (item, parent) => {
+        if (item.id === id) {
+          oldParent = parent;
+          currentItem = item;
+        }
+      });
+
+      if (oldParent) {
+        const tempOldParent = oldParent as ItemType;
+        tempOldParent.links = tempOldParent.links?.filter((link: any) => link.id !== id) || [];
+      }
+
+      if (updateAction === 'after') {
+        let newParentId = '';
+        traverse(state, state.links, (item, parent) => {
+          if (item.id === targetId) {
+            newParentId = parent.id;
+          }
+        });
+
+        const newParent = findOne(state.links, (item) => item.id === newParentId) || state;
+        if (newParent) {
+          const targetIndex = newParent.links.findIndex((link: any) => link.id === targetId);
+          newParent.links.splice(targetIndex + 1, 0, currentItem);
+        }
+      } else if (updateAction === 'before') {
+        let newParentId = '';
+        traverse(state, state.links, (item, parent) => {
+          if (item.id === targetId) {
+            newParentId = parent.id;
+          }
+        });
+
+        const newParent = findOne(state.links, (item) => item.id === newParentId) || state;
+        if (newParent) {
+          const targetIndex = newParent.links.findIndex((link: any) => link.id === targetId);
+
+          newParent.links.splice(targetIndex, 0, currentItem);
+        }
+      } else if (updateAction === 'child') {
+        const newParent = findOne(state.links, (item) => item.id === targetId);
+        if (newParent) {
+          newParent.links = [...(newParent.links || []), currentItem] as ItemType[];
+        }
+      }
+
+      SettingModel.setValue(state);
+    },
+
     newLinkByCurrentPage(state, action: PayloadAction<{ parentId: string; name: string; fileLink: string }>) {
       const { parentId, name, fileLink } = action.payload;
 
-      const foundItem = findOne(state.groups, (item) => item.id === parentId);
+      const foundItem = findOne(state.links, (item) => item.id === parentId);
 
       if (foundItem) {
         if (!foundItem.links) foundItem.links = [];
@@ -317,7 +318,7 @@ const linkSlice = createSlice({
     copyMarkdownTextForGroup(state, action: PayloadAction<string>) {
       const id = action.payload;
 
-      const foundItem = findOne(state.groups, (item) => item.id === id);
+      const foundItem = findOne(state.links, (item) => item.id === id);
 
       if (foundItem) {
         const list: {
@@ -359,7 +360,7 @@ export function favoriteSelector(state: AppState): ItemType[] {
         return id;
       }
 
-      return findOne(state.linkState.groups, (item) => item.id === id);
+      return findOne(state.linkState.links, (item) => item.id === id);
     }) || []
   );
 }
@@ -372,7 +373,7 @@ export function recentFavoriteSelector(count = 10) {
           return id;
         }
 
-        return findOne(state.linkState.groups, (item) => item.id === id);
+        return findOne(state.linkState.links, (item) => item.id === id);
       }) || []
     )
       .filter((item) => item?.fileLink)
@@ -383,7 +384,9 @@ export function recentFavoriteSelector(count = 10) {
 
 export function findCurrentPageLink(state: AppState): LinkItemType {
   const { pathname } = window.location;
-  return findOne(state.linkState.groups, (item) => item.fileLink === pathname);
+  return findOne(state.linkState.links, (item) => {
+    return item?.fileLink === pathname;
+  });
 }
 
 export const {
@@ -396,11 +399,8 @@ export const {
   newLinkByCurrentPage,
   setLinkFileLink,
   removeLink,
-  removeGroup,
   newLink,
+  moveLink,
   setLinkOpens,
-  newGroup,
-  newGroupAt,
-  newChildGroupAt,
 } = linkSlice.actions;
 export default linkSlice.reducer;

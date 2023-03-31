@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useCallback, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useCallback, useState, MouseEvent } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ActorID, DocEvent, TextChange } from 'yorkie-js-sdk';
 import CodeMirror from 'codemirror';
@@ -12,7 +12,8 @@ import { Preview, updateHeadings } from 'features/docSlices';
 
 import { updateLinkNameWithHeading } from 'features/linkSlices';
 import { makeStyles } from 'styles/common';
-import { Theme } from '@mui/material';
+import { IconButton, Popover, Theme, Tooltip } from '@mui/material';
+import Keyboard from '@mui/icons-material/Keyboard';
 import { NAVBAR_HEIGHT } from 'constants/editor';
 
 import 'easymde/dist/easymde.min.css';
@@ -22,6 +23,7 @@ import 'codemirror/keymap/vim';
 import './codemirror/shuffle';
 import Cursor from './Cursor';
 import SlideView from './slideView';
+import EditorSettings from './EditorSettings';
 
 const WIDGET_HEIGHT = 46;
 
@@ -73,6 +75,17 @@ const useStyles = makeStyles()((theme: Theme) => ({
     '& .CodeMirror-line span.cm-hr': { color: '#999' },
     '& .CodeMirror-line span.cm-link': { color: '#ff0000' },
   },
+  customToolbar: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    height: 48,
+    display: 'flex',
+    alignItems: 'center',
+    boxSizing: 'border-box',
+    padding: '0 8px',
+    justifyContent: 'center',
+  },
 }));
 
 export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
@@ -85,6 +98,15 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
   const peers = useSelector((state: AppState) => state.peerState.peers);
   const cursorMapRef = useRef<Map<ActorID, Cursor>>(new Map());
   const [editor, setEditor] = useState<CodeMirror.Editor | null>(null);
+
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | undefined>();
+  const handleSettingsClick = useCallback((event: MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  }, []);
+
+  const handleSettingsClose = useCallback(() => {
+    setAnchorEl(undefined);
+  }, []);
 
   const connectCursor = useCallback((clientID: ActorID, presence: Presence) => {
     cursorMapRef.current.set(clientID, new Cursor(clientID, presence));
@@ -207,7 +229,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       }
     });
 
-    editor.on('mousedown', (instance: CodeMirror.Editor, event: MouseEvent) => {
+    editor.on('mousedown', ((_: CodeMirror.Editor, event: MouseEvent) => {
       if (event.metaKey) {
         const pos = editor.coordsChar({ left: event.clientX, top: event.clientY });
         const token = editor.getTokenAt(pos);
@@ -216,7 +238,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
           window.open(token.string, token.string);
         }
       }
-    });
+    }) as any);
 
     editor.on('change', () => {
       dispatch(updateHeadings());
@@ -326,10 +348,36 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
   }, [preview, menu]);
 
   return (
-    <SimpleMDEReact
-      className={menu.theme === ThemeType.Dark ? classes.dark : ''}
-      getCodemirrorInstance={getCmInstanceCallback as any}
-      options={options}
-    />
+    <>
+      <SimpleMDEReact
+        className={menu.theme === ThemeType.Dark ? classes.dark : ''}
+        getCodemirrorInstance={getCmInstanceCallback as any}
+        options={options}
+      />
+      <div className={classes.customToolbar}>
+        <Tooltip title="Settings" arrow>
+          <IconButton aria-label="settings" onClick={handleSettingsClick}>
+            <Keyboard />
+          </IconButton>
+        </Tooltip>
+        {anchorEl && (
+          <Popover
+            open
+            anchorEl={anchorEl}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            onClose={handleSettingsClose}
+          >
+            <EditorSettings />
+          </Popover>
+        )}
+      </div>
+    </>
   );
 }
