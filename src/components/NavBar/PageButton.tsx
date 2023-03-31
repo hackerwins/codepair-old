@@ -20,7 +20,7 @@ const useStyles = makeStyles()(() => ({
 }));
 
 interface PageButtonProps {
-  title?: string;
+  title?: React.ReactNode;
   icon?: React.ReactNode;
   insertTarget: 'root' | 'current' | ItemType;
   variant?: 'text' | 'outlined' | 'contained';

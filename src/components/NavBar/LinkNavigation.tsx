@@ -4,8 +4,11 @@ import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { ItemType, LinkItemType } from 'features/linkSlices';
 import { Button, Divider, List, ListItemButton, ListItemText, Popover, Typography } from '@mui/material';
-import { makeStyles } from 'styles/common';
 import ExpandMore from '@mui/icons-material/ExpandMore';
+import Add from '@mui/icons-material/Add';
+
+import { makeStyles } from 'styles/common';
+import { PageButton } from './PageButton';
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -13,6 +16,12 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     height: '100%',
     color: theme.palette.text.primary,
+  },
+  button: {
+    height: '100%',
+    color: theme.palette.text.primary,
+    display: 'flex',
+    gap: theme.spacing(1),
   },
 }));
 
@@ -73,24 +82,38 @@ export function LinkNavigation() {
   return (
     <div className={classes.root}>
       {linkList.length ? (
-        <Button
-          onClick={handleSettingsClick}
+        <div
           style={{
-            maxWidth: 300,
-            whiteSpace: 'nowrap',
+            display: 'flex',
+            alignItems: 'center',
           }}
         >
-          <Typography
-            color="GrayText"
+          <Button
+            onClick={handleSettingsClick}
             style={{
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
+              maxWidth: 300,
+              whiteSpace: 'nowrap',
             }}
+            title={linkList[linkList.length - 1].name}
           >
-            {linkList[linkList.length - 1].name}
-          </Typography>
-          <ExpandMore />
-        </Button>
+            <Typography
+              color="GrayText"
+              style={{
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {linkList[linkList.length - 1].name}
+            </Typography>
+            <ExpandMore />
+          </Button>
+          <PageButton
+            icon={<Add />}
+            insertTarget={linkList[linkList.length - 1]}
+            transformOrigin={{ horizontal: 'left', vertical: 'top' }}
+            anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
+          />
+        </div>
       ) : undefined}
       {anchorEl ? (
         <Popover
