@@ -7,6 +7,7 @@ import boardReducer from '../features/boardSlices';
 import linkReducer from '../features/linkSlices';
 import messageReducer from '../features/messageSlices';
 import navReducer from '../features/navSlices';
+import calendarReducer from '../features/calendarSlices';
 
 const rootReducer = combineReducers({
   docState: docReducer,
@@ -16,6 +17,7 @@ const rootReducer = combineReducers({
   linkState: linkReducer,
   messageState: messageReducer,
   navState: navReducer,
+  calendarState: calendarReducer,
 });
 
 export type AppState = ReturnType<typeof rootReducer>;

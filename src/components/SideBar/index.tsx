@@ -10,7 +10,9 @@ import EventNote from '@mui/icons-material/EventNote';
 import Star from '@mui/icons-material/Star';
 import ListAlt from '@mui/icons-material/ListAlt';
 import AccountTree from '@mui/icons-material/AccountTree';
-import { Box, Divider, Drawer, ListSubheader, Tab, Typography } from '@mui/material';
+import CalendarToday from '@mui/icons-material/CalendarToday';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Box, Button, Divider, Drawer, ListSubheader, Tab, Typography } from '@mui/material';
 
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { MimeType } from 'constants/editor';
@@ -177,9 +179,12 @@ export function SideBar() {
   const menu = useSelector((state: AppState) => state.settingState.menu);
   const favorites = useSelector(favoriteSelector);
   const open = navState.openTab;
-  const { classes } = useStyles({ open });
+  const { classes } = useStyles({
+    open: useLocation().pathname === '/calendar' ? true : open,
+  });
   const root = doc?.getRoot();
   const mimeType = root?.mimeType || MimeType.MARKDOWN;
+  const navigate = useNavigate();
 
   const handleChange = (event: React.SyntheticEvent<Element, Event>, newValue: NavTabType) => {
     dispatch(toggleLinkTab(newValue));
@@ -216,6 +221,22 @@ export function SideBar() {
           </TabList>
         </Box>
         <TabPanel value="notes">
+          <TabPanelHeader>
+            <Button
+              onClick={() => navigate('/calendar')}
+              style={{
+                color: 'GrayText',
+              }}
+            >
+              <CalendarToday
+                fontSize="small"
+                style={{
+                  marginRight: 6,
+                }}
+              />{' '}
+              Calendar
+            </Button>
+          </TabPanelHeader>
           <TabPanelHeader>
             <Star
               fontSize="small"

@@ -17,6 +17,7 @@ import { Integrations } from '@sentry/tracing';
 import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 import { Theme } from 'features/settingSlices';
 import DocPage from 'pages/DocPage';
+import CalendarPage from 'pages/CalendarPage';
 import { AppState } from './rootReducer';
 
 if (import.meta.env.PROD) {
@@ -46,6 +47,10 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <Navigate replace to={`/${Math.random().toString(36).substring(7)}`} />,
+  },
+  {
+    path: '/calendar',
+    element: <CalendarPage />,
   },
   {
     path: '/:docKey',

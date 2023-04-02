@@ -1,5 +1,9 @@
 import React from 'react';
 import { Tldraw, useFileSystem } from '@tldraw/tldraw';
+import { useSelector } from 'react-redux';
+import { AppState } from 'app/rootReducer';
+import { Theme } from 'features/settingSlices';
+
 import CustomCursor from './CustomCursor';
 import { useMultiplayerState } from './hooks/useMultiPlayerState';
 
@@ -7,6 +11,7 @@ export default function WhiteBoardEditor() {
   const fileSystemEvents = useFileSystem();
   const { ...events } = useMultiplayerState(`tldraw-${new Date().toISOString().substring(0, 10).replace(/-/g, '')}`);
   const component = { Cursor: CustomCursor };
+  const menu = useSelector((state: AppState) => state.settingState.menu);
 
   return (
     <div
@@ -27,6 +32,7 @@ export default function WhiteBoardEditor() {
         showMenu={false}
         {...fileSystemEvents}
         {...events}
+        darkMode={menu.theme === Theme.Dark}
       />
     </div>
   );

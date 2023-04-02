@@ -389,6 +389,36 @@ export function findCurrentPageLink(state: AppState): LinkItemType {
   });
 }
 
+export interface LinkListItem {
+  id: string;
+  name: string;
+  fileLink: string;
+  depth: number;
+}
+
+function traverseTree(list: LinkListItem[], item: LinkItemType, depth = 0) {
+  if (item.type === 'link') {
+    list.push({
+      depth,
+      id: item.id,
+      name: item.name,
+      fileLink: `${item.fileLink}`,
+    });
+  }
+
+  if (item.links) {
+    item.links.forEach((it) => traverseTree(list, it as LinkItemType, depth + 1));
+  }
+}
+
+export function toFlatPageLinksSelector(state: AppState): LinkListItem[] {
+  const list: [] = [];
+
+  state.linkState.links.forEach((item) => traverseTree(list, item as LinkItemType, 0));
+
+  return list;
+}
+
 export const {
   refreshStorage,
   copyMarkdownTextForGroup,

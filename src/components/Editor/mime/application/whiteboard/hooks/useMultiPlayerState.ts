@@ -1,5 +1,4 @@
 import { CodePairDoc } from 'features/docSlices';
-import { Theme } from 'features/settingSlices';
 import { AppState } from 'app/rootReducer';
 import { useSelector } from 'react-redux';
 import { useCallback, useEffect, useState } from 'react';
@@ -109,7 +108,6 @@ export function useMultiplayerState(roomId: string) {
   const menu = useSelector((state: AppState) => state.settingState.menu);
   const [app, setApp] = useState<TldrawApp>();
   const [loading, setLoading] = useState(true);
-  const darkMode = menu.theme === Theme.Dark;
 
   // Callbacks --------------
   const onMount = useCallback(
@@ -312,10 +310,10 @@ export function useMultiplayerState(roomId: string) {
 
           // Zoom to fit the content & finish loading
           if (app) {
-            app.zoomToFit();
-            if (app.zoom > 1) {
-              app.resetZoom();
-            }
+            // app.zoomToFit();
+            // if (app.zoom > 1) {
+            app.resetZoom();
+            // }
             app.setIsLoading(false);
           }
 
@@ -339,7 +337,6 @@ export function useMultiplayerState(roomId: string) {
     onMount,
     onChangePage,
     loading,
-    darkMode,
     onChangePresence,
   };
 }

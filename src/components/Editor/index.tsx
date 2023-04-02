@@ -23,7 +23,6 @@ import { Alert, Box, CircularProgress, Snackbar } from '@mui/material';
 import WhiteBoardEditor from './mime/application/whiteboard/Editor';
 
 const Editor = lazy(() => import('./mime/text/md/Editor'));
-const CellEditor = lazy(() => import('./mime/application/cell/Editor'));
 const MilkdownEditor = lazy(() => import('./mime/text/milkdown/Editor'));
 
 const useStyles = makeStyles()(() => ({
@@ -161,12 +160,6 @@ export default function BaseEditor(props: { docKey: string }) {
       );
     case 'application/json':
       return <Editor />;
-    case 'application/cell':
-      return (
-        <Suspense fallback={<LoadingView />}>
-          <CellEditor />
-        </Suspense>
-      );
     case 'text/markdown':
     default:
       return (
