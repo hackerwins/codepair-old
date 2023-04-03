@@ -55,7 +55,7 @@
     "redux": "^4.2.1",
     "tss-react": "^4.8.2",
     "unique-names-generator": "^4.7.1",
-    "yorkie-js-sdk": "^0.3.3"
+    "yorkie-js-sdk": "github:yorkie-team/yorkie-js-sdk#3b313a54eee2b20e0185f93813643479714a8244"
   },
   "devDependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
