@@ -8,14 +8,14 @@ import SimpleMDEReact from 'react-simplemde-editor';
 import { AppState } from 'app/rootReducer';
 import { ConnectionStatus, Presence } from 'features/peerSlices';
 import { Theme as ThemeType } from 'features/settingSlices';
-import { Preview, updateHeadings } from 'features/docSlices';
+import { Preview, updateHeadings, getTableOfContents } from 'features/docSlices';
 
-import { updateLinkNameWithHeading } from 'features/linkSlices';
+import { findCurrentPageLink, updateLinkNameWithHeading } from 'features/linkSlices';
 import { makeStyles } from 'styles/common';
 import { IconButton, Popover, Theme, Tooltip } from '@mui/material';
 import Keyboard from '@mui/icons-material/Keyboard';
 import { NAVBAR_HEIGHT } from 'constants/editor';
-
+import { addRecentPage } from 'features/currentSlices';
 import 'easymde/dist/easymde.min.css';
 import 'codemirror/keymap/sublime';
 import 'codemirror/keymap/emacs';
@@ -98,6 +98,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
   const peers = useSelector((state: AppState) => state.peerState.peers);
   const cursorMapRef = useRef<Map<ActorID, Cursor>>(new Map());
   const [editor, setEditor] = useState<CodeMirror.Editor | null>(null);
+  const currentPageLink = useSelector(findCurrentPageLink);
 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | undefined>();
   const handleSettingsClick = useCallback((event: MouseEvent<HTMLButtonElement>) => {
@@ -242,7 +243,17 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
 
     editor.on('change', () => {
       dispatch(updateHeadings());
-      dispatch(updateLinkNameWithHeading());
+      dispatch(updateLinkNameWithHeading({ docKey: doc.getKey() }));
+      dispatch(
+        addRecentPage({
+          docKey: doc.getKey(),
+          page: {
+            name: getTableOfContents(1)[0].text,
+            fileLink: window.location.pathname,
+            fullLink: window.location.href,
+          },
+        }),
+      );
     });
 
     // local to remote
@@ -293,7 +304,28 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
     });
 
     dispatch(updateHeadings());
-  }, [client, doc, editor, forwardedRef, menu, goHeadingLink, dispatch]);
+
+    dispatch(
+      addRecentPage({
+        docKey: doc.getKey(),
+        page: {
+          name: getTableOfContents(1)[0]?.text || currentPageLink.name,
+          fileLink: `${currentPageLink.fileLink}` || window.location.pathname,
+          fullLink: window.location.href,
+        },
+      }),
+    );
+  }, [
+    client,
+    doc,
+    editor,
+    forwardedRef,
+    menu,
+    goHeadingLink,
+    dispatch,
+    currentPageLink.fileLink,
+    currentPageLink.name,
+  ]);
 
   const options = useMemo(() => {
     const opts = {

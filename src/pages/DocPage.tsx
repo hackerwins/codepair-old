@@ -16,6 +16,7 @@ import Editor from 'components/Editor';
 import { Theme } from 'features/settingSlices';
 import { makeStyles } from 'styles/common';
 import GitHub from '@mui/icons-material/GitHub';
+import { saveLastDocument } from 'features/currentSlices';
 
 type DocPageProps = {
   docKey: string;
@@ -202,6 +203,10 @@ export default function DocPage() {
       dispatch(refreshStorage());
     });
   }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(saveLastDocument({ docKey }));
+  }, [dispatch, docKey]);
 
   return (
     <div className={classes.root} data-theme={menu.theme}>

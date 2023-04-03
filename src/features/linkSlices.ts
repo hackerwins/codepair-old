@@ -165,15 +165,17 @@ const linkSlice = createSlice({
 
       SettingModel.setValue(state);
     },
-    updateLinkNameWithHeading(state) {
+    updateLinkNameWithHeading(state, action: PayloadAction<{ docKey: string }>) {
+      const { docKey } = action.payload;
       const heading = getTableOfContents(1)[0];
-      const currentLink = window.location.pathname;
 
       if (!heading) return;
 
+      const currentLink = `/${docKey}`;
+
       // const { id, name } = action.payload;
       const foundItem = findOne(state.links, (item) => {
-        return item.fileLink === currentLink;
+        return item.fileLink?.startsWith(currentLink);
       });
       if (foundItem) {
         foundItem.name = heading.text;

@@ -18,6 +18,7 @@ import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 import { Theme } from 'features/settingSlices';
 import DocPage from 'pages/DocPage';
 import CalendarPage from 'pages/CalendarPage';
+import { getCurrentPage } from 'features/currentSlices';
 import { AppState } from './rootReducer';
 
 if (import.meta.env.PROD) {
@@ -43,10 +44,12 @@ if (import.meta.env.PROD) {
   });
 }
 
+const initializeDocKey = getCurrentPage(Math.random().toString(36).substring(7))().docKey;
+
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Navigate replace to={`/${Math.random().toString(36).substring(7)}`} />,
+    element: <Navigate replace to={`/${initializeDocKey}`} />,
   },
   {
     path: '/calendar',
