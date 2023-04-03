@@ -8,6 +8,7 @@ export interface CalendarDate {
   end?: string;
   name: string;
   color?: string;
+  emoji?: string;
   item: {
     fileLink: string;
     name: string;
@@ -45,6 +46,7 @@ const calendarSlice = createSlice({
         end?: string;
         name: string;
         color: string;
+        emoji?: string;
         item: {
           fileLink: string;
           name: string;

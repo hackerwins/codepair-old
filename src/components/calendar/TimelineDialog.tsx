@@ -97,6 +97,7 @@ export function TimelineDialog({ open, selectedDateTime, handleClose, color, nam
           date: currentSelectedTime,
           name: `${currentName}`,
           color: `${currentColor}`,
+          emoji: `${currentEmoji}`,
           item: {
             name: pendingValue.name,
             fileLink: pendingValue.fileLink,

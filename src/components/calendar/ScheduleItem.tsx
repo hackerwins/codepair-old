@@ -1,5 +1,5 @@
 import React from 'react';
-import { ListItemButton, ListItemText, Typography } from '@mui/material';
+import { ListItem, ListItemAvatar, ListItemText, Typography } from '@mui/material';
 import { CalendarDate } from 'features/calendarSlices';
 import invert from 'invert-color';
 import { blue } from '@mui/material/colors';
@@ -12,32 +12,46 @@ interface ScheduleItemProps {
 export function ScheduleItem({ changeDocKey, item }: ScheduleItemProps) {
   const color = item.color || blue[500];
   return (
-    <ListItemButton
+    <ListItem
       style={{
         display: 'flex',
         alignItems: 'start',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        // gap: 8,
-        padding: '4px 10px',
-        margin: '4px 4px',
+        justifyContent: 'start',
+        padding: '0px 10px',
+        margin: '4px 0px',
+        marginLeft: -2,
+
         backgroundColor: color,
         color: 'white',
         boxSizing: 'border-box',
         borderRadius: 4,
+        cursor: 'pointer',
       }}
       onClick={() => {
         changeDocKey(item.item.fileLink.split('/').pop() || '');
       }}
     >
-      <Typography
+      <ListItemAvatar
         style={{
-          color: invert(color, true),
+          minWidth: 40,
+          height: 56,
+          display: 'flex',
+          alignItems: 'center',
+          fontSize: 30,
         }}
       >
-        {item.name}
-      </Typography>
+        {item.emoji || '📅'}
+      </ListItemAvatar>
       <ListItemText
+        primary={
+          <Typography
+            style={{
+              color: invert(color, true),
+            }}
+          >
+            {item.name}
+          </Typography>
+        }
         secondary={item.item.name}
         sx={{
           '& .MuiListItemText-secondary': {
@@ -48,9 +62,9 @@ export function ScheduleItem({ changeDocKey, item }: ScheduleItemProps) {
           },
         }}
         style={{
-          maxWidth: 220,
+          maxWidth: 190,
         }}
       />
-    </ListItemButton>
+    </ListItem>
   );
 }
