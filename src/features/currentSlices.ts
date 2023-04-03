@@ -8,7 +8,6 @@ interface CurrentPageState {
   recents?: {
     name: string;
     fileLink: string;
-    fullLink: string;
     docKey: string;
   }[];
 }
@@ -34,15 +33,22 @@ const currentSlice = createSlice({
     addRecentPage(
       state,
       action: PayloadAction<{
-        docKey: string;
+        docKey?: string;
         page: {
           name: string;
           fileLink: string;
-          fullLink: string;
         };
       }>,
     ) {
-      const { docKey, page } = action.payload;
+      const { docKey = '', page } = action.payload;
+
+      if (!page.name) return;
+      if (page.fileLink === '/calendar') return;
+
+      let tempDocKey = docKey;
+      if (!tempDocKey) {
+        tempDocKey = page.fileLink.split('/').slice(1).join('/');
+      }
 
       const foundItem = state.recents?.find((item) => item.fileLink === page.fileLink);
 
@@ -56,7 +62,7 @@ const currentSlice = createSlice({
 
       state.recents.unshift({
         ...page,
-        docKey,
+        docKey: tempDocKey,
       });
 
       state.recents = state.recents.slice(0, 10);

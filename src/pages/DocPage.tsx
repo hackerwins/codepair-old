@@ -17,6 +17,7 @@ import { Theme } from 'features/settingSlices';
 import { makeStyles } from 'styles/common';
 import GitHub from '@mui/icons-material/GitHub';
 import { saveLastDocument } from 'features/currentSlices';
+import { refreshCalendarStorage } from 'features/calendarSlices';
 
 type DocPageProps = {
   docKey: string;
@@ -201,6 +202,7 @@ export default function DocPage() {
   useEffect(() => {
     window.addEventListener('storage', () => {
       dispatch(refreshStorage());
+      dispatch(refreshCalendarStorage());
     });
   }, [dispatch]);
 

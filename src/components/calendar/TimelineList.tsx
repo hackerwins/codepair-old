@@ -8,10 +8,11 @@ import {
 } from '@mui/lab';
 import { Divider, Tooltip, Typography, IconButton, List, Switch } from '@mui/material';
 import { getCalendarDateByDate } from 'features/calendarSlices';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import * as dayjs from 'dayjs';
 import Add from '@mui/icons-material/Add';
 import { AppState } from 'app/rootReducer';
+import { addRecentPage } from 'features/currentSlices';
 import { TimelineDialog } from './TimelineDialog';
 import { ScheduleItem } from './ScheduleItem';
 
@@ -26,6 +27,7 @@ const times = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
   .flat();
 
 export function TimelineList({ changeDocKey }: TimelineListProps) {
+  const dispatch = useDispatch();
   const selectedDate = useSelector((state: AppState) => state.calendarState.selectedDate);
   const currentTime = dayjs().format('HH') + (dayjs().add(30, 'minute').get('minute') >= 30 ? '30' : '00');
   const schedules = useSelector(getCalendarDateByDate(selectedDate));
@@ -44,6 +46,18 @@ export function TimelineList({ changeDocKey }: TimelineListProps) {
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const handleAddRecentPage = ({ docKey, name, fileLink }: { docKey: string; name: string; fileLink: string }) => {
+    dispatch(
+      addRecentPage({
+        docKey,
+        page: {
+          name,
+          fileLink,
+        },
+      }),
+    );
   };
 
   const newTimes = times
@@ -169,7 +183,20 @@ export function TimelineList({ changeDocKey }: TimelineListProps) {
                     }}
                   >
                     {t?.scheduleList?.map((s) => {
-                      return <ScheduleItem key={s.id} item={s} changeDocKey={changeDocKey} />;
+                      return (
+                        <ScheduleItem
+                          key={s.id}
+                          item={s}
+                          changeDocKey={(docKey) => {
+                            handleAddRecentPage({
+                              docKey,
+                              name: s.item.name,
+                              fileLink: s.item.fileLink,
+                            });
+                            changeDocKey(docKey);
+                          }}
+                        />
+                      );
                     })}
                   </List>
                 </TimelineContent>

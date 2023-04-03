@@ -50,6 +50,7 @@ import {
 } from '@mui/material';
 import { PageButton } from 'components/NavBar/PageButton';
 import Description from '@mui/icons-material/Description';
+import { addRecentPage } from 'features/currentSlices';
 import { SideBarItemList } from './SidebarItemList';
 
 interface SideBarProps {
@@ -523,6 +524,17 @@ export function SidebarItem({ item, level, loopType }: SidebarItemProps) {
     [item.id, dispatch],
   );
 
+  const handleAddRecentPage = useCallback(() => {
+    dispatch(
+      addRecentPage({
+        page: {
+          name: item.name,
+          fileLink: `${item.fileLink}`,
+        },
+      }),
+    );
+  }, [item, dispatch]);
+
   const isView = useMemo(() => {
     if (loopType !== 'favorite' && favorite.includes(item.id)) {
       return false;
@@ -658,6 +670,7 @@ export function SidebarItem({ item, level, loopType }: SidebarItemProps) {
           className={classes.listItemText}
           title={item.name}
           onClick={(e) => {
+            handleAddRecentPage();
             // open link to new tab if meta key is pressed
             if (e.metaKey) {
               switch (item.linkType) {

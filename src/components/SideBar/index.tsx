@@ -280,7 +280,7 @@ export function SideBar() {
               }
 
               return (
-                <ListItem key={it.fullLink}>
+                <ListItem key={it.fileLink}>
                   <ListItemText
                     primary={it.name}
                     primaryTypographyProps={{
