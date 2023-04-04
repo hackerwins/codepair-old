@@ -108,6 +108,10 @@ export default function BaseEditor(props: { docKey: string }) {
   }, [client, doc, status, dispatch]);
 
   useEffect(() => {
+    if (!docKey) {
+      return;
+    }
+
     dispatch(createDocument(docKey));
     return () => {
       dispatch(detachDocument());

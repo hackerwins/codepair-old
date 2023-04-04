@@ -17,7 +17,7 @@ import Editor from 'components/Editor';
 import { Theme } from 'features/settingSlices';
 import { makeStyles } from 'styles/common';
 import BasicCalendar from 'components/calendar/BasicCalendar';
-import { refreshCalendarStorage } from 'features/calendarSlices';
+import { getCalendarDateByDate, refreshCalendarStorage } from 'features/calendarSlices';
 import { TimelineList } from 'components/calendar/TimelineList';
 
 interface LayoutProps {
@@ -214,12 +214,22 @@ export default function CalendarPage() {
   const dispatch = useDispatch();
   const navState = useSelector((state: AppState) => state.navState);
   const menu = useSelector((state: AppState) => state.settingState.menu);
+  const selectedDate = useSelector((state: AppState) => state.calendarState.selectedDate);
+  const schedules = useSelector(getCalendarDateByDate(selectedDate));
+  const newDocKey = schedules[schedules.length - 1]?.item.fileLink.split('/').slice(1).join('/') || '';
+
   const { classes } = useStyles({
     open: true,
     openInstant: navState.openInstant,
   } as LayoutProps);
   const location = useLocation();
-  const [docKey, setDocKey] = useState<string>('');
+  const [docKey, setDocKey] = useState<string>(newDocKey);
+
+  let realDocKey = newDocKey || docKey;
+
+  if (newDocKey === '') {
+    realDocKey = '';
+  }
 
   useEffect(() => {
     if (`${import.meta.env.VITE_APP_GOOGLE_ANALYTICS}`) {
@@ -295,7 +305,24 @@ export default function CalendarPage() {
             </div>
           </div>
           <div className={classes.currentEditorArea}>
-            <Editor docKey={docKey} />
+            {realDocKey === '' ? (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '100%',
+                  fontSize: 20,
+                  color: 'rgba(0, 0, 0, 0.54)',
+                }}
+              >
+                <div>
+                  <div>Click the calendar to select a date.</div>
+                </div>
+              </div>
+            ) : (
+              <Editor docKey={realDocKey} />
+            )}
           </div>
         </div>
         <div className={classes.instantArea}>test</div>

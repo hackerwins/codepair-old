@@ -247,7 +247,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
         addRecentPage({
           docKey: doc.getKey(),
           page: {
-            name: getTableOfContents(1)[0].text,
+            name: `${getTableOfContents(1)[0]?.text}`,
             fileLink: window.location.pathname,
           },
         }),
