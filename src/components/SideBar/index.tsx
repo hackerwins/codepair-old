@@ -10,11 +10,28 @@ import EventNote from '@mui/icons-material/EventNote';
 import Star from '@mui/icons-material/Star';
 import ListAlt from '@mui/icons-material/ListAlt';
 import AccountTree from '@mui/icons-material/AccountTree';
-import { Box, Divider, Drawer, ListSubheader, Tab, Typography } from '@mui/material';
+import CalendarToday from '@mui/icons-material/CalendarToday';
+import { useLocation, useNavigate } from 'react-router-dom';
+import {
+  Box,
+  Button,
+  Divider,
+  Drawer,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
+  ListSubheader,
+  Tab,
+  Typography,
+} from '@mui/material';
 
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { MimeType } from 'constants/editor';
 import { PageButton } from 'components/NavBar/PageButton';
+import { Delete } from '@mui/icons-material';
+import { removeCurrentPage } from 'features/currentSlices';
+import Mouse from '@mui/icons-material/Mouse';
 import { HeadingView } from './HeadingView';
 import { HeadingItem } from './HeadingItem';
 
@@ -176,13 +193,21 @@ export function SideBar() {
   const doc = useSelector((state: AppState) => state.docState.doc);
   const menu = useSelector((state: AppState) => state.settingState.menu);
   const favorites = useSelector(favoriteSelector);
+  const recents = useSelector((state: AppState) => state.currentState.recents);
   const open = navState.openTab;
-  const { classes } = useStyles({ open });
+  const { classes } = useStyles({
+    open: useLocation().pathname === '/calendar' ? true : open,
+  });
   const root = doc?.getRoot();
   const mimeType = root?.mimeType || MimeType.MARKDOWN;
+  const navigate = useNavigate();
 
   const handleChange = (event: React.SyntheticEvent<Element, Event>, newValue: NavTabType) => {
     dispatch(toggleLinkTab(newValue));
+  };
+
+  const handleDeleteRecentItem = (index: number) => {
+    dispatch(removeCurrentPage({ index }));
   };
 
   return (
@@ -216,6 +241,75 @@ export function SideBar() {
           </TabList>
         </Box>
         <TabPanel value="notes">
+          {import.meta.env.MODE === 'development' ? (
+            <>
+              <TabPanelHeader>
+                <Button
+                  onClick={() => navigate('/calendar')}
+                  style={{
+                    color: 'GrayText',
+                  }}
+                >
+                  <CalendarToday
+                    fontSize="small"
+                    style={{
+                      marginRight: 6,
+                    }}
+                  />{' '}
+                  Calendar
+                </Button>
+              </TabPanelHeader>
+              <Divider />
+            </>
+          ) : undefined}
+          <TabPanelHeader>
+            <Mouse
+              fontSize="small"
+              style={{
+                marginRight: 6,
+              }}
+            />
+            Recents
+          </TabPanelHeader>
+          <List
+            style={{
+              paddingTop: 0,
+              paddingBottom: 0,
+            }}
+            dense
+          >
+            {recents?.map((it, index) => {
+              if (!it) {
+                return null;
+              }
+
+              return (
+                <ListItem key={it.fileLink}>
+                  <ListItemText
+                    primary={it.name}
+                    primaryTypographyProps={{
+                      noWrap: true,
+                      style: {
+                        fontSize: '0.875rem',
+                        paddingLeft: 28,
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        cursor: 'pointer',
+                      },
+                    }}
+                    onClick={() => {
+                      navigate(it.fileLink);
+                    }}
+                  />
+                  <IconButton size="small" onClick={() => handleDeleteRecentItem(index)}>
+                    <Delete fontSize="small" />
+                  </IconButton>
+                </ListItem>
+              );
+            })}
+          </List>
+          <Divider />
           <TabPanelHeader>
             <Star
               fontSize="small"

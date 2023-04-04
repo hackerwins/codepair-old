@@ -8,14 +8,14 @@ import SimpleMDEReact from 'react-simplemde-editor';
 import { AppState } from 'app/rootReducer';
 import { ConnectionStatus, Presence } from 'features/peerSlices';
 import { Theme as ThemeType } from 'features/settingSlices';
-import { Preview, updateHeadings } from 'features/docSlices';
+import { Preview, updateHeadings, getTableOfContents } from 'features/docSlices';
 
 import { updateLinkNameWithHeading } from 'features/linkSlices';
 import { makeStyles } from 'styles/common';
 import { IconButton, Popover, Theme, Tooltip } from '@mui/material';
 import Keyboard from '@mui/icons-material/Keyboard';
 import { NAVBAR_HEIGHT } from 'constants/editor';
-
+import { addRecentPage } from 'features/currentSlices';
 import 'easymde/dist/easymde.min.css';
 import 'codemirror/keymap/sublime';
 import 'codemirror/keymap/emacs';
@@ -242,7 +242,16 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
 
     editor.on('change', () => {
       dispatch(updateHeadings());
-      dispatch(updateLinkNameWithHeading());
+      dispatch(updateLinkNameWithHeading({ docKey: doc.getKey() }));
+      dispatch(
+        addRecentPage({
+          docKey: doc.getKey(),
+          page: {
+            name: `${getTableOfContents(1)[0]?.text}`,
+            fileLink: window.location.pathname,
+          },
+        }),
+      );
     });
 
     // local to remote

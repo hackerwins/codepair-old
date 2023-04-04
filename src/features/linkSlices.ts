@@ -165,15 +165,17 @@ const linkSlice = createSlice({
 
       SettingModel.setValue(state);
     },
-    updateLinkNameWithHeading(state) {
+    updateLinkNameWithHeading(state, action: PayloadAction<{ docKey: string }>) {
+      const { docKey } = action.payload;
       const heading = getTableOfContents(1)[0];
-      const currentLink = window.location.pathname;
 
       if (!heading) return;
 
+      const currentLink = `/${docKey.split('codepairs-')[1]}`;
+
       // const { id, name } = action.payload;
       const foundItem = findOne(state.links, (item) => {
-        return item.fileLink === currentLink;
+        return item.fileLink?.startsWith(currentLink);
       });
       if (foundItem) {
         foundItem.name = heading.text;
@@ -387,6 +389,36 @@ export function findCurrentPageLink(state: AppState): LinkItemType {
   return findOne(state.linkState.links, (item) => {
     return item?.fileLink === pathname;
   });
+}
+
+export interface LinkListItem {
+  id: string;
+  name: string;
+  fileLink: string;
+  depth: number;
+}
+
+function traverseTree(list: LinkListItem[], item: LinkItemType, depth = 0) {
+  if (item.type === 'link') {
+    list.push({
+      depth,
+      id: item.id,
+      name: item.name,
+      fileLink: `${item.fileLink}`,
+    });
+  }
+
+  if (item.links) {
+    item.links.forEach((it) => traverseTree(list, it as LinkItemType, depth + 1));
+  }
+}
+
+export function toFlatPageLinksSelector(state: AppState): LinkListItem[] {
+  const list: [] = [];
+
+  state.linkState.links.forEach((item) => traverseTree(list, item as LinkItemType, 0));
+
+  return list;
 }
 
 export const {
