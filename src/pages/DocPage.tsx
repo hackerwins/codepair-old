@@ -248,15 +248,7 @@ export default function DocPage() {
                 gap: 8,
               }}
             >
-              <Button
-                href="https://github.com/yorkie-team/codepair"
-                style={{
-                  fontSize: 16,
-                }}
-              >
-                Yorkie
-              </Button>
-              <Button href="https://github.com/yorkie-team">
+              <Button href="https://github.com/yorkie-team/codepair">
                 <GitHub /> &nbsp;GitHub
               </Button>
             </Box>
