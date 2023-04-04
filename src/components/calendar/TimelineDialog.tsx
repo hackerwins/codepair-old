@@ -17,7 +17,7 @@ import {
   Typography,
 } from '@mui/material';
 import { StaticTimePicker } from '@mui/x-date-pickers/StaticTimePicker';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import {
   pink,
   purple,

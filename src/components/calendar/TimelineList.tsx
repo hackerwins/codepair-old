@@ -9,7 +9,7 @@ import {
 import { Divider, Tooltip, Typography, IconButton, List, Switch } from '@mui/material';
 import { getCalendarDateByDate } from 'features/calendarSlices';
 import { useDispatch, useSelector } from 'react-redux';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import Add from '@mui/icons-material/Add';
 import { AppState } from 'app/rootReducer';
 import { addRecentPage } from 'features/currentSlices';
