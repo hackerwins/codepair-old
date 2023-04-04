@@ -35,10 +35,9 @@
     ],
     "dynamicImports": [
       "src/components/Editor/mime/text/md/Editor.tsx",
-      "src/components/Editor/mime/application/cell/Editor.tsx",
       "src/components/Editor/mime/text/milkdown/Editor.tsx"
     ],
-    "file": "assets/index-68018f71.js",
+    "file": "assets/index-fb309b31.js",
     "isEntry": true,
     "src": "index.html"
   },
@@ -138,14 +137,6 @@
     "file": "assets/source-sans-pro-vietnamese-400-normal-6e0839c2.woff2",
     "src": "node_modules/@fontsource/source-sans-pro/files/source-sans-pro-vietnamese-400-normal.woff2"
   },
-  "src/components/Editor/mime/application/cell/Editor.tsx": {
-    "file": "assets/Editor-1d69f1fe.js",
-    "imports": [
-      "index.html"
-    ],
-    "isDynamicEntry": true,
-    "src": "src/components/Editor/mime/application/cell/Editor.tsx"
-  },
   "src/components/Editor/mime/text/md/Editor.css": {
     "file": "assets/Editor-7ac63a43.css",
     "src": "src/components/Editor/mime/text/md/Editor.css"
@@ -154,7 +145,7 @@
     "css": [
       "assets/Editor-7ac63a43.css"
     ],
-    "file": "assets/Editor-e980b8ea.js",
+    "file": "assets/Editor-07399422.js",
     "imports": [
       "index.html"
     ],
@@ -169,7 +160,7 @@
     "css": [
       "assets/Editor-6a0bf5f1.css"
     ],
-    "file": "assets/Editor-edc825e1.js",
+    "file": "assets/Editor-611f3a92.js",
     "imports": [
       "index.html"
     ],
