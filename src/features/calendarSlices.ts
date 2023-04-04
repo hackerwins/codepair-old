@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { AppState } from '../app/rootReducer';
 import BrowserStorage from '../utils/storage';
 
