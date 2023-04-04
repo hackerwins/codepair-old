@@ -241,23 +241,27 @@ export function SideBar() {
           </TabList>
         </Box>
         <TabPanel value="notes">
-          <TabPanelHeader>
-            <Button
-              onClick={() => navigate('/calendar')}
-              style={{
-                color: 'GrayText',
-              }}
-            >
-              <CalendarToday
-                fontSize="small"
-                style={{
-                  marginRight: 6,
-                }}
-              />{' '}
-              Calendar
-            </Button>
-          </TabPanelHeader>
-          <Divider />
+          {import.meta.env.MODE === 'development' ? (
+            <>
+              <TabPanelHeader>
+                <Button
+                  onClick={() => navigate('/calendar')}
+                  style={{
+                    color: 'GrayText',
+                  }}
+                >
+                  <CalendarToday
+                    fontSize="small"
+                    style={{
+                      marginRight: 6,
+                    }}
+                  />{' '}
+                  Calendar
+                </Button>
+              </TabPanelHeader>
+              <Divider />
+            </>
+          ) : undefined}
           <TabPanelHeader>
             <Mouse
               fontSize="small"

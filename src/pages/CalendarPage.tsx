@@ -19,6 +19,7 @@ import { makeStyles } from 'styles/common';
 import BasicCalendar from 'components/calendar/BasicCalendar';
 import { getCalendarDateByDate, refreshCalendarStorage } from 'features/calendarSlices';
 import { TimelineList } from 'components/calendar/TimelineList';
+import { TimelineDialog } from 'components/calendar/TimelineDialog';
 
 interface LayoutProps {
   open: boolean;
@@ -217,7 +218,7 @@ export default function CalendarPage() {
   const selectedDate = useSelector((state: AppState) => state.calendarState.selectedDate);
   const schedules = useSelector(getCalendarDateByDate(selectedDate));
   const newDocKey = schedules[schedules.length - 1]?.item.fileLink.split('/').slice(1).join('/') || '';
-
+  const [open, setOpen] = useState(false);
   const { classes } = useStyles({
     open: true,
     openInstant: navState.openInstant,
@@ -230,6 +231,14 @@ export default function CalendarPage() {
   if (newDocKey === '') {
     realDocKey = '';
   }
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
 
   useEffect(() => {
     if (`${import.meta.env.VITE_APP_GOOGLE_ANALYTICS}`) {
@@ -318,6 +327,10 @@ export default function CalendarPage() {
               >
                 <div>
                   <div>Click the calendar to select a date.</div>
+                  <div>
+                    <Button onClick={handleOpen}>Add timeline</Button>
+                    {open ? <TimelineDialog open={open} selectedDateTime="" handleClose={handleClose} /> : undefined}
+                  </div>
                 </div>
               </div>
             ) : (

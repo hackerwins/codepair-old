@@ -171,7 +171,7 @@ const linkSlice = createSlice({
 
       if (!heading) return;
 
-      const currentLink = `/${docKey}`;
+      const currentLink = `/${docKey.split('codepairs-')[1]}`;
 
       // const { id, name } = action.payload;
       const foundItem = findOne(state.links, (item) => {
