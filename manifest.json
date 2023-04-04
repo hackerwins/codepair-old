@@ -37,7 +37,7 @@
       "src/components/Editor/mime/text/md/Editor.tsx",
       "src/components/Editor/mime/text/milkdown/Editor.tsx"
     ],
-    "file": "assets/index-fb309b31.js",
+    "file": "assets/index-1e0274dd.js",
     "isEntry": true,
     "src": "index.html"
   },
@@ -145,7 +145,7 @@
     "css": [
       "assets/Editor-7ac63a43.css"
     ],
-    "file": "assets/Editor-07399422.js",
+    "file": "assets/Editor-34de92fe.js",
     "imports": [
       "index.html"
     ],
@@ -160,7 +160,7 @@
     "css": [
       "assets/Editor-6a0bf5f1.css"
     ],
-    "file": "assets/Editor-611f3a92.js",
+    "file": "assets/Editor-451834c8.js",
     "imports": [
       "index.html"
     ],
