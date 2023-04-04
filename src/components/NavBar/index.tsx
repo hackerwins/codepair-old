@@ -164,7 +164,7 @@ function MenuAppBar() {
             )}
             <ThemeButton />
           </div>
-          {import.meta.env.NODE_ENV === 'development' && (
+          {import.meta.env.MODE === 'development' && (
             <IconButton
               size="small"
               onClick={() => {

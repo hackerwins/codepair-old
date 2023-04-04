@@ -68,7 +68,7 @@ export default function PeerGroup() {
               <Avatar
                 alt="Peer Image"
                 className={peer.isMine ? classes.myAvatar : ''}
-                style={{ backgroundColor: color, width: 34, height: 34 }}
+                style={{ backgroundColor: color }}
                 src={anonymous.getImage(image)}
               />
             </Tooltip>

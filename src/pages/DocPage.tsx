@@ -16,6 +16,8 @@ import Editor from 'components/Editor';
 import { Theme } from 'features/settingSlices';
 import { makeStyles } from 'styles/common';
 import GitHub from '@mui/icons-material/GitHub';
+import { saveLastDocument } from 'features/currentSlices';
+import { refreshCalendarStorage } from 'features/calendarSlices';
 
 type DocPageProps = {
   docKey: string;
@@ -200,8 +202,13 @@ export default function DocPage() {
   useEffect(() => {
     window.addEventListener('storage', () => {
       dispatch(refreshStorage());
+      dispatch(refreshCalendarStorage());
     });
   }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(saveLastDocument({ docKey }));
+  }, [dispatch, docKey]);
 
   return (
     <div className={classes.root} data-theme={menu.theme}>
@@ -241,15 +248,7 @@ export default function DocPage() {
                 gap: 8,
               }}
             >
-              <Button
-                href="https://github.com/yorkie-team/codepair"
-                style={{
-                  fontSize: 16,
-                }}
-              >
-                Yorkie
-              </Button>
-              <Button href="https://github.com/yorkie-team">
+              <Button href="https://github.com/yorkie-team/codepair">
                 <GitHub /> &nbsp;GitHub
               </Button>
             </Box>

@@ -1,5 +1,4 @@
 import { CodePairDoc } from 'features/docSlices';
-import { Theme } from 'features/settingSlices';
 import { AppState } from 'app/rootReducer';
 import { useSelector } from 'react-redux';
 import { useCallback, useEffect, useState } from 'react';
@@ -109,7 +108,6 @@ export function useMultiplayerState(roomId: string) {
   const menu = useSelector((state: AppState) => state.settingState.menu);
   const [app, setApp] = useState<TldrawApp>();
   const [loading, setLoading] = useState(true);
-  const darkMode = menu.theme === Theme.Dark;
 
   // Callbacks --------------
   const onMount = useCallback(
@@ -177,6 +175,27 @@ export function useMultiplayerState(roomId: string) {
         // Should store app.document.assets which is global asset storage referenced by inner page assets
         // Document key for assets should be asset.id (string), not index
         Object.entries(tldrawApp.assets).forEach(([, asset]) => {
+          if (asset.type === 'image' && asset.src.startsWith('data:image/')) {
+            // const image = asset;
+            // const imageId = image.id;
+            // const imageSrc = image.src;
+            // // how to implement this?
+            // function dataURItoBlob(dataURI: string) {
+            //   const byteString = window.atob(dataURI.split(',')[1]);
+            //   const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+            //   const ab = new ArrayBuffer(byteString.length);
+            //   const ia = new Uint8Array(ab);
+            //   for (let i = 0; i < byteString.length; i++) {
+            //     ia[i] = byteString.charCodeAt(i);
+            //   }
+            //   return new Blob([ab], { type: mimeString });
+            // }
+            // const imageBlob = dataURItoBlob(imageSrc);
+            // const imageFile = new File([imageBlob], `${imageId}.png`, { type: 'image/png' });
+            // const imageUpload = new FileUpload(imageFile, imageId);
+            // imageUpload.upload(client!, doc, root.whiteboard!.assets);
+          }
+
           if (!asset.id) {
             delete root.whiteboard!.assets[asset.id];
           } else {
@@ -312,10 +331,10 @@ export function useMultiplayerState(roomId: string) {
 
           // Zoom to fit the content & finish loading
           if (app) {
-            app.zoomToFit();
-            if (app.zoom > 1) {
-              app.resetZoom();
-            }
+            // app.zoomToFit();
+            // if (app.zoom > 1) {
+            app.resetZoom();
+            // }
             app.setIsLoading(false);
           }
 
@@ -339,7 +358,6 @@ export function useMultiplayerState(roomId: string) {
     onMount,
     onChangePage,
     loading,
-    darkMode,
     onChangePresence,
   };
 }
