@@ -101,6 +101,7 @@ export function LinkNavigation() {
               style={{
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
+                textTransform: 'none',
               }}
             >
               {linkList[linkList.length - 1].name}
