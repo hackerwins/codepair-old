@@ -92,7 +92,7 @@ export function LinkNavigation() {
           <Button
             onClick={handleSettingsClick}
             style={{
-              minWidth: 300,
+              minWidth: 140,
               whiteSpace: 'nowrap',
               justifyContent: 'start',
             }}

@@ -1,15 +1,12 @@
-import React, { memo, MouseEvent, useCallback, useState } from 'react';
+import React, { memo } from 'react';
 import PeerGroup from 'components/NavBar/PeerGroup';
 import ShareButton from 'components/NavBar/ShareButton';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleInstant, toggleTab } from 'features/navSlices';
 import { AppState } from 'app/rootReducer';
 import { Theme as ThemeType } from 'features/settingSlices';
-import Settings from 'components/Editor/Sidebar/Settings';
-import { setTool, ToolType } from 'features/boardSlices';
 import { makeStyles } from 'styles/common';
-import { AppBar, IconButton, Popover, Theme, Toolbar, Tooltip } from '@mui/material';
-import SettingsSuggest from '@mui/icons-material/SettingsSuggest';
+import { AppBar, IconButton, Theme, Toolbar } from '@mui/material';
 import SmartToy from '@mui/icons-material/SmartToy';
 
 import ThemeButton from './ThemeButton';
@@ -20,6 +17,7 @@ const useStyles = makeStyles()((theme: Theme) => ({
     flex: 'none',
     zIndex: 1,
     backgroundColor: theme.palette.mode === ThemeType.Dark ? '#333333' : '#ececec',
+    width: '100%',
   },
   appBar: {
     backgroundColor: theme.palette.mode === ThemeType.Dark ? 'black' : '#fafafa',
@@ -77,20 +75,6 @@ function MenuAppBar() {
   const { classes } = useStyles();
   const dispatch = useDispatch();
 
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | undefined>();
-  const handleSettingsClick = useCallback(
-    (event: MouseEvent<HTMLButtonElement>) => {
-      dispatch(setTool(ToolType.Settings));
-      setAnchorEl(event.currentTarget);
-    },
-    [dispatch],
-  );
-
-  const handleSettingsClose = useCallback(() => {
-    setAnchorEl(undefined);
-    dispatch(setTool(ToolType.None));
-  }, [dispatch]);
-
   return (
     <div className={classes.root}>
       <AppBar position="static" className={classes.appBar} elevation={0}>
@@ -140,28 +124,6 @@ function MenuAppBar() {
           </div>
           <div className={classes.items}>
             <ShareButton />
-            <Tooltip title="Settings" arrow>
-              <IconButton aria-label="settings" onClick={handleSettingsClick}>
-                <SettingsSuggest />
-              </IconButton>
-            </Tooltip>
-            {anchorEl && (
-              <Popover
-                open
-                anchorEl={anchorEl}
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'right',
-                }}
-                onClose={handleSettingsClose}
-              >
-                <Settings />
-              </Popover>
-            )}
             <ThemeButton />
           </div>
           {import.meta.env.MODE === 'development' && (
