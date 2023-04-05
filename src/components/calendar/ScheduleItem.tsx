@@ -1,7 +1,6 @@
 import React from 'react';
 import { ListItem, ListItemAvatar, ListItemText, Typography } from '@mui/material';
 import { CalendarDate } from 'features/calendarSlices';
-import invert from 'invert-color';
 import { blue } from '@mui/material/colors';
 
 interface ScheduleItemProps {
@@ -46,7 +45,9 @@ export function ScheduleItem({ changeDocKey, item }: ScheduleItemProps) {
         primary={
           <Typography
             style={{
-              color: invert(color, true),
+              color: 'white',
+              fontSize: 16,
+              fontWeight: 'bold',
             }}
           >
             {item.name}
@@ -55,7 +56,7 @@ export function ScheduleItem({ changeDocKey, item }: ScheduleItemProps) {
         secondary={item.item.name}
         sx={{
           '& .MuiListItemText-secondary': {
-            color: invert(color, true),
+            color: 'rgba(255, 255, 255, 0.9)',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',

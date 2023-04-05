@@ -294,6 +294,9 @@ const docSlice = createSlice({
         } as LinkItemType;
       });
     },
+    setErrorMessage(state, action: PayloadAction<string>) {
+      state.errorMessage = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(activateClient.fulfilled, (state, { payload }) => {
@@ -306,9 +309,10 @@ const docSlice = createSlice({
       state.doc = payload.doc;
       state.client = payload.client;
     });
-    builder.addCase(attachDoc.rejected, (state, { payload }) => {
-      state.errorMessage = payload!;
-    });
+    // TODO: error handling
+    // builder.addCase(attachDoc.rejected, (state, { payload }) => {
+    //   state.errorMessage = payload!;
+    // });
   },
 });
 
@@ -321,6 +325,7 @@ export const {
   setCodeMode,
   setStatus,
   updateHeadings,
+  setErrorMessage,
 } = docSlice.actions;
 export default docSlice.reducer;
 

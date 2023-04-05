@@ -226,12 +226,6 @@ export default function CalendarPage() {
   const location = useLocation();
   const [docKey, setDocKey] = useState<string>(newDocKey);
 
-  let realDocKey = newDocKey || docKey;
-
-  if (newDocKey === '') {
-    realDocKey = '';
-  }
-
   const handleClose = () => {
     setOpen(false);
   };
@@ -310,11 +304,15 @@ export default function CalendarPage() {
               <BasicCalendar />
             </div>
             <div className={classes.timelineList}>
-              <TimelineList changeDocKey={setDocKey} />
+              <TimelineList
+                changeDocKey={(currentDocKey: string) => {
+                  setDocKey(currentDocKey);
+                }}
+              />
             </div>
           </div>
           <div className={classes.currentEditorArea}>
-            {realDocKey === '' ? (
+            {docKey === '' ? (
               <div
                 style={{
                   display: 'flex',
@@ -334,7 +332,7 @@ export default function CalendarPage() {
                 </div>
               </div>
             ) : (
-              <Editor docKey={realDocKey} />
+              <Editor key={docKey} docKey={docKey} />
             )}
           </div>
         </div>

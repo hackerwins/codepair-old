@@ -255,7 +255,7 @@ export default function DocPage() {
           </div>
         </div>
         <div className={classes.editorArea}>
-          <Editor docKey={docKey} />
+          <Editor key={docKey} docKey={docKey} />
         </div>
         <div className={classes.instantArea}>test</div>
       </div>

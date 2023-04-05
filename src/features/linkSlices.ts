@@ -227,7 +227,7 @@ const linkSlice = createSlice({
 
       SettingModel.setValue(state);
 
-      window.location.replace(newLinkInfo.fileLink);
+      window.history.pushState({}, null, newLinkInfo.fileLink);
     },
 
     moveLink(
@@ -315,7 +315,7 @@ const linkSlice = createSlice({
 
       SettingModel.setValue(state);
 
-      window.location.replace(fileLink);
+      window.history.pushState({}, null, fileLink);
     },
     copyMarkdownTextForGroup(state, action: PayloadAction<string>) {
       const id = action.payload;
