@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export type NavTabType = 'notes' | 'toc';
+export type NavTabType = 'pages' | 'toc';
 
 export interface NavState {
   openTab: boolean;
@@ -10,7 +10,7 @@ export interface NavState {
 
 const initialNavState: NavState = {
   openTab: false,
-  openTabValue: 'notes',
+  openTabValue: 'pages',
   openInstant: false,
 };
 

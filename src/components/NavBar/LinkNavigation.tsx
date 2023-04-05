@@ -92,8 +92,9 @@ export function LinkNavigation() {
           <Button
             onClick={handleSettingsClick}
             style={{
-              maxWidth: 300,
+              minWidth: 300,
               whiteSpace: 'nowrap',
+              justifyContent: 'start',
             }}
             title={linkList[linkList.length - 1].name}
           >
@@ -103,6 +104,7 @@ export function LinkNavigation() {
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 textTransform: 'none',
+                whiteSpace: 'nowrap',
               }}
             >
               {linkList[linkList.length - 1].name}
