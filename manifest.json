@@ -1,6 +1,6 @@
 {
   "index.css": {
-    "file": "assets/index-9d954e4d.css",
+    "file": "assets/index-8e1b856b.css",
     "src": "index.css"
   },
   "index.html": {
@@ -31,13 +31,13 @@
       "assets/source-sans-pro-latin-400-normal-c124c88c.woff2"
     ],
     "css": [
-      "assets/index-9d954e4d.css"
+      "assets/index-8e1b856b.css"
     ],
     "dynamicImports": [
       "src/components/Editor/mime/text/md/Editor.tsx",
       "src/components/Editor/mime/text/milkdown/Editor.tsx"
     ],
-    "file": "assets/index-47887c69.js",
+    "file": "assets/index-8c44d207.js",
     "isEntry": true,
     "src": "index.html"
   },
@@ -145,7 +145,7 @@
     "css": [
       "assets/Editor-7ac63a43.css"
     ],
-    "file": "assets/Editor-188a2e25.js",
+    "file": "assets/Editor-e8320739.js",
     "imports": [
       "index.html"
     ],
@@ -160,7 +160,7 @@
     "css": [
       "assets/Editor-6a0bf5f1.css"
     ],
-    "file": "assets/Editor-9b654f00.js",
+    "file": "assets/Editor-8e1acb0a.js",
     "imports": [
       "index.html"
     ],
