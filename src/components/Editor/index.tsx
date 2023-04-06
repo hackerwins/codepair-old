@@ -16,6 +16,7 @@ import {
   setPreview,
   DocStatus,
   setStatus,
+  setErrorMessage,
 } from 'features/docSlices';
 import { makeStyles } from 'styles/common';
 import { Presence, syncPeer } from 'features/peerSlices';
@@ -54,6 +55,10 @@ export default function BaseEditor(props: { docKey: string }) {
   const status = useSelector((state: AppState) => state.docState.status);
   const loading = useSelector((state: AppState) => state.docState.loading);
   const errorMessage = useSelector((state: AppState) => state.docState.errorMessage);
+
+  const handleErrorMessageClose = () => {
+    dispatch(setErrorMessage(''));
+  };
 
   useEffect(() => {
     // To call other documents according to the docKey
@@ -137,16 +142,6 @@ export default function BaseEditor(props: { docKey: string }) {
     };
   }, [client, doc, dispatch]);
 
-  if (errorMessage) {
-    return (
-      <div>
-        <Snackbar open anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
-          <Alert severity="warning">{errorMessage || 'fail to attach document'}</Alert>
-        </Snackbar>
-      </div>
-    );
-  }
-
   if (loading || !client || !doc) {
     return <LoadingView />;
   }
@@ -169,6 +164,18 @@ export default function BaseEditor(props: { docKey: string }) {
       return (
         <Suspense fallback={<LoadingView />}>
           <Editor />
+          {errorMessage ? (
+            <div>
+              <Snackbar
+                open
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                autoHideDuration={1000}
+                onClose={handleErrorMessageClose}
+              >
+                <Alert severity="warning">{errorMessage || 'fail to attach document'}</Alert>
+              </Snackbar>
+            </div>
+          ) : null}
         </Suspense>
       );
   }

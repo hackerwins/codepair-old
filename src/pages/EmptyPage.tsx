@@ -1,13 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { getCurrentPage } from 'features/currentSlices';
 
 export function EmptyPage() {
-  useEffect(() => {
-    console.log('Empty Page');
-  }, []);
+  // get current page when the page is empty
+  const initializeDocKey = getCurrentPage(Math.random().toString(36).substring(7))().docKey;
 
-  return (
-    <div>
-      <h1>Empty Page</h1>
-    </div>
-  );
+  return <Navigate replace to={`/${initializeDocKey}`} />;
 }

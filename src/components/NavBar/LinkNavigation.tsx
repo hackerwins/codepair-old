@@ -1,7 +1,7 @@
 import React, { MouseEvent, useCallback, useEffect, useState } from 'react';
 import { AppState } from 'app/rootReducer';
 import { useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ItemType, LinkItemType } from 'features/linkSlices';
 import { Button, Divider, List, ListItemButton, ListItemText, Popover, Typography } from '@mui/material';
 import ExpandMore from '@mui/icons-material/ExpandMore';
@@ -26,6 +26,7 @@ const useStyles = makeStyles()((theme) => ({
 }));
 
 export function LinkNavigation() {
+  const navigate = useNavigate();
   const { classes } = useStyles();
   const linkState = useSelector((state: AppState) => state.linkState);
   const [linkList, setLinkList] = useState<ItemType[]>([]);
@@ -91,8 +92,9 @@ export function LinkNavigation() {
           <Button
             onClick={handleSettingsClick}
             style={{
-              maxWidth: 300,
+              minWidth: 140,
               whiteSpace: 'nowrap',
+              justifyContent: 'start',
             }}
             title={linkList[linkList.length - 1].name}
           >
@@ -102,6 +104,7 @@ export function LinkNavigation() {
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 textTransform: 'none',
+                whiteSpace: 'nowrap',
               }}
             >
               {linkList[linkList.length - 1].name}
@@ -143,7 +146,13 @@ export function LinkNavigation() {
                 return null;
               }
               return (
-                <ListItemButton dense component="a" href={`${tempItem.fileLink}`} key={tempItem.id}>
+                <ListItemButton
+                  dense
+                  onClick={() => {
+                    navigate(`${tempItem.fileLink}`);
+                  }}
+                  key={tempItem.id}
+                >
                   <ListItemText
                     style={{
                       paddingLeft: depth * 16,
@@ -165,7 +174,13 @@ export function LinkNavigation() {
                 {linkList[linkList.length - 1].links?.map((item) => {
                   const tempItem = item as LinkItemType;
                   return (
-                    <ListItemButton dense component="a" href={`${tempItem.fileLink}`} key={tempItem.id}>
+                    <ListItemButton
+                      dense
+                      onClick={() => {
+                        navigate(`${tempItem.fileLink}`);
+                      }}
+                      key={tempItem.id}
+                    >
                       <ListItemText>{tempItem.name}</ListItemText>
                     </ListItemButton>
                   );

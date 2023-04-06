@@ -73,7 +73,7 @@ export function PageButton({
       const mimeType = 'application/vnd.pairy.whiteboard';
 
       if (client) {
-        dispatch(
+        await dispatch(
           createDoc({
             client,
             docKey: `codepairs-${newDocKey}`,

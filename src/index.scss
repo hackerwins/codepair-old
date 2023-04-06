@@ -239,9 +239,7 @@ body {
       --color: #046a9a;
       color: var(--color);
     }
-    .CodeMirror-line span.cm-formatting-task + span.cm-variable-2,
-    .CodeMirror-line span.cm-formatting-task + span.cm-variable-2 + span.cm-variable-2,
-    .CodeMirror-line span.cm-formatting-task + span.cm-variable-2 + span.cm-variable-2 + span.cm-variable-2 {
+    .CodeMirror-line span.cm-formatting-task.cm-property + * {
       --color: #046a9a;
       color: var(--color);
       // font-weight: bold;
@@ -255,7 +253,6 @@ body {
     }
 
     /* List level 1 */
-    .CodeMirror-line span.cm-meta.cm-formatting-task,
     .CodeMirror-line span.cm-meta.cm-formatting-task + span.cm-variable-2 {
       --color: #ff6060;
       color: var(--color);
@@ -277,12 +274,6 @@ body {
       text-decoration: line-through;
     }
 
-    .CodeMirror-line span.cm-meta.cm-formatting-task + span.cm-variable-3 {
-      --color: #ff6060;
-      color: var(--color);
-      text-decoration: none;
-    }
-
     /* List level 3 = Cyan*/
     .CodeMirror-line span.cm-keyword {
       color: #10b4b4;
@@ -291,6 +282,13 @@ body {
     /*Link text = orange*/
     .CodeMirror-line span.cm-link-text {
       color: #e3ae48 !important;
+    }
+
+    .CodeMirror-line span.cm-meta.cm-formatting-task + *,
+    .CodeMirror-line span.cm-meta.cm-formatting-task + .cm-keyword {
+      --color: #ff6060;
+      color: var(--color);
+      text-decoration: none;
     }
 
     /*URL = blue*/
@@ -430,7 +428,7 @@ body {
       color: rgb(0, 149, 255);
     }
 
-    .CodeMirror-line span.cm-property.cm-formatting-task {
+    .CodeMirror-line span.cm-property.cm-formatting-task + * {
       color: rgb(0, 149, 255);
     }
 
@@ -485,9 +483,7 @@ body {
     }
 
     /* List level 1 */
-    .CodeMirror-line span.cm-formatting-task + span.cm-variable-2,
-    .CodeMirror-line span.cm-formatting-task + span.cm-variable-2 + span.cm-variable-2,
-    .CodeMirror-line span.cm-formatting-task + span.cm-variable-2 + span.cm-variable-2 + span.cm-variable-2 {
+    .CodeMirror-line span.cm-formatting-task.cm-property + * {
       --color: rgb(0, 149, 255);
       color: var(--color);
       // font-weight: bold;
@@ -501,8 +497,8 @@ body {
     }
 
     /* List level 1 */
-    .CodeMirror-line span.cm-meta.cm-formatting-task + span.cm-variable-2 {
-      --color: #ff6060;
+    .CodeMirror-line span.cm-formatting-task.cm-meta + * {
+      --color: #ff6060 !important;
       color: var(--color);
       text-decoration: none;
     }
@@ -510,22 +506,6 @@ body {
     /* List level 2 */
     .CodeMirror-line span.cm-variable-3 {
       // color: #67e892;
-    }
-
-    /* List level 2 */
-    .CodeMirror-line span.cm-formatting-task + span.cm-variable-3,
-    .CodeMirror-line span.cm-formatting-task + span.cm-variable-3 + span.cm-variable-3,
-    .CodeMirror-line span.cm-formatting-task + span.cm-variable-3 + span.cm-variable-3 + span.cm-variable-3 {
-      --color: rgb(0, 149, 255);
-      color: var(--color);
-      // font-weight: bold;
-      text-decoration: line-through;
-    }
-
-    .CodeMirror-line span.cm-meta.cm-formatting-task + span.cm-variable-3 {
-      --color: #ff6060;
-      color: var(--color);
-      text-decoration: none;
     }
 
     /* List level 3 = Cyan*/
