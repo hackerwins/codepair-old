@@ -55,23 +55,14 @@ const router = createBrowserRouter([
   {
     path: '/new',
     element: <NewPage />,
-    action: (context) => {
-      console.log('context', context);
-    },
   },
   {
     path: '/calendar',
     element: <CalendarPage />,
-    action: (context) => {
-      console.log('context', context);
-    },
   },
   {
     path: '/:docKey',
     element: <DocPage />,
-    action: (context) => {
-      console.log('context', context);
-    },
   },
 ]);
 
