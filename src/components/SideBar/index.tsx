@@ -223,10 +223,10 @@ export function SideBar() {
             <Tab
               label={
                 <TabLabel>
-                  <EventNote /> Notes
+                  <EventNote /> Pages
                 </TabLabel>
               }
-              value="notes"
+              value="pages"
             />
             {mimeType === MimeType.MARKDOWN ? (
               <Tab
@@ -240,7 +240,7 @@ export function SideBar() {
             ) : undefined}
           </TabList>
         </Box>
-        <TabPanel value="notes">
+        <TabPanel value="pages">
           {import.meta.env.MODE === 'development' ? (
             <>
               <TabPanelHeader>

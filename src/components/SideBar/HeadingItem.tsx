@@ -11,6 +11,7 @@ import Star from '@mui/icons-material/Star';
 import OpenInBrowser from '@mui/icons-material/OpenInBrowser';
 
 import { Divider, IconButton, ListItem, ListItemIcon, ListItemText, Menu, MenuItem, Snackbar } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 interface SideBarProps {
   open: boolean;
@@ -264,6 +265,7 @@ function HeadingIcon({ item }: HeadingIconProps) {
 }
 
 export function HeadingItem({ item, level, loopType }: SidebarItemProps) {
+  const navigate = useNavigate();
   const { classes } = useStyles({ open: true });
   const favorite = useSelector((state: AppState) => state.linkState.favorite);
 
@@ -330,8 +332,7 @@ export function HeadingItem({ item, level, loopType }: SidebarItemProps) {
           }
 
           if (item.fileLink) {
-            // window.history.pushState({}, '', item.fileLink);
-            window.location.href = item.fileLink;
+            navigate(item.fileLink);
           }
         }}
       />

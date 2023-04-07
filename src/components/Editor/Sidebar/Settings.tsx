@@ -8,7 +8,7 @@ import { AppDispatch } from 'app/store';
 import { AppState } from 'app/rootReducer';
 import { updatePresenceColor } from 'features/peerSlices';
 import { makeStyles } from 'styles/common';
-import { Box, debounce, FormControl, TextField, Typography } from '@mui/material';
+import { debounce, FormControl, TextField } from '@mui/material';
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -99,13 +99,6 @@ export default function Settings() {
 
   return (
     <div className={classes.root}>
-      <Box>
-        <header className={classes.header}>
-          <Typography className={classes.title} variant="h6">
-            Settings
-          </Typography>
-        </header>
-      </Box>
       <div className={classes.list}>
         <div className={classes.item}>
           <div className={classes.itemTitle}>Name</div>
@@ -120,7 +113,12 @@ export default function Settings() {
         </div>
         <div className={classes.item}>
           <div className={classes.itemTitle}>Color</div>
-          <FormControl className={classes.itemInfo}>
+          <FormControl
+            className={classes.itemInfo}
+            style={{
+              justifyContent: 'start',
+            }}
+          >
             <input type="color" defaultValue={menu.userColor} onChange={handleInputUserColor} />
           </FormControl>
         </div>

@@ -689,7 +689,7 @@ export function SidebarItem({ item, level, loopType }: SidebarItemProps) {
                   navigate(item.fileLink, { replace: false });
                   break;
                 case 'heading':
-                  window.location.href = item.fileLink;
+                  navigate(item.fileLink);
                   break;
                 default:
                   window.open(item.fileLink, '_blank');

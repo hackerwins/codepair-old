@@ -1,3 +1,5 @@
+import { names, uniqueNamesGenerator } from 'unique-names-generator';
+import randomColor from 'randomcolor';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import BrowserStorage from '../utils/storage';
 
@@ -29,16 +31,27 @@ export interface SettingState {
 const SettingModel = new BrowserStorage<SettingState>('$$codepair$$setting');
 
 const prefersDark: boolean = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+const randomName = uniqueNamesGenerator({
+  dictionaries: [names],
+});
 
 const initialState: SettingState = SettingModel.getValue({
   menu: {
     theme: prefersDark ? Theme.Dark : Theme.Light,
     codeKeyMap: CodeKeyMap.Sublime,
     tabSize: TabSize.Two,
-    userName: '',
-    userColor: '',
+    userName: randomName,
+    userColor: randomColor(),
   },
 });
+
+if (initialState.menu.userName === '') {
+  initialState.menu.userName = randomName;
+}
+
+if (initialState.menu.userColor === '') {
+  initialState.menu.userColor = randomColor();
+}
 
 const settingSlice = createSlice({
   name: 'setting',

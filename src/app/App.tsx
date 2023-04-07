@@ -4,7 +4,6 @@ import {
   RouterProvider,
   createBrowserRouter,
   createRoutesFromChildren,
-  Navigate,
   useLocation,
   useNavigationType,
   matchRoutes,
@@ -18,7 +17,7 @@ import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 import { Theme } from 'features/settingSlices';
 import DocPage from 'pages/DocPage';
 import CalendarPage from 'pages/CalendarPage';
-import { getCurrentPage } from 'features/currentSlices';
+import { EmptyPage } from 'pages/EmptyPage';
 import { AppState } from './rootReducer';
 
 if (import.meta.env.PROD) {
@@ -44,12 +43,10 @@ if (import.meta.env.PROD) {
   });
 }
 
-const initializeDocKey = getCurrentPage(Math.random().toString(36).substring(7))().docKey;
-
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Navigate replace to={`/${initializeDocKey}`} />,
+    element: <EmptyPage />,
   },
   {
     path: '/calendar',
