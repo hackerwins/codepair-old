@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppState } from 'app/rootReducer';
 import { favoriteSelector } from 'features/linkSlices';
 import { Theme } from 'features/settingSlices';
-import { NavTabType, toggleLinkTab } from 'features/navSlices';
+import { NavTabType, toggleLinkTab, toggleRecents } from 'features/navSlices';
 import { makeStyles } from 'styles/common';
 import EventNote from '@mui/icons-material/EventNote';
 import Star from '@mui/icons-material/Star';
@@ -14,7 +14,7 @@ import CalendarToday from '@mui/icons-material/CalendarToday';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Box,
-  Button,
+  Collapse,
   Divider,
   Drawer,
   IconButton,
@@ -41,9 +41,8 @@ import { LinkTreeView } from './LinkTreeView';
 
 interface SideBarProps {
   open: boolean;
+  sidebarWidth: number;
 }
-
-const SIDEBAR_WIDTH = 300;
 
 const useStyles = makeStyles<SideBarProps>()((theme, props) => ({
   title: {
@@ -65,9 +64,9 @@ const useStyles = makeStyles<SideBarProps>()((theme, props) => ({
     right: 0,
     bottom: 0,
     flexShrink: 0,
-    transform: `translateX(${props.open ? 0 : -SIDEBAR_WIDTH}px) translateZ(0)`,
+    transform: `translateX(${props.open ? 0 : -props.sidebarWidth}px) translateZ(0)`,
     [`& .MuiDrawer-paper`]: {
-      width: SIDEBAR_WIDTH,
+      width: props.sidebarWidth,
       boxSizing: 'border-box',
       position: 'absolute',
       transition: 'width 225ms cubic-bezier(0, 0, 0.2, 1) 0ms',
@@ -104,50 +103,6 @@ const useStyles = makeStyles<SideBarProps>()((theme, props) => ({
       visibility: 'visible !important' as any,
     },
   },
-  listItem: {
-    '&:hover': {
-      backgroundColor: 'rgba(0, 0, 0, 0.04)',
-    },
-  },
-  sidebarItem: {
-    [`&:hover .sidebar-item-more`]: {
-      visibility: 'visible !important' as any,
-    },
-  },
-  level0: {
-    paddingLeft: theme.spacing(0),
-  },
-  level1: {
-    paddingLeft: theme.spacing(3),
-  },
-  level2: {
-    paddingLeft: theme.spacing(6),
-  },
-  level3: {
-    paddingLeft: theme.spacing(9),
-  },
-  level4: {
-    paddingLeft: theme.spacing(12),
-  },
-  level5: {
-    paddingLeft: theme.spacing(15),
-  },
-  level6: {
-    paddingLeft: theme.spacing(18),
-  },
-  level7: {
-    paddingLeft: theme.spacing(21),
-  },
-  level8: {
-    paddingLeft: theme.spacing(24),
-  },
-  level9: {
-    paddingLeft: theme.spacing(27),
-  },
-  level10: {
-    paddingLeft: theme.spacing(30),
-  },
-  moreMenu: {},
   tooltip: {
     '& .MuiTooltip-tooltip': {
       fontSize: '1.5rem',
@@ -165,15 +120,24 @@ function TabLabel({ children }: TabLabelProps) {
 type TabPanelHeaderProps = {
   children: ReactNode;
   tools?: ReactNode;
+  onClick?: () => void;
 };
 
-function TabPanelHeader({ children, tools = '' }: TabPanelHeaderProps) {
+function TabPanelHeader({ children, tools = '', onClick }: TabPanelHeaderProps) {
   return (
     <ListSubheader>
-      <Box display="flex" alignItems="center" justifyContent="space-between">
+      <Box display="flex" alignItems="center" justifyContent="space-between" onClick={onClick}>
         <Typography
           variant="h6"
-          style={{ fontWeight: 400, fontSize: 14, height: 40, display: 'flex', alignItems: 'center' }}
+          style={{
+            fontWeight: 400,
+            fontSize: 14,
+            height: 40,
+            display: 'flex',
+            alignItems: 'center',
+            flex: '1 1 auto',
+            cursor: 'pointer',
+          }}
         >
           {children}
         </Typography>
@@ -194,13 +158,18 @@ export function SideBar() {
   const menu = useSelector((state: AppState) => state.settingState.menu);
   const favorites = useSelector(favoriteSelector);
   const recents = useSelector((state: AppState) => state.currentState.recents);
-  const open = navState.openTab;
+  const { openTab: open, openRecents, sidebarWidth } = navState;
   const { classes } = useStyles({
     open: useLocation().pathname === '/calendar' ? true : open,
+    sidebarWidth,
   });
   const root = doc?.getRoot();
   const mimeType = root?.mimeType || MimeType.MARKDOWN;
   const navigate = useNavigate();
+
+  const handleOpenRecents = () => {
+    dispatch(toggleRecents());
+  };
 
   const handleChange = (event: React.SyntheticEvent<Element, Event>, newValue: NavTabType) => {
     dispatch(toggleLinkTab(newValue));
@@ -243,26 +212,19 @@ export function SideBar() {
         <TabPanel value="pages">
           {import.meta.env.MODE === 'development' ? (
             <>
-              <TabPanelHeader>
-                <Button
-                  onClick={() => navigate('/calendar')}
+              <TabPanelHeader onClick={() => navigate('/calendar')}>
+                <CalendarToday
+                  fontSize="small"
                   style={{
-                    color: 'GrayText',
+                    marginRight: 6,
                   }}
-                >
-                  <CalendarToday
-                    fontSize="small"
-                    style={{
-                      marginRight: 6,
-                    }}
-                  />{' '}
-                  Calendar
-                </Button>
+                />{' '}
+                Calendar
               </TabPanelHeader>
               <Divider />
             </>
           ) : undefined}
-          <TabPanelHeader>
+          <TabPanelHeader onClick={() => handleOpenRecents()}>
             <Mouse
               fontSize="small"
               style={{
@@ -271,44 +233,46 @@ export function SideBar() {
             />
             Recents
           </TabPanelHeader>
-          <List
-            style={{
-              paddingTop: 0,
-              paddingBottom: 0,
-            }}
-            dense
-          >
-            {recents?.map((it, index) => {
-              if (!it) {
-                return null;
-              }
+          <Collapse in={openRecents} timeout="auto" unmountOnExit>
+            <List
+              style={{
+                paddingTop: 0,
+                paddingBottom: 0,
+              }}
+              dense
+            >
+              {recents?.map((it, index) => {
+                if (!it) {
+                  return null;
+                }
 
-              return (
-                <ListItem key={it.fileLink}>
-                  <ListItemText
-                    primary={it.name}
-                    primaryTypographyProps={{
-                      noWrap: true,
-                      style: {
-                        fontSize: '0.875rem',
-                        paddingLeft: 28,
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        cursor: 'pointer',
-                      },
-                    }}
-                    onClick={() => {
-                      navigate(it.fileLink);
-                    }}
-                  />
-                  <IconButton size="small" onClick={() => handleDeleteRecentItem(index)}>
-                    <Delete fontSize="small" />
-                  </IconButton>
-                </ListItem>
-              );
-            })}
-          </List>
+                return (
+                  <ListItem key={it.fileLink}>
+                    <ListItemText
+                      primary={it.name}
+                      primaryTypographyProps={{
+                        noWrap: true,
+                        style: {
+                          fontSize: '0.875rem',
+                          paddingLeft: 28,
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          cursor: 'pointer',
+                        },
+                      }}
+                      onClick={() => {
+                        navigate(it.fileLink);
+                      }}
+                    />
+                    <IconButton size="small" onClick={() => handleDeleteRecentItem(index)}>
+                      <Delete fontSize="small" />
+                    </IconButton>
+                  </ListItem>
+                );
+              })}
+            </List>
+          </Collapse>
           <Divider />
           <TabPanelHeader>
             <Star

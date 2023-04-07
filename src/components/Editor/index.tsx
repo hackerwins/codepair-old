@@ -22,8 +22,8 @@ import { makeStyles } from 'styles/common';
 import { Presence, syncPeer } from 'features/peerSlices';
 import { Alert, Box, CircularProgress, Snackbar } from '@mui/material';
 import WhiteBoardEditor from './mime/application/whiteboard/Editor';
+import Editor from './mime/text/md/Editor';
 
-const Editor = lazy(() => import('./mime/text/md/Editor'));
 const MilkdownEditor = lazy(() => import('./mime/text/milkdown/Editor'));
 
 const useStyles = makeStyles()(() => ({
@@ -162,7 +162,7 @@ export default function BaseEditor(props: { docKey: string }) {
     case 'text/markdown':
     default:
       return (
-        <Suspense fallback={<LoadingView />}>
+        <>
           <Editor />
           {errorMessage ? (
             <div>
@@ -176,7 +176,7 @@ export default function BaseEditor(props: { docKey: string }) {
               </Snackbar>
             </div>
           ) : null}
-        </Suspense>
+        </>
       );
   }
 }

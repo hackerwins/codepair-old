@@ -51,13 +51,8 @@ import {
 import { PageButton } from 'components/NavBar/PageButton';
 import Description from '@mui/icons-material/Description';
 import { addRecentPage } from 'features/currentSlices';
+import { Theme } from 'features/settingSlices';
 import { SideBarItemList } from './SidebarItemList';
-
-interface SideBarProps {
-  open: boolean;
-}
-
-const SIDEBAR_WIDTH = 300;
 
 function getTitle() {
   let { title } = document;
@@ -92,7 +87,7 @@ function getTitle() {
   return title;
 }
 
-const useStyles = makeStyles<SideBarProps>()((theme, props) => ({
+const useStyles = makeStyles()((theme) => ({
   title: {
     flexGrow: 1,
     padding: '15px 16px',
@@ -104,37 +99,6 @@ const useStyles = makeStyles<SideBarProps>()((theme, props) => ({
   tabListLight: {
     backgroundColor: '#fafafa',
     borderBottom: '1px solid #e8e8e8',
-  },
-  drawer: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    right: 0,
-    bottom: 0,
-    flexShrink: 0,
-    transform: `translateX(${props.open ? 0 : -SIDEBAR_WIDTH}px) translateZ(0)`,
-    [`& .MuiDrawer-paper`]: {
-      width: SIDEBAR_WIDTH,
-      boxSizing: 'border-box',
-      position: 'absolute',
-      transition: 'width 225ms cubic-bezier(0, 0, 0.2, 1) 0ms',
-    },
-
-    [`& .MuiListItem-root`]: {
-      paddingTop: 2,
-      paddingBottom: 2,
-    },
-
-    [`& .MuiTabPanel-root`]: {
-      padding: 0,
-    },
-
-    [`& .MuiTab-root`]: {
-      minWidth: 0,
-      padding: '0 16px',
-      fontSize: '0.875rem',
-      textTransform: 'none',
-    },
   },
   listItemText: {
     [`& .MuiTypography-root`]: {
@@ -151,15 +115,16 @@ const useStyles = makeStyles<SideBarProps>()((theme, props) => ({
       visibility: 'visible !important' as any,
     },
   },
-  listItem: {
-    '&:hover': {
-      backgroundColor: 'rgba(0, 0, 0, 0.04)',
-    },
-  },
   sidebarItem: {
     [`&:hover .sidebar-item-more`]: {
       visibility: 'visible !important' as any,
     },
+    [`&:hover`]: {
+      backgroundColor: theme.palette.mode === Theme.Dark ? theme.palette.primary.dark : theme.palette.primary.light,
+    },
+  },
+  sidebarItemSelected: {
+    backgroundColor: theme.palette.mode === Theme.Dark ? theme.palette.primary.dark : theme.palette.primary.light,
   },
   level0: {
     paddingLeft: theme.spacing(0),
@@ -577,12 +542,12 @@ export function SidebarItem({ item, level, loopType }: SidebarItemProps) {
       className={[
         className,
         classes.sidebarItem,
+        item.fileLink?.startsWith(`/${docKey}`) ? classes.sidebarItemSelected : undefined,
         dropTarget === 'top' ? classes.dropTargetTop : undefined,
         dropTarget === 'bottom' ? classes.dropTargetBottom : undefined,
         dropTarget === 'center' ? classes.dropTargetCenter : undefined,
       ].join(' ')}
       button
-      selected={`/${docKey}` === item.fileLink}
       draggable
       onDragStart={(e) => {
         setDropTarget('');

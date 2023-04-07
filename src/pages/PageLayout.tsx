@@ -1,4 +1,4 @@
-import React, { MouseEvent, useCallback, useEffect, useState } from 'react';
+import React, { MouseEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import ReactGA from 'react-ga4';
 
@@ -29,6 +29,7 @@ import { saveLastDocument } from 'features/currentSlices';
 import { refreshCalendarStorage } from 'features/calendarSlices';
 import invert from 'invert-color';
 import { setTool, ToolType } from 'features/boardSlices';
+import { setSidebarWidth } from 'features/navSlices';
 import { SettingsDialog } from './SettingsDialog';
 
 type DocPageProps = {
@@ -38,9 +39,8 @@ type DocPageProps = {
 interface LayoutProps {
   open: boolean;
   openInstant: boolean;
+  sidebarWidth: number;
 }
-
-const SIDEBAR_WIDTH = 300;
 
 const useStyles = makeStyles<LayoutProps>()((theme, props) => ({
   root: {
@@ -53,7 +53,7 @@ const useStyles = makeStyles<LayoutProps>()((theme, props) => ({
     backgroundColor: theme.palette.mode === Theme.Dark ? '#121212' : '#fff',
   },
   sidebarArea: {
-    width: props.open ? SIDEBAR_WIDTH : 0,
+    width: props.open ? props.sidebarWidth : 0,
     '@media only screen and (max-width: 600px)': {
       position: 'fixed',
       left: 0,
@@ -78,6 +78,20 @@ const useStyles = makeStyles<LayoutProps>()((theme, props) => ({
     display: 'flex',
     flexDirection: 'row',
   },
+  resizer: {
+    position: 'absolute',
+
+    top: 0,
+    bottom: 0,
+    right: 0,
+    width: 5,
+    cursor: 'col-resize',
+    // backgroundColor: 'rgba(0, 0, 0, 0.12)',
+    '&:hover': {
+      backgroundColor: 'GrayText',
+    },
+    zIndex: 1,
+  },
   editorArea: {
     flex: '1 1 auto',
 
@@ -90,7 +104,7 @@ const useStyles = makeStyles<LayoutProps>()((theme, props) => ({
   },
   instantArea: {
     flex: 'none',
-    width: props.openInstant ? SIDEBAR_WIDTH : 0,
+    width: props.openInstant ? props.sidebarWidth : 0,
     '@media only screen and (max-width: 600px)': {
       position: 'fixed',
       right: 0,
@@ -237,9 +251,11 @@ export default function PageLayout({ children }: PageLayoutProps) {
   const { classes } = useStyles({
     open: navState.openTab,
     openInstant: navState.openInstant,
+    sidebarWidth: navState.sidebarWidth,
   } as LayoutProps);
   const location = useLocation();
   const { docKey = '' } = useParams<DocPageProps>();
+  const resizerRef = useRef<any>(null);
 
   useEffect(() => {
     if (`${import.meta.env.VITE_APP_GOOGLE_ANALYTICS}`) {
@@ -248,11 +264,55 @@ export default function PageLayout({ children }: PageLayoutProps) {
   }, [location]);
 
   useEffect(() => {
-    window.addEventListener('storage', () => {
+    function refresh() {
       dispatch(refreshStorage());
       dispatch(refreshCalendarStorage());
-    });
-  }, [dispatch]);
+    }
+
+    function mouseMove(e: any) {
+      if (resizerRef.current) {
+        const { startX, startWidth } = resizerRef.current;
+        const width = startWidth + (e.clientX - startX);
+        if (width > 150 && width < 500) {
+          dispatch(setSidebarWidth(width));
+        }
+      }
+    }
+    function mouseUp() {
+      document.body.style.cursor = 'auto';
+      document.body.style.pointerEvents = 'auto';
+      document.body.style.userSelect = 'auto';
+
+      window.removeEventListener('mouseup', mouseUp);
+      window.removeEventListener('mousemove', mouseMove);
+    }
+
+    function mouseDown(e: any) {
+      if (e.target.getAttribute('data-resizer') === 'true') {
+        resizerRef.current = {
+          target: e.target,
+          startX: e.clientX,
+          startWidth: navState.sidebarWidth,
+        };
+
+        document.body.style.cursor = 'col-resize';
+        document.body.style.pointerEvents = 'none';
+        document.body.style.userSelect = 'none';
+
+        window.addEventListener('mouseup', mouseUp);
+        window.addEventListener('mousemove', mouseMove);
+      }
+    }
+
+    window.addEventListener('mousedown', mouseDown);
+    window.addEventListener('storage', refresh);
+
+    return () => {
+      window.removeEventListener('storage', refresh);
+      window.removeEventListener('mousedown', mouseDown);
+      window.removeEventListener('mouseup', mouseUp);
+    };
+  }, [dispatch, navState.sidebarWidth]);
 
   useEffect(() => {
     dispatch(saveLastDocument({ docKey }));
@@ -348,6 +408,7 @@ export default function PageLayout({ children }: PageLayoutProps) {
               </Button>
             </Box>
           </div>
+          <div className={classes.resizer} data-resizer="true" />
         </div>
         <div className={classes.editorArea}>
           <div

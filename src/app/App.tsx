@@ -18,6 +18,7 @@ import { Theme } from 'features/settingSlices';
 import DocPage from 'pages/DocPage';
 import CalendarPage from 'pages/CalendarPage';
 import { EmptyPage } from 'pages/EmptyPage';
+import { NewPage } from 'pages/NewPage';
 import { AppState } from './rootReducer';
 
 if (import.meta.env.PROD) {
@@ -47,14 +48,30 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <EmptyPage />,
+    action: (context) => {
+      console.log('context', context);
+    },
+  },
+  {
+    path: '/new',
+    element: <NewPage />,
+    action: (context) => {
+      console.log('context', context);
+    },
   },
   {
     path: '/calendar',
     element: <CalendarPage />,
+    action: (context) => {
+      console.log('context', context);
+    },
   },
   {
     path: '/:docKey',
     element: <DocPage />,
+    action: (context) => {
+      console.log('context', context);
+    },
   },
 ]);
 
