@@ -256,7 +256,7 @@ interface MoreMenuProps {
 function MoreMenu({ item, startRename }: MoreMenuProps) {
   const dispatch = useDispatch<AppDispatch>();
   const favorite = useSelector((state: AppState) => state.linkState.favorite);
-  const { classes } = useStyles({ open: true });
+  const { classes } = useStyles();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const { docKey } = useParams<{ docKey: string }>();
   const open = Boolean(anchorEl);
@@ -401,7 +401,7 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
                       icon={null}
                       insertTarget={item}
                       title="New subpage"
-                      onClose={handleClose}
+                      onClose={() => handleClose('')}
                       transformOrigin={{ horizontal: 'left', vertical: 'center' }}
                       anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
                     />
@@ -484,7 +484,7 @@ export function SidebarItem({ item, level, loopType }: SidebarItemProps) {
   const textRef = useRef<string>(item.name);
   const [isRename, setIsRename] = useState(false);
   const { docKey } = useParams<{ docKey: string }>();
-  const { classes } = useStyles({ open: opens[item.id] });
+  const { classes } = useStyles();
   const [dropTarget, setDropTarget] = useState<'' | 'top' | 'bottom' | 'center'>('');
 
   const setOpenCallback = useCallback(() => {
