@@ -48,6 +48,7 @@ export function LinkNavigation() {
       function searchPath(data: unknown[], depth: number, callback: (item: any) => boolean): boolean {
         let found = false;
         for (let i = 0; i < data.length; i += 1) {
+          if (!data[i]) continue;
           parentList[depth] = data[i] as ItemType;
           parentList.length = depth + 1;
           if (callback(data[i])) {
@@ -66,7 +67,7 @@ export function LinkNavigation() {
       }
 
       searchPath(linkState.links, 0, (item) => {
-        return item.fileLink === id;
+        return item?.fileLink === id;
       });
 
       setLinkList([...parentList]);

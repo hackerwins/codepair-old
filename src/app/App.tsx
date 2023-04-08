@@ -48,9 +48,6 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <EmptyPage />,
-    action: (context) => {
-      console.log('context', context);
-    },
   },
   {
     path: '/new',
@@ -71,6 +68,21 @@ export const muiCache = createCache({
   prepend: true,
 });
 
+function createUserThemeColor(colorType: string) {
+  if (colorType === 'mui') {
+    return {};
+  }
+
+  return {
+    primary: {
+      main: 'rgb(253, 196, 51)',
+    },
+    secondary: {
+      main: '#e6b602',
+    },
+  };
+}
+
 function App() {
   const menu = useSelector((state: AppState) => state.settingState.menu);
   const theme = useMemo(
@@ -78,12 +90,7 @@ function App() {
       createTheme({
         palette: {
           mode: menu.theme === Theme.Dark ? 'dark' : 'light',
-          primary: {
-            main: 'rgb(253, 196, 51)',
-          },
-          secondary: {
-            main: '#e6b602',
-          },
+          ...createUserThemeColor(menu.userThemeColor || 'yorkie'),
         },
       }),
     [menu],

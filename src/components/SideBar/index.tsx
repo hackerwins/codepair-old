@@ -9,7 +9,6 @@ import { makeStyles } from 'styles/common';
 import EventNote from '@mui/icons-material/EventNote';
 import Star from '@mui/icons-material/Star';
 import ListAlt from '@mui/icons-material/ListAlt';
-import AccountTree from '@mui/icons-material/AccountTree';
 import CalendarToday from '@mui/icons-material/CalendarToday';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -29,15 +28,17 @@ import {
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { MimeType } from 'constants/editor';
 import { PageButton } from 'components/NavBar/PageButton';
-import { Delete } from '@mui/icons-material';
+import { Delete, NavigateNext } from '@mui/icons-material';
 import { removeCurrentPage } from 'features/currentSlices';
 import Mouse from '@mui/icons-material/Mouse';
+import ExpandMore from '@mui/icons-material/ExpandMore';
 import { HeadingView } from './HeadingView';
 import { HeadingItem } from './HeadingItem';
 
 import { SidebarItem } from './SidebarItem';
 import { GroupView } from './GroupView';
 import { LinkTreeView } from './LinkTreeView';
+import { WorkspaceButton } from './WorkspaceButton';
 
 interface SideBarProps {
   open: boolean;
@@ -224,7 +225,7 @@ export function SideBar() {
               <Divider />
             </>
           ) : undefined}
-          <TabPanelHeader onClick={() => handleOpenRecents()}>
+          <TabPanelHeader onClick={() => handleOpenRecents()} tools={openRecents ? <ExpandMore /> : <NavigateNext />}>
             <Mouse
               fontSize="small"
               style={{
@@ -312,13 +313,7 @@ export function SideBar() {
               />
             }
           >
-            <AccountTree
-              fontSize="small"
-              style={{
-                marginRight: 6,
-              }}
-            />
-            Workspaces
+            <WorkspaceButton />
           </TabPanelHeader>
           <div>
             <LinkTreeView />

@@ -10,6 +10,7 @@ import { AppState } from 'app/rootReducer';
 import { findCurrentPageLink, ItemType, newLink } from 'features/linkSlices';
 import { makeStyles } from 'styles/common';
 import { MimeType } from 'constants/editor';
+import { useNavigate } from 'react-router-dom';
 
 const useStyles = makeStyles()(() => ({
   menu: {
@@ -26,6 +27,7 @@ interface PageButtonProps {
   variant?: 'text' | 'outlined' | 'contained';
   transformOrigin?: { horizontal: 'left' | 'center' | 'right'; vertical: 'top' | 'center' | 'bottom' };
   anchorOrigin?: { horizontal: 'left' | 'center' | 'right'; vertical: 'top' | 'center' | 'bottom' };
+  onClose?: () => void;
 }
 
 export function PageButton({
@@ -35,9 +37,11 @@ export function PageButton({
   variant,
   transformOrigin,
   anchorOrigin,
+  onClose,
 }: PageButtonProps) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const client = useSelector((state: AppState) => state.docState.client);
   const currentItem = useSelector(findCurrentPageLink);
   const { classes } = useStyles();
@@ -60,9 +64,10 @@ export function PageButton({
     setAnchorEl(event.currentTarget);
   };
 
-  const handleMenuClose = () => {
+  const handleMenuClose = useCallback(() => {
     setAnchorEl(null);
-  };
+    onClose?.();
+  }, [onClose]);
 
   const open = Boolean(anchorEl);
 
@@ -94,10 +99,12 @@ export function PageButton({
 
         setTimeout(() => {
           dispatch(newLink({ parentId, name, mimeType, fileLink }));
+          setTimeout(() => navigate(fileLink), 100);
+          handleMenuClose();
         }, 1000);
       }
     },
-    [dispatch, client, parentId],
+    [dispatch, client, parentId, navigate, handleMenuClose],
   );
 
   const handleCreateMilkdown = useCallback(
@@ -126,17 +133,25 @@ export function PageButton({
 
         setTimeout(() => {
           dispatch(newLink({ parentId, name, mimeType, fileLink }));
+          setTimeout(() => navigate(fileLink), 100);
+          handleMenuClose();
         }, 1000);
       }
     },
-    [dispatch, client, parentId],
+    [dispatch, client, parentId, navigate, handleMenuClose],
   );
 
   const handleCreateLink = useCallback(
     (name: string) => {
-      dispatch(newLink({ parentId, name }));
+      const newDocKey = `${Math.random().toString(36).substring(7)}`;
+      const fileLink = `/${newDocKey}`;
+      const mimeType = MimeType.MARKDOWN;
+
+      dispatch(newLink({ parentId, name, fileLink, mimeType }));
+      setTimeout(() => navigate(fileLink), 100);
+      handleMenuClose();
     },
-    [dispatch, parentId],
+    [dispatch, parentId, navigate, handleMenuClose],
   );
 
   const buttonTag =

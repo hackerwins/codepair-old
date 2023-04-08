@@ -255,7 +255,9 @@ export default function PageLayout({ children }: PageLayoutProps) {
   } as LayoutProps);
   const location = useLocation();
   const { docKey = '' } = useParams<DocPageProps>();
-  const resizerRef = useRef<any>(null);
+  const resizerRef = useRef<any>({
+    startWidth: navState.sidebarWidth,
+  });
 
   useEffect(() => {
     if (`${import.meta.env.VITE_APP_GOOGLE_ANALYTICS}`) {
@@ -270,30 +272,32 @@ export default function PageLayout({ children }: PageLayoutProps) {
     }
 
     function mouseMove(e: any) {
-      if (resizerRef.current) {
+      if (resizerRef.current.target) {
         const { startX, startWidth } = resizerRef.current;
         const width = startWidth + (e.clientX - startX);
-        if (width > 150 && width < 500) {
+        if (width > 240 && width < 500) {
+          resizerRef.current.endWidth = width;
           dispatch(setSidebarWidth(width));
         }
       }
     }
     function mouseUp() {
-      document.body.style.cursor = 'auto';
-      document.body.style.pointerEvents = 'auto';
-      document.body.style.userSelect = 'auto';
+      if (resizerRef.current) {
+        document.body.style.cursor = 'auto';
+        document.body.style.pointerEvents = 'auto';
+        document.body.style.userSelect = 'auto';
+        resizerRef.current.target = null;
+        resizerRef.current.startWidth = resizerRef.current.endWidth;
 
-      window.removeEventListener('mouseup', mouseUp);
-      window.removeEventListener('mousemove', mouseMove);
+        window.removeEventListener('mouseup', mouseUp);
+        window.removeEventListener('mousemove', mouseMove);
+      }
     }
 
     function mouseDown(e: any) {
       if (e.target.getAttribute('data-resizer') === 'true') {
-        resizerRef.current = {
-          target: e.target,
-          startX: e.clientX,
-          startWidth: navState.sidebarWidth,
-        };
+        resizerRef.current.target = e.target;
+        resizerRef.current.startX = e.clientX;
 
         document.body.style.cursor = 'col-resize';
         document.body.style.pointerEvents = 'none';
@@ -311,8 +315,9 @@ export default function PageLayout({ children }: PageLayoutProps) {
       window.removeEventListener('storage', refresh);
       window.removeEventListener('mousedown', mouseDown);
       window.removeEventListener('mouseup', mouseUp);
+      window.removeEventListener('mousemove', mouseMove);
     };
-  }, [dispatch, navState.sidebarWidth]);
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(saveLastDocument({ docKey }));

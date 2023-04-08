@@ -6,6 +6,8 @@ import BrowserStorage from '../utils/storage';
 
 export type ItemType = LinkItemType | GroupType;
 
+export const DEFAULT_WORKSPACE = 'default';
+
 export interface LinkItemType {
   type: 'link';
   level?: number;
@@ -15,6 +17,7 @@ export interface LinkItemType {
   fileLink?: string;
   linkType?: string;
   links?: ItemType[];
+  workspace?: string;
 }
 
 export interface GroupType {
@@ -28,10 +31,17 @@ export interface OpenState {
   [key: string]: boolean;
 }
 
+export interface WorkSpace {
+  name: string;
+  id: string;
+}
+
 export interface LinkState {
   opens: OpenState;
   favorite: (string | LinkItemType)[];
   links: ItemType[];
+  workspace: string;
+  workspaceList: WorkSpace[];
 }
 
 function traverse<T>(parent: unknown, data: T[], callback: (item: T, parent: T, depth: number) => void, depth = 0) {
@@ -56,13 +66,29 @@ function copyTextToClipboard(text: string) {
   window.navigator.clipboard.writeText(text);
 }
 
+// current workspace
 const SettingModel = new BrowserStorage<LinkState>('$$codepair$$link');
 
 const initialLinkState: LinkState = SettingModel.getValue({
   favorite: [],
   links: [],
+  workspace: DEFAULT_WORKSPACE,
+  workspaceList: [
+    {
+      name: 'Default',
+      id: DEFAULT_WORKSPACE,
+    },
+  ],
   opens: {},
 });
+
+if (!initialLinkState.workspaceList.find((item) => item.id === DEFAULT_WORKSPACE)) {
+  initialLinkState.workspaceList.unshift({
+    name: 'Default',
+    id: DEFAULT_WORKSPACE,
+  });
+  initialLinkState.workspace = DEFAULT_WORKSPACE;
+}
 
 // @deprecated this will be removed in the future
 // rename groups to links
@@ -75,6 +101,11 @@ delete (initialLinkState as any).groups;
 traverse<ItemType>(initialLinkState, initialLinkState.links, (item) => {
   const currentItem = item as LinkItemType;
   if (!item) return;
+
+  if (!currentItem.workspace) {
+    currentItem.workspace = DEFAULT_WORKSPACE;
+  }
+
   if (currentItem.type === 'link') {
     if (currentItem.fileLink?.startsWith('/') !== true) {
       currentItem.fileLink = `/${currentItem.fileLink}`;
@@ -100,6 +131,7 @@ const linkSlice = createSlice({
       state.links = (newValue as any).groups || [];
       state.links = state.links.concat(newValue.links || []);
       state.opens = newValue.opens;
+      state.workspace = newValue.workspace;
     },
     toggleFavorite(state, action: PayloadAction<string | LinkItemType>) {
       const { payload } = action;
@@ -204,6 +236,7 @@ const linkSlice = createSlice({
         fileLink: fileLink || `/${Math.random().toString(36).substring(7)}`,
         linkType: 'pairy',
         links: [],
+        workspace: state.workspace,
       };
 
       let checkParentId = false;
@@ -226,8 +259,6 @@ const linkSlice = createSlice({
       }
 
       SettingModel.setValue(state);
-
-      window.history.pushState({}, '', newLinkInfo.fileLink);
     },
 
     moveLink(
@@ -307,6 +338,8 @@ const linkSlice = createSlice({
             name,
             fileLink,
             linkType: 'pairy',
+            links: [],
+            workspace: state.workspace,
           },
         ];
 
@@ -316,6 +349,27 @@ const linkSlice = createSlice({
       SettingModel.setValue(state);
 
       window.history.pushState({}, '', fileLink);
+    },
+    addWorkspace(state, action: PayloadAction<{ workspace: string }>) {
+      const { workspace } = action.payload;
+
+      const currentWorkspace: WorkSpace = {
+        id: `${Date.now()}`,
+        name: workspace,
+      };
+
+      state.workspaceList = [...state.workspaceList, currentWorkspace];
+
+      state.workspace = currentWorkspace.id;
+
+      SettingModel.setValue(state);
+    },
+    setCurrentWorkspace(state, action: PayloadAction<{ workspace: string }>) {
+      const { workspace } = action.payload;
+
+      state.workspace = workspace;
+
+      SettingModel.setValue(state);
     },
     copyMarkdownTextForGroup(state, action: PayloadAction<string>) {
       const id = action.payload;
@@ -398,7 +452,7 @@ export interface LinkListItem {
   depth: number;
 }
 
-function traverseTree(list: LinkListItem[], item: LinkItemType, depth = 0) {
+function traverseTree(list: LinkListItem[], item: LinkItemType, depth = 0, workspace = DEFAULT_WORKSPACE) {
   if (item.type === 'link') {
     list.push({
       depth,
@@ -409,14 +463,14 @@ function traverseTree(list: LinkListItem[], item: LinkItemType, depth = 0) {
   }
 
   if (item.links) {
-    item.links.forEach((it) => traverseTree(list, it as LinkItemType, depth + 1));
+    item.links.forEach((it) => traverseTree(list, it as LinkItemType, depth + 1, workspace));
   }
 }
 
 export function toFlatPageLinksSelector(state: AppState): LinkListItem[] {
   const list: [] = [];
 
-  state.linkState.links.forEach((item) => traverseTree(list, item as LinkItemType, 0));
+  state.linkState.links.forEach((item) => traverseTree(list, item as LinkItemType, 0, state.linkState.workspace));
 
   return list;
 }
@@ -434,5 +488,7 @@ export const {
   newLink,
   moveLink,
   setLinkOpens,
+  setCurrentWorkspace,
+  addWorkspace,
 } = linkSlice.actions;
 export default linkSlice.reducer;

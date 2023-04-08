@@ -20,7 +20,7 @@ export enum TabSize {
   Eight = '8',
 }
 
-export type MenuKey = 'theme' | 'codeKeyMap' | 'tabSize' | 'userName' | 'userColor';
+export type MenuKey = 'theme' | 'codeKeyMap' | 'tabSize' | 'userName' | 'userColor' | 'userThemeColor';
 
 export type Menu = Record<MenuKey, string>;
 
@@ -42,6 +42,7 @@ const initialState: SettingState = SettingModel.getValue({
     tabSize: TabSize.Two,
     userName: randomName,
     userColor: randomColor(),
+    userThemeColor: 'yorkie',
   },
 });
 
@@ -79,8 +80,13 @@ const settingSlice = createSlice({
       state.menu.userColor = action.payload;
       SettingModel.setValue(state);
     },
+    setUserThemeColor(state, action: PayloadAction<string>) {
+      state.menu.userThemeColor = action.payload;
+      SettingModel.setValue(state);
+    },
   },
 });
 
-export const { setDarkMode, setCodeKeyMap, setTabSize, setUserName, setUserColor } = settingSlice.actions;
+export const { setDarkMode, setCodeKeyMap, setTabSize, setUserName, setUserColor, setUserThemeColor } =
+  settingSlice.actions;
 export default settingSlice.reducer;

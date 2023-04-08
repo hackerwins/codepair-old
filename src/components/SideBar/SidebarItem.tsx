@@ -121,10 +121,12 @@ const useStyles = makeStyles()((theme) => ({
     },
     [`&:hover`]: {
       backgroundColor: theme.palette.mode === Theme.Dark ? theme.palette.primary.dark : theme.palette.primary.light,
+      color: theme.palette.primary.contrastText,
     },
   },
   sidebarItemSelected: {
     backgroundColor: theme.palette.mode === Theme.Dark ? theme.palette.primary.dark : theme.palette.primary.light,
+    color: theme.palette.primary.contrastText,
   },
   level0: {
     paddingLeft: theme.spacing(0),
@@ -337,97 +339,104 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
       <IconButton onClick={handleClick} size="small">
         <MoreHoriz />
       </IconButton>
-      <Menu
-        id="long-menu"
-        className={classes.moreMenu}
-        MenuListProps={{
-          'aria-labelledby': 'long-button',
-        }}
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'left',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'left',
-        }}
-      >
-        {options.map((option) =>
-          option === '-' ? (
-            <Divider key={`${option}-${Date.now()}-${Math.random()}`} />
-          ) : (
-            <MenuItem
-              key={option}
-              onClick={() => handleClose(option)}
-              style={{
-                color: option === 'Delete' ? 'red' : undefined,
-              }}
-            >
-              <ListItemIcon
+      {open ? (
+        <Menu
+          id="long-menu"
+          className={classes.moreMenu}
+          MenuListProps={{
+            'aria-labelledby': 'long-button',
+          }}
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+          anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+          }}
+        >
+          {options.map((option) =>
+            option === '-' ? (
+              <Divider key={`${option}-${Date.now()}-${Math.random()}`} />
+            ) : (
+              <MenuItem
+                key={option}
+                onClick={() => handleClose(option)}
                 style={{
-                  minWidth: 30,
+                  color: option === 'Delete' ? 'red' : undefined,
                 }}
               >
-                {option === 'Delete' ? (
-                  <Delete
-                    style={{
-                      color: 'red',
-                    }}
-                  />
-                ) : undefined}
-                {option === 'New subpage' ? <Description /> : undefined}
-                {option === 'Add current note' ? <SubdirectoryArrowLeft /> : undefined}
-                {option === 'Rename' ? <Edit /> : undefined}
-                {option === 'Open in Browser' ? <OpenInBrowser /> : undefined}
-                {option === 'Copy' ? <FileCopy /> : undefined}
-                {option === 'Update link' ? <Update /> : undefined}
-                {option === 'Favorite' ? (
-                  <Star
-                    style={{
-                      color: favorite.includes(item.id) ? 'blue' : undefined,
-                    }}
-                  />
-                ) : undefined}
-              </ListItemIcon>
-              <ListItemText>
-                {option === 'New subpage' ? (
-                  <PageButton
-                    icon={null}
-                    insertTarget={item}
-                    title="New subpage"
-                    transformOrigin={{ horizontal: 'left', vertical: 'center' }}
-                    anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
-                  />
-                ) : (
-                  option
-                )}
-              </ListItemText>
-            </MenuItem>
-          ),
-        )}
-      </Menu>
-      <Dialog
-        open={dialogOpen}
-        onClose={handleDialogClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">Confirm</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            If you delete the link, it cannot be recovered.Are you sure you want to delete it anyway?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDialogClose}>Cancel</Button>
-          <Button onClick={handleDeleteLink} autoFocus variant="contained" color="primary">
-            OK
-          </Button>
-        </DialogActions>
-      </Dialog>
+                <ListItemIcon
+                  style={{
+                    minWidth: 30,
+                  }}
+                >
+                  {option === 'Delete' ? (
+                    <Delete
+                      style={{
+                        color: 'red',
+                      }}
+                    />
+                  ) : undefined}
+                  {option === 'New subpage' ? <Description /> : undefined}
+                  {option === 'Add current note' ? <SubdirectoryArrowLeft /> : undefined}
+                  {option === 'Rename' ? <Edit /> : undefined}
+                  {option === 'Open in Browser' ? <OpenInBrowser /> : undefined}
+                  {option === 'Copy' ? <FileCopy /> : undefined}
+                  {option === 'Update link' ? <Update /> : undefined}
+                  {option === 'Favorite' ? (
+                    <Star
+                      style={{
+                        color: favorite.includes(item.id) ? 'blue' : undefined,
+                      }}
+                    />
+                  ) : undefined}
+                </ListItemIcon>
+                <ListItemText>
+                  {option === 'New subpage' ? (
+                    <PageButton
+                      icon={null}
+                      insertTarget={item}
+                      title="New subpage"
+                      onClose={handleClose}
+                      transformOrigin={{ horizontal: 'left', vertical: 'center' }}
+                      anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
+                    />
+                  ) : (
+                    option
+                  )}
+                </ListItemText>
+              </MenuItem>
+            ),
+          )}
+        </Menu>
+      ) : undefined}
+
+      {dialogOpen ? (
+        <Dialog
+          open={dialogOpen}
+          onClose={handleDialogClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">Confirm</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              If you delete the link, it cannot be recovered.Are you sure you want to delete it anyway?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDialogClose}>Cancel</Button>
+            <Button onClick={handleDeleteLink} autoFocus variant="contained" color="primary">
+              OK
+            </Button>
+          </DialogActions>
+        </Dialog>
+      ) : undefined}
+
       <Snackbar
         open={openSnackbar}
         autoHideDuration={1000}

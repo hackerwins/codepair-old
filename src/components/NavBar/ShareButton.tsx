@@ -79,52 +79,55 @@ export default function ShareButton() {
         size="small"
         color="primary"
         variant="contained"
+        disableElevation
         startIcon={<Group />}
         onClick={openModal}
         disabled={status === DocStatus.Disconnect}
       >
         Share
       </Button>
-      <Dialog open={open} onClose={closeModal} className={classes.dialog}>
-        <DialogTitle>
-          Share Code
-          <IconButton aria-label="close" onClick={closeModal}>
-            <Close />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent dividers>
-          <Box my={3}>
-            <Typography>Anyone can access the code in real time through this URL.</Typography>
-          </Box>
-          <Box my={1}>
-            <DialogContentText>Share this URL</DialogContentText>
-          </Box>
-          <Box display="flex">
-            <input readOnly ref={inputRef} className={classes.input} value={copyUrl} onFocus={onFocus} />
-            <CopyToClipboard text={copyUrl} onCopy={onCopy}>
-              <IconButton color="primary">
-                <FileCopy />
-              </IconButton>
-            </CopyToClipboard>
-            <Fade show={showCopyText} onFadeout={() => setShowCopyText(false)}>
-              <p>Copy!</p>
-            </Fade>
-          </Box>
-          <Box my={1} style={{ marginTop: 10 }}>
-            <DialogContentText>QRCode</DialogContentText>
-          </Box>
-          <Box>
-            <IconButton aria-label="selector">
-              <QRCode value={copyUrl} style={{ width: 150, height: 150 }} />
+      {open ? (
+        <Dialog open={open} onClose={closeModal} className={classes.dialog}>
+          <DialogTitle>
+            Share Code
+            <IconButton aria-label="close" onClick={closeModal}>
+              <Close />
             </IconButton>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={closeModal} color="primary" variant="contained" autoFocus>
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
+          </DialogTitle>
+          <DialogContent dividers>
+            <Box my={3}>
+              <Typography>Anyone can access the code in real time through this URL.</Typography>
+            </Box>
+            <Box my={1}>
+              <DialogContentText>Share this URL</DialogContentText>
+            </Box>
+            <Box display="flex">
+              <input readOnly ref={inputRef} className={classes.input} value={copyUrl} onFocus={onFocus} />
+              <CopyToClipboard text={copyUrl} onCopy={onCopy}>
+                <IconButton color="primary">
+                  <FileCopy />
+                </IconButton>
+              </CopyToClipboard>
+              <Fade show={showCopyText} onFadeout={() => setShowCopyText(false)}>
+                <p>Copy!</p>
+              </Fade>
+            </Box>
+            <Box my={1} style={{ marginTop: 10 }}>
+              <DialogContentText>QRCode</DialogContentText>
+            </Box>
+            <Box>
+              <IconButton aria-label="selector">
+                <QRCode value={copyUrl} style={{ width: 150, height: 150 }} />
+              </IconButton>
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={closeModal} color="primary" variant="contained" autoFocus>
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
+      ) : undefined}
     </div>
   );
 }

@@ -1,14 +1,13 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, ChangeEvent } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
 import { Preview, setPreview } from 'features/docSlices';
-import { setUserName, setUserColor } from 'features/settingSlices';
+import { setUserName, setUserColor, setUserThemeColor } from 'features/settingSlices';
 import { AppDispatch } from 'app/store';
 import { AppState } from 'app/rootReducer';
 import { updatePresenceColor } from 'features/peerSlices';
 import { makeStyles } from 'styles/common';
-import { debounce, FormControl, TextField } from '@mui/material';
+import { debounce, FormControl, NativeSelect, TextField } from '@mui/material';
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -54,12 +53,11 @@ export default function Settings() {
   const doc = useSelector((state: AppState) => state.docState.doc);
   const menu = useSelector((state: AppState) => state.settingState.menu);
 
-  const debounceSave = useCallback(
-    debounce((value) => {
-      dispatch(setUserName(value));
-    }, 2000),
-    [],
-  );
+  const debounceFunc = debounce((value) => {
+    dispatch(setUserName(value));
+  }, 2000);
+
+  const debounceSave = useCallback(debounceFunc, [debounceFunc]);
 
   useEffect(() => {
     if (!doc) {
@@ -75,7 +73,7 @@ export default function Settings() {
     return () => {
       unsubscribe();
     };
-  }, [doc]);
+  }, [doc, dispatch]);
 
   const handleInputUserName = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -93,6 +91,14 @@ export default function Settings() {
       }
 
       dispatch(setUserColor(value));
+    },
+    [dispatch, client],
+  );
+
+  const handleInputUserThemeColor = useCallback(
+    (event: ChangeEvent<HTMLSelectElement>) => {
+      const { value } = event.target;
+      dispatch(setUserThemeColor(value));
     },
     [dispatch],
   );
@@ -120,6 +126,20 @@ export default function Settings() {
             }}
           >
             <input type="color" defaultValue={menu.userColor} onChange={handleInputUserColor} />
+          </FormControl>
+        </div>
+        <div className={classes.item}>
+          <div className={classes.itemTitle}>Theme Color</div>
+          <FormControl
+            className={classes.itemInfo}
+            style={{
+              justifyContent: 'start',
+            }}
+          >
+            <NativeSelect name="userThemeColor" value={menu?.userThemeColor} onChange={handleInputUserThemeColor}>
+              <option value="yorkie">Yorkie</option>
+              <option value="mui">MUI</option>
+            </NativeSelect>
           </FormControl>
         </div>
       </div>
