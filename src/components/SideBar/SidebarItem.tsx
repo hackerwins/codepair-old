@@ -88,18 +88,6 @@ function getTitle() {
 }
 
 const useStyles = makeStyles()((theme) => ({
-  title: {
-    flexGrow: 1,
-    padding: '15px 16px',
-    backgroundColor: '#f5f5f5',
-  },
-  tabListDark: {
-    backgroundColor: '#33333',
-  },
-  tabListLight: {
-    backgroundColor: '#fafafa',
-    borderBottom: '1px solid #e8e8e8',
-  },
   listItemText: {
     [`& .MuiTypography-root`]: {
       fontSize: '0.875rem',
@@ -109,13 +97,8 @@ const useStyles = makeStyles()((theme) => ({
       textOverflow: 'ellipsis',
     },
   },
-  listSubHeader: {
-    lineHeight: 1.5,
-    [`&:hover .group-item-button`]: {
-      visibility: 'visible !important' as any,
-    },
-  },
   sidebarItem: {
+    transitionProperty: 'background-color, color',
     [`&:hover .sidebar-item-more`]: {
       visibility: 'visible !important' as any,
     },
@@ -160,12 +143,6 @@ const useStyles = makeStyles()((theme) => ({
   },
   level10: {
     paddingLeft: theme.spacing(30),
-  },
-  moreMenu: {},
-  tooltip: {
-    '& .MuiTooltip-tooltip': {
-      fontSize: '1.5rem',
-    },
   },
   dropTargetTop: {},
   dropTargetBottom: {},
@@ -256,7 +233,6 @@ interface MoreMenuProps {
 function MoreMenu({ item, startRename }: MoreMenuProps) {
   const dispatch = useDispatch<AppDispatch>();
   const favorite = useSelector((state: AppState) => state.linkState.favorite);
-  const { classes } = useStyles();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const { docKey } = useParams<{ docKey: string }>();
   const open = Boolean(anchorEl);
@@ -348,7 +324,6 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
       {open ? (
         <Menu
           id="long-menu"
-          className={classes.moreMenu}
           MenuListProps={{
             'aria-labelledby': 'long-button',
           }}
