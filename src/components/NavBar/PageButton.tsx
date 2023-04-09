@@ -185,46 +185,49 @@ export function PageButton({
         </Tooltip>
       )}
 
-      <Menu
-        id="basic-menu"
-        anchorEl={anchorEl}
-        className={classes.menu}
-        open={open}
-        onClose={handleMenuClose}
-        MenuListProps={{
-          'aria-labelledby': 'basic-button',
-        }}
-        transformOrigin={transformOrigin}
-        anchorOrigin={anchorOrigin}
-      >
-        <MenuItem onClick={() => handleCreateLink('Untitled note')}>
-          <ListItemIcon>
-            <EventNote fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Note</ListItemText>
-          <Typography variant="body2" color="text.secondary">
-            1
-          </Typography>
-        </MenuItem>
-        <MenuItem onClick={() => handleCreateWhiteboard('Untitled artboard')}>
-          <ListItemIcon>
-            <Gesture fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Whiteboard</ListItemText>
-          <Typography variant="body2" color="text.secondary">
-            2
-          </Typography>
-        </MenuItem>
-        <MenuItem onClick={() => handleCreateMilkdown('Untitled milkdown')}>
-          <ListItemIcon>
-            <EventNote fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Milkdown</ListItemText>
-          <Typography variant="body2" color="text.secondary">
-            3
-          </Typography>
-        </MenuItem>
-      </Menu>
+      {open ? (
+        <Menu
+          id="basic-menu"
+          elevation={2}
+          anchorEl={anchorEl}
+          className={classes.menu}
+          open={open}
+          onClose={handleMenuClose}
+          MenuListProps={{
+            'aria-labelledby': 'basic-button',
+          }}
+          transformOrigin={transformOrigin}
+          anchorOrigin={anchorOrigin}
+        >
+          <MenuItem onClick={() => handleCreateLink('Untitled note')}>
+            <ListItemIcon>
+              <EventNote fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Note</ListItemText>
+            <Typography variant="body2" color="text.secondary">
+              1
+            </Typography>
+          </MenuItem>
+          <MenuItem onClick={() => handleCreateWhiteboard('Untitled artboard')}>
+            <ListItemIcon>
+              <Gesture fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Whiteboard</ListItemText>
+            <Typography variant="body2" color="text.secondary">
+              2
+            </Typography>
+          </MenuItem>
+          <MenuItem onClick={() => handleCreateMilkdown('Untitled milkdown')}>
+            <ListItemIcon>
+              <EventNote fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Milkdown</ListItemText>
+            <Typography variant="body2" color="text.secondary">
+              3
+            </Typography>
+          </MenuItem>
+        </Menu>
+      ) : undefined}
     </div>
   );
 }

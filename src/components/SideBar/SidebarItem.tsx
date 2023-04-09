@@ -336,7 +336,13 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
 
   return (
     <div>
-      <IconButton onClick={handleClick} size="small">
+      <IconButton
+        onClick={handleClick}
+        size="small"
+        style={{
+          padding: 2,
+        }}
+      >
         <MoreHoriz />
       </IconButton>
       {open ? (
@@ -347,6 +353,7 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
             'aria-labelledby': 'long-button',
           }}
           anchorEl={anchorEl}
+          elevation={2}
           open={open}
           onClose={handleClose}
           anchorOrigin={{
@@ -548,6 +555,7 @@ export function SidebarItem({ item, level, loopType }: SidebarItemProps) {
 
   return (
     <ListItem
+      dense
       className={[
         className,
         classes.sidebarItem,

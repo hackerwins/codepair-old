@@ -315,9 +315,9 @@ export function SideBar() {
           >
             <WorkspaceButton />
           </TabPanelHeader>
-          <div>
+          <List dense>
             <LinkTreeView />
-          </div>
+          </List>
           <Box height={100} />
         </TabPanel>
 

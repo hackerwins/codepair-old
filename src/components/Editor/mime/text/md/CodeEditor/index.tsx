@@ -375,6 +375,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
         {anchorEl && (
           <Popover
             open
+            elevation={2}
             anchorEl={anchorEl}
             transformOrigin={{
               vertical: 'top',

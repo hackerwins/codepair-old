@@ -1,11 +1,12 @@
 import React, { MouseEvent, useCallback, useEffect, useState } from 'react';
 import { AppState } from 'app/rootReducer';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ItemType, LinkItemType } from 'features/linkSlices';
+import { DEFAULT_WORKSPACE, ItemType, LinkItemType, setCurrentWorkspace } from 'features/linkSlices';
 import { Button, Divider, List, ListItemButton, ListItemText, Popover, Typography } from '@mui/material';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import Add from '@mui/icons-material/Add';
+import Adjust from '@mui/icons-material/Adjust';
 
 import { makeStyles } from 'styles/common';
 import { PageButton } from './PageButton';
@@ -27,11 +28,15 @@ const useStyles = makeStyles()((theme) => ({
 
 export function LinkNavigation() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { classes } = useStyles();
   const linkState = useSelector((state: AppState) => state.linkState);
   const [linkList, setLinkList] = useState<ItemType[]>([]);
   const { docKey } = useParams<{ docKey: string }>();
-
+  const currentWorkspace = useSelector((state: AppState) => {
+    const currentLink = linkList[linkList.length - 1] as LinkItemType;
+    return state.linkState.workspaceList.find((w) => w.id === currentLink?.workspace);
+  });
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | undefined>();
   const handleSettingsClick = useCallback((event: MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -40,6 +45,13 @@ export function LinkNavigation() {
   const handleSettingsClose = useCallback(() => {
     setAnchorEl(undefined);
   }, []);
+
+  const handleSetCurrentWorkspace = useCallback(
+    (id?: string) => {
+      dispatch(setCurrentWorkspace({ workspace: id || DEFAULT_WORKSPACE }));
+    },
+    [dispatch],
+  );
 
   const showTreeNode = useCallback(
     (id: string) => {
@@ -124,6 +136,7 @@ export function LinkNavigation() {
         <Popover
           open
           anchorEl={anchorEl}
+          elevation={1}
           transformOrigin={{
             vertical: 'top',
             horizontal: 'left',
@@ -134,10 +147,23 @@ export function LinkNavigation() {
           }}
           onClose={handleSettingsClose}
         >
-          <List>
+          <List
+            style={{
+              minWidth: 200,
+            }}
+          >
             <li>
               <Typography sx={{ mt: 0.5, ml: 2 }} color="text.secondary" display="block" variant="caption">
-                Workspace
+                <Button
+                  size="small"
+                  style={{
+                    textTransform: 'none',
+                  }}
+                  startIcon={<Adjust />}
+                  onClick={() => handleSetCurrentWorkspace(currentWorkspace?.id)}
+                >
+                  {currentWorkspace?.name}
+                </Button>
               </Typography>
             </li>
             {linkList.map((item, depth) => {
