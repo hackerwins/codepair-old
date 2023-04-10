@@ -183,6 +183,7 @@ export function TimelineDialog({ open, selectedDateTime, handleClose, color, nam
               <Popover
                 open={Boolean(anchorEl)}
                 anchorEl={anchorEl}
+                elevation={2}
                 onClose={handleEmojiClose}
                 anchorOrigin={{
                   vertical: 'bottom',

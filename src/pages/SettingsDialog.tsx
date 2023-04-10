@@ -11,7 +11,7 @@ export function SettingsDialog({ open, handleClose }: SettingsDialogProps) {
   return (
     <Dialog open={open} onClose={handleClose}>
       <DialogTitle>
-        <Typography variant="h6">User Settings</Typography>
+        <Typography>User Settings</Typography>
       </DialogTitle>
       <DialogContent>
         <Settings />

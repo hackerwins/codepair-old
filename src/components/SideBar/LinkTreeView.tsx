@@ -45,6 +45,8 @@ export function LinkTreeView() {
       function searchPath(data: unknown[], depth: number, callback: (item: any) => boolean): boolean {
         let found = false;
         for (let i = 0; i < data.length; i += 1) {
+          if (!data[i]) continue;
+
           parentList[depth] = (data[i] as any).id;
           if (callback(data[i])) {
             currentDepth = depth;
@@ -63,7 +65,7 @@ export function LinkTreeView() {
       }
 
       searchPath(linkState.links, 0, (item) => {
-        return item.id === id;
+        return item?.id === id;
       });
 
       if (currentDepth > -1) {
@@ -94,21 +96,23 @@ export function LinkTreeView() {
 
   return (
     <>
-      {linkState.links.map((it) => {
-        if (!it) {
-          return null;
-        }
+      {linkState.links
+        .filter((it) => (it as any).workspace === linkState.workspace)
+        .map((it) => {
+          if (!it) {
+            return null;
+          }
 
-        if (it.type === 'link' && it.linkType === 'heading') {
-          return <HeadingItem key={it.id} item={it} level={0} loopType="favorite" />;
-        }
+          if (it.type === 'link' && it.linkType === 'heading') {
+            return <HeadingItem key={it.id} item={it} level={0} loopType="favorite" />;
+          }
 
-        return it.type === 'group' ? (
-          <GroupView key={it.id} group={it} loopType="favorite" />
-        ) : (
-          <SidebarItemView key={it.id} item={it} loopType="favorite" />
-        );
-      })}
+          return it.type === 'group' ? (
+            <GroupView key={it.id} group={it} loopType="favorite" />
+          ) : (
+            <SidebarItemView key={it.id} item={it} loopType="favorite" />
+          );
+        })}
     </>
   );
 }

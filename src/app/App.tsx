@@ -18,6 +18,7 @@ import { Theme } from 'features/settingSlices';
 import DocPage from 'pages/DocPage';
 import CalendarPage from 'pages/CalendarPage';
 import { EmptyPage } from 'pages/EmptyPage';
+import { NewPage } from 'pages/NewPage';
 import { AppState } from './rootReducer';
 
 if (import.meta.env.PROD) {
@@ -49,6 +50,10 @@ const router = createBrowserRouter([
     element: <EmptyPage />,
   },
   {
+    path: '/new',
+    element: <NewPage />,
+  },
+  {
     path: '/calendar',
     element: <CalendarPage />,
   },
@@ -63,6 +68,21 @@ export const muiCache = createCache({
   prepend: true,
 });
 
+function createUserThemeColor(colorType: string) {
+  if (colorType === 'mui') {
+    return {};
+  }
+
+  return {
+    primary: {
+      main: 'rgb(253, 196, 51)',
+    },
+    secondary: {
+      main: '#e6b602',
+    },
+  };
+}
+
 function App() {
   const menu = useSelector((state: AppState) => state.settingState.menu);
   const theme = useMemo(
@@ -70,12 +90,7 @@ function App() {
       createTheme({
         palette: {
           mode: menu.theme === Theme.Dark ? 'dark' : 'light',
-          primary: {
-            main: 'rgb(253, 196, 51)',
-          },
-          secondary: {
-            main: '#e6b602',
-          },
+          ...createUserThemeColor(menu.userThemeColor || 'yorkie'),
         },
       }),
     [menu],
