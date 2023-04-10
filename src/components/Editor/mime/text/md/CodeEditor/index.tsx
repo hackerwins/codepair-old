@@ -12,7 +12,7 @@ import { Preview, updateHeadings, getTableOfContents } from 'features/docSlices'
 
 import { updateLinkNameWithHeading } from 'features/linkSlices';
 import { makeStyles } from 'styles/common';
-import { IconButton, Popover, Theme, Tooltip } from '@mui/material';
+import { Button, IconButton, Popover, Theme, Tooltip } from '@mui/material';
 import Keyboard from '@mui/icons-material/Keyboard';
 import { NAVBAR_HEIGHT } from 'constants/editor';
 import { addRecentPage } from 'features/currentSlices';
@@ -364,6 +364,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
         options={options}
       />
       <div className={classes.customToolbar}>
+        <Button onClick={() => window.open('https://www.markdownguide.org/basic-syntax/')}>Markdown</Button>
         <Tooltip title="Settings" arrow>
           <IconButton aria-label="settings" onClick={handleSettingsClick}>
             <Keyboard />
@@ -372,6 +373,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
         {anchorEl && (
           <Popover
             open
+            elevation={2}
             anchorEl={anchorEl}
             transformOrigin={{
               vertical: 'top',

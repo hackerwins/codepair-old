@@ -80,7 +80,8 @@ export default function PeerGroup() {
           );
         })}
       </AvatarGroup>
-      <Popover open={!!anchorEl} anchorEl={anchorEl} onClose={handleViewListClose}>
+
+      <Popover elevation={2} open={!!anchorEl} anchorEl={anchorEl} onClose={handleViewListClose}>
         <PeerList />
       </Popover>
     </>

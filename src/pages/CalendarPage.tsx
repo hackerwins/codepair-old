@@ -76,7 +76,7 @@ export default function CalendarPage() {
       <div
         style={{
           display: 'flex',
-          height: `calc(100% - 64px)`,
+          height: `calc(100vh - 64px)`,
         }}
       >
         <div className={classes.timeline}>

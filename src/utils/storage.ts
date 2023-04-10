@@ -10,7 +10,10 @@ export default class BrowserStorage<T> {
 
   getValue(initial: T): T {
     try {
-      return JSON.parse(this.storage[this.key]) as T;
+      return {
+        ...initial,
+        ...(JSON.parse(this.storage[this.key]) as T),
+      };
     } catch {
       return initial;
     }

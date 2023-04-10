@@ -51,13 +51,8 @@ import {
 import { PageButton } from 'components/NavBar/PageButton';
 import Description from '@mui/icons-material/Description';
 import { addRecentPage } from 'features/currentSlices';
+import { Theme } from 'features/settingSlices';
 import { SideBarItemList } from './SidebarItemList';
-
-interface SideBarProps {
-  open: boolean;
-}
-
-const SIDEBAR_WIDTH = 300;
 
 function getTitle() {
   let { title } = document;
@@ -92,50 +87,7 @@ function getTitle() {
   return title;
 }
 
-const useStyles = makeStyles<SideBarProps>()((theme, props) => ({
-  title: {
-    flexGrow: 1,
-    padding: '15px 16px',
-    backgroundColor: '#f5f5f5',
-  },
-  tabListDark: {
-    backgroundColor: '#33333',
-  },
-  tabListLight: {
-    backgroundColor: '#fafafa',
-    borderBottom: '1px solid #e8e8e8',
-  },
-  drawer: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    right: 0,
-    bottom: 0,
-    flexShrink: 0,
-    transform: `translateX(${props.open ? 0 : -SIDEBAR_WIDTH}px) translateZ(0)`,
-    [`& .MuiDrawer-paper`]: {
-      width: SIDEBAR_WIDTH,
-      boxSizing: 'border-box',
-      position: 'absolute',
-      transition: 'width 225ms cubic-bezier(0, 0, 0.2, 1) 0ms',
-    },
-
-    [`& .MuiListItem-root`]: {
-      paddingTop: 2,
-      paddingBottom: 2,
-    },
-
-    [`& .MuiTabPanel-root`]: {
-      padding: 0,
-    },
-
-    [`& .MuiTab-root`]: {
-      minWidth: 0,
-      padding: '0 16px',
-      fontSize: '0.875rem',
-      textTransform: 'none',
-    },
-  },
+const useStyles = makeStyles()((theme) => ({
   listItemText: {
     [`& .MuiTypography-root`]: {
       fontSize: '0.875rem',
@@ -145,21 +97,19 @@ const useStyles = makeStyles<SideBarProps>()((theme, props) => ({
       textOverflow: 'ellipsis',
     },
   },
-  listSubHeader: {
-    lineHeight: 1.5,
-    [`&:hover .group-item-button`]: {
-      visibility: 'visible !important' as any,
-    },
-  },
-  listItem: {
-    '&:hover': {
-      backgroundColor: 'rgba(0, 0, 0, 0.04)',
-    },
-  },
   sidebarItem: {
+    transitionProperty: 'background-color, color',
     [`&:hover .sidebar-item-more`]: {
       visibility: 'visible !important' as any,
     },
+    [`&:hover`]: {
+      backgroundColor: theme.palette.mode === Theme.Dark ? theme.palette.primary.dark : theme.palette.primary.light,
+      color: theme.palette.primary.contrastText,
+    },
+  },
+  sidebarItemSelected: {
+    backgroundColor: theme.palette.mode === Theme.Dark ? theme.palette.primary.dark : theme.palette.primary.light,
+    color: theme.palette.primary.contrastText,
   },
   level0: {
     paddingLeft: theme.spacing(0),
@@ -193,12 +143,6 @@ const useStyles = makeStyles<SideBarProps>()((theme, props) => ({
   },
   level10: {
     paddingLeft: theme.spacing(30),
-  },
-  moreMenu: {},
-  tooltip: {
-    '& .MuiTooltip-tooltip': {
-      fontSize: '1.5rem',
-    },
   },
   dropTargetTop: {},
   dropTargetBottom: {},
@@ -289,7 +233,6 @@ interface MoreMenuProps {
 function MoreMenu({ item, startRename }: MoreMenuProps) {
   const dispatch = useDispatch<AppDispatch>();
   const favorite = useSelector((state: AppState) => state.linkState.favorite);
-  const { classes } = useStyles({ open: true });
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const { docKey } = useParams<{ docKey: string }>();
   const open = Boolean(anchorEl);
@@ -369,100 +312,113 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
 
   return (
     <div>
-      <IconButton onClick={handleClick} size="small">
+      <IconButton
+        onClick={handleClick}
+        size="small"
+        style={{
+          padding: 2,
+        }}
+      >
         <MoreHoriz />
       </IconButton>
-      <Menu
-        id="long-menu"
-        className={classes.moreMenu}
-        MenuListProps={{
-          'aria-labelledby': 'long-button',
-        }}
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'left',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'left',
-        }}
-      >
-        {options.map((option) =>
-          option === '-' ? (
-            <Divider key={`${option}-${Date.now()}-${Math.random()}`} />
-          ) : (
-            <MenuItem
-              key={option}
-              onClick={() => handleClose(option)}
-              style={{
-                color: option === 'Delete' ? 'red' : undefined,
-              }}
-            >
-              <ListItemIcon
+      {open ? (
+        <Menu
+          id="long-menu"
+          MenuListProps={{
+            'aria-labelledby': 'long-button',
+          }}
+          anchorEl={anchorEl}
+          elevation={2}
+          open={open}
+          onClose={handleClose}
+          anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+          }}
+        >
+          {options.map((option) =>
+            option === '-' ? (
+              <Divider key={`${option}-${Date.now()}-${Math.random()}`} />
+            ) : (
+              <MenuItem
+                key={option}
+                onClick={() => handleClose(option)}
                 style={{
-                  minWidth: 30,
+                  color: option === 'Delete' ? 'red' : undefined,
                 }}
               >
-                {option === 'Delete' ? (
-                  <Delete
-                    style={{
-                      color: 'red',
-                    }}
-                  />
-                ) : undefined}
-                {option === 'New subpage' ? <Description /> : undefined}
-                {option === 'Add current note' ? <SubdirectoryArrowLeft /> : undefined}
-                {option === 'Rename' ? <Edit /> : undefined}
-                {option === 'Open in Browser' ? <OpenInBrowser /> : undefined}
-                {option === 'Copy' ? <FileCopy /> : undefined}
-                {option === 'Update link' ? <Update /> : undefined}
-                {option === 'Favorite' ? (
-                  <Star
-                    style={{
-                      color: favorite.includes(item.id) ? 'blue' : undefined,
-                    }}
-                  />
-                ) : undefined}
-              </ListItemIcon>
-              <ListItemText>
-                {option === 'New subpage' ? (
-                  <PageButton
-                    icon={null}
-                    insertTarget={item}
-                    title="New subpage"
-                    transformOrigin={{ horizontal: 'left', vertical: 'center' }}
-                    anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
-                  />
-                ) : (
-                  option
-                )}
-              </ListItemText>
-            </MenuItem>
-          ),
-        )}
-      </Menu>
-      <Dialog
-        open={dialogOpen}
-        onClose={handleDialogClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">Confirm</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            If you delete the link, it cannot be recovered.Are you sure you want to delete it anyway?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDialogClose}>Cancel</Button>
-          <Button onClick={handleDeleteLink} autoFocus variant="contained" color="primary">
-            OK
-          </Button>
-        </DialogActions>
-      </Dialog>
+                <ListItemIcon
+                  style={{
+                    minWidth: 30,
+                  }}
+                >
+                  {option === 'Delete' ? (
+                    <Delete
+                      style={{
+                        color: 'red',
+                      }}
+                    />
+                  ) : undefined}
+                  {option === 'New subpage' ? <Description /> : undefined}
+                  {option === 'Add current note' ? <SubdirectoryArrowLeft /> : undefined}
+                  {option === 'Rename' ? <Edit /> : undefined}
+                  {option === 'Open in Browser' ? <OpenInBrowser /> : undefined}
+                  {option === 'Copy' ? <FileCopy /> : undefined}
+                  {option === 'Update link' ? <Update /> : undefined}
+                  {option === 'Favorite' ? (
+                    <Star
+                      style={{
+                        color: favorite.includes(item.id) ? 'blue' : undefined,
+                      }}
+                    />
+                  ) : undefined}
+                </ListItemIcon>
+                <ListItemText>
+                  {option === 'New subpage' ? (
+                    <PageButton
+                      icon={null}
+                      insertTarget={item}
+                      title="New subpage"
+                      onClose={() => handleClose('')}
+                      transformOrigin={{ horizontal: 'left', vertical: 'center' }}
+                      anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
+                    />
+                  ) : (
+                    option
+                  )}
+                </ListItemText>
+              </MenuItem>
+            ),
+          )}
+        </Menu>
+      ) : undefined}
+
+      {dialogOpen ? (
+        <Dialog
+          open={dialogOpen}
+          onClose={handleDialogClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">Confirm</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              If you delete the link, it cannot be recovered.Are you sure you want to delete it anyway?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDialogClose}>Cancel</Button>
+            <Button onClick={handleDeleteLink} autoFocus variant="contained" color="primary">
+              OK
+            </Button>
+          </DialogActions>
+        </Dialog>
+      ) : undefined}
+
       <Snackbar
         open={openSnackbar}
         autoHideDuration={1000}
@@ -510,7 +466,7 @@ export function SidebarItem({ item, level, loopType }: SidebarItemProps) {
   const textRef = useRef<string>(item.name);
   const [isRename, setIsRename] = useState(false);
   const { docKey } = useParams<{ docKey: string }>();
-  const { classes } = useStyles({ open: opens[item.id] });
+  const { classes } = useStyles();
   const [dropTarget, setDropTarget] = useState<'' | 'top' | 'bottom' | 'center'>('');
 
   const setOpenCallback = useCallback(() => {
@@ -574,15 +530,16 @@ export function SidebarItem({ item, level, loopType }: SidebarItemProps) {
 
   return (
     <ListItem
+      dense
       className={[
         className,
         classes.sidebarItem,
+        item.fileLink?.startsWith(`/${docKey}`) ? classes.sidebarItemSelected : undefined,
         dropTarget === 'top' ? classes.dropTargetTop : undefined,
         dropTarget === 'bottom' ? classes.dropTargetBottom : undefined,
         dropTarget === 'center' ? classes.dropTargetCenter : undefined,
       ].join(' ')}
       button
-      selected={`/${docKey}` === item.fileLink}
       draggable
       onDragStart={(e) => {
         setDropTarget('');
