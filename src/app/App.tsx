@@ -16,7 +16,6 @@ import { Integrations } from '@sentry/tracing';
 import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 import { Theme } from 'features/settingSlices';
 import DocPage from 'pages/DocPage';
-import CalendarPage from 'pages/CalendarPage';
 import { EmptyPage } from 'pages/EmptyPage';
 import { NewPage } from 'pages/NewPage';
 import { AppState } from './rootReducer';
@@ -52,10 +51,6 @@ const router = createBrowserRouter([
   {
     path: '/new',
     element: <NewPage />,
-  },
-  {
-    path: '/calendar',
-    element: <CalendarPage />,
   },
   {
     path: '/:docKey',

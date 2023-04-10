@@ -1,5 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { MimeType } from 'constants/editor';
+import { createDocumentKey } from 'utils/document';
+import dayjs from 'dayjs';
 import { getTableOfContents } from './docSlices';
 import { AppState } from '../app/rootReducer';
 import BrowserStorage from '../utils/storage';
@@ -18,6 +20,9 @@ export interface LinkItemType {
   linkType?: string;
   links?: ItemType[];
   workspace?: string;
+  createdAt?: string;
+  color?: string;
+  emoji?: string;
 }
 
 export interface GroupType {
@@ -225,18 +230,31 @@ const linkSlice = createSlice({
 
       SettingModel.setValue(state);
     },
-    newLink(state, action: PayloadAction<{ parentId: string; name: string; mimeType?: string; fileLink?: string }>) {
-      const { parentId, name, fileLink, mimeType = 'text/markdown' } = action.payload;
+    newLink(
+      state,
+      action: PayloadAction<{
+        parentId: string;
+        name: string;
+        mimeType?: string;
+        fileLink?: string;
+        color?: string;
+        emoji?: string;
+      }>,
+    ) {
+      const { parentId, name, fileLink, mimeType = 'text/markdown', color, emoji } = action.payload;
 
       const newLinkInfo = {
         type: 'link',
         id: `${Date.now()}`,
+        createdAt: dayjs().format('YYYYMMDDHHmm'),
         name,
         mimeType,
-        fileLink: fileLink || `/${Math.random().toString(36).substring(7)}`,
+        fileLink: fileLink || `/${createDocumentKey()}`,
         linkType: 'pairy',
         links: [],
         workspace: state.workspace,
+        color,
+        emoji,
       };
 
       let checkParentId = false;
@@ -450,6 +468,8 @@ export interface LinkListItem {
   name: string;
   fileLink: string;
   depth: number;
+  createdAt?: string;
+  color?: string;
 }
 
 function traverseTree(list: LinkListItem[], item: LinkItemType, depth = 0, workspace = DEFAULT_WORKSPACE) {
@@ -459,6 +479,8 @@ function traverseTree(list: LinkListItem[], item: LinkItemType, depth = 0, works
       id: item.id,
       name: item.name,
       fileLink: `${item.fileLink}`,
+      createdAt: item.createdAt,
+      color: item.color,
     });
   }
 
@@ -473,6 +495,18 @@ export function toFlatPageLinksSelector(state: AppState): LinkListItem[] {
   state.linkState.links.forEach((item) => traverseTree(list, item as LinkItemType, 0, state.linkState.workspace));
 
   return list;
+}
+
+export function toFlatScheduleLinksSelector(selectedMonth: string) {
+  return (state: AppState): LinkListItem[] => {
+    const list: [] = [];
+
+    state.linkState.links.forEach((item) => traverseTree(list, item as LinkItemType, 0, ''));
+
+    return list.filter((item: LinkListItem) => {
+      return item.createdAt?.startsWith(selectedMonth);
+    });
+  };
 }
 
 export const {

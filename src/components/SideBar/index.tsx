@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { AppState } from 'app/rootReducer';
@@ -9,10 +9,10 @@ import { makeStyles } from 'styles/common';
 import EventNote from '@mui/icons-material/EventNote';
 import Star from '@mui/icons-material/Star';
 import ListAlt from '@mui/icons-material/ListAlt';
-import CalendarToday from '@mui/icons-material/CalendarToday';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Box,
+  Button,
   Collapse,
   Divider,
   Drawer,
@@ -22,16 +22,21 @@ import {
   ListItemText,
   ListSubheader,
   Tab,
+  Tooltip,
   Typography,
 } from '@mui/material';
 
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { MimeType } from 'constants/editor';
 import { PageButton } from 'components/NavBar/PageButton';
-import { Delete, NavigateNext } from '@mui/icons-material';
+import CalendarMonth from '@mui/icons-material/CalendarMonth';
+import Delete from '@mui/icons-material/Delete';
+import NavigateNext from '@mui/icons-material/NavigateNext';
 import { removeCurrentPage } from 'features/currentSlices';
 import Mouse from '@mui/icons-material/Mouse';
 import ExpandMore from '@mui/icons-material/ExpandMore';
+import BasicCalendar from 'components/calendar/BasicCalendar';
+import dayjs from 'dayjs';
 import { HeadingView } from './HeadingView';
 import { HeadingItem } from './HeadingItem';
 
@@ -109,6 +114,32 @@ const useStyles = makeStyles<SideBarProps>()((theme, props) => ({
       fontSize: '1.5rem',
     },
   },
+  timeline: {
+    flex: '1 1 auto',
+    // width: 320,
+    display: 'flex',
+    flexDirection: 'column',
+    boxSizing: 'border-box',
+    borderRight: theme.palette.mode === Theme.Dark ? '1px solid #555555' : '1px solid rgba(0, 0, 0, 0.12)',
+  },
+  calendarArea: {
+    flex: 'none',
+    display: 'flex',
+    flexDirection: 'column',
+    position: 'relative',
+    borderBottom: theme.palette.mode === Theme.Dark ? '1px solid #555555' : '1px solid rgba(0, 0, 0, 0.12)',
+  },
+  timelineList: {
+    flex: '1 1 auto',
+    overflow: 'auto',
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
+
+    '& > * ': {
+      flex: '1 1 auto',
+    },
+  },
 }));
 
 interface TabLabelProps {
@@ -157,6 +188,8 @@ export function SideBar() {
   const navState = useSelector((state: AppState) => state.navState);
   const doc = useSelector((state: AppState) => state.docState.doc);
   const menu = useSelector((state: AppState) => state.settingState.menu);
+  const currentWorkspace = useSelector((state: AppState) => state.linkState.workspace);
+  const selectedDate = useSelector((state: AppState) => state.calendarState.selectedDate);
   const favorites = useSelector(favoriteSelector);
   const recents = useSelector((state: AppState) => state.currentState.recents);
   const { openTab: open, openRecents, sidebarWidth } = navState;
@@ -167,6 +200,7 @@ export function SideBar() {
   const root = doc?.getRoot();
   const mimeType = root?.mimeType || MimeType.MARKDOWN;
   const navigate = useNavigate();
+  const [openCalendar, setOpenCalendar] = useState(false);
 
   const handleOpenRecents = () => {
     dispatch(toggleRecents());
@@ -211,20 +245,6 @@ export function SideBar() {
           </TabList>
         </Box>
         <TabPanel value="pages">
-          {import.meta.env.MODE === 'development' ? (
-            <>
-              <TabPanelHeader onClick={() => navigate('/calendar')}>
-                <CalendarToday
-                  fontSize="small"
-                  style={{
-                    marginRight: 6,
-                  }}
-                />{' '}
-                Calendar
-              </TabPanelHeader>
-              <Divider />
-            </>
-          ) : undefined}
           <TabPanelHeader onClick={() => handleOpenRecents()} tools={openRecents ? <ExpandMore /> : <NavigateNext />}>
             <Mouse
               fontSize="small"
@@ -275,46 +295,73 @@ export function SideBar() {
             </List>
           </Collapse>
           <Divider />
-          <TabPanelHeader>
-            <Star
-              fontSize="small"
-              style={{
-                marginRight: 6,
-              }}
-            />{' '}
-            Favorites
-          </TabPanelHeader>
-          {favorites.map((it) => {
-            if (!it) {
-              return null;
-            }
 
-            if (it.type === 'link' && it.linkType === 'heading') {
-              return <HeadingItem key={it.id} item={it} level={0} loopType="favorite" />;
-            }
+          {import.meta.env.DEV ? (
+            <>
+              <TabPanelHeader>
+                <Star
+                  fontSize="small"
+                  style={{
+                    marginRight: 6,
+                  }}
+                />{' '}
+                Favorites
+              </TabPanelHeader>
+              {favorites.map((it) => {
+                if (!it) {
+                  return null;
+                }
 
-            return it.type === 'group' ? (
-              <GroupView key={it.id} group={it} loopType="favorite" />
-            ) : (
-              <SidebarItem key={it.id} item={it} level={0} loopType="favorite" />
-            );
-          })}
-          <Divider
-            style={{
-              margin: '8px 0',
-            }}
-          />
+                if (it.type === 'link' && it.linkType === 'heading') {
+                  return <HeadingItem key={it.id} item={it} level={0} loopType="favorite" />;
+                }
+
+                return it.type === 'group' ? (
+                  <GroupView key={it.id} group={it} loopType="favorite" />
+                ) : (
+                  <SidebarItem key={it.id} item={it} level={0} loopType="favorite" />
+                );
+              })}
+              <Divider />
+            </>
+          ) : undefined}
+
           <TabPanelHeader
             tools={
-              <PageButton
-                insertTarget="root"
-                transformOrigin={{ horizontal: 'left', vertical: 'top' }}
-                anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
-              />
+              <>
+                {currentWorkspace === 'calendar' ? (
+                  <Tooltip title="Open calendar">
+                    <Button
+                      startIcon={<CalendarMonth fontSize="small" />}
+                      disableRipple
+                      size="small"
+                      onClick={() => setOpenCalendar((v) => !v)}
+                    >
+                      <Typography variant="subtitle2" color="GrayText">
+                        {dayjs(selectedDate, 'YYYYMMDD').format('YYYY-MM-DD')}
+                      </Typography>
+                    </Button>
+                  </Tooltip>
+                ) : undefined}
+                <PageButton
+                  insertTarget="root"
+                  transformOrigin={{ horizontal: 'left', vertical: 'top' }}
+                  anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
+                />
+              </>
             }
           >
             <WorkspaceButton />
           </TabPanelHeader>
+          {currentWorkspace === 'calendar' ? (
+            <div className={classes.timeline}>
+              {openCalendar ? (
+                <div className={classes.calendarArea}>
+                  <BasicCalendar />
+                </div>
+              ) : undefined}
+            </div>
+          ) : undefined}
           <List dense>
             <LinkTreeView />
           </List>

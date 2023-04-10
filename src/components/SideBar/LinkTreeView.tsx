@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import { useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppState } from 'app/rootReducer';
-import { setLinkOpens } from 'features/linkSlices';
+import { LinkItemType, setLinkOpens } from 'features/linkSlices';
 
 import { HeadingItem } from './HeadingItem';
 import { SidebarItemView } from './SidebarItem';
@@ -33,6 +33,7 @@ interface OpenState {
 export function LinkTreeView() {
   const dispatch = useDispatch();
   const linkState = useSelector((state: AppState) => state.linkState);
+  const selectedDate = useSelector((state: AppState) => state.calendarState.selectedDate);
 
   const linkRef = useRef<boolean>(false);
   const { docKey } = useParams<{ docKey: string }>();
@@ -97,7 +98,13 @@ export function LinkTreeView() {
   return (
     <>
       {linkState.links
-        .filter((it) => (it as any).workspace === linkState.workspace)
+        .filter((it) => {
+          if (linkState.workspace === 'calendar') {
+            return (it as LinkItemType)?.createdAt?.startsWith(selectedDate);
+          }
+
+          return (it as any).workspace === linkState.workspace;
+        })
         .map((it) => {
           if (!it) {
             return null;
