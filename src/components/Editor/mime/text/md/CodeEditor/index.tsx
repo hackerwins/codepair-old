@@ -311,8 +311,6 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       tabSize: Number(menu.tabSize),
       maxHeight: `calc(100vh - ${NAVBAR_HEIGHT + WIDGET_HEIGHT}px)`,
       toolbar: [
-        'guide',
-        '|',
         'bold',
         'italic',
         '|',
