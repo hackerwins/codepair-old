@@ -1,6 +1,6 @@
 {
   "index.css": {
-    "file": "assets/index-8e1b856b.css",
+    "file": "assets/index-ed999779.css",
     "src": "index.css"
   },
   "index.html": {
@@ -31,13 +31,12 @@
       "assets/source-sans-pro-latin-400-normal-c124c88c.woff2"
     ],
     "css": [
-      "assets/index-8e1b856b.css"
+      "assets/index-ed999779.css"
     ],
     "dynamicImports": [
-      "src/components/Editor/mime/text/md/Editor.tsx",
       "src/components/Editor/mime/text/milkdown/Editor.tsx"
     ],
-    "file": "assets/index-8c44d207.js",
+    "file": "assets/index-2dd13e63.js",
     "isEntry": true,
     "src": "index.html"
   },
@@ -137,21 +136,6 @@
     "file": "assets/source-sans-pro-vietnamese-400-normal-6e0839c2.woff2",
     "src": "node_modules/@fontsource/source-sans-pro/files/source-sans-pro-vietnamese-400-normal.woff2"
   },
-  "src/components/Editor/mime/text/md/Editor.css": {
-    "file": "assets/Editor-7ac63a43.css",
-    "src": "src/components/Editor/mime/text/md/Editor.css"
-  },
-  "src/components/Editor/mime/text/md/Editor.tsx": {
-    "css": [
-      "assets/Editor-7ac63a43.css"
-    ],
-    "file": "assets/Editor-e8320739.js",
-    "imports": [
-      "index.html"
-    ],
-    "isDynamicEntry": true,
-    "src": "src/components/Editor/mime/text/md/Editor.tsx"
-  },
   "src/components/Editor/mime/text/milkdown/Editor.css": {
     "file": "assets/Editor-6a0bf5f1.css",
     "src": "src/components/Editor/mime/text/milkdown/Editor.css"
@@ -160,7 +144,7 @@
     "css": [
       "assets/Editor-6a0bf5f1.css"
     ],
-    "file": "assets/Editor-8e1acb0a.js",
+    "file": "assets/Editor-e3c670a8.js",
     "imports": [
       "index.html"
     ],
