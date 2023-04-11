@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { MimeType } from 'constants/editor';
-import { createDocumentKey } from 'utils/document';
+import { createDocumentKey, createRandomColor } from 'utils/document';
 import dayjs from 'dayjs';
 import { getTableOfContents } from './docSlices';
 import { AppState } from '../app/rootReducer';
@@ -114,6 +114,14 @@ traverse<ItemType>(initialLinkState, initialLinkState.links, (item) => {
   if (currentItem.type === 'link') {
     if (currentItem.fileLink?.startsWith('/') !== true) {
       currentItem.fileLink = `/${currentItem.fileLink}`;
+    }
+
+    if (!currentItem.createdAt) {
+      currentItem.createdAt = dayjs(+currentItem.id).format('YYYYMMDDHHmm');
+    }
+
+    if (!currentItem.color) {
+      currentItem.color = createRandomColor();
     }
   } else if (currentItem.linkType === 'pairy') {
     if (currentItem.fileLink?.startsWith('/') !== true) {
@@ -357,6 +365,8 @@ const linkSlice = createSlice({
             fileLink,
             linkType: 'pairy',
             links: [],
+            createdAt: dayjs().format('YYYYMMDDHHmm'),
+            color: foundItem.color || createRandomColor(),
             workspace: state.workspace,
           },
         ];
@@ -464,23 +474,27 @@ export function findCurrentPageLink(state: AppState): LinkItemType {
 }
 
 export interface LinkListItem {
+  type: 'link' | 'group';
   id: string;
   name: string;
   fileLink: string;
   depth: number;
   createdAt?: string;
   color?: string;
+  linkType?: string;
 }
 
 function traverseTree(list: LinkListItem[], item: LinkItemType, depth = 0, workspace = DEFAULT_WORKSPACE) {
   if (item.type === 'link') {
     list.push({
       depth,
+      type: item.type,
       id: item.id,
       name: item.name,
       fileLink: `${item.fileLink}`,
       createdAt: item.createdAt,
       color: item.color,
+      linkType: item.linkType,
     });
   }
 
@@ -497,15 +511,15 @@ export function toFlatPageLinksSelector(state: AppState): LinkListItem[] {
   return list;
 }
 
-export function toFlatScheduleLinksSelector(selectedMonth: string) {
-  return (state: AppState): LinkListItem[] => {
-    const list: [] = [];
-
-    state.linkState.links.forEach((item) => traverseTree(list, item as LinkItemType, 0, ''));
-
-    return list.filter((item: LinkListItem) => {
-      return item.createdAt?.startsWith(selectedMonth);
-    });
+export function toFlatScheduleForDate(selectedDate: string) {
+  return (state: AppState) => {
+    return toFlatPageLinksSelector(state)
+      .filter((item) => {
+        return item.createdAt?.startsWith(selectedDate);
+      })
+      .sort((a, b) => {
+        return `${a.createdAt}` > `${b.createdAt}` ? 1 : -1;
+      });
   };
 }
 

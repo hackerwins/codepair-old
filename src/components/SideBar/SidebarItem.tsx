@@ -52,6 +52,7 @@ import {
 import { PageButton } from 'components/NavBar/PageButton';
 import Description from '@mui/icons-material/Description';
 import dayjs from 'dayjs';
+import invert from 'invert-color';
 import { addRecentPage } from 'features/currentSlices';
 import { Theme } from 'features/settingSlices';
 import { SideBarItemList } from './SidebarItemList';
@@ -503,6 +504,10 @@ export function SidebarItem({ item, level, loopType }: SidebarItemProps) {
   }, [loopType, favorite, item.id]);
 
   const className = useMemo(() => {
+    if (currentWorkspace === 'calendar') {
+      return classes.level0;
+    }
+
     switch (level) {
       case 0:
         return classes.level0;
@@ -529,7 +534,31 @@ export function SidebarItem({ item, level, loopType }: SidebarItemProps) {
       default:
         return classes.level0;
     }
-  }, [level, classes]);
+  }, [level, classes, currentWorkspace]);
+
+  let moreIcon = null;
+
+  if (currentWorkspace !== 'calendar') {
+    if (item.links?.length) {
+      moreIcon = <MoreIcon open={opens[item.id]} onClick={setOpenCallback} />;
+    } else {
+      moreIcon = (
+        <div
+          style={{
+            width: 20,
+          }}
+        />
+      );
+    }
+  } else {
+    moreIcon = (
+      <div
+        style={{
+          width: 20,
+        }}
+      />
+    );
+  }
 
   return (
     <ListItem
@@ -594,16 +623,7 @@ export function SidebarItem({ item, level, loopType }: SidebarItemProps) {
         alignItems: 'center',
       }}
     >
-      {item.links?.length ? (
-        <MoreIcon open={opens[item.id]} onClick={setOpenCallback} />
-      ) : (
-        <div
-          style={{
-            width: 20,
-          }}
-        />
-      )}
-
+      {moreIcon}
       {currentWorkspace === 'calendar' ? (
         <Chip
           label={dayjs(item.createdAt, 'YYYYMMDDHHmm').format('HH:mm')}
@@ -611,7 +631,8 @@ export function SidebarItem({ item, level, loopType }: SidebarItemProps) {
           style={{
             height: 20,
             backgroundColor: item.color,
-            color: '#fff',
+            color: invert(`${item.color}`, true),
+            textShadow: `0 0 2px ${invert(invert(`${item.color}`, true), true)}`,
           }}
         />
       ) : (
