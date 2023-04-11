@@ -26,7 +26,6 @@ import { Theme } from 'features/settingSlices';
 import { makeStyles } from 'styles/common';
 import GitHub from '@mui/icons-material/GitHub';
 import { saveLastDocument } from 'features/currentSlices';
-import { refreshCalendarStorage } from 'features/calendarSlices';
 import invert from 'invert-color';
 import { setTool, ToolType } from 'features/boardSlices';
 import { setSidebarWidth } from 'features/navSlices';
@@ -248,6 +247,7 @@ export default function PageLayout({ children }: PageLayoutProps) {
   const dispatch = useDispatch();
   const navState = useSelector((state: AppState) => state.navState);
   const menu = useSelector((state: AppState) => state.settingState.menu);
+  const currentWorkspace = useSelector((state: AppState) => state.linkState.workspace);
   const { classes } = useStyles({
     open: navState.openTab,
     openInstant: navState.openInstant,
@@ -258,6 +258,7 @@ export default function PageLayout({ children }: PageLayoutProps) {
   const resizerRef = useRef<any>({
     startWidth: navState.sidebarWidth,
   });
+  const minWidth = currentWorkspace === 'calendar' ? 320 : 240;
 
   useEffect(() => {
     if (`${import.meta.env.VITE_APP_GOOGLE_ANALYTICS}`) {
@@ -268,14 +269,14 @@ export default function PageLayout({ children }: PageLayoutProps) {
   useEffect(() => {
     function refresh() {
       dispatch(refreshStorage());
-      dispatch(refreshCalendarStorage());
     }
 
     function mouseMove(e: any) {
       if (resizerRef.current.target) {
         const { startX, startWidth } = resizerRef.current;
         const width = startWidth + (e.clientX - startX);
-        if (width > 240 && width < 500) {
+
+        if (width > minWidth && width < 500) {
           resizerRef.current.endWidth = width;
           dispatch(setSidebarWidth(width));
         }
@@ -317,7 +318,7 @@ export default function PageLayout({ children }: PageLayoutProps) {
       window.removeEventListener('mouseup', mouseUp);
       window.removeEventListener('mousemove', mouseMove);
     };
-  }, [dispatch]);
+  }, [dispatch, minWidth]);
 
   useEffect(() => {
     dispatch(saveLastDocument({ docKey }));

@@ -11,6 +11,7 @@ import { findCurrentPageLink, ItemType, newLink } from 'features/linkSlices';
 import { makeStyles } from 'styles/common';
 import { MimeType } from 'constants/editor';
 import { useNavigate } from 'react-router-dom';
+import { createDocumentKey, createRandomColor } from 'utils/document';
 
 const useStyles = makeStyles()(() => ({
   menu: {
@@ -73,7 +74,7 @@ export function PageButton({
 
   const handleCreateWhiteboard = useCallback(
     async (name: string) => {
-      const newDocKey = `${Math.random().toString(36).substring(7)}`;
+      const newDocKey = `${createDocumentKey()}`;
       const fileLink = `/${newDocKey}`;
       const mimeType = 'application/vnd.pairy.whiteboard';
 
@@ -98,7 +99,7 @@ export function PageButton({
         );
 
         setTimeout(() => {
-          dispatch(newLink({ parentId, name, mimeType, fileLink }));
+          dispatch(newLink({ parentId, name, mimeType, fileLink, color: createRandomColor(), emoji: '📅' }));
           setTimeout(() => navigate(fileLink), 100);
           handleMenuClose();
         }, 1000);
@@ -109,7 +110,7 @@ export function PageButton({
 
   const handleCreateMilkdown = useCallback(
     async (name: string) => {
-      const newDocKey = `${Math.random().toString(36).substring(7)}`;
+      const newDocKey = `${createDocumentKey()}`;
       const fileLink = `/${newDocKey}`;
       const mimeType = MimeType.MILKDOWN;
 
@@ -132,7 +133,7 @@ export function PageButton({
         );
 
         setTimeout(() => {
-          dispatch(newLink({ parentId, name, mimeType, fileLink }));
+          dispatch(newLink({ parentId, name, mimeType, fileLink, color: createRandomColor(), emoji: '📅' }));
           setTimeout(() => navigate(fileLink), 100);
           handleMenuClose();
         }, 1000);
@@ -143,11 +144,11 @@ export function PageButton({
 
   const handleCreateLink = useCallback(
     (name: string) => {
-      const newDocKey = `${Math.random().toString(36).substring(7)}`;
+      const newDocKey = `${createDocumentKey()}`;
       const fileLink = `/${newDocKey}`;
       const mimeType = MimeType.MARKDOWN;
 
-      dispatch(newLink({ parentId, name, fileLink, mimeType }));
+      dispatch(newLink({ parentId, name, fileLink, mimeType, color: createRandomColor(), emoji: '📅' }));
       setTimeout(() => navigate(fileLink), 100);
       handleMenuClose();
     },

@@ -126,7 +126,7 @@ function MenuAppBar() {
             <ShareButton />
             <ThemeButton />
           </div>
-          {import.meta.env.MODE === 'development' && (
+          {import.meta.env.DEV && (
             <IconButton
               size="small"
               onClick={() => {

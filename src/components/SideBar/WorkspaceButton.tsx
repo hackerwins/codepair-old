@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Button, Divider, ListItemIcon, ListItemText, Menu, MenuItem, Typography } from '@mui/material';
+import { Button, Divider, ListItemIcon, ListItemText, ListSubheader, Menu, MenuItem, Typography } from '@mui/material';
 import AccountTree from '@mui/icons-material/AccountTree';
-import { UnfoldMore } from '@mui/icons-material';
+import CalendarMonth from '@mui/icons-material/CalendarMonth';
+import UnfoldMore from '@mui/icons-material/UnfoldMore';
 import Add from '@mui/icons-material/Add';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppState } from 'app/rootReducer';
@@ -14,9 +15,17 @@ export function WorkspaceButton() {
   const dispatch = useDispatch();
   const menu = useSelector((state: AppState) => state.settingState.menu);
 
-  const currentWorkspace = useSelector((state: AppState) =>
+  let currentWorkspace = useSelector((state: AppState) =>
     state.linkState.workspaceList.find((w) => w.id === state.linkState.workspace),
   );
+
+  if (!currentWorkspace) {
+    currentWorkspace = {
+      id: 'calendar',
+      name: 'Calendar',
+    };
+  }
+
   const workspaceList = useSelector((state: AppState) =>
     state.linkState.workspaceList?.length
       ? state.linkState.workspaceList
@@ -71,21 +80,32 @@ export function WorkspaceButton() {
           id="basic-menu"
           anchorEl={workspaceMenu}
           open
+          elevation={2}
           onClose={handleCloseWorkspaceMenu}
           MenuListProps={{
             'aria-labelledby': 'basic-button',
             dense: true,
           }}
         >
-          <Typography
-            variant="subtitle2"
-            style={{
-              padding: '8px 16px',
-              color: menu.theme === Theme.Dark ? 'rgba(255, 255, 255, 0.9)' : 'GrayText',
-            }}
-          >
-            Workspaces
-          </Typography>
+          <MenuItem onClick={() => handleSetCurrentWorkspace('calendar')}>
+            <ListItemIcon>
+              <CalendarMonth />
+            </ListItemIcon>
+            Calendar
+          </MenuItem>
+          <Divider />
+          <ListSubheader>
+            <Typography
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                color: menu.theme === Theme.Dark ? 'rgba(255, 255, 255, 0.9)' : 'GrayText',
+              }}
+            >
+              Workspaces
+            </Typography>
+          </ListSubheader>
+
           {workspaceList.map((it) => {
             return (
               <MenuItem key={it.id} onClick={() => handleSetCurrentWorkspace(it.id)}>

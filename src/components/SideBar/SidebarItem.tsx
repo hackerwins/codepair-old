@@ -32,6 +32,7 @@ import Update from '@mui/icons-material/Update';
 import {
   Box,
   Button,
+  Chip,
   Collapse,
   Dialog,
   DialogActions,
@@ -50,6 +51,8 @@ import {
 } from '@mui/material';
 import { PageButton } from 'components/NavBar/PageButton';
 import Description from '@mui/icons-material/Description';
+import dayjs from 'dayjs';
+import invert from 'invert-color';
 import { addRecentPage } from 'features/currentSlices';
 import { Theme } from 'features/settingSlices';
 import { SideBarItemList } from './SidebarItemList';
@@ -460,6 +463,7 @@ function MimeTypeIcon({ mimeType }: { mimeType: string | undefined }) {
 
 export function SidebarItem({ item, level, loopType }: SidebarItemProps) {
   const dispatch = useDispatch();
+  const currentWorkspace = useSelector((state: AppState) => state.linkState.workspace);
   const opens = useSelector((state: AppState) => state.linkState.opens);
   const favorite = useSelector((state: AppState) => state.linkState.favorite);
   const navigate = useNavigate();
@@ -500,6 +504,10 @@ export function SidebarItem({ item, level, loopType }: SidebarItemProps) {
   }, [loopType, favorite, item.id]);
 
   const className = useMemo(() => {
+    if (currentWorkspace === 'calendar') {
+      return classes.level0;
+    }
+
     switch (level) {
       case 0:
         return classes.level0;
@@ -526,7 +534,31 @@ export function SidebarItem({ item, level, loopType }: SidebarItemProps) {
       default:
         return classes.level0;
     }
-  }, [level, classes]);
+  }, [level, classes, currentWorkspace]);
+
+  let moreIcon = null;
+
+  if (currentWorkspace !== 'calendar') {
+    if (item.links?.length) {
+      moreIcon = <MoreIcon open={opens[item.id]} onClick={setOpenCallback} />;
+    } else {
+      moreIcon = (
+        <div
+          style={{
+            width: 20,
+          }}
+        />
+      );
+    }
+  } else {
+    moreIcon = (
+      <div
+        style={{
+          width: 20,
+        }}
+      />
+    );
+  }
 
   return (
     <ListItem
@@ -591,16 +623,22 @@ export function SidebarItem({ item, level, loopType }: SidebarItemProps) {
         alignItems: 'center',
       }}
     >
-      {item.links?.length ? (
-        <MoreIcon open={opens[item.id]} onClick={setOpenCallback} />
-      ) : (
-        <div
+      {moreIcon}
+      {currentWorkspace === 'calendar' ? (
+        <Chip
+          label={dayjs(item.createdAt, 'YYYYMMDDHHmm').format('HH:mm')}
+          size="small"
           style={{
-            width: 20,
+            height: 20,
+            backgroundColor: item.color,
+            color: invert(`${item.color}`, true),
+            textShadow: `0 0 2px ${invert(invert(`${item.color}`, true), true)}`,
           }}
         />
+      ) : (
+        <MimeTypeIcon mimeType={item.mimeType} />
       )}
-      <MimeTypeIcon mimeType={item.mimeType} />
+
       {isRename ? (
         <Input
           autoFocus

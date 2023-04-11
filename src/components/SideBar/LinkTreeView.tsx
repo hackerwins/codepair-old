@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import { useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppState } from 'app/rootReducer';
-import { setLinkOpens } from 'features/linkSlices';
+import { LinkItemType, setLinkOpens, toFlatScheduleForDate } from 'features/linkSlices';
 
 import { HeadingItem } from './HeadingItem';
 import { SidebarItemView } from './SidebarItem';
@@ -33,6 +33,8 @@ interface OpenState {
 export function LinkTreeView() {
   const dispatch = useDispatch();
   const linkState = useSelector((state: AppState) => state.linkState);
+  const selectedDate = useSelector((state: AppState) => state.calendarState.selectedDate);
+  const currentLinks = useSelector(toFlatScheduleForDate(selectedDate));
 
   const linkRef = useRef<boolean>(false);
   const { docKey } = useParams<{ docKey: string }>();
@@ -94,23 +96,35 @@ export function LinkTreeView() {
     }
   }, [docKey, showTreeNode, linkState.links]);
 
+  if (linkState.workspace === 'calendar') {
+    return (
+      <>
+        {currentLinks.map((it) => {
+          if (it.type === 'link' && it.linkType === 'heading') {
+            return <HeadingItem key={`${it.id}${it.color}`} item={it as LinkItemType} level={0} loopType="favorite" />;
+          }
+
+          return <SidebarItemView key={`${it.id}${it.color}`} item={it as LinkItemType} loopType="favorite" />;
+        })}
+      </>
+    );
+  }
+
   return (
     <>
       {linkState.links
-        .filter((it) => (it as any).workspace === linkState.workspace)
+        .filter((it) => {
+          return (it as any).workspace === linkState.workspace;
+        })
         .map((it) => {
-          if (!it) {
-            return null;
-          }
-
           if (it.type === 'link' && it.linkType === 'heading') {
-            return <HeadingItem key={it.id} item={it} level={0} loopType="favorite" />;
+            return <HeadingItem key={`${it.id}${it.color}`} item={it} level={0} loopType="favorite" />;
           }
 
           return it.type === 'group' ? (
-            <GroupView key={it.id} group={it} loopType="favorite" />
+            <GroupView key={`${it.id}`} group={it} loopType="favorite" />
           ) : (
-            <SidebarItemView key={it.id} item={it} loopType="favorite" />
+            <SidebarItemView key={`${it.id}${it.color}`} item={it} loopType="favorite" />
           );
         })}
     </>

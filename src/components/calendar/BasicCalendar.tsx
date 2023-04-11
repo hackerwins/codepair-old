@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
@@ -7,24 +7,23 @@ import dayjs, { Dayjs } from 'dayjs';
 import { makeStyles } from 'styles/common';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppState } from 'app/rootReducer';
-import { CalendarDate, updateSelectedDate } from 'features/calendarSlices';
+import { updateSelectedDate } from 'features/calendarSlices';
 import { blue } from '@mui/material/colors';
+import { toFlatScheduleForDate } from 'features/linkSlices';
 
 const useStyles = makeStyles()(() => ({
   calendar: {
-    width: 320,
-    height: 400,
+    '& .MuiPickersCalendarHeader-root': {
+      marginTop: 0,
+    },
   },
 }));
 
-function ScheduleDay(props: PickersDayProps<Dayjs> & { schedules?: CalendarDate[] }) {
-  const { schedules = [], day, outsideCurrentMonth, ...other } = props;
+function ScheduleDay(props: PickersDayProps<Dayjs>) {
+  const { day, outsideCurrentMonth, ...other } = props;
 
   const dateString = day.format('YYYYMMDD');
-  const list = schedules
-    .filter((schedule) => schedule.date.startsWith(dateString))
-    .sort((a, b) => (a.date > b.date ? 1 : -1))
-    .map((it) => it.color);
+  const list = useSelector(toFlatScheduleForDate(dateString)).map((it) => it.color);
 
   return (
     <div key={day.toString()}>
@@ -78,12 +77,15 @@ function ScheduleDay(props: PickersDayProps<Dayjs> & { schedules?: CalendarDate[
 export default function BasicCalendar() {
   const dispatch = useDispatch();
   const selectedDate = useSelector((state: AppState) => state.calendarState.selectedDate);
-  const schedules = useSelector((state: AppState) => state.calendarState.schedules);
+
   const { classes } = useStyles();
 
-  const updateCalendarDate = (date: string) => {
-    dispatch(updateSelectedDate({ date }));
-  };
+  const updateCalendarDate = useCallback(
+    (date: string) => {
+      dispatch(updateSelectedDate({ date }));
+    },
+    [dispatch],
+  );
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -95,13 +97,11 @@ export default function BasicCalendar() {
         onChange={(newValue: any) => {
           updateCalendarDate(newValue.format('YYYYMMDD'));
         }}
+        // onMonthChange={(newValue: any) => {
+        //   updateCalendarDate(newValue.format('YYYYMM01'));
+        // }}
         slots={{
           day: ScheduleDay,
-        }}
-        slotProps={{
-          day: {
-            schedules,
-          } as any,
         }}
       />
     </LocalizationProvider>

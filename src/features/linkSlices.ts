@@ -1,5 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { MimeType } from 'constants/editor';
+import { createDocumentKey, createRandomColor } from 'utils/document';
+import dayjs from 'dayjs';
 import { getTableOfContents } from './docSlices';
 import { AppState } from '../app/rootReducer';
 import BrowserStorage from '../utils/storage';
@@ -18,6 +20,9 @@ export interface LinkItemType {
   linkType?: string;
   links?: ItemType[];
   workspace?: string;
+  createdAt?: string;
+  color?: string;
+  emoji?: string;
 }
 
 export interface GroupType {
@@ -109,6 +114,14 @@ traverse<ItemType>(initialLinkState, initialLinkState.links, (item) => {
   if (currentItem.type === 'link') {
     if (currentItem.fileLink?.startsWith('/') !== true) {
       currentItem.fileLink = `/${currentItem.fileLink}`;
+    }
+
+    if (!currentItem.createdAt) {
+      currentItem.createdAt = dayjs(+currentItem.id).format('YYYYMMDDHHmm');
+    }
+
+    if (!currentItem.color) {
+      currentItem.color = createRandomColor();
     }
   } else if (currentItem.linkType === 'pairy') {
     if (currentItem.fileLink?.startsWith('/') !== true) {
@@ -225,18 +238,31 @@ const linkSlice = createSlice({
 
       SettingModel.setValue(state);
     },
-    newLink(state, action: PayloadAction<{ parentId: string; name: string; mimeType?: string; fileLink?: string }>) {
-      const { parentId, name, fileLink, mimeType = 'text/markdown' } = action.payload;
+    newLink(
+      state,
+      action: PayloadAction<{
+        parentId: string;
+        name: string;
+        mimeType?: string;
+        fileLink?: string;
+        color?: string;
+        emoji?: string;
+      }>,
+    ) {
+      const { parentId, name, fileLink, mimeType = 'text/markdown', color, emoji } = action.payload;
 
       const newLinkInfo = {
         type: 'link',
         id: `${Date.now()}`,
+        createdAt: dayjs().format('YYYYMMDDHHmm'),
         name,
         mimeType,
-        fileLink: fileLink || `/${Math.random().toString(36).substring(7)}`,
+        fileLink: fileLink || `/${createDocumentKey()}`,
         linkType: 'pairy',
         links: [],
         workspace: state.workspace,
+        color,
+        emoji,
       };
 
       let checkParentId = false;
@@ -339,6 +365,8 @@ const linkSlice = createSlice({
             fileLink,
             linkType: 'pairy',
             links: [],
+            createdAt: dayjs().format('YYYYMMDDHHmm'),
+            color: foundItem.color || createRandomColor(),
             workspace: state.workspace,
           },
         ];
@@ -446,19 +474,27 @@ export function findCurrentPageLink(state: AppState): LinkItemType {
 }
 
 export interface LinkListItem {
+  type: 'link' | 'group';
   id: string;
   name: string;
   fileLink: string;
   depth: number;
+  createdAt?: string;
+  color?: string;
+  linkType?: string;
 }
 
 function traverseTree(list: LinkListItem[], item: LinkItemType, depth = 0, workspace = DEFAULT_WORKSPACE) {
   if (item.type === 'link') {
     list.push({
       depth,
+      type: item.type,
       id: item.id,
       name: item.name,
       fileLink: `${item.fileLink}`,
+      createdAt: item.createdAt,
+      color: item.color,
+      linkType: item.linkType,
     });
   }
 
@@ -473,6 +509,18 @@ export function toFlatPageLinksSelector(state: AppState): LinkListItem[] {
   state.linkState.links.forEach((item) => traverseTree(list, item as LinkItemType, 0, state.linkState.workspace));
 
   return list;
+}
+
+export function toFlatScheduleForDate(selectedDate: string) {
+  return (state: AppState) => {
+    return toFlatPageLinksSelector(state)
+      .filter((item) => {
+        return item.createdAt?.startsWith(selectedDate);
+      })
+      .sort((a, b) => {
+        return `${a.createdAt}` > `${b.createdAt}` ? 1 : -1;
+      });
+  };
 }
 
 export const {
