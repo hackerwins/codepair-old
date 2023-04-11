@@ -429,6 +429,7 @@ export default function PageLayout({ children }: PageLayoutProps) {
           <div
             style={{
               position: 'relative',
+              height: '100%',
             }}
           >
             {children}
