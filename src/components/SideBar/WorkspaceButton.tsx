@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Button, Divider, ListItemIcon, ListItemText, Menu, MenuItem, Typography } from '@mui/material';
+import { Button, Divider, ListItemIcon, ListItemText, ListSubheader, Menu, MenuItem, Typography } from '@mui/material';
 import AccountTree from '@mui/icons-material/AccountTree';
-import { Adjust, CalendarMonth, UnfoldMore } from '@mui/icons-material';
+import CalendarMonth from '@mui/icons-material/CalendarMonth';
+import UnfoldMore from '@mui/icons-material/UnfoldMore';
 import Add from '@mui/icons-material/Add';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppState } from 'app/rootReducer';
@@ -92,19 +93,18 @@ export function WorkspaceButton() {
             </ListItemIcon>
             Calendar
           </MenuItem>
-          <MenuItem>
-            <ListItemIcon>
-              <Adjust />
-            </ListItemIcon>
+          <Divider />
+          <ListSubheader>
             <Typography
-              variant="subtitle2"
               style={{
+                display: 'flex',
+                alignItems: 'center',
                 color: menu.theme === Theme.Dark ? 'rgba(255, 255, 255, 0.9)' : 'GrayText',
               }}
             >
               Workspaces
             </Typography>
-          </MenuItem>
+          </ListSubheader>
 
           {workspaceList.map((it) => {
             return (
