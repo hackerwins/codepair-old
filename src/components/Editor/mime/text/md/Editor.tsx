@@ -19,7 +19,7 @@ const useStyles = makeStyles<{ tool: ToolType }>()((theme, props) => ({
   },
   codeEditor: {
     width: '100%',
-    height: `calc(100vh - ${120}px)`,
+    height: `200px`,
   },
   canvas: {
     top: 0,

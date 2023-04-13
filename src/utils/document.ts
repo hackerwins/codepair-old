@@ -44,6 +44,60 @@ const materialColors = [
   teal[500],
 ];
 
+const materialFontColors = [
+  'black',
+  'white',
+  'white',
+  'white',
+  'black',
+  'white',
+  'white',
+  'white',
+  'white',
+  'white',
+  'black',
+  'black',
+  'black',
+  'black',
+  'white',
+  'white',
+  'white',
+  'white',
+];
+
 export function createRandomColor() {
-  return materialColors[Math.floor(Math.random() * materialColors.length)];
+  const index = Math.floor(Math.random() * materialColors.length);
+  return {
+    background: materialColors[index],
+    font: materialFontColors[index],
+  };
+}
+
+export function findColor(color: string) {
+  const index = materialColors.findIndex((c) => c === color);
+  return {
+    background: materialColors[index],
+    font: materialFontColors[index],
+  };
+}
+
+export function getMaterialColor(index: number) {
+  return materialColors[index];
+}
+
+export function getMaterialFontColor(index: number) {
+  return materialFontColors[index];
+}
+
+export function isDateWorkspace(workspace: string) {
+  return (
+    workspace === 'calendar' || workspace === 'last day' || workspace === 'last week' || workspace === 'last month'
+  );
+}
+
+export function getDateUnit(workspace: string) {
+  if (workspace === 'last day') return 'HH:mm';
+  if (workspace === 'last week') return 'YYYY-MM-DD HH:mm';
+  if (workspace === 'last month') return 'YYYY-MM-DD HH:mm';
+  return 'HH:mm';
 }

@@ -19,8 +19,10 @@ export interface LinkItemType {
   fileLink?: string;
   linkType?: string;
   links?: ItemType[];
+  tags?: string[];
   workspace?: string;
   createdAt?: string;
+  accessedAt?: string;
   color?: string;
   emoji?: string;
 }
@@ -121,7 +123,7 @@ traverse<ItemType>(initialLinkState, initialLinkState.links, (item) => {
     }
 
     if (!currentItem.color) {
-      currentItem.color = createRandomColor();
+      currentItem.color = createRandomColor().background;
     }
   } else if (currentItem.linkType === 'pairy') {
     if (currentItem.fileLink?.startsWith('/') !== true) {
@@ -260,6 +262,7 @@ const linkSlice = createSlice({
         fileLink: fileLink || `/${createDocumentKey()}`,
         linkType: 'pairy',
         links: [],
+        tags: [],
         workspace: state.workspace,
         color,
         emoji,
@@ -365,8 +368,9 @@ const linkSlice = createSlice({
             fileLink,
             linkType: 'pairy',
             links: [],
+            tags: [],
             createdAt: dayjs().format('YYYYMMDDHHmm'),
-            color: foundItem.color || createRandomColor(),
+            color: foundItem.color || createRandomColor().background,
             workspace: state.workspace,
           },
         ];
@@ -513,13 +517,42 @@ export function toFlatPageLinksSelector(state: AppState): LinkListItem[] {
 
 export function toFlatScheduleForDate(selectedDate: string) {
   return (state: AppState) => {
-    return toFlatPageLinksSelector(state)
-      .filter((item) => {
-        return item.createdAt?.startsWith(selectedDate);
-      })
-      .sort((a, b) => {
-        return `${a.createdAt}` > `${b.createdAt}` ? 1 : -1;
+    let list = toFlatPageLinksSelector(state);
+
+    if (state.linkState.workspace === 'last day') {
+      const startDate = dayjs().subtract(1, 'day');
+      const endDate = dayjs();
+
+      list = list.filter((item) => {
+        const currentDate = dayjs(item.createdAt, 'YYYYMMDDHHmm');
+
+        return currentDate.isAfter(startDate) && currentDate.isBefore(endDate);
       });
+    } else if (state.linkState.workspace === 'last week') {
+      const startDate = dayjs().subtract(1, 'week');
+      const endDate = dayjs();
+      list = list.filter((item) => {
+        const currentDate = dayjs(item.createdAt, 'YYYYMMDDHHmm');
+
+        return currentDate.isAfter(startDate) && currentDate.isBefore(endDate);
+      });
+    } else if (state.linkState.workspace === 'last month') {
+      const startDate = dayjs().subtract(1, 'month');
+      const endDate = dayjs();
+      list = list.filter((item) => {
+        const currentDate = dayjs(item.createdAt, 'YYYYMMDDHHmm');
+
+        return currentDate.isAfter(startDate) && currentDate.isBefore(endDate);
+      });
+    } else {
+      list = list.filter((item) => {
+        return item.createdAt?.startsWith(selectedDate);
+      });
+    }
+
+    return list.sort((a, b) => {
+      return `${a.createdAt}` > `${b.createdAt}` ? 1 : -1;
+    });
   };
 }
 

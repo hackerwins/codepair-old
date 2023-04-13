@@ -52,9 +52,9 @@ import {
 import { PageButton } from 'components/NavBar/PageButton';
 import Description from '@mui/icons-material/Description';
 import dayjs from 'dayjs';
-import invert from 'invert-color';
 import { addRecentPage } from 'features/currentSlices';
 import { Theme } from 'features/settingSlices';
+import { findColor, isDateWorkspace } from 'utils/document';
 import { SideBarItemList } from './SidebarItemList';
 
 function getTitle() {
@@ -624,15 +624,15 @@ export function SidebarItem({ item, level, loopType }: SidebarItemProps) {
       }}
     >
       {moreIcon}
-      {currentWorkspace === 'calendar' ? (
+      {isDateWorkspace(currentWorkspace) ? (
         <Chip
           label={dayjs(item.createdAt, 'YYYYMMDDHHmm').format('HH:mm')}
           size="small"
           style={{
             height: 20,
             backgroundColor: item.color,
-            color: invert(`${item.color}`, true),
-            textShadow: `0 0 2px ${invert(invert(`${item.color}`, true), true)}`,
+            color: findColor(`${item.color}`).font,
+            // textShadow: `0 0 2px ${invert(invert(`${item.color}`, true), true)}`,
           }}
         />
       ) : (

@@ -99,7 +99,7 @@ export function PageButton({
         );
 
         setTimeout(() => {
-          dispatch(newLink({ parentId, name, mimeType, fileLink, color: createRandomColor(), emoji: '📅' }));
+          dispatch(newLink({ parentId, name, mimeType, fileLink, color: createRandomColor().background, emoji: '📅' }));
           setTimeout(() => navigate(fileLink), 100);
           handleMenuClose();
         }, 1000);
@@ -133,7 +133,7 @@ export function PageButton({
         );
 
         setTimeout(() => {
-          dispatch(newLink({ parentId, name, mimeType, fileLink, color: createRandomColor(), emoji: '📅' }));
+          dispatch(newLink({ parentId, name, mimeType, fileLink, color: createRandomColor().background, emoji: '📅' }));
           setTimeout(() => navigate(fileLink), 100);
           handleMenuClose();
         }, 1000);
@@ -148,7 +148,7 @@ export function PageButton({
       const fileLink = `/${newDocKey}`;
       const mimeType = MimeType.MARKDOWN;
 
-      dispatch(newLink({ parentId, name, fileLink, mimeType, color: createRandomColor(), emoji: '📅' }));
+      dispatch(newLink({ parentId, name, fileLink, mimeType, color: createRandomColor().background, emoji: '📅' }));
       setTimeout(() => navigate(fileLink), 100);
       handleMenuClose();
     },
