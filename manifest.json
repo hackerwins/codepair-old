@@ -36,7 +36,7 @@
     "dynamicImports": [
       "src/components/Editor/mime/text/milkdown/Editor.tsx"
     ],
-    "file": "assets/index-42717301.js",
+    "file": "assets/index-78b78799.js",
     "isEntry": true,
     "src": "index.html"
   },
@@ -144,7 +144,7 @@
     "css": [
       "assets/Editor-6a0bf5f1.css"
     ],
-    "file": "assets/Editor-b1c24f5e.js",
+    "file": "assets/Editor-60ccf27a.js",
     "imports": [
       "index.html"
     ],
