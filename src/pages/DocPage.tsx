@@ -13,7 +13,15 @@ export default function DocPage() {
 
   return (
     <PageLayout>
-      <Editor key={docKey} docKey={docKey} />
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+        }}
+      >
+        <Editor key={docKey} docKey={docKey} />
+      </div>
     </PageLayout>
   );
 }

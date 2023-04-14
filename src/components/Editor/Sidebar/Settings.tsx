@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, ChangeEvent } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
 import { Preview, setPreview } from 'features/docSlices';
-import { setUserName, setUserColor, setUserThemeColor } from 'features/settingSlices';
+import { setUserName, setUserColor, setUserThemeColor, setUserID } from 'features/settingSlices';
 import { AppDispatch } from 'app/store';
 import { AppState } from 'app/rootReducer';
 import { updatePresenceColor } from 'features/peerSlices';
@@ -83,6 +83,14 @@ export default function Settings() {
     [debounceSave],
   );
 
+  const handleInputUserID = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const { value } = event.target;
+      dispatch(setUserID(value));
+    },
+    [dispatch],
+  );
+
   const handleInputUserColor = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       const { value } = event.target;
@@ -106,6 +114,12 @@ export default function Settings() {
   return (
     <div className={classes.root}>
       <div className={classes.list}>
+        <div className={classes.item}>
+          <div className={classes.itemTitle}>ID</div>
+          <FormControl className={classes.itemInfo}>
+            <TextField id="standard-basic" variant="standard" defaultValue={menu.userID} onInput={handleInputUserID} />
+          </FormControl>
+        </div>
         <div className={classes.item}>
           <div className={classes.itemTitle}>Name</div>
           <FormControl className={classes.itemInfo}>

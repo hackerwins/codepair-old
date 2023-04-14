@@ -4,7 +4,9 @@ import { useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppState } from 'app/rootReducer';
 import { LinkItemType, setLinkOpens, toFlatScheduleForDate } from 'features/linkSlices';
-
+import { isDateWorkspace } from 'utils/document';
+import dayjs from 'dayjs';
+import { ListSubheader } from '@mui/material';
 import { HeadingItem } from './HeadingItem';
 import { SidebarItemView } from './SidebarItem';
 import { GroupView } from './GroupView';
@@ -35,6 +37,8 @@ export function LinkTreeView() {
   const linkState = useSelector((state: AppState) => state.linkState);
   const selectedDate = useSelector((state: AppState) => state.calendarState.selectedDate);
   const currentLinks = useSelector(toFlatScheduleForDate(selectedDate));
+
+  console.log(currentLinks);
 
   const linkRef = useRef<boolean>(false);
   const { docKey } = useParams<{ docKey: string }>();
@@ -96,12 +100,26 @@ export function LinkTreeView() {
     }
   }, [docKey, showTreeNode, linkState.links]);
 
-  if (linkState.workspace === 'calendar') {
+  if (isDateWorkspace(linkState.workspace)) {
+    let lastDate = '';
+
     return (
       <>
-        {currentLinks.map((it) => {
+        {currentLinks.reverse().map((it) => {
           if (it.type === 'link' && it.linkType === 'heading') {
             return <HeadingItem key={`${it.id}${it.color}`} item={it as LinkItemType} level={0} loopType="favorite" />;
+          }
+
+          const currentDate = dayjs(it.createdAt, 'YYYYMMDDHHmm').format('YYYYMMDD');
+
+          if (lastDate !== currentDate) {
+            lastDate = currentDate;
+            return (
+              <>
+                <ListSubheader>{dayjs(it.createdAt, 'YYYYMMDDHHmm').format('YYYY-MM-DD')}</ListSubheader>
+                <SidebarItemView key={`${it.id}${it.color}`} item={it as LinkItemType} loopType="favorite" />
+              </>
+            );
           }
 
           return <SidebarItemView key={`${it.id}${it.color}`} item={it as LinkItemType} loopType="favorite" />;

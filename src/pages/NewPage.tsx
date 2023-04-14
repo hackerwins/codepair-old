@@ -19,7 +19,7 @@ export function NewPage() {
         name: 'Untitled page',
         fileLink,
         mimeType: MimeType.MARKDOWN,
-        color: createRandomColor(),
+        color: createRandomColor().background,
         emoji: '📅',
       }),
     );
