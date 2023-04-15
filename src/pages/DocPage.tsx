@@ -18,6 +18,7 @@ export default function DocPage() {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
+          height: '100%',
         }}
       >
         <Editor key={docKey} docKey={docKey} />
