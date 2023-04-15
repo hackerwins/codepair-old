@@ -38,6 +38,8 @@ export function LinkTreeView() {
   const selectedDate = useSelector((state: AppState) => state.calendarState.selectedDate);
   const currentLinks = useSelector(toFlatScheduleForDate(selectedDate));
 
+  console.log(currentLinks);
+
   const linkRef = useRef<boolean>(false);
   const { docKey } = useParams<{ docKey: string }>();
 
