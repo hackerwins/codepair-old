@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { Fragment, useCallback, useEffect, useRef } from 'react';
 
 import { useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
@@ -37,8 +37,6 @@ export function LinkTreeView() {
   const linkState = useSelector((state: AppState) => state.linkState);
   const selectedDate = useSelector((state: AppState) => state.calendarState.selectedDate);
   const currentLinks = useSelector(toFlatScheduleForDate(selectedDate));
-
-  console.log(currentLinks);
 
   const linkRef = useRef<boolean>(false);
   const { docKey } = useParams<{ docKey: string }>();
@@ -115,10 +113,10 @@ export function LinkTreeView() {
           if (lastDate !== currentDate) {
             lastDate = currentDate;
             return (
-              <>
+              <Fragment key={`${it.id}${it.color}`}>
                 <ListSubheader>{dayjs(it.createdAt, 'YYYYMMDDHHmm').format('YYYY-MM-DD')}</ListSubheader>
-                <SidebarItemView key={`${it.id}${it.color}`} item={it as LinkItemType} loopType="favorite" />
-              </>
+                <SidebarItemView item={it as LinkItemType} loopType="favorite" />
+              </Fragment>
             );
           }
 
