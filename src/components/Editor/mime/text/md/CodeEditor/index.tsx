@@ -206,24 +206,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
     };
 
     doc.subscribe((event: DocEvent) => {
-      if (event.type === 'remote-change') {
-        // display remote cursors
-        for (const { change } of event.value) {
-          const actor = change.getID().getActorID()!;
-          if (actor !== client.getID()) {
-            if (!cursorMapRef.current.has(actor)) {
-              return;
-            }
-
-            const cursor = cursorMapRef.current.get(actor);
-            if (cursor!.isActive()) {
-              return;
-            }
-
-            updateCursor(actor, editor.posFromIndex(0));
-          }
-        }
-      } else if (event.type === 'snapshot') {
+      if (event.type === 'snapshot') {
         // re-sync for the new text from the snapshot
         syncText();
       }

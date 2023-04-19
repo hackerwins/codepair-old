@@ -259,7 +259,7 @@ const docSlice = createSlice({
       const { doc } = state;
 
       if (doc) {
-        state.client?.detach(doc);
+        state.client?.detach(doc as Document<CodePairDoc>);
       }
 
       state.doc = new yorkie.Document<CodePairDoc>(`codepairs-${action.payload}`);
