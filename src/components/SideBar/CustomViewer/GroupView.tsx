@@ -45,7 +45,7 @@ import {
 } from '@mui/material';
 import { PageButton } from 'components/NavBar/PageButton';
 import Description from '@mui/icons-material/Description';
-import { SideBarItemList } from './SidebarItemList';
+import { SideBarItemList } from '../SidebarItemList';
 
 interface SideBarProps {
   open: boolean;
@@ -507,7 +507,7 @@ export function GroupItem({ group, level, loopType }: GroupItemProps) {
   );
 }
 
-type LoopType = 'links' | 'favorite';
+type LoopType = 'links' | 'favorite' | 'date';
 
 interface GroupViewProps {
   group: GroupType;

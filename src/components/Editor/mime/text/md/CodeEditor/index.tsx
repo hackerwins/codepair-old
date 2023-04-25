@@ -10,12 +10,13 @@ import { ConnectionStatus, Presence } from 'features/peerSlices';
 import { Theme as ThemeType } from 'features/settingSlices';
 import { Preview, updateHeadings, getTableOfContents } from 'features/docSlices';
 
-import { updateLinkNameWithHeading } from 'features/linkSlices';
 import { makeStyles } from 'styles/common';
-import { Button, IconButton, Popover, Theme, Tooltip } from '@mui/material';
+import { debounce, IconButton, Popover, Theme, Tooltip } from '@mui/material';
 import Keyboard from '@mui/icons-material/Keyboard';
 import { NAVBAR_HEIGHT } from 'constants/editor';
 import { addRecentPage } from 'features/currentSlices';
+import Help from '@mui/icons-material/Help';
+import { setActionStatus } from 'features/actionSlices';
 import 'easymde/dist/easymde.min.css';
 import 'codemirror/keymap/sublime';
 import 'codemirror/keymap/emacs';
@@ -25,7 +26,7 @@ import Cursor from './Cursor';
 import SlideView from './slideView';
 import EditorSettings from './EditorSettings';
 
-const WIDGET_HEIGHT = 46;
+const WIDGET_HEIGHT = 180;
 
 interface CodeEditorProps {
   forwardedRef: React.MutableRefObject<CodeMirror.Editor | null>;
@@ -44,7 +45,7 @@ const useStyles = makeStyles()((theme: Theme) => ({
       color: theme.palette.common.white,
     },
     '& .editor-toolbar': {
-      backgroundColor: '#303030',
+      // backgroundColor: '#303030',
     },
     '& .editor-toolbar > *': {
       color: theme.palette.common.white,
@@ -112,6 +113,12 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
     cursorMapRef.current.set(clientID, new Cursor(clientID, presence));
   }, []);
 
+  const callback = debounce(() => {
+    if (editor) {
+      dispatch(setActionStatus({ isOver: false }));
+    }
+  }, 500);
+
   const disconnectCursor = useCallback((clientID: ActorID) => {
     if (cursorMapRef.current.has(clientID)) {
       cursorMapRef.current.get(clientID)!.clear();
@@ -141,6 +148,8 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       }
     }
   }, []);
+
+  const updateActionStatus = useCallback(callback, [editor, dispatch, callback]);
 
   useEffect(() => {
     for (const [id, peer] of Object.entries(peers)) {
@@ -225,7 +234,6 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
 
     editor.on('change', () => {
       dispatch(updateHeadings());
-      dispatch(updateLinkNameWithHeading({ docKey: doc.getKey() }));
       dispatch(
         addRecentPage({
           docKey: doc.getKey(),
@@ -235,6 +243,8 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
           },
         }),
       );
+      dispatch(setActionStatus({ isOver: true }));
+      updateActionStatus();
     });
 
     // local to remote
@@ -277,6 +287,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
     // set table of contents event
     // When a hashchange event occurs, move inside the codemirror with location.hash.
     window.addEventListener('hashchange', () => {
+      console.log('HashChangeEvent');
       goHeadingLink();
     });
 
@@ -285,7 +296,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
     });
 
     dispatch(updateHeadings());
-  }, [client, doc, editor, forwardedRef, menu, goHeadingLink, dispatch]);
+  }, [client, doc, editor, forwardedRef, menu, goHeadingLink, dispatch, updateActionStatus]);
 
   const options = useMemo(() => {
     const opts = {
@@ -296,6 +307,10 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       toolbar: [
         'bold',
         'italic',
+        'strikethrough',
+        'code',
+        'horizontal-rule',
+        'quote',
         '|',
         'unordered-list',
         'ordered-list',
@@ -347,7 +362,9 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
         options={options}
       />
       <div className={classes.customToolbar}>
-        <Button onClick={() => window.open('https://www.markdownguide.org/basic-syntax/')}>Markdown</Button>
+        <IconButton onClick={() => window.open('https://www.markdownguide.org/basic-syntax/')}>
+          <Help />
+        </IconButton>
         <Tooltip title="Settings" arrow>
           <IconButton aria-label="settings" onClick={handleSettingsClick}>
             <Keyboard />

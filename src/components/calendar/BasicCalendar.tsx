@@ -10,11 +10,35 @@ import { AppState } from 'app/rootReducer';
 import { updateSelectedDate } from 'features/calendarSlices';
 import { blue } from '@mui/material/colors';
 import { toFlatScheduleForDate } from 'features/linkSlices';
+import { Theme } from 'features/settingSlices';
 
-const useStyles = makeStyles()(() => ({
+const useStyles = makeStyles()((theme) => ({
   calendar: {
+    // border: '1px solid #ccc',
+    width: 310,
+    background: theme.palette.mode === Theme.Dark ? '#333333' : '#fff',
+    border: theme.palette.mode === Theme.Dark ? '1px solid #555555' : '1px solid rgba(0, 0, 0, 0.12)',
+
+    borderRadius: 4,
     '& .MuiPickersCalendarHeader-root': {
       marginTop: 0,
+    },
+    '& .MuiPickersSlideTransition-root': {
+      minHeight: 250,
+    },
+  },
+  day: {
+    borderRadius: 8,
+    '&:not(.MuiPickersDay-dayOutsideMonth)': {
+      border: theme.palette.mode === Theme.Dark ? '1px solid #595959' : '1px solid rgba(0, 0, 0, 0.12)',
+    },
+
+    '&.MuiPickersDay-daySelected': {
+      backgroundColor: blue[500],
+      color: '#fff',
+    },
+    '&.MuiPickersDay-dayDisabled': {
+      color: '#ccc',
     },
   },
 }));
@@ -23,11 +47,13 @@ function ScheduleDay(props: PickersDayProps<Dayjs>) {
   const { day, outsideCurrentMonth, ...other } = props;
 
   const dateString = day.format('YYYYMMDD');
-  const list = useSelector(toFlatScheduleForDate(dateString)).map((it) => it.color);
+  const dateFilter = useSelector((state: AppState) => state.calendarState.dateFilter);
+  const list = useSelector(toFlatScheduleForDate(dateString, dateFilter)).map((it) => it.color);
+  const { classes } = useStyles();
 
   return (
     <div key={day.toString()}>
-      <PickersDay {...other} outsideCurrentMonth={outsideCurrentMonth} day={day} />
+      <PickersDay {...other} outsideCurrentMonth={outsideCurrentMonth} day={day} className={classes.day} />
       <div
         style={{
           display: 'flex',

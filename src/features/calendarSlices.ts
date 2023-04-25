@@ -4,12 +4,14 @@ import BrowserStorage from '../utils/storage';
 
 export interface CalendarState {
   selectedDate: string;
+  dateFilter: 'day' | 'week' | 'month' | 'year';
 }
 
 const CalendarModel = new BrowserStorage<CalendarState>('$$codepair$$calendar');
 
 const initialCalendarState: CalendarState = CalendarModel.getValue({
   selectedDate: dayjs().format('YYYYMMDD'),
+  dateFilter: 'day',
 });
 
 const calendarSlice = createSlice({
@@ -28,8 +30,20 @@ const calendarSlice = createSlice({
 
       CalendarModel.setValue(state);
     },
+
+    updateDateFilter(state, action: PayloadAction<{ dateFilter: 'day' | 'week' | 'month' | 'year' }>) {
+      const { dateFilter } = action.payload;
+
+      if (!dateFilter) {
+        return;
+      }
+
+      state.dateFilter = dateFilter;
+
+      CalendarModel.setValue(state);
+    },
   },
 });
 
-export const { updateSelectedDate } = calendarSlice.actions;
+export const { updateSelectedDate, updateDateFilter } = calendarSlice.actions;
 export default calendarSlice.reducer;

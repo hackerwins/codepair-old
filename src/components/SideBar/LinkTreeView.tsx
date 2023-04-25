@@ -7,9 +7,9 @@ import { LinkItemType, setLinkOpens, toFlatScheduleForDate } from 'features/link
 import { isDateWorkspace } from 'utils/document';
 import dayjs from 'dayjs';
 import { ListSubheader } from '@mui/material';
-import { HeadingItem } from './HeadingItem';
-import { SidebarItemView } from './SidebarItem';
-import { GroupView } from './GroupView';
+import { HeadingItem } from './CustomViewer/HeadingItem';
+import { SidebarItemView } from './CustomViewer/SidebarItem';
+import { GroupView } from './CustomViewer/GroupView';
 
 function traverse(parent: any, data: any[], callback: (item: any, parent: any) => void) {
   data.forEach((item) => {
@@ -36,7 +36,7 @@ export function LinkTreeView() {
   const dispatch = useDispatch();
   const linkState = useSelector((state: AppState) => state.linkState);
   const selectedDate = useSelector((state: AppState) => state.calendarState.selectedDate);
-  const currentLinks = useSelector(toFlatScheduleForDate(selectedDate));
+  const currentLinks = useSelector(toFlatScheduleForDate(selectedDate, 'all'));
 
   const linkRef = useRef<boolean>(false);
   const { docKey } = useParams<{ docKey: string }>();

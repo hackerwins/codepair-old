@@ -9,6 +9,7 @@ import messageReducer from '../features/messageSlices';
 import navReducer from '../features/navSlices';
 import calendarReducer from '../features/calendarSlices';
 import currentReducer from '../features/currentSlices';
+import actionSlices from '../features/actionSlices';
 
 const rootReducer = combineReducers({
   docState: docReducer,
@@ -20,6 +21,7 @@ const rootReducer = combineReducers({
   navState: navReducer,
   calendarState: calendarReducer,
   currentState: currentReducer,
+  actionState: actionSlices,
 });
 
 export type AppState = ReturnType<typeof rootReducer>;

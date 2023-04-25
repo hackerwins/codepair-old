@@ -2,7 +2,6 @@ import React, { useCallback, useState } from 'react';
 import { Button, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Tooltip, Typography } from '@mui/material';
 import Add from '@mui/icons-material/Add';
 import { useDispatch, useSelector } from 'react-redux';
-import EventNote from '@mui/icons-material/EventNote';
 import Gesture from '@mui/icons-material/Gesture';
 import { createDoc } from 'features/docSlices';
 import yorkie from 'yorkie-js-sdk';
@@ -12,6 +11,7 @@ import { makeStyles } from 'styles/common';
 import { MimeType } from 'constants/editor';
 import { useNavigate } from 'react-router-dom';
 import { createDocumentKey, createRandomColor } from 'utils/document';
+import { DescriptionOutlined } from '@mui/icons-material';
 
 const useStyles = makeStyles()(() => ({
   menu: {
@@ -99,7 +99,7 @@ export function PageButton({
         );
 
         setTimeout(() => {
-          dispatch(newLink({ parentId, name, mimeType, fileLink, color: createRandomColor().background, emoji: '📅' }));
+          dispatch(newLink({ parentId, name, mimeType, fileLink, color: createRandomColor().background, emoji: '🖌️' }));
           setTimeout(() => navigate(fileLink), 100);
           handleMenuClose();
         }, 1000);
@@ -157,7 +157,7 @@ export function PageButton({
 
   const buttonTag =
     variant === 'contained' || variant === 'outlined' ? (
-      <Button variant={variant} onClick={handleMenuOpen}>
+      <Button variant={variant} onClick={handleMenuOpen} disableElevation size="small">
         {icon} <Typography>{title || 'Page'}</Typography>
       </Button>
     ) : (
@@ -202,7 +202,7 @@ export function PageButton({
         >
           <MenuItem onClick={() => handleCreateLink('Untitled note')}>
             <ListItemIcon>
-              <EventNote fontSize="small" />
+              <DescriptionOutlined fontSize="small" />
             </ListItemIcon>
             <ListItemText>Note</ListItemText>
             <Typography variant="body2" color="text.secondary">
@@ -220,7 +220,7 @@ export function PageButton({
           </MenuItem>
           <MenuItem onClick={() => handleCreateMilkdown('Untitled milkdown')}>
             <ListItemIcon>
-              <EventNote fontSize="small" />
+              <DescriptionOutlined fontSize="small" />
             </ListItemIcon>
             <ListItemText>Milkdown</ListItemText>
             <Typography variant="body2" color="text.secondary">

@@ -4,6 +4,7 @@ import BrowserStorage from '../utils/storage';
 interface CurrentPageState {
   docKey: string;
   recents?: {
+    id?: string;
     name: string;
     fileLink: string;
     docKey: string;
@@ -15,6 +16,13 @@ const CurrentPageModel = new BrowserStorage<CurrentPageState>('$$codepair$$curre
 const currentPagestate: CurrentPageState = CurrentPageModel.getValue({
   docKey: '',
   recents: [],
+});
+
+currentPagestate.recents = currentPagestate.recents?.map((item) => {
+  return {
+    id: `${Date.now()}`,
+    ...item,
+  };
 });
 
 const currentSlice = createSlice({
@@ -67,9 +75,9 @@ const currentSlice = createSlice({
 
       CurrentPageModel.setValue(state);
     },
-    removeCurrentPage(state, action: PayloadAction<{ index: number }>) {
-      const { index } = action.payload;
-      state.recents = state.recents?.filter((item, i) => i !== index) || [];
+    removeCurrentPage(state, action: PayloadAction<{ id: string }>) {
+      const { id } = action.payload;
+      state.recents = state.recents?.filter((item) => item.id !== id) || [];
 
       CurrentPageModel.setValue(state);
     },

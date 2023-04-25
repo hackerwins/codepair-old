@@ -1,6 +1,6 @@
 import { CodePairDoc } from 'features/docSlices';
 import { AppState } from 'app/rootReducer';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useCallback, useEffect, useState } from 'react';
 import {
   TDUserStatus,
@@ -11,11 +11,16 @@ import {
   TldrawApp,
   DrawShape,
   RectangleShape,
+  ArrowShape,
+  EllipseShape,
+  TextShape,
 } from '@tldraw/tldraw';
 import { useThrottleCallback } from '@react-hook/throttle';
 import randomColor from 'randomcolor';
 import { uniqueNamesGenerator, names } from 'unique-names-generator';
 import { Unsubscribe } from 'yorkie-js-sdk';
+import { debounce } from '@mui/material';
+import { setActionStatus } from 'features/actionSlices';
 
 function updateDiff(oldV: TDShape, newV: TDShape) {
   const oldShape = oldV;
@@ -31,6 +36,10 @@ function updateDiff(oldV: TDShape, newV: TDShape) {
 
   if (oldShape.id !== newShape.id) {
     oldShape.id = newShape.id;
+  }
+
+  if (oldShape.label !== newShape.label) {
+    oldShape.label = newShape.label;
   }
 
   if (newShape.type === 'draw') {
@@ -75,6 +84,75 @@ function updateDiff(oldV: TDShape, newV: TDShape) {
     if (oldDrawShape.size[0] !== newShape.size[0] || oldDrawShape.size[1] !== newShape.size[1]) {
       oldDrawShape.size = newShape.size;
     }
+
+    if (
+      oldDrawShape.labelPoint?.[0] !== newShape.labelPoint?.[0] ||
+      oldDrawShape.labelPoint?.[1] !== newShape.labelPoint?.[1]
+    ) {
+      oldDrawShape.labelPoint = newShape.labelPoint;
+    }
+
+    if (oldShape.point[0] !== newShape.point[0] || oldShape.point[1] !== newShape.point[1]) {
+      oldShape.point = newShape.point;
+    }
+  } else if (newShape.type === 'ellipse') {
+    const oldDrawShape = oldShape as EllipseShape;
+    if (
+      oldDrawShape.labelPoint?.[0] !== newShape.labelPoint?.[0] ||
+      oldDrawShape.labelPoint?.[1] !== newShape.labelPoint?.[1]
+    ) {
+      oldDrawShape.labelPoint = newShape.labelPoint;
+    }
+
+    if (oldShape.point[0] !== newShape.point[0] || oldShape.point[1] !== newShape.point[1]) {
+      oldShape.point = newShape.point;
+    }
+  } else if (newShape.type === 'triangle') {
+    const oldDrawShape = oldShape as EllipseShape;
+    if (
+      oldDrawShape.labelPoint?.[0] !== newShape.labelPoint?.[0] ||
+      oldDrawShape.labelPoint?.[1] !== newShape.labelPoint?.[1]
+    ) {
+      oldDrawShape.labelPoint = newShape.labelPoint;
+    }
+
+    if (oldShape.point[0] !== newShape.point[0] || oldShape.point[1] !== newShape.point[1]) {
+      oldShape.point = newShape.point;
+    }
+  } else if (newShape.type === 'text') {
+    const oldDrawShape = oldShape as TextShape;
+    if (oldShape.point[0] !== newShape.point[0] || oldShape.point[1] !== newShape.point[1]) {
+      oldShape.point = newShape.point;
+    }
+
+    if (oldDrawShape.text !== newShape.text) {
+      oldDrawShape.text = newShape.text;
+    }
+  } else if (newShape.type === 'arrow') {
+    const oldDrawShape = oldShape as ArrowShape;
+
+    if (oldShape.point[0] !== newShape.point[0] || oldShape.point[1] !== newShape.point[1]) {
+      oldShape.point = newShape.point;
+    }
+
+    if (
+      oldDrawShape.labelPoint?.[0] !== newShape.labelPoint?.[0] ||
+      oldDrawShape.labelPoint?.[1] !== newShape.labelPoint?.[1]
+    ) {
+      oldDrawShape.labelPoint = newShape.labelPoint;
+    }
+
+    if (oldDrawShape.bend !== newShape.bend) {
+      oldDrawShape.bend = newShape.bend;
+    }
+
+    if (oldDrawShape.handles !== newShape.handles) {
+      oldDrawShape.handles = newShape.handles;
+    }
+
+    if (oldShape.point[0] !== newShape.point[0] || oldShape.point[1] !== newShape.point[1]) {
+      oldShape.point = newShape.point;
+    }
   }
 
   if (oldShape.rotation !== newShape.rotation) {
@@ -103,11 +181,20 @@ function updateDiff(oldV: TDShape, newV: TDShape) {
 }
 
 export function useMultiplayerState(roomId: string) {
+  const dispatch = useDispatch();
   const client = useSelector((state: AppState) => state.docState.client);
   const doc = useSelector((state: AppState) => state.docState.doc);
   const menu = useSelector((state: AppState) => state.settingState.menu);
   const [app, setApp] = useState<TldrawApp>();
   const [loading, setLoading] = useState(true);
+
+  const callback = debounce(() => {
+    if (app) {
+      dispatch(setActionStatus({ isOver: false }));
+    }
+  }, 500);
+
+  const updateActionStatus = useCallback(callback, [app, dispatch, callback]);
 
   // Callbacks --------------
   const onMount = useCallback(
@@ -126,7 +213,7 @@ export function useMultiplayerState(roomId: string) {
       tldrawApp.updateUsers([
         {
           id: `${client!.getID()}`,
-          point: [0, 0],
+          point: [-100, -100],
           color: menu?.userColor || randomColor(),
           status: TDUserStatus.Connected,
           activeShapes: [],
@@ -216,16 +303,18 @@ export function useMultiplayerState(roomId: string) {
       client.updatePresence('whiteboardUser', {
         ...{
           id: `${client.getID()}`,
-          point: [0, 0],
+          point: [-100, -100],
           color: menu?.userColor || randomColor(),
           status: TDUserStatus.Connected,
           activeShapes: [],
           selectedIds: [],
           metadata: { name: menu?.userName }, // <-- custom metadata
         },
-        ...client.getPresence().whiteboardUser,
         ...user,
       });
+
+      dispatch(setActionStatus({ isOver: true }));
+      updateActionStatus();
     },
     10,
     false,

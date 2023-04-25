@@ -212,6 +212,15 @@ const linkSlice = createSlice({
 
       SettingModel.setValue(state);
     },
+    setLinkEmoji(state, action: PayloadAction<{ id: string; emoji: string }>) {
+      const { id, emoji } = action.payload;
+      const foundItem = findOne(state.links, (item) => item.id === id);
+      if (foundItem) {
+        foundItem.emoji = emoji;
+      }
+
+      SettingModel.setValue(state);
+    },
     updateLinkNameWithHeading(state, action: PayloadAction<{ docKey: string }>) {
       const { docKey } = action.payload;
       const heading = getTableOfContents(1)[0];
@@ -453,15 +462,11 @@ export function favoriteSelector(state: AppState): ItemType[] {
   );
 }
 
-export function recentFavoriteSelector(count = 10) {
+export function recentsSelector(count = 10) {
   return (state: AppState): LinkItemType[] => {
     return (
-      state.linkState.favorite?.map((id) => {
-        if (typeof id !== 'string') {
-          return id;
-        }
-
-        return findOne(state.linkState.links, (item) => item.id === id);
+      state.currentState.recents?.map((recent) => {
+        return findOne(state.linkState.links, (item) => recent.fileLink.includes(item.fileLink));
       }) || []
     )
       .filter((item) => item?.fileLink)
@@ -477,6 +482,13 @@ export function findCurrentPageLink(state: AppState): LinkItemType {
   });
 }
 
+export function getCurrentWorkspace(workspace = '') {
+  return (state: AppState) => {
+    const tempWorkspace = workspace || state.linkState.workspace;
+    return state.linkState.workspaceList.find((item) => item.id === tempWorkspace);
+  };
+}
+
 export interface LinkListItem {
   type: 'link' | 'group';
   id: string;
@@ -486,6 +498,7 @@ export interface LinkListItem {
   createdAt?: string;
   color?: string;
   linkType?: string;
+  emoji?: string;
 }
 
 function traverseTree(list: LinkListItem[], item: LinkItemType, depth = 0, workspace = DEFAULT_WORKSPACE) {
@@ -499,6 +512,7 @@ function traverseTree(list: LinkListItem[], item: LinkItemType, depth = 0, works
       createdAt: item.createdAt,
       color: item.color,
       linkType: item.linkType,
+      emoji: item.emoji,
     });
   }
 
@@ -515,38 +529,31 @@ export function toFlatPageLinksSelector(state: AppState): LinkListItem[] {
   return list;
 }
 
-export function toFlatScheduleForDate(selectedDate: string) {
+export function toFlatScheduleForDate(selectedDate: string, dateFilter: string) {
   return (state: AppState) => {
+    // TODO: filter by current workspace
     let list = toFlatPageLinksSelector(state);
 
-    if (state.linkState.workspace === 'last day') {
-      const startDate = dayjs().subtract(1, 'day');
-      const endDate = dayjs();
-
-      list = list.filter((item) => {
-        const currentDate = dayjs(item.createdAt, 'YYYYMMDDHHmm');
-
-        return currentDate.isAfter(startDate) && currentDate.isBefore(endDate);
-      });
-    } else if (state.linkState.workspace === 'last week') {
-      const startDate = dayjs().subtract(1, 'week');
-      const endDate = dayjs();
-      list = list.filter((item) => {
-        const currentDate = dayjs(item.createdAt, 'YYYYMMDDHHmm');
-
-        return currentDate.isAfter(startDate) && currentDate.isBefore(endDate);
-      });
-    } else if (state.linkState.workspace === 'last month') {
-      const startDate = dayjs().subtract(1, 'month');
-      const endDate = dayjs();
-      list = list.filter((item) => {
-        const currentDate = dayjs(item.createdAt, 'YYYYMMDDHHmm');
-
-        return currentDate.isAfter(startDate) && currentDate.isBefore(endDate);
-      });
-    } else {
+    if (dateFilter === 'day') {
       list = list.filter((item) => {
         return item.createdAt?.startsWith(selectedDate);
+      });
+    } else if (dateFilter === 'week') {
+      const currentDate = dayjs(selectedDate, 'YYYYMMDD');
+
+      const startDate = currentDate.startOf('week').format('YYYYMMDDHHmm');
+      const endDate = currentDate.endOf('week').format('YYYYMMDDHHmm');
+
+      list = list.filter((item) => {
+        return startDate <= `${item.createdAt}` && `${item.createdAt}` <= endDate;
+      });
+    } else if (dateFilter === 'month') {
+      const currentDate = dayjs(selectedDate, 'YYYYMMDD');
+
+      const startDate = currentDate.startOf('month').format('YYYYMMDDHHmm');
+      const endDate = currentDate.endOf('month').format('YYYYMMDDHHmm');
+      list = list.filter((item) => {
+        return startDate <= `${item.createdAt}` && `${item.createdAt}` <= endDate;
       });
     }
 
@@ -562,6 +569,7 @@ export const {
   toggleFavorite,
   toggleLinkOpen,
   setLinkName,
+  setLinkEmoji,
   updateLinkNameWithHeading,
   newLinkByCurrentPage,
   setLinkFileLink,

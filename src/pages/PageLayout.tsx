@@ -1,35 +1,24 @@
-import React, { MouseEvent, useCallback, useEffect, useRef, useState } from 'react';
-import { useLocation, useParams, useNavigate } from 'react-router-dom';
+import React, { useEffect, useRef } from 'react';
+import { useLocation, useParams } from 'react-router-dom';
 import ReactGA from 'react-ga4';
 
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  Alert,
-  Box,
-  Button,
-  Snackbar,
-  SpeedDial,
-  SpeedDialAction,
-  SpeedDialIcon,
-  Tooltip,
-  Typography,
-} from '@mui/material';
+import { Alert, Snackbar } from '@mui/material';
 import NavBar from 'components/NavBar';
 import { hideMessage } from 'features/messageSlices';
 import { AppState } from 'app/rootReducer';
-import { recentFavoriteSelector, refreshStorage } from 'features/linkSlices';
-import EventNote from '@mui/icons-material/EventNote';
-import QuestionAnswer from '@mui/icons-material/QuestionAnswer';
-import RecordVoiceOver from '@mui/icons-material/RecordVoiceOver';
+import { refreshStorage } from 'features/linkSlices';
 import { SideBar } from 'components/SideBar';
 import { Theme } from 'features/settingSlices';
 import { makeStyles } from 'styles/common';
-import GitHub from '@mui/icons-material/GitHub';
 import { saveLastDocument } from 'features/currentSlices';
-import invert from 'invert-color';
-import { setTool, ToolType } from 'features/boardSlices';
 import { setSidebarWidth } from 'features/navSlices';
-import { SettingsDialog } from './SettingsDialog';
+import { WorkspaceButton } from 'components/SideBar/WorkspaceButton';
+import { PageButton } from 'components/NavBar/PageButton';
+import Add from '@mui/icons-material/Add';
+import { ContentView } from 'components/Content';
+import { LogoMenu } from 'components/application/LogoMenu';
+import { Guide } from 'components/commons/Guide';
 
 type DocPageProps = {
   docKey: string;
@@ -49,7 +38,8 @@ const useStyles = makeStyles<LayoutProps>()((theme, props) => ({
     height: '100%',
   },
   sidebarAreaBackground: {
-    backgroundColor: theme.palette.mode === Theme.Dark ? '#121212' : '#fff',
+    // backgroundColor: theme.palette.mode === Theme.Dark ? '#121212' : '#fafafa',
+    borderRight: '1px solid #e0e0e0',
   },
   sidebarArea: {
     width: props.open ? props.sidebarWidth : 0,
@@ -67,6 +57,8 @@ const useStyles = makeStyles<LayoutProps>()((theme, props) => ({
     overflow: 'hidden',
     flexDirection: 'column',
     transition: 'width 225ms cubic-bezier(0, 0, 0.2, 1) 0ms',
+    borderRight: theme.palette.mode === Theme.Dark ? '1px solid #333333' : '1px solid #e0e0e0',
+    backgroundColor: theme.palette.mode === Theme.Dark ? '#202020' : '#fafafa',
   },
   layout: {
     '@media only screen and (max-width: 600px)': {
@@ -100,6 +92,19 @@ const useStyles = makeStyles<LayoutProps>()((theme, props) => ({
     // backgroundColor: 'black',
     boxSizing: 'border-box',
     position: 'relative',
+  },
+  editorContentArea: {
+    position: 'relative',
+    height: 'calc(100% - 40px)',
+    padding: '10px 0px',
+    backgroundColor: theme.palette.mode === Theme.Dark ? '#121212' : '#fff',
+  },
+  guideArea: {
+    position: 'absolute',
+    bottom: 10,
+    right: 30,
+    display: 'flex',
+    flexDirection: 'column',
   },
   instantArea: {
     flex: 'none',
@@ -138,24 +143,33 @@ const useStyles = makeStyles<LayoutProps>()((theme, props) => ({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  userArea: {
-    flex: 'none',
-    height: 65,
-    gap: 10,
+  applicationArea: {
+    padding: '10px 0px',
+    paddingTop: 0,
     display: 'flex',
     alignItems: 'center',
-    padding: '0 16px',
+    gap: 10,
+  },
+  userArea: {
+    flex: 'none',
+    // height: 65,
+    display: 'block',
+    // justifyContent: 'space-between',
+    padding: '10px 16px',
     // boxSizing: 'border-box',
-    borderBottom: '1px solid',
-    borderRight: '1px solid',
-    borderColor: theme.palette.mode === Theme.Dark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)',
-    backgroundColor: theme.palette.mode === Theme.Dark ? 'black' : '#fafafa',
+    // borderBottom: '1px solid',
+    // borderRight: '1px solid',
+    borderColor: theme.palette.mode === Theme.Dark ? 'rgba(255, 255, 255, 0.12)' : '#fafafa',
+    // backgroundColor: theme.palette.mode === Theme.Dark ? 'black' : '#fafafa',
   },
 }));
 
 function MessagePanel() {
   const dispatch = useDispatch();
-  const message = useSelector((state: AppState) => state.messageState);
+  const message = useSelector((state: AppState) => {
+    return { ...state.messageState };
+  });
+
   const handleCloseSnackbar = () => {
     dispatch(hideMessage());
   };
@@ -167,7 +181,10 @@ function MessagePanel() {
           autoHideDuration={1000}
           anchorOrigin={{
             vertical: 'bottom',
-            horizontal: 'left',
+            horizontal: 'right',
+          }}
+          style={{
+            transform: 'translateY(-30px) translateX(-100px)',
           }}
           onClose={handleCloseSnackbar}
         >
@@ -180,65 +197,6 @@ function MessagePanel() {
   );
 }
 
-function SpeedDialPanel() {
-  const navigate = useNavigate();
-  const favorites = useSelector(recentFavoriteSelector(3));
-  const [openSpeedDial, setOpenSpeedDial] = React.useState(false);
-
-  const handleSpeedDialOpen = () => {
-    setOpenSpeedDial(true);
-  };
-
-  const handleSpeedDialClose = () => {
-    setOpenSpeedDial(false);
-  };
-
-  return (
-    <SpeedDial
-      ariaLabel="SpeedDial"
-      icon={<SpeedDialIcon />}
-      onClose={handleSpeedDialClose}
-      onOpen={handleSpeedDialOpen}
-      open={openSpeedDial}
-      direction="up"
-      style={{
-        position: 'fixed',
-        bottom: 50,
-        right: 20,
-      }}
-    >
-      <SpeedDialAction
-        icon={<QuestionAnswer />}
-        tooltipTitle="Yorkie QnA"
-        onClick={() => {
-          navigate('/qna');
-        }}
-      />
-      <SpeedDialAction
-        icon={<RecordVoiceOver />}
-        tooltipTitle="Yorkie Developer QnA"
-        onClick={() => {
-          navigate('/developer-qna');
-        }}
-      />
-      {favorites.reverse().map((favorite) => {
-        return (
-          <SpeedDialAction
-            key={`${favorite.fileLink}${Math.random()}`}
-            icon={<EventNote />}
-            tooltipTitle={favorite.name}
-            onClick={() => {
-              if (favorite.fileLink) {
-                navigate(favorite.fileLink);
-              }
-            }}
-          />
-        );
-      })}
-    </SpeedDial>
-  );
-}
-
 interface PageLayoutProps {
   children: React.ReactNode;
 }
@@ -247,7 +205,6 @@ export default function PageLayout({ children }: PageLayoutProps) {
   const dispatch = useDispatch();
   const navState = useSelector((state: AppState) => state.navState);
   const menu = useSelector((state: AppState) => state.settingState.menu);
-  const currentWorkspace = useSelector((state: AppState) => state.linkState.workspace);
   const { classes } = useStyles({
     open: navState.openTab,
     openInstant: navState.openInstant,
@@ -258,7 +215,7 @@ export default function PageLayout({ children }: PageLayoutProps) {
   const resizerRef = useRef<any>({
     startWidth: navState.sidebarWidth,
   });
-  const minWidth = currentWorkspace === 'calendar' ? 320 : 240;
+  const minWidth = 320;
 
   useEffect(() => {
     if (`${import.meta.env.VITE_APP_GOOGLE_ANALYTICS}`) {
@@ -324,61 +281,38 @@ export default function PageLayout({ children }: PageLayoutProps) {
     dispatch(saveLastDocument({ docKey }));
   }, [dispatch, docKey]);
 
-  const [anchorEl, setAnchorEl] = useState<HTMLDivElement | undefined>();
-  const handleSettingsClick = useCallback(
-    (event: MouseEvent<HTMLDivElement>) => {
-      dispatch(setTool(ToolType.Settings));
-      setAnchorEl(event.currentTarget);
-    },
-    [dispatch],
-  );
-
-  const handleSettingsClose = useCallback(() => {
-    setAnchorEl(undefined);
-    dispatch(setTool(ToolType.None));
-  }, [dispatch]);
-
   return (
     <div className={classes.root} data-theme={menu.theme}>
       <div className={classes.layout}>
         <div
           className={classes.sidebarArea}
-          onTransitionEnd={() => {
-            window.dispatchEvent(new Event('resize'));
-          }}
+          // onTransitionEnd={() => {
+          //   console.log('transition end');
+          //   window.dispatchEvent(new Event('resize'));
+          // }}
         >
           <div className={classes.userArea}>
-            <Tooltip title="Settings">
-              <div
-                role="button"
-                tabIndex={0}
-                className={classes.colorView}
-                style={{
-                  backgroundColor: menu.userColor,
-                }}
-                onClick={handleSettingsClick}
-              >
-                <Typography
-                  variant="h5"
-                  style={{
-                    fontWeight: 'bold',
-                    color: invert(invert(menu.userColor, true), true),
-                  }}
-                >
-                  {menu.userName.slice(0, 1).toUpperCase()}
-                </Typography>
-              </div>
-            </Tooltip>
+            <div className={classes.applicationArea}>
+              <LogoMenu />
+            </div>
             <div
-              className={classes.userInfo}
-              role="button"
-              tabIndex={0}
               style={{
-                cursor: 'pointer',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                gap: 8,
               }}
-              onClick={handleSettingsClick}
             >
-              <Typography variant="body1">{menu.userName}</Typography>
+              <WorkspaceButton />
+
+              <PageButton
+                insertTarget="root"
+                icon={<Add />}
+                title="Page"
+                variant="contained"
+                transformOrigin={{ horizontal: 'left', vertical: 'top' }}
+                anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
+              />
             </div>
           </div>
           <div
@@ -388,31 +322,6 @@ export default function PageLayout({ children }: PageLayoutProps) {
             }}
           >
             <SideBar />
-          </div>
-          <div
-            className={classes.sidebarAreaBackground}
-            style={{
-              flex: 'none',
-              display: 'flex',
-              width: '100%',
-              justifyContent: 'center',
-              boxSizing: 'border-box',
-              borderRight: '1px solid rgba(100, 100, 100, 0.12)',
-            }}
-          >
-            <Box
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '8px 0',
-                gap: 8,
-              }}
-            >
-              <Button href="https://github.com/yorkie-team/codepair">
-                <GitHub /> &nbsp;GitHub
-              </Button>
-            </Box>
           </div>
           <div className={classes.resizer} data-resizer="true" />
         </div>
@@ -426,20 +335,16 @@ export default function PageLayout({ children }: PageLayoutProps) {
           >
             <NavBar />
           </div>
-          <div
-            style={{
-              position: 'relative',
-              height: '100%',
-            }}
-          >
-            {children}
+          <div className={classes.editorContentArea}>
+            <ContentView>{children}</ContentView>
           </div>
         </div>
         <div className={classes.instantArea}>test</div>
+        <div className={classes.guideArea}>
+          <Guide />
+        </div>
       </div>
       <MessagePanel />
-      <SpeedDialPanel />
-      {anchorEl ? <SettingsDialog open handleClose={handleSettingsClose} /> : undefined}
     </div>
   );
 }

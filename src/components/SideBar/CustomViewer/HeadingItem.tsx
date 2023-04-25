@@ -10,8 +10,17 @@ import MoreHoriz from '@mui/icons-material/MoreHoriz';
 import Star from '@mui/icons-material/Star';
 import OpenInBrowser from '@mui/icons-material/OpenInBrowser';
 
-import { Divider, IconButton, ListItem, ListItemIcon, ListItemText, Menu, MenuItem, Snackbar } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import {
+  Divider,
+  IconButton,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Snackbar,
+} from '@mui/material';
+import { Theme } from 'features/settingSlices';
 
 interface SideBarProps {
   open: boolean;
@@ -64,6 +73,7 @@ const useStyles = makeStyles<SideBarProps>()((theme, props) => ({
     },
   },
   listItemText: {
+    color: theme.palette.mode === Theme.Dark ? 'white' : 'black',
     [`& .MuiTypography-root`]: {
       fontSize: '0.875rem',
       paddingLeft: 8,
@@ -237,7 +247,7 @@ function HeadingMoreMenu({ item }: HeadingMoreMenuProps) {
   );
 }
 
-type LoopType = 'links' | 'favorite';
+type LoopType = 'links' | 'favorite' | 'date';
 
 interface SidebarItemProps {
   item: LinkItemType;
@@ -265,7 +275,6 @@ function HeadingIcon({ item }: HeadingIconProps) {
 }
 
 export function HeadingItem({ item, level, loopType }: SidebarItemProps) {
-  const navigate = useNavigate();
   const { classes } = useStyles({ open: true });
   const favorite = useSelector((state: AppState) => state.linkState.favorite);
 
@@ -307,15 +316,19 @@ export function HeadingItem({ item, level, loopType }: SidebarItemProps) {
   }, [loopType, favorite, item.fileLink]);
 
   return (
-    <ListItem
+    <ListItemButton
       className={[className, classes.sidebarItem].join(' ')}
-      button
+      component="a"
+      href={item.fileLink}
+      dense
+      // button
       selected={`${window.location.pathname}${window.location.hash}` === item.fileLink}
       disableRipple
       style={{
         display: isView ? 'flex' : 'none',
         justifyContent: 'space-between',
         alignItems: 'center',
+        textDecoration: 'none',
       }}
     >
       <HeadingIcon item={item} />
@@ -328,11 +341,6 @@ export function HeadingItem({ item, level, loopType }: SidebarItemProps) {
           // open link to new tab if meta key is pressed
           if (e.metaKey) {
             window.open(item.fileLink, '_blank');
-            return;
-          }
-
-          if (item.fileLink) {
-            navigate(item.fileLink);
           }
         }}
       />
@@ -348,6 +356,6 @@ export function HeadingItem({ item, level, loopType }: SidebarItemProps) {
       >
         <HeadingMoreMenu item={item} />
       </div>
-    </ListItem>
+    </ListItemButton>
   );
 }

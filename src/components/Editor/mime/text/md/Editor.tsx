@@ -16,10 +16,12 @@ const useStyles = makeStyles<{ tool: ToolType }>()((theme, props) => ({
     width: '100%',
     flex: '1 1 auto',
     position: 'relative',
+    display: 'flex',
+    // gap: 10,
   },
   codeEditor: {
-    width: '100%',
-    height: `200px`,
+    flex: '1 1 auto',
+    // height: `200px`,
   },
   canvas: {
     top: 0,
