@@ -6,6 +6,7 @@ import { makeStyles } from 'styles/common';
 import EmojiPicker from 'emoji-picker-react';
 import { Theme } from 'features/settingSlices';
 import ShareButton from 'components/NavBar/ShareButton';
+import { SubPageButton } from 'components/NavBar/SubPageButton';
 
 interface ContentViewProps {
   children: ReactNode;
@@ -126,8 +127,13 @@ export function ContentView({ children }: ContentViewProps) {
         <div
           style={{
             flex: 'none',
+            // width: 400,
+            whiteSpace: 'nowrap',
+            display: 'flex',
+            gap: 10,
           }}
         >
+          <SubPageButton />
           <ShareButton />
         </div>
         {anchorEl ? (
