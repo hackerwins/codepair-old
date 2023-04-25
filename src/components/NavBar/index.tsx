@@ -1,7 +1,7 @@
 import React, { memo, MouseEvent, useCallback, useRef, useState } from 'react';
 import PeerGroup from 'components/NavBar/PeerGroup';
 import { useDispatch, useSelector } from 'react-redux';
-import { toggleInstant, toggleTab } from 'features/navSlices';
+import { toggleTab } from 'features/navSlices';
 import { AppState } from 'app/rootReducer';
 import { Theme as ThemeType } from 'features/settingSlices';
 import { makeStyles } from 'styles/common';
@@ -18,7 +18,6 @@ import {
   Toolbar,
   Tooltip,
 } from '@mui/material';
-import SmartToy from '@mui/icons-material/SmartToy';
 import MenuOpen from '@mui/icons-material/MenuOpen';
 import { setTool, ToolType } from 'features/boardSlices';
 import { SettingsDialog } from 'pages/SettingsDialog';
@@ -120,7 +119,9 @@ function MenuAppBar() {
         <Toolbar
           style={{
             gap: 4,
-            paddingLeft: navState.openTab ? 10 : 10,
+            paddingLeft: 10,
+            height: 48,
+            minHeight: 48,
           }}
         >
           <div
@@ -173,7 +174,7 @@ function MenuAppBar() {
           <div className={classes.items}>
             <ThemeButton />
           </div>
-          {import.meta.env.DEV && (
+          {/* {import.meta.env.DEV && (
             <IconButton
               size="small"
               onClick={() => {
@@ -183,7 +184,7 @@ function MenuAppBar() {
             >
               <SmartToy />
             </IconButton>
-          )}
+          )} */}
           <Divider
             orientation="vertical"
             style={{
@@ -193,7 +194,11 @@ function MenuAppBar() {
           />
 
           <Tooltip title="Settings">
-            <Avatar ref={avatarRef} sx={{ bgcolor: menu.userColor, cursor: 'pointer' }} onClick={handleOpenMenu}>
+            <Avatar
+              ref={avatarRef}
+              sx={{ bgcolor: menu.userColor, cursor: 'pointer', width: 30, height: 30 }}
+              onClick={handleOpenMenu}
+            >
               {menu.userName.slice(0, 1).toUpperCase()}
             </Avatar>
           </Tooltip>

@@ -1,8 +1,18 @@
 import React from 'react';
-import { IconButton, Popover, Typography } from '@mui/material';
+import {
+  Divider,
+  IconButton,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Popover,
+  Typography,
+} from '@mui/material';
 import { makeStyles } from 'styles/common';
 import { Theme } from 'features/settingSlices';
 import { CreateButton } from 'components/NavBar/CreateButton';
+import { PetsOutlined } from '@mui/icons-material';
 
 const useStyles = makeStyles()((theme) => ({
   iconButton: {
@@ -30,7 +40,7 @@ export function LogoMenu() {
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
-  const handleMenuClick = (event: React.MouseEvent<HTMLDivElement>) => {
+  const handleMenuClick = (event: any) => {
     setAnchorEl(event.currentTarget);
   };
 
@@ -40,7 +50,7 @@ export function LogoMenu() {
 
   return (
     <>
-      <IconButton size="small" className={classes.iconButton}>
+      <IconButton size="small" className={classes.iconButton} onClick={handleMenuClick}>
         <svg
           width="40"
           height="38"
@@ -67,7 +77,7 @@ export function LogoMenu() {
         </svg>
       </IconButton>
       <CreateButton />
-      <div role="button" tabIndex={0} onClick={handleMenuClick}>
+      <div role="button" tabIndex={0}>
         <Typography
           variant="inherit"
           className={classes.applicationAreaTitle}
@@ -96,7 +106,21 @@ export function LogoMenu() {
           }}
           elevation={2}
         >
-          <Typography sx={{ p: 2 }}>The content of the Popover.</Typography>
+          <List
+            style={{
+              backgroundColor: '#393939',
+              width: 300,
+            }}
+            dense
+          >
+            <ListItemButton dense>
+              <ListItemIcon>
+                <PetsOutlined />
+              </ListItemIcon>
+              <ListItemText primary="CodePair" />
+            </ListItemButton>
+          </List>
+          <Divider />
         </Popover>
       ) : undefined}
     </>

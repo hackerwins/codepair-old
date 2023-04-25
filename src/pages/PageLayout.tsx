@@ -95,6 +95,7 @@ const useStyles = makeStyles<LayoutProps>()((theme, props) => ({
     position: 'relative',
     height: 'calc(100% - 40px)',
     padding: '10px 0px',
+    paddingTop: 0,
     backgroundColor: theme.palette.mode === Theme.Dark ? '#121212' : '#fff',
   },
   guideArea: {

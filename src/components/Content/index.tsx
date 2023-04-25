@@ -110,7 +110,7 @@ export function ContentView({ children }: ContentViewProps) {
             cursor: 'pointer',
             display: 'inline-block',
             verticalAlign: 'middle',
-            fontSize: 36,
+            fontSize: 26,
             marginRight: 10,
           }}
         >

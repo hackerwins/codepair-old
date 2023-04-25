@@ -49,7 +49,7 @@ function getIcon(item: ItemType) {
     }
   }
 
-  return <Home />;
+  return <Home fontSize="small" />;
 }
 
 export function LinkNavigation() {
@@ -116,6 +116,7 @@ export function LinkNavigation() {
             label={currentWorkspace?.name}
             href="/"
             component="a"
+            size="small"
             icon={<Workspaces fontSize="small" />}
           />
           {linkList.map((item) => (
@@ -123,6 +124,7 @@ export function LinkNavigation() {
               key={`${item?.id}${(item as LinkItemType)?.fileLink}`}
               className={classes.chip}
               label={item.name}
+              size="small"
               href={`${(item as LinkItemType)?.fileLink}`}
               component="a"
               icon={getIcon(item)}
