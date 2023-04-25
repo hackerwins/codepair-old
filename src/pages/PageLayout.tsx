@@ -14,8 +14,6 @@ import { makeStyles } from 'styles/common';
 import { saveLastDocument } from 'features/currentSlices';
 import { setSidebarWidth } from 'features/navSlices';
 import { WorkspaceButton } from 'components/SideBar/WorkspaceButton';
-import { PageButton } from 'components/NavBar/PageButton';
-import Add from '@mui/icons-material/Add';
 import { ContentView } from 'components/Content';
 import { LogoMenu } from 'components/application/LogoMenu';
 import { Guide } from 'components/commons/Guide';
@@ -304,15 +302,6 @@ export default function PageLayout({ children }: PageLayoutProps) {
               }}
             >
               <WorkspaceButton />
-
-              <PageButton
-                insertTarget="root"
-                icon={<Add />}
-                title="Page"
-                variant="contained"
-                transformOrigin={{ horizontal: 'left', vertical: 'top' }}
-                anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
-              />
             </div>
           </div>
           <div

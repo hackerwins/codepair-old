@@ -97,7 +97,11 @@ export function SideBar() {
   return (
     <Drawer variant="permanent" className={classes.drawer} open={open}>
       <TabContext value={navState.openTabValue}>
-        <Box>
+        <Box
+          style={{
+            padding: '0px 16px',
+          }}
+        >
           <TabList
             onChange={handleChange}
             className={menu.theme === Theme.Dark ? classes.tabListDark : classes.tabListLight}

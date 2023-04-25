@@ -23,7 +23,7 @@ const useStyles = makeStyles<{ sidebarWidth: number }>()((theme, props) => ({
     transform: 'translateY(4px)',
     '& .MuiPaper-root': {
       backgroundColor: theme.palette.background.paper,
-      minWidth: props.sidebarWidth - 130,
+      minWidth: props.sidebarWidth - 34,
     },
   },
 }));

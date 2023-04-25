@@ -2,6 +2,7 @@ import React from 'react';
 import { IconButton, Popover, Typography } from '@mui/material';
 import { makeStyles } from 'styles/common';
 import { Theme } from 'features/settingSlices';
+import { CreateButton } from 'components/NavBar/CreateButton';
 
 const useStyles = makeStyles()((theme) => ({
   iconButton: {
@@ -65,6 +66,7 @@ export function LogoMenu() {
           />
         </svg>
       </IconButton>
+      <CreateButton />
       <div role="button" tabIndex={0} onClick={handleMenuClick}>
         <Typography
           variant="inherit"
