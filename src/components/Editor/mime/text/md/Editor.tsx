@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 
 import { useSelector } from 'react-redux';
 import { AppState } from 'app/rootReducer';
@@ -6,7 +6,7 @@ import { ToolType } from 'features/boardSlices';
 import { makeStyles } from 'styles/common';
 import CodeEditor from './CodeEditor';
 
-const useStyles = makeStyles<{ tool: ToolType }>()((theme, props) => ({
+const useStyles = makeStyles<{ tool: ToolType; sidebarWidth: number }>()((theme, props) => ({
   root: {
     flexGrow: 1,
     display: 'flex',
@@ -22,6 +22,7 @@ const useStyles = makeStyles<{ tool: ToolType }>()((theme, props) => ({
   codeEditor: {
     flex: '1 1 auto',
     // height: `200px`,
+    width: `calc(100vw - ${props.sidebarWidth}px)`,
   },
   canvas: {
     top: 0,
@@ -39,16 +40,14 @@ const useStyles = makeStyles<{ tool: ToolType }>()((theme, props) => ({
 
 export default function Editor() {
   const tool = useSelector((state: AppState) => state.boardState.toolType);
-  const { classes } = useStyles({ tool });
-
-  const divRef = useRef<HTMLDivElement>(null);
-  const codeEditorRef = useRef<CodeMirror.Editor>(null);
+  const sidebarWidth = useSelector((state: AppState) => state.navState.sidebarWidth);
+  const { classes } = useStyles({ tool, sidebarWidth });
 
   return (
     <div className={classes.root} aria-hidden="true">
-      <div className={classes.editor} ref={divRef}>
+      <div className={classes.editor}>
         <div className={classes.codeEditor}>
-          <CodeEditor forwardedRef={codeEditorRef} />
+          <CodeEditor />
         </div>
       </div>
     </div>

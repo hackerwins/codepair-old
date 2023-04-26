@@ -21,16 +21,16 @@ import 'easymde/dist/easymde.min.css';
 import 'codemirror/keymap/sublime';
 import 'codemirror/keymap/emacs';
 import 'codemirror/keymap/vim';
+import 'codemirror/addon/fold/foldcode';
+import 'codemirror/addon/fold/foldgutter';
+import 'codemirror/addon/fold/foldgutter.css';
 import './codemirror/shuffle';
+import './codemirror/markdown-fold';
 import Cursor from './Cursor';
 import SlideView from './slideView';
 import EditorSettings from './EditorSettings';
 
 const WIDGET_HEIGHT = 180;
-
-interface CodeEditorProps {
-  forwardedRef: React.MutableRefObject<CodeMirror.Editor | null>;
-}
 
 const useStyles = makeStyles()((theme: Theme) => ({
   dark: {
@@ -89,7 +89,11 @@ const useStyles = makeStyles()((theme: Theme) => ({
   },
 }));
 
-export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
+const callback = debounce((callFunction) => {
+  callFunction();
+}, 500);
+
+export default function CodeEditor() {
   const { classes } = useStyles();
   const dispatch = useDispatch();
   const doc = useSelector((state: AppState) => state.docState.doc);
@@ -99,6 +103,8 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
   const peers = useSelector((state: AppState) => state.peerState.peers);
   const cursorMapRef = useRef<Map<ActorID, Cursor>>(new Map());
   const [editor, setEditor] = useState<CodeMirror.Editor | null>(null);
+
+  console.log(doc);
 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | undefined>();
   const handleSettingsClick = useCallback((event: MouseEvent<HTMLButtonElement>) => {
@@ -113,12 +119,6 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
     cursorMapRef.current.set(clientID, new Cursor(clientID, presence));
   }, []);
 
-  const callback = debounce(() => {
-    if (editor) {
-      dispatch(setActionStatus({ isOver: false }));
-    }
-  }, 500);
-
   const disconnectCursor = useCallback((clientID: ActorID) => {
     if (cursorMapRef.current.has(clientID)) {
       cursorMapRef.current.get(clientID)!.clear();
@@ -127,6 +127,9 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
   }, []);
 
   const getCmInstanceCallback = useCallback((cm: CodeMirror.Editor) => {
+    cm.setOption('foldGutter', true);
+    cm.setOption('gutters', ['CodeMirror-foldgutter']);
+
     setEditor(cm);
   }, []);
 
@@ -149,7 +152,26 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
     }
   }, []);
 
-  const updateActionStatus = useCallback(callback, [editor, dispatch, callback]);
+  const updateActionStatus = useCallback(callback, []);
+
+  const uploadImage = (image: File, onSuccess: (imageUrl: string) => void, onError: (errorMessage: string) => void) => {
+    try {
+      if (image.type && !image.type.startsWith('image/')) {
+        throw new Error(`This File type is ${image.type}. Please upload an image file.`);
+      } else {
+        const reader = new FileReader();
+
+        reader.addEventListener('load', ({ target }) => {
+          if (target && typeof target.result === 'string') {
+            onSuccess(target.result);
+          }
+        });
+        reader.readAsDataURL(image);
+      }
+    } catch (error) {
+      onError(String(error));
+    }
+  };
 
   useEffect(() => {
     for (const [id, peer] of Object.entries(peers)) {
@@ -166,8 +188,10 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       return;
     }
 
+    console.log('CodeMirror instance is ready!');
+
     // eslint-disable-next-line no-param-reassign
-    forwardedRef.current = editor;
+    // forwardedRef.current = editor;
 
     const updateCursor = (clientID: ActorID, pos: CodeMirror.Position) => {
       const cursor = cursorMapRef.current.get(clientID);
@@ -244,7 +268,9 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
         }),
       );
       dispatch(setActionStatus({ isOver: true }));
-      updateActionStatus();
+      updateActionStatus(() => {
+        dispatch(setActionStatus({ isOver: false }));
+      });
     });
 
     // local to remote
@@ -284,19 +310,21 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
     // link to heading
     goHeadingLink();
 
+    function ChangeToGoPage() {
+      goHeadingLink();
+    }
     // set table of contents event
     // When a hashchange event occurs, move inside the codemirror with location.hash.
-    window.addEventListener('hashchange', () => {
-      console.log('HashChangeEvent');
-      goHeadingLink();
-    });
-
-    window.addEventListener('popstate', () => {
-      goHeadingLink();
-    });
+    window.addEventListener('hashchange', ChangeToGoPage);
+    window.addEventListener('popstate', ChangeToGoPage);
 
     dispatch(updateHeadings());
-  }, [client, doc, editor, forwardedRef, menu, goHeadingLink, dispatch, updateActionStatus]);
+
+    return () => {
+      window.removeEventListener('hashchange', ChangeToGoPage);
+      window.removeEventListener('popstate', ChangeToGoPage);
+    };
+  }, [client, doc, editor, dispatch, goHeadingLink, menu.codeKeyMap, updateActionStatus]);
 
   const options = useMemo(() => {
     const opts = {
@@ -326,9 +354,42 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       ],
       unorderedListStyle: '-',
       status: false,
+      // previewImagesInEditor: true,
+      // imagesPreviewHandler: (src: string) => {
+      //   // how to convert datauri to blob
+      //   // https://stackoverflow.com/questions/4998908/convert-data-uri-to-file-then-append-to-formdata
+      //   const dataURItoBlob = (dataURI: string) => {
+      //     var arr = dataURI.split(',');
+      //     var matches = (arr as any)[0].match(/:(.*?);/);
+
+      //     if (!matches || !matches[1]) {
+      //       throw new Error('invalid data URI');
+      //     }
+
+      //     var mime = matches[1],
+      //       bstr = atob(arr[1]),
+      //       n = bstr.length,
+      //       u8arr = new Uint8Array(n);
+      //     while (n--) {
+      //       u8arr[n] = bstr.charCodeAt(n);
+      //     }
+      //     return new Blob([u8arr], { type: mime });
+      //   };
+
+      //   try {
+      //     return URL.createObjectURL(dataURItoBlob(src));
+      //   } catch (err) {
+      //     console.error(err);
+      //   }
+      // },
+      uploadImage: true,
+      imageUploadFunction: uploadImage,
       shortcuts: {
         toggleUnorderedList: null,
       },
+      sideBySideFullscreen: false,
+      // lineNumbers: true,
+      // lineWrapping: true,
     } as SimpleMDE.Options;
 
     if (preview === Preview.Slide) {

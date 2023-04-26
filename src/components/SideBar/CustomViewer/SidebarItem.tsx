@@ -103,13 +103,11 @@ const useStyles = makeStyles()((theme) => ({
   sidebarItem: {
     padding: theme.spacing(0.5, 1),
     borderRadius: 6,
-    transitionProperty: 'background-color, color',
     [`&:hover .sidebar-item-more`]: {
       visibility: 'visible !important' as any,
     },
     [`&:hover`]: {
       backgroundColor: theme.palette.mode === Theme.Dark ? `rgba(150, 150, 150, 0.25)` : `rgba(150, 150, 150, 0.25)`,
-      // color: theme.palette.primary.contrastText,
     },
   },
   sidebarItemSelected: {

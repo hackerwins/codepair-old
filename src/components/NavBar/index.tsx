@@ -27,6 +27,7 @@ import RecordVoiceOver from '@mui/icons-material/RecordVoiceOver';
 import GitHub from '@mui/icons-material/GitHub';
 import ThemeButton from './ThemeButton';
 import { LinkNavigation } from './LinkNavigation';
+import ShareButton from './ShareButton';
 
 const useStyles = makeStyles()((theme: Theme) => ({
   root: {
@@ -38,7 +39,6 @@ const useStyles = makeStyles()((theme: Theme) => ({
   appBar: {
     backgroundColor: theme.palette.mode === ThemeType.Dark ? '#121212' : '#fff',
     color: theme.palette.mode === ThemeType.Dark ? 'white' : 'black',
-    // borderBottom: theme.palette.mode === ThemeType.Dark ? '1px solid #333333' : '1px solid #e9e9e9',
   },
   iconButton: {
     marginRight: theme.spacing(2),
@@ -172,6 +172,7 @@ function MenuAppBar() {
             <div />
           </div>
           <div className={classes.items}>
+            <ShareButton />
             <ThemeButton />
           </div>
           {/* {import.meta.env.DEV && (

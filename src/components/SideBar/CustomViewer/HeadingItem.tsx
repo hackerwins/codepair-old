@@ -22,13 +22,7 @@ import {
 } from '@mui/material';
 import { Theme } from 'features/settingSlices';
 
-interface SideBarProps {
-  open: boolean;
-}
-
-const SIDEBAR_WIDTH = 300;
-
-const useStyles = makeStyles<SideBarProps>()((theme, props) => ({
+const useStyles = makeStyles()((theme) => ({
   title: {
     flexGrow: 1,
     padding: '15px 16px',
@@ -41,37 +35,7 @@ const useStyles = makeStyles<SideBarProps>()((theme, props) => ({
     backgroundColor: '#fafafa',
     borderBottom: '1px solid #e8e8e8',
   },
-  drawer: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    right: 0,
-    bottom: 0,
-    flexShrink: 0,
-    transform: `translateX(${props.open ? 0 : -SIDEBAR_WIDTH}px) translateZ(0)`,
-    [`& .MuiDrawer-paper`]: {
-      width: SIDEBAR_WIDTH,
-      boxSizing: 'border-box',
-      position: 'absolute',
-      transition: 'width 225ms cubic-bezier(0, 0, 0.2, 1) 0ms',
-    },
 
-    [`& .MuiListItem-root`]: {
-      paddingTop: 2,
-      paddingBottom: 2,
-    },
-
-    [`& .MuiTabPanel-root`]: {
-      padding: 0,
-    },
-
-    [`& .MuiTab-root`]: {
-      minWidth: 0,
-      padding: '0 16px',
-      fontSize: '0.875rem',
-      textTransform: 'none',
-    },
-  },
   listItemText: {
     color: theme.palette.mode === Theme.Dark ? 'white' : 'black',
     [`& .MuiTypography-root`]: {
@@ -94,6 +58,9 @@ const useStyles = makeStyles<SideBarProps>()((theme, props) => ({
     },
   },
   sidebarItem: {
+    paddingTop: 2,
+    paddingBottom: 2,
+    borderRadius: 6,
     [`&:hover .sidebar-item-more`]: {
       visibility: 'visible !important' as any,
     },
@@ -148,7 +115,7 @@ interface HeadingMoreMenuProps {
 function HeadingMoreMenu({ item }: HeadingMoreMenuProps) {
   const dispatch = useDispatch<AppDispatch>();
   const favorite = useSelector((state: AppState) => state.linkState.favorite);
-  const { classes } = useStyles({ open: true });
+  const { classes } = useStyles();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const open = Boolean(anchorEl);
@@ -275,7 +242,7 @@ function HeadingIcon({ item }: HeadingIconProps) {
 }
 
 export function HeadingItem({ item, level, loopType }: SidebarItemProps) {
-  const { classes } = useStyles({ open: true });
+  const { classes } = useStyles();
   const favorite = useSelector((state: AppState) => state.linkState.favorite);
 
   const className = useMemo(() => {
@@ -319,7 +286,7 @@ export function HeadingItem({ item, level, loopType }: SidebarItemProps) {
     <ListItemButton
       className={[className, classes.sidebarItem].join(' ')}
       component="a"
-      href={item.fileLink}
+      href={`#${item.fileLink?.split('#').pop()}`}
       dense
       // button
       selected={`${window.location.pathname}${window.location.hash}` === item.fileLink}

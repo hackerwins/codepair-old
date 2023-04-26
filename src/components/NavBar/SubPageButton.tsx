@@ -36,14 +36,14 @@ export function SubPageButton() {
           open
           anchorEl={anchorEl}
           onClose={handleClose}
-          elevation={2}
+          elevation={1}
           transformOrigin={{
             vertical: 'top',
-            horizontal: 'right',
+            horizontal: 'left',
           }}
           anchorOrigin={{
             vertical: 'bottom',
-            horizontal: 'right',
+            horizontal: 'left',
           }}
           style={{
             marginTop: 4,

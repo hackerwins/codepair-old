@@ -12,6 +12,7 @@ import { MimeType } from 'constants/editor';
 import BorderAll from '@mui/icons-material/BorderAll';
 import Gesture from '@mui/icons-material/Gesture';
 import { DescriptionOutlined } from '@mui/icons-material';
+import { SubPageButton } from './SubPageButton';
 
 const useStyles = makeStyles()((theme) => ({
   root: {
@@ -131,6 +132,7 @@ export function LinkNavigation() {
             />
           ))}
         </Breadcrumbs>
+        <SubPageButton />
       </div>
     </div>
   );

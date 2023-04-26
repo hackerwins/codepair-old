@@ -5,8 +5,6 @@ import { findCurrentPageLink, setLinkEmoji, setLinkName } from 'features/linkSli
 import { makeStyles } from 'styles/common';
 import EmojiPicker from 'emoji-picker-react';
 import { Theme } from 'features/settingSlices';
-import ShareButton from 'components/NavBar/ShareButton';
-import { SubPageButton } from 'components/NavBar/SubPageButton';
 
 interface ContentViewProps {
   children: ReactNode;
@@ -38,7 +36,7 @@ const useStyles = makeStyles()((theme) => ({
   },
   body: {
     padding: 0,
-    height: 'calc(100vh - 180px)',
+    height: 'calc(100vh - 150px)',
     borderTop: theme.palette.mode === Theme.Dark ? '1px solid #333333' : '1px solid #e8e8e8',
   },
 }));
@@ -122,19 +120,6 @@ export function ContentView({ children }: ContentViewProps) {
           }}
         >
           <TitleInput />
-        </div>
-
-        <div
-          style={{
-            flex: 'none',
-            // width: 400,
-            whiteSpace: 'nowrap',
-            display: 'flex',
-            gap: 10,
-          }}
-        >
-          <SubPageButton />
-          <ShareButton />
         </div>
         {anchorEl ? (
           <Popover

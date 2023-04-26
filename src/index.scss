@@ -68,6 +68,19 @@ body {
 }
 
 .EasyMDEContainer {
+  .CodeMirror-gutter-wrapper {
+    height: 100%;
+  }
+
+  .CodeMirror-gutters {
+    background-color: inherit;
+    border-right: none;
+  }
+
+  .CodeMirror-gutter-elt {
+    transform: translateY(15px);
+  }
+
   /* 
    * Make vim command visible.
    * issue ref https://github.com/yorkie-team/codepair/issues/148  
@@ -114,6 +127,7 @@ body {
 [data-theme='light'] {
   .EasyMDEContainer {
     padding: 0px 20px;
+
     .CodeMirror-line span.cm-keyword {
       color: #708;
     }
@@ -294,6 +308,19 @@ body {
   }
 }
 
+.EasyMDEContainer.sided--no-fullscreen .editor-preview-active-side {
+  height: calc(100vh - 210px) !important;
+}
+
+.editor-preview-side {
+  // background-color: #1e1e1e !important;
+  // color: #fff;
+  padding: 20px;
+  overflow: auto;
+  height: 100%;
+  box-sizing: border-box;
+}
+
 .editor-preview-side .marpit svg foreignObject section {
   border: none;
 }
@@ -308,6 +335,10 @@ body {
 
 .editor-preview-full .marpit a {
   color: white;
+}
+
+.editor-preview-side img {
+  max-width: calc(100% - 10px);
 }
 
 /**
@@ -357,6 +388,10 @@ body {
       // background-color: #333333 !important;
       color: #ffffff !important;
       // border-color: #555 !important;
+    }
+
+    .CodeMirror-foldmarker {
+      color: #ffffff !important;
     }
 
     .CodeMirror-dialog {
