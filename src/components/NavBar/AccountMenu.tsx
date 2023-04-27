@@ -101,7 +101,7 @@ function AccountMenu() {
             <ListItemIcon>
               <GitHub />
             </ListItemIcon>
-            <ListItemText primary="Yorkie Github" />
+            <ListItemText primary="Yorkie GitHub" />
           </MenuItem>
           <MenuItem onClick={() => navigate('https://github.com/yorkie-team/yorkie-js-sdk')}>
             <ListItemIcon>
@@ -113,7 +113,7 @@ function AccountMenu() {
             <ListItemIcon>
               <GitHub />
             </ListItemIcon>
-            <ListItemText primary="Codepair Github" />
+            <ListItemText primary="CodePair GitHub" />
           </MenuItem>
         </Menu>
       ) : undefined}

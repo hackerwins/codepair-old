@@ -209,7 +209,7 @@ export function PageButton({
               1
             </Typography>
           </MenuItem>
-          <MenuItem onClick={() => handleCreateWhiteboard('Untitled artboard')}>
+          <MenuItem onClick={() => handleCreateWhiteboard('Untitled whiteboard')}>
             <ListItemIcon>
               <Gesture fontSize="small" />
             </ListItemIcon>
