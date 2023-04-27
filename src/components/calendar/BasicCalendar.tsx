@@ -44,8 +44,7 @@ function ScheduleDay(props: PickersDayProps<Dayjs>) {
   const { day, outsideCurrentMonth, ...other } = props;
 
   const dateString = day.format('YYYYMMDD');
-  const dateFilter = useSelector((state: AppState) => state.calendarState.dateFilter);
-  const list = useSelector(toFlatScheduleForDate(dateString, dateFilter)).map((it) => it.color);
+  const list = useSelector(toFlatScheduleForDate(dateString, 'day')).map((it) => it.color);
   const { classes } = useStyles();
 
   return (

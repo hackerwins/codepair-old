@@ -13,7 +13,7 @@ import { TabContext, TabList } from '@mui/lab';
 import { MimeType } from 'constants/editor';
 import CalendarMonth from '@mui/icons-material/CalendarMonth';
 import { DescriptionOutlined } from '@mui/icons-material';
-
+import { findCurrentPageLink } from 'features/linkSlices';
 import { CustomViewer } from './CustomViewer';
 import { PagesView } from './CustomViewer/PagesView';
 import { CalendarView } from './CustomViewer/CalendarView';
@@ -80,15 +80,14 @@ function TabLabel({ children }: TabLabelProps) {
 export function SideBar() {
   const dispatch = useDispatch();
   const navState = useSelector((state: AppState) => state.navState);
-  const doc = useSelector((state: AppState) => state.docState.doc);
   const menu = useSelector((state: AppState) => state.settingState.menu);
+  const currentItem = useSelector(findCurrentPageLink);
   const { openTab: open, sidebarWidth } = navState;
   const { classes } = useStyles({
     open: useLocation().pathname === '/calendar' ? true : open,
     sidebarWidth,
   });
-  const root = doc?.getRoot();
-  const mimeType = root?.mimeType || MimeType.MARKDOWN;
+  const { mimeType } = currentItem;
 
   const handleChange = (event: React.SyntheticEvent<Element, Event>, newValue: NavTabType) => {
     dispatch(toggleLinkTab(newValue));

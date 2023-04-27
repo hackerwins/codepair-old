@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Popover, TextField } from '@mui/material';
-import EmojiPicker from 'emoji-picker-react';
+import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { findCurrentPageLink, setLinkEmoji, setLinkName } from 'features/linkSlices';
 import { useDispatch, useSelector } from 'react-redux';
 import { makeStyles } from 'styles/common';
+import { AppState } from 'app/rootReducer';
 
 const useStyles = makeStyles()(() => ({
   titleInput: {
     width: '100%',
     // backgroundColor: 'yellow',
     '& .MuiInputBase-root': {
-      fontSize: '1.3rem',
+      fontSize: '1.2rem',
       fontWeight: 700,
 
       '&:hover:not(.Mui-disabled, .Mui-error):before': {
@@ -55,7 +56,7 @@ function TitleInput() {
 export function TitleView() {
   const dispatch = useDispatch();
   const currentItem = useSelector(findCurrentPageLink);
-  //   const { classes } = useStyles();
+  const menu = useSelector((state: AppState) => state.settingState.menu);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLSpanElement>) => {
@@ -122,6 +123,7 @@ export function TitleView() {
           }}
         >
           <EmojiPicker
+            theme={menu.theme as Theme}
             onEmojiClick={(emoji) => {
               handleModifyLinkStatus(emoji.emoji);
             }}

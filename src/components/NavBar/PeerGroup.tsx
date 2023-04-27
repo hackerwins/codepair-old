@@ -31,6 +31,7 @@ const useStyles = makeStyles()((theme) => ({
   defaultAvatar: {
     width: 30,
     height: 30,
+    border: `2px solid ${theme.palette.mode === 'dark' ? '#555555' : 'rgba(200, 200, 200, 1)'} !important`,
   },
 }));
 

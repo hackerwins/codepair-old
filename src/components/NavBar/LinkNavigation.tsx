@@ -57,6 +57,13 @@ const useStyles = makeStyles()((theme) => ({
     pointerEvents: 'none',
     color: theme.palette.mode === Theme.Dark ? '#999' : '#777',
   },
+  subheader: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+    padding: '10px 16px',
+    backgroundColor: theme.palette.mode === Theme.Dark ? '#333333' : '#fff',
+  },
 }));
 
 function getIcon(item: ItemType) {
@@ -180,14 +187,7 @@ export function LinkNavigation() {
               }}
             >
               <List>
-                <ListSubheader
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 4,
-                    padding: '10px 16px',
-                  }}
-                >
+                <ListSubheader className={classes.subheader}>
                   <AccountTree fontSize="small" />
                   <Typography variant="body2">Pages</Typography>
                 </ListSubheader>
