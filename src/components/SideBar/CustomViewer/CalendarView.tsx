@@ -152,7 +152,7 @@ export function CalendarView() {
               display: 'block',
               gap: 8,
               boxSizing: 'border-box',
-              padding: '5px 0px',
+              padding: '5px 20px',
               width: 310,
               margin: '0 auto',
               textAlign: 'right',

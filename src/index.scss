@@ -67,7 +67,26 @@ body {
   border-color: #eeeeee !important;
 }
 
+.CodeMirror-foldmarker {
+  color: rgb(0, 120, 6);
+  background-color: transparent !important;
+  text-shadow: none !important;
+  font-size: 2.5rem !important;
+}
+
+.CodeMirror-foldgutter-folded {
+  display: none;
+}
+
 .EasyMDEContainer {
+  .CodeMirror {
+    border: 1px solid #eee;
+    height: auto;
+  }
+  .CodeMirror-scroll {
+    overflow-y: hidden;
+    overflow-x: auto;
+  }
   .CodeMirror-gutter-wrapper {
     height: 100%;
   }

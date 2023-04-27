@@ -14,10 +14,7 @@ import { Theme } from 'features/settingSlices';
 
 const useStyles = makeStyles()((theme) => ({
   calendar: {
-    // border: '1px solid #ccc',
     width: 310,
-    background: theme.palette.mode === Theme.Dark ? '#333333' : '#fff',
-    border: theme.palette.mode === Theme.Dark ? '1px solid #555555' : '1px solid rgba(0, 0, 0, 0.12)',
 
     borderRadius: 4,
     '& .MuiPickersCalendarHeader-root': {

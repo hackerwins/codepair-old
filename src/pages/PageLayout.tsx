@@ -14,7 +14,6 @@ import { makeStyles } from 'styles/common';
 import { saveLastDocument } from 'features/currentSlices';
 import { setSidebarWidth } from 'features/navSlices';
 import { WorkspaceButton } from 'components/SideBar/WorkspaceButton';
-import { ContentView } from 'components/Content';
 import { LogoMenu } from 'components/application/LogoMenu';
 import { Guide } from 'components/commons/Guide';
 
@@ -325,9 +324,7 @@ export default function PageLayout({ children }: PageLayoutProps) {
           >
             <NavBar />
           </div>
-          <div className={classes.editorContentArea}>
-            <ContentView>{children}</ContentView>
-          </div>
+          <div className={classes.editorContentArea}>{children}</div>
         </div>
         <div className={classes.instantArea}>test</div>
         <div className={classes.guideArea}>

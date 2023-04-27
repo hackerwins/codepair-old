@@ -28,6 +28,7 @@ import GitHub from '@mui/icons-material/GitHub';
 import ThemeButton from './ThemeButton';
 import { LinkNavigation } from './LinkNavigation';
 import ShareButton from './ShareButton';
+import { TitleView } from './TitleView';
 
 const useStyles = makeStyles()((theme: Theme) => ({
   root: {
@@ -39,6 +40,7 @@ const useStyles = makeStyles()((theme: Theme) => ({
   appBar: {
     backgroundColor: theme.palette.mode === ThemeType.Dark ? '#121212' : '#fff',
     color: theme.palette.mode === ThemeType.Dark ? 'white' : 'black',
+    borderBottom: theme.palette.mode === ThemeType.Dark ? '1px solid #333333' : '1px solid #e0e0e0',
   },
   iconButton: {
     marginRight: theme.spacing(2),
@@ -168,10 +170,10 @@ function MenuAppBar() {
           </div>
           <div className={classes.grow}>
             <LinkNavigation />
-            <PeerGroup />
-            <div />
+            <TitleView />
           </div>
           <div className={classes.items}>
+            <PeerGroup />
             <ShareButton />
             <ThemeButton />
           </div>

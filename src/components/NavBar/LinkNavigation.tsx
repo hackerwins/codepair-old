@@ -2,39 +2,60 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { AppState } from 'app/rootReducer';
 import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
-import { findCurrentPageLink, getCurrentWorkspace, ItemType, LinkItemType } from 'features/linkSlices';
-import { Breadcrumbs, Chip } from '@mui/material';
+import { findCurrentPageLink, ItemType, LinkItemType } from 'features/linkSlices';
+import {
+  Button,
+  Divider,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  ListSubheader,
+  Popover,
+  Typography,
+} from '@mui/material';
 
 import { makeStyles } from 'styles/common';
 import Home from '@mui/icons-material/Home';
-import Workspaces from '@mui/icons-material/Workspaces';
 import { MimeType } from 'constants/editor';
 import BorderAll from '@mui/icons-material/BorderAll';
 import Gesture from '@mui/icons-material/Gesture';
-import { DescriptionOutlined } from '@mui/icons-material';
-import { SubPageButton } from './SubPageButton';
+import { AccountTree, DescriptionOutlined } from '@mui/icons-material';
+import { Theme } from 'features/settingSlices';
+import MoreHoriz from '@mui/icons-material/MoreHoriz';
 
 const useStyles = makeStyles()((theme) => ({
   root: {
     display: 'flex',
     alignItems: 'center',
     height: '100%',
-    color: theme.palette.text.primary,
   },
   button: {
-    height: '100%',
-    color: theme.palette.text.primary,
     display: 'flex',
-    gap: theme.spacing(1),
+    gap: 2,
+    height: 20,
+    padding: '0px 3px',
+    minWidth: 'auto',
+    backgroundColor: theme.palette.mode === Theme.Dark ? '#333333' : '#fff',
   },
+
   chip: {
-    // backgroundColor: theme.palette.mode === Theme.Dark ? '#121212' : '#fff',
-    // height: theme.spacing(3),
     color: theme.palette.text.primary,
     fontWeight: theme.typography.fontWeightRegular,
     '& .MuiSvgIcon-root': {
       fontSize: '1.2rem',
     },
+  },
+  colorView: {
+    width: 6,
+    height: 6,
+    borderRadius: 5,
+    display: 'inline-block',
+  },
+
+  currentItem: {
+    pointerEvents: 'none',
+    color: theme.palette.mode === Theme.Dark ? '#999' : '#777',
   },
 }));
 
@@ -58,12 +79,26 @@ export function LinkNavigation() {
   const { classes } = useStyles();
   const linkState = useSelector((state: AppState) => state.linkState);
   const currentItem = useSelector(findCurrentPageLink);
-  const currentWorkspace = useSelector(getCurrentWorkspace(currentItem?.workspace));
   const [linkList, setLinkList] = useState<ItemType[]>([]);
   const { docKey } = useParams<{ docKey: string }>();
 
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLinkClick = (item: ItemType) => {
+    navigate(`${(item as LinkItemType).fileLink}`);
+    handleClose();
+  };
+
   const showTreeNode = useCallback(
     (id: string) => {
+      if (!docKey) {
+        return;
+      }
+
       const parentList: ItemType[] = [];
 
       function searchPath(data: unknown[], depth: number, callback: (item: any) => boolean): boolean {
@@ -91,10 +126,10 @@ export function LinkNavigation() {
         return item?.fileLink === id;
       });
 
-      parentList.pop();
+      // parentList.pop();
       setLinkList([...parentList]);
     },
-    [linkState.links],
+    [linkState.links, docKey],
   );
 
   useEffect(() => {
@@ -111,29 +146,142 @@ export function LinkNavigation() {
           alignItems: 'center',
         }}
       >
-        <Breadcrumbs aria-label="breadcrumb">
-          <Chip
-            className={classes.chip}
-            label={currentWorkspace?.name}
-            href="/"
-            component="a"
+        <div
+          style={{
+            display: 'flex',
+          }}
+        >
+          <Button
             size="small"
-            icon={<Workspaces fontSize="small" />}
-          />
-          {linkList.map((item) => (
-            <Chip
-              key={`${item?.id}${(item as LinkItemType)?.fileLink}`}
-              className={classes.chip}
-              label={item.name}
-              size="small"
-              onClick={() => {
-                navigate(`${(item as LinkItemType).fileLink}`);
+            variant="text"
+            className={classes.button}
+            onClick={(e) => {
+              setAnchorEl(e.target as any);
+            }}
+          >
+            <MoreHoriz />
+          </Button>
+          {anchorEl ? (
+            <Popover
+              open
+              anchorEl={anchorEl}
+              onClose={handleClose}
+              // elevation={2}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'left',
               }}
-              icon={getIcon(item)}
-            />
-          ))}
-        </Breadcrumbs>
-        <SubPageButton />
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+              }}
+              style={{
+                transform: 'translateY(12px)',
+              }}
+            >
+              <List>
+                <ListSubheader
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 4,
+                    padding: '10px 16px',
+                  }}
+                >
+                  <AccountTree fontSize="small" />
+                  <Typography variant="body2">Pages</Typography>
+                </ListSubheader>
+                <Divider />
+                {linkList.slice(0, linkList.length - 1).map((item, index) => (
+                  <ListItemButton
+                    dense
+                    onClick={() => {
+                      handleLinkClick(item);
+                    }}
+                    key={item.id}
+                    style={{
+                      paddingLeft: index * 24 + 10,
+                    }}
+                  >
+                    <ListItemIcon
+                      style={{
+                        minWidth: 30,
+                      }}
+                    >
+                      {getIcon(item)}
+                    </ListItemIcon>
+                    <ListItemText
+                      style={{
+                        textTransform: 'capitalize',
+                      }}
+                    >
+                      {item.name}
+                    </ListItemText>
+                  </ListItemButton>
+                ))}
+
+                {linkList[linkList.length - 1] ? (
+                  <ListItemButton
+                    dense
+                    onClick={() => {
+                      handleLinkClick(linkList[linkList.length - 1]);
+                    }}
+                    className={classes.currentItem}
+                    style={{
+                      paddingLeft: (linkList.length - 1) * 24 + 10,
+                    }}
+                  >
+                    <ListItemIcon
+                      style={{
+                        minWidth: 30,
+                      }}
+                    >
+                      {getIcon(linkList[linkList.length - 1])}
+                    </ListItemIcon>
+                    <ListItemText
+                      style={{
+                        textTransform: 'capitalize',
+                      }}
+                    >
+                      {(linkList[linkList.length - 1] as LinkItemType).name}
+                    </ListItemText>
+                  </ListItemButton>
+                ) : undefined}
+
+                {currentItem.links?.map((item) => {
+                  const tempItem = item as LinkItemType;
+                  return (
+                    <ListItemButton
+                      dense
+                      onClick={() => {
+                        handleLinkClick(tempItem);
+                      }}
+                      key={tempItem.id}
+                      style={{
+                        paddingLeft: linkList.length * 24 + 10,
+                      }}
+                    >
+                      <ListItemIcon
+                        style={{
+                          minWidth: 30,
+                        }}
+                      >
+                        {getIcon(item)}
+                      </ListItemIcon>
+                      <ListItemText
+                        style={{
+                          textTransform: 'capitalize',
+                        }}
+                      >
+                        {tempItem.name}
+                      </ListItemText>
+                    </ListItemButton>
+                  );
+                })}
+              </List>
+            </Popover>
+          ) : undefined}
+        </div>
       </div>
     </div>
   );

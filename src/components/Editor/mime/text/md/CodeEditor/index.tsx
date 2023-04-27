@@ -30,11 +30,10 @@ import Cursor from './Cursor';
 import SlideView from './slideView';
 import EditorSettings from './EditorSettings';
 
-const WIDGET_HEIGHT = 180;
+const WIDGET_HEIGHT = 40;
 
 const useStyles = makeStyles()((theme: Theme) => ({
   dark: {
-    height: `calc(100% - ${20}px)`,
     '& .CodeMirror': {
       color: theme.palette.common.white,
       borderColor: theme.palette.background.paper,
@@ -127,6 +126,17 @@ export default function CodeEditor() {
   const getCmInstanceCallback = useCallback((cm: CodeMirror.Editor) => {
     cm.setOption('foldGutter', true);
     cm.setOption('gutters', ['CodeMirror-foldgutter']);
+    cm.setOption('foldOptions', {
+      widget: () => {
+        const widget = document.createElement('span');
+        widget.className = 'CodeMirror-foldmarker';
+        widget.innerHTML = '...';
+        widget.style.cursor = 'pointer';
+        widget.style.fontSize = '2rem';
+        widget.style.lineHeight = '1rem';
+        return widget;
+      },
+    });
 
     setEditor(cm);
   }, []);

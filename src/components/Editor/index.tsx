@@ -46,6 +46,16 @@ function LoadingView() {
   );
 }
 
+function ErrorView({ onClose, message }: { message?: string; onClose: () => void }) {
+  return (
+    <div>
+      <Snackbar open anchorOrigin={{ vertical: 'top', horizontal: 'center' }} autoHideDuration={1000} onClose={onClose}>
+        <Alert severity="warning">{message || 'fail to attach document'}</Alert>
+      </Snackbar>
+    </div>
+  );
+}
+
 // eslint-disable-next-line func-names
 export default function BaseEditor(props: { docKey: string }) {
   const { docKey } = props;
@@ -150,7 +160,12 @@ export default function BaseEditor(props: { docKey: string }) {
 
   switch (mimeType) {
     case 'application/vnd.pairy.whiteboard':
-      return <WhiteBoardEditor />;
+      return (
+        <>
+          <WhiteBoardEditor />
+          {errorMessage ? <ErrorView onClose={handleErrorMessageClose} message={errorMessage} /> : null}
+        </>
+      );
     case 'text/milkdown':
       return (
         <Suspense fallback={<LoadingView />}>
@@ -164,18 +179,7 @@ export default function BaseEditor(props: { docKey: string }) {
       return (
         <>
           <Editor />
-          {errorMessage ? (
-            <div>
-              <Snackbar
-                open
-                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                autoHideDuration={1000}
-                onClose={handleErrorMessageClose}
-              >
-                <Alert severity="warning">{errorMessage || 'fail to attach document'}</Alert>
-              </Snackbar>
-            </div>
-          ) : null}
+          {errorMessage ? <ErrorView onClose={handleErrorMessageClose} message={errorMessage} /> : null}
         </>
       );
   }

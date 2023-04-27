@@ -17,11 +17,9 @@ const useStyles = makeStyles<{ tool: ToolType; sidebarWidth: number }>()((theme,
     flex: '1 1 auto',
     position: 'relative',
     display: 'flex',
-    // gap: 10,
   },
   codeEditor: {
     flex: '1 1 auto',
-    // height: `200px`,
     width: `calc(100vw - ${props.sidebarWidth}px)`,
   },
   canvas: {
