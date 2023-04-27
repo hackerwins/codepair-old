@@ -126,31 +126,70 @@ const initialState: DocState = {
 };
 
 interface Heading {
+  type?: string;
   level: number;
   text: string;
   originalText?: string;
+  url?: string;
+  alt?: string;
 }
+
+const markdownLinkRegex = /(?:(?:(?:ftp|http|https):\/\/)|(?:www\.))[^\s]+|(?:\[[^\]]+\]\([^)]+\))/gi;
 
 function generateTableOfContents(editorInstance: CodeMirror.Editor, count = Number.MAX_SAFE_INTEGER): Heading[] {
   const doc = editorInstance.getDoc();
   const lineCount = doc.lineCount();
   const headings = [];
 
+  let currentLevel = 0;
   for (let i = 0; i < lineCount; i += 1) {
     const line = doc.getLine(i);
 
     // check only header
-    const tokens = editorInstance.getTokenTypeAt({ line: i, ch: 1 }) || '';
-    if (tokens?.includes('header') === false) continue;
+    // const tokens = editorInstance.getTokenTypeAt({ line: i, ch: 1 }) || '';
+    // if (tokens?.includes('header') === false) continue;
 
+    // check only header
     const match = line.match(/^(#+)\s+(.*)/);
     if (match) {
       const level = match[1].length;
       const text = match[2];
       headings.push({ level, text, originalText: line });
-
+      currentLevel = level;
       if (headings.length >= count) {
         break;
+      }
+    }
+
+    // check link reference in markdown line
+
+    const linkMatches = line.matchAll(markdownLinkRegex);
+
+    for (const linkMatch of linkMatches) {
+      const linkText = linkMatch[0];
+
+      if (linkText.includes('(') || linkText.includes('[')) {
+        const linkTextMatch = linkText.match(/\[(.*?)\]/);
+        const linkUrlMatch = linkText.match(/\((.*?)\)/);
+
+        if (linkTextMatch && linkUrlMatch) {
+          const text = linkTextMatch[1];
+          const [url, alt] = linkUrlMatch[1].split(' ');
+          const textAlt = alt?.replaceAll('"', '');
+
+          headings.push({
+            type: 'markdown-link',
+            level: currentLevel,
+            text,
+            url,
+            originalText: linkText,
+            alt: textAlt,
+          });
+        }
+      } else {
+        const text = linkText;
+        const url = linkText;
+        headings.push({ type: 'markdown-link', level: currentLevel, text, url, originalText: linkText });
       }
     }
   }
@@ -284,6 +323,19 @@ const docSlice = createSlice({
 
     updateHeadings(state) {
       state.headings = getTableOfContents().map((it, index) => {
+        if (it.type === 'markdown-link') {
+          return {
+            type: 'link',
+            id: `markdown-link-#${encodeURIComponent(it.url || '')}-${index}`,
+            name: it.text,
+            level: it.level,
+            fileLink: it.url,
+            linkType: 'markdown-link',
+            alt: it.alt,
+            originalText: it.originalText,
+          } as LinkItemType;
+        }
+
         return {
           type: 'link',
           id: `heading-#${encodeURIComponent(it.originalText || '')}-${index}`,

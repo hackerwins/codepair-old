@@ -548,7 +548,7 @@ export function SidebarItem({ item, level, loopType }: SidebarItemProps) {
       moreIcon = (
         <div
           style={{
-            width: 15,
+            width: 20,
           }}
         />
       );

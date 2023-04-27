@@ -28,6 +28,10 @@ const useStyles = makeStyles()((theme) => ({
       boxSizing: 'border-box',
     },
   },
+  defaultAvatar: {
+    width: 30,
+    height: 30,
+  },
 }));
 
 const MAX_PEER_VIEW = 4;
@@ -72,7 +76,7 @@ export default function PeerGroup() {
             <Tooltip key={peer.id} title={peer.isMine ? `[ME] ${username}` : username} data-id={peer.id} arrow>
               <Avatar
                 alt="Peer Image"
-                className={peer.isMine ? classes.myAvatar : ''}
+                className={[peer.isMine ? classes.myAvatar : '', classes.defaultAvatar].join(' ')}
                 style={{ backgroundColor: color }}
                 src={anonymous.getImage(image)}
               />

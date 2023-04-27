@@ -25,6 +25,8 @@ export interface LinkItemType {
   accessedAt?: string;
   color?: string;
   emoji?: string;
+  alt?: string;
+  originalText?: string;
 }
 
 export interface GroupType {

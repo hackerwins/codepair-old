@@ -104,8 +104,6 @@ export default function CodeEditor() {
   const cursorMapRef = useRef<Map<ActorID, Cursor>>(new Map());
   const [editor, setEditor] = useState<CodeMirror.Editor | null>(null);
 
-  console.log(doc);
-
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | undefined>();
   const handleSettingsClick = useCallback((event: MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);

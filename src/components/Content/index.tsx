@@ -36,7 +36,7 @@ const useStyles = makeStyles()((theme) => ({
   },
   body: {
     padding: 0,
-    height: 'calc(100vh - 150px)',
+    height: 'calc(100vh - 130px)',
     borderTop: theme.palette.mode === Theme.Dark ? '1px solid #333333' : '1px solid #e8e8e8',
   },
 }));

@@ -3,8 +3,10 @@ import { ArrowDropDown, DescriptionOutlined } from '@mui/icons-material';
 import { Button, List, ListItemButton, ListItemIcon, ListItemText, Popover } from '@mui/material';
 import { findCurrentPageLink, LinkItemType } from 'features/linkSlices';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 export function SubPageButton() {
+  const navigate = useNavigate();
   const currentItem = useSelector(findCurrentPageLink);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -12,7 +14,7 @@ export function SubPageButton() {
     setAnchorEl(null);
   };
 
-  return currentItem.links?.length ? (
+  return (currentItem?.links || [])?.length ? (
     <div
       style={{
         display: 'flex',
@@ -53,7 +55,13 @@ export function SubPageButton() {
             {currentItem.links?.map((item) => {
               const tempItem = item as LinkItemType;
               return (
-                <ListItemButton dense component="a" href={`${tempItem.fileLink}`} key={tempItem.id}>
+                <ListItemButton
+                  dense
+                  onClick={() => {
+                    navigate(`${tempItem.fileLink}`);
+                  }}
+                  key={tempItem.id}
+                >
                   <ListItemIcon>
                     <DescriptionOutlined />
                   </ListItemIcon>

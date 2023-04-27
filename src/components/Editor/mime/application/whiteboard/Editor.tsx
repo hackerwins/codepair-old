@@ -10,7 +10,7 @@ import { useMultiplayerState } from './hooks/useMultiPlayerState';
 const useStyles = makeStyles()(() => ({
   root: {
     width: 'calc(100%)',
-    height: 'calc(100vh - 150px)',
+    height: 'calc(100vh - 130px)',
     overflow: 'hidden',
     position: 'absolute',
     borderRadius: 4,

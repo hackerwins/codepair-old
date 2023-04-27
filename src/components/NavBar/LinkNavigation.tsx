@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { AppState } from 'app/rootReducer';
 import { useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { findCurrentPageLink, getCurrentWorkspace, ItemType, LinkItemType } from 'features/linkSlices';
 import { Breadcrumbs, Chip } from '@mui/material';
 
@@ -54,7 +54,7 @@ function getIcon(item: ItemType) {
 }
 
 export function LinkNavigation() {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const { classes } = useStyles();
   const linkState = useSelector((state: AppState) => state.linkState);
   const currentItem = useSelector(findCurrentPageLink);
@@ -126,8 +126,9 @@ export function LinkNavigation() {
               className={classes.chip}
               label={item.name}
               size="small"
-              href={`${(item as LinkItemType)?.fileLink}`}
-              component="a"
+              onClick={() => {
+                navigate(`${(item as LinkItemType).fileLink}`);
+              }}
               icon={getIcon(item)}
             />
           ))}

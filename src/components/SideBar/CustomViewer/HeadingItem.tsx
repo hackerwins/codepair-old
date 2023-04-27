@@ -21,6 +21,7 @@ import {
   Snackbar,
 } from '@mui/material';
 import { Theme } from 'features/settingSlices';
+import { LaunchOutlined, LinkOutlined } from '@mui/icons-material';
 
 const useStyles = makeStyles()((theme) => ({
   title: {
@@ -227,6 +228,25 @@ interface HeadingIconProps {
 }
 
 function HeadingIcon({ item }: HeadingIconProps) {
+  const type = item.linkType as any;
+
+  if (type === 'markdown-link') {
+    return (
+      <span
+        style={{
+          color: '#999',
+          fontWeight: 'bold',
+          paddingLeft: 10,
+          textShadow: '1px 1px 0px #222',
+          verticalAlign: 'middle',
+          display: 'inline-flex',
+          alignItems: 'center',
+        }}
+      >
+        <LinkOutlined fontSize="small" />
+      </span>
+    );
+  }
   return (
     <span
       style={{
@@ -282,11 +302,16 @@ export function HeadingItem({ item, level, loopType }: SidebarItemProps) {
     return true;
   }, [loopType, favorite, item.fileLink]);
 
+  const currentLink =
+    item.linkType === 'markdown-link'
+      ? `#${encodeURIComponent(`${item.originalText}`)}`
+      : `#${item.fileLink?.split('#').pop()}`;
+
   return (
     <ListItemButton
       className={[className, classes.sidebarItem].join(' ')}
       component="a"
-      href={`#${item.fileLink?.split('#').pop()}`}
+      href={currentLink}
       dense
       // button
       selected={`${window.location.pathname}${window.location.hash}` === item.fileLink}
@@ -311,18 +336,41 @@ export function HeadingItem({ item, level, loopType }: SidebarItemProps) {
           }
         }}
       />
-      <div
-        className="sidebar-item-more"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flex: 'none',
-          visibility: 'hidden',
-        }}
-      >
-        <HeadingMoreMenu item={item} />
-      </div>
+
+      {item.linkType === 'markdown-link' ? (
+        <div
+          className="sidebar-item-more"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flex: 'none',
+            // visibility: 'hidden',
+            lineHeight: 1,
+          }}
+        >
+          <IconButton
+            onClick={() => {
+              window.open(item.fileLink, '_blank');
+            }}
+          >
+            <LaunchOutlined fontSize="small" />
+          </IconButton>
+        </div>
+      ) : (
+        <div
+          className="sidebar-item-more"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flex: 'none',
+            visibility: 'hidden',
+          }}
+        >
+          <HeadingMoreMenu item={item} />
+        </div>
+      )}
     </ListItemButton>
   );
 }
