@@ -1,65 +1,45 @@
 import React, { useCallback, useState } from 'react';
-import { Button, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Tooltip, Typography } from '@mui/material';
+import { Button, ListItemIcon, ListItemText, Menu, MenuItem, Typography } from '@mui/material';
 import Add from '@mui/icons-material/Add';
 import { useDispatch, useSelector } from 'react-redux';
 import Gesture from '@mui/icons-material/Gesture';
 import { createDoc } from 'features/docSlices';
 import yorkie from 'yorkie-js-sdk';
 import { AppState } from 'app/rootReducer';
-import { findCurrentPageLink, ItemType, newLink } from 'features/linkSlices';
+import { newLink } from 'features/linkSlices';
 import { makeStyles } from 'styles/common';
 import { MimeType } from 'constants/editor';
 import { useNavigate } from 'react-router-dom';
 import { createDocumentKey, createRandomColor } from 'utils/document';
-import { DescriptionOutlined } from '@mui/icons-material';
+import DescriptionOutlined from '@mui/icons-material/DescriptionOutlined';
+import { Theme } from 'features/settingSlices';
 
-const useStyles = makeStyles()(() => ({
+const useStyles = makeStyles()((theme) => ({
   menu: {
     '& .MuiMenu-paper': {
       width: 200,
     },
   },
+  button: {
+    backgroundColor: theme.palette.mode === Theme.Dark ? '#494949 !important' : '#fff  !important',
+    color: theme.palette.mode === Theme.Dark ? '#fff' : '#000',
+    borderRadius: 30,
+  },
+  icon: {
+    color: '#fff',
+    backgroundColor: 'red',
+    borderRadius: 30,
+  },
 }));
 
-interface PageButtonProps {
-  title?: React.ReactNode;
-  icon?: React.ReactNode;
-  insertTarget: 'root' | 'current' | ItemType;
-  variant?: 'text' | 'outlined' | 'contained';
-  transformOrigin?: { horizontal: 'left' | 'center' | 'right'; vertical: 'top' | 'center' | 'bottom' };
-  anchorOrigin?: { horizontal: 'left' | 'center' | 'right'; vertical: 'top' | 'center' | 'bottom' };
-  onClose?: () => void;
-}
-
-export function PageButton({
-  insertTarget = 'root',
-  title,
-  icon = <Add />,
-  variant,
-  transformOrigin,
-  anchorOrigin,
-  onClose,
-}: PageButtonProps) {
+export function CreateButton() {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const client = useSelector((state: AppState) => state.docState.client);
-  const currentItem = useSelector(findCurrentPageLink);
   const { classes } = useStyles();
 
-  let parentId = '';
-
-  switch (insertTarget) {
-    case 'root':
-      parentId = '';
-      break;
-    case 'current':
-      parentId = currentItem?.id || '';
-      break;
-    default:
-      parentId = insertTarget?.id;
-      break;
-  }
+  const parentId = '';
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -67,8 +47,7 @@ export function PageButton({
 
   const handleMenuClose = useCallback(() => {
     setAnchorEl(null);
-    onClose?.();
-  }, [onClose]);
+  }, []);
 
   const open = Boolean(anchorEl);
 
@@ -155,37 +134,17 @@ export function PageButton({
     [dispatch, parentId, navigate, handleMenuClose],
   );
 
-  const buttonTag =
-    variant === 'contained' || variant === 'outlined' ? (
-      <Button variant={variant} onClick={handleMenuOpen} disableElevation size="small">
-        {icon} <Typography>{title || 'Page'}</Typography>
-      </Button>
-    ) : (
-      <Typography
-        onClick={handleMenuOpen}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          cursor: 'pointer',
-          gap: 4,
-        }}
-      >
-        {icon} {title || 'Page'}
-      </Typography>
-    );
-
   return (
     <div>
-      {title ? (
-        buttonTag
-      ) : (
-        <Tooltip title="Add pages">
-          <IconButton size="small" onClick={handleMenuOpen}>
-            {icon}
-          </IconButton>
-        </Tooltip>
-      )}
-
+      <Button
+        variant="contained"
+        size="small"
+        onClick={handleMenuOpen}
+        className={classes.button}
+        startIcon={<Add className={classes.icon} />}
+      >
+        Create
+      </Button>
       {open ? (
         <Menu
           id="basic-menu"
@@ -197,8 +156,9 @@ export function PageButton({
           MenuListProps={{
             'aria-labelledby': 'basic-button',
           }}
-          transformOrigin={transformOrigin}
-          anchorOrigin={anchorOrigin}
+          style={{
+            marginTop: 10,
+          }}
         >
           <MenuItem onClick={() => handleCreateLink('Untitled note')}>
             <ListItemIcon>

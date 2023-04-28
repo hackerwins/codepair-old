@@ -1,60 +1,111 @@
-import React, { MouseEvent, useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { AppState } from 'app/rootReducer';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
-import { DEFAULT_WORKSPACE, ItemType, LinkItemType, setCurrentWorkspace } from 'features/linkSlices';
-import { Button, Divider, List, ListItemButton, ListItemText, Popover, Typography } from '@mui/material';
-import ExpandMore from '@mui/icons-material/ExpandMore';
-import Add from '@mui/icons-material/Add';
-import Adjust from '@mui/icons-material/Adjust';
+import { findCurrentPageLink, ItemType, LinkItemType } from 'features/linkSlices';
+import {
+  Button,
+  Divider,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  ListSubheader,
+  Popover,
+  Typography,
+} from '@mui/material';
 
 import { makeStyles } from 'styles/common';
-import { PageButton } from './PageButton';
+import Home from '@mui/icons-material/Home';
+import { MimeType } from 'constants/editor';
+import BorderAll from '@mui/icons-material/BorderAll';
+import Gesture from '@mui/icons-material/Gesture';
+import { AccountTree, DescriptionOutlined } from '@mui/icons-material';
+import { Theme } from 'features/settingSlices';
+import MoreHoriz from '@mui/icons-material/MoreHoriz';
 
 const useStyles = makeStyles()((theme) => ({
   root: {
     display: 'flex',
     alignItems: 'center',
     height: '100%',
-    color: theme.palette.text.primary,
   },
   button: {
-    height: '100%',
-    color: theme.palette.text.primary,
     display: 'flex',
-    gap: theme.spacing(1),
+    gap: 2,
+    height: 20,
+    padding: '0px 3px',
+    minWidth: 'auto',
+    backgroundColor: theme.palette.mode === Theme.Dark ? '#333333' : '#fff',
+  },
+
+  chip: {
+    color: theme.palette.text.primary,
+    fontWeight: theme.typography.fontWeightRegular,
+    '& .MuiSvgIcon-root': {
+      fontSize: '1.2rem',
+    },
+  },
+  colorView: {
+    width: 6,
+    height: 6,
+    borderRadius: 5,
+    display: 'inline-block',
+  },
+
+  currentItem: {
+    pointerEvents: 'none',
+    color: theme.palette.mode === Theme.Dark ? '#999' : '#777',
+  },
+  subheader: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+    padding: '10px 16px',
+    backgroundColor: theme.palette.mode === Theme.Dark ? '#333333' : '#fff',
   },
 }));
 
+function getIcon(item: ItemType) {
+  if (item.type === 'link') {
+    switch (item.mimeType) {
+      case MimeType.CELL:
+        return <BorderAll fontSize="small" />;
+      case MimeType.WHITEBOARD:
+        return <Gesture fontSize="small" />;
+      default:
+        return <DescriptionOutlined fontSize="small" />;
+    }
+  }
+
+  return <Home fontSize="small" />;
+}
+
 export function LinkNavigation() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const { classes } = useStyles();
   const linkState = useSelector((state: AppState) => state.linkState);
+  const currentItem = useSelector(findCurrentPageLink);
   const [linkList, setLinkList] = useState<ItemType[]>([]);
   const { docKey } = useParams<{ docKey: string }>();
-  const currentWorkspace = useSelector((state: AppState) => {
-    const currentLink = linkList[linkList.length - 1] as LinkItemType;
-    return state.linkState.workspaceList.find((w) => w.id === currentLink?.workspace);
-  });
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | undefined>();
-  const handleSettingsClick = useCallback((event: MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  }, []);
 
-  const handleSettingsClose = useCallback(() => {
-    setAnchorEl(undefined);
-  }, []);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-  const handleSetCurrentWorkspace = useCallback(
-    (id?: string) => {
-      dispatch(setCurrentWorkspace({ workspace: id || DEFAULT_WORKSPACE }));
-    },
-    [dispatch],
-  );
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLinkClick = (item: ItemType) => {
+    navigate(`${(item as LinkItemType).fileLink}`);
+    handleClose();
+  };
 
   const showTreeNode = useCallback(
     (id: string) => {
+      if (!docKey) {
+        return;
+      }
+
       const parentList: ItemType[] = [];
 
       function searchPath(data: unknown[], depth: number, callback: (item: any) => boolean): boolean {
@@ -82,9 +133,10 @@ export function LinkNavigation() {
         return item?.fileLink === id;
       });
 
+      // parentList.pop();
       setLinkList([...parentList]);
     },
-    [linkState.links],
+    [linkState.links, docKey],
   );
 
   useEffect(() => {
@@ -95,128 +147,142 @@ export function LinkNavigation() {
 
   return (
     <div className={classes.root}>
-      {linkList.length ? (
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
         <div
           style={{
             display: 'flex',
-            alignItems: 'center',
           }}
         >
           <Button
-            onClick={handleSettingsClick}
-            style={{
-              minWidth: 140,
-              whiteSpace: 'nowrap',
-              justifyContent: 'start',
+            size="small"
+            variant="text"
+            className={classes.button}
+            onClick={(e) => {
+              setAnchorEl(e.target as any);
             }}
-            title={linkList[linkList.length - 1].name}
           >
-            <Typography
-              color="GrayText"
+            <MoreHoriz />
+          </Button>
+          {anchorEl ? (
+            <Popover
+              open
+              anchorEl={anchorEl}
+              onClose={handleClose}
+              // elevation={2}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'left',
+              }}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+              }}
               style={{
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                textTransform: 'none',
-                whiteSpace: 'nowrap',
+                transform: 'translateY(12px)',
               }}
             >
-              {linkList[linkList.length - 1].name}
-            </Typography>
-            <ExpandMore />
-          </Button>
-          <PageButton
-            icon={<Add />}
-            insertTarget={linkList[linkList.length - 1]}
-            transformOrigin={{ horizontal: 'left', vertical: 'top' }}
-            anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}
-          />
-        </div>
-      ) : undefined}
-      {anchorEl ? (
-        <Popover
-          open
-          anchorEl={anchorEl}
-          elevation={1}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'left',
-          }}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'left',
-          }}
-          onClose={handleSettingsClose}
-        >
-          <List
-            style={{
-              minWidth: 200,
-            }}
-          >
-            <li>
-              <Typography sx={{ mt: 0.5, ml: 2 }} color="text.secondary" display="block" variant="caption">
-                <Button
-                  size="small"
-                  style={{
-                    textTransform: 'none',
-                  }}
-                  startIcon={<Adjust />}
-                  onClick={() => handleSetCurrentWorkspace(currentWorkspace?.id)}
-                >
-                  {currentWorkspace?.name}
-                </Button>
-              </Typography>
-            </li>
-            {linkList.map((item, depth) => {
-              const tempItem = item as LinkItemType;
-
-              if (item.type === 'group') {
-                return null;
-              }
-              return (
-                <ListItemButton
-                  dense
-                  onClick={() => {
-                    navigate(`${tempItem.fileLink}`);
-                  }}
-                  key={tempItem.id}
-                >
-                  <ListItemText
+              <List>
+                <ListSubheader className={classes.subheader}>
+                  <AccountTree fontSize="small" />
+                  <Typography variant="body2">Pages</Typography>
+                </ListSubheader>
+                <Divider />
+                {linkList.slice(0, linkList.length - 1).map((item, index) => (
+                  <ListItemButton
+                    dense
+                    onClick={() => {
+                      handleLinkClick(item);
+                    }}
+                    key={item.id}
                     style={{
-                      paddingLeft: depth * 16,
+                      paddingLeft: index * 24 + 10,
                     }}
                   >
-                    {tempItem.name}
-                  </ListItemText>
-                </ListItemButton>
-              );
-            })}
-            {linkList[linkList.length - 1].links?.length ? (
-              <>
-                <Divider />
-                <li>
-                  <Typography sx={{ mt: 0.5, ml: 2 }} color="text.secondary" display="block" variant="caption">
-                    Subpages
-                  </Typography>
-                </li>
-                {linkList[linkList.length - 1].links?.map((item) => {
+                    <ListItemIcon
+                      style={{
+                        minWidth: 30,
+                      }}
+                    >
+                      {getIcon(item)}
+                    </ListItemIcon>
+                    <ListItemText
+                      style={{
+                        textTransform: 'capitalize',
+                      }}
+                    >
+                      {item.name}
+                    </ListItemText>
+                  </ListItemButton>
+                ))}
+
+                {linkList[linkList.length - 1] ? (
+                  <ListItemButton
+                    dense
+                    onClick={() => {
+                      handleLinkClick(linkList[linkList.length - 1]);
+                    }}
+                    className={classes.currentItem}
+                    style={{
+                      paddingLeft: (linkList.length - 1) * 24 + 10,
+                    }}
+                  >
+                    <ListItemIcon
+                      style={{
+                        minWidth: 30,
+                      }}
+                    >
+                      {getIcon(linkList[linkList.length - 1])}
+                    </ListItemIcon>
+                    <ListItemText
+                      style={{
+                        textTransform: 'capitalize',
+                      }}
+                    >
+                      {(linkList[linkList.length - 1] as LinkItemType).name}
+                    </ListItemText>
+                  </ListItemButton>
+                ) : undefined}
+
+                {currentItem.links?.map((item) => {
                   const tempItem = item as LinkItemType;
                   return (
                     <ListItemButton
                       dense
                       onClick={() => {
-                        navigate(`${tempItem.fileLink}`);
+                        handleLinkClick(tempItem);
                       }}
                       key={tempItem.id}
+                      style={{
+                        paddingLeft: linkList.length * 24 + 10,
+                      }}
                     >
-                      <ListItemText>{tempItem.name}</ListItemText>
+                      <ListItemIcon
+                        style={{
+                          minWidth: 30,
+                        }}
+                      >
+                        {getIcon(item)}
+                      </ListItemIcon>
+                      <ListItemText
+                        style={{
+                          textTransform: 'capitalize',
+                        }}
+                      >
+                        {tempItem.name}
+                      </ListItemText>
                     </ListItemButton>
                   );
                 })}
-              </>
-            ) : undefined}
-          </List>
-        </Popover>
-      ) : undefined}
+              </List>
+            </Popover>
+          ) : undefined}
+        </div>
+      </div>
     </div>
   );
 }

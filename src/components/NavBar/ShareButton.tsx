@@ -19,9 +19,9 @@ import {
 } from '@mui/material';
 import Close from '@mui/icons-material/Close';
 import FileCopy from '@mui/icons-material/FileCopy';
-import Group from '@mui/icons-material/Group';
 
 import CopyToClipboard from 'react-copy-to-clipboard';
+import Share from '@mui/icons-material/Share';
 
 const useStyles = makeStyles()(() => ({
   dialog: {
@@ -80,7 +80,7 @@ export default function ShareButton() {
         color="primary"
         variant="contained"
         disableElevation
-        startIcon={<Group />}
+        startIcon={<Share />}
         onClick={openModal}
         disabled={status === DocStatus.Disconnect}
       >

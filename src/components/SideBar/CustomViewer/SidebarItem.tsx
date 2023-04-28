@@ -16,11 +16,8 @@ import {
 } from 'features/linkSlices';
 import { makeStyles } from 'styles/common';
 import BorderAll from '@mui/icons-material/BorderAll';
-import ChevronRight from '@mui/icons-material/ChevronRight';
 import Delete from '@mui/icons-material/Delete';
 import Edit from '@mui/icons-material/Edit';
-import EventNote from '@mui/icons-material/EventNote';
-import ExpandMore from '@mui/icons-material/ExpandMore';
 import FileCopy from '@mui/icons-material/FileCopy';
 import Gesture from '@mui/icons-material/Gesture';
 import SubdirectoryArrowLeft from '@mui/icons-material/SubdirectoryArrowLeft';
@@ -48,14 +45,16 @@ import {
   Menu,
   MenuItem,
   Snackbar,
+  Typography,
 } from '@mui/material';
 import { PageButton } from 'components/NavBar/PageButton';
 import Description from '@mui/icons-material/Description';
 import dayjs from 'dayjs';
 import { addRecentPage } from 'features/currentSlices';
+import { ArrowDropDown, ArrowRight, DescriptionOutlined } from '@mui/icons-material';
 import { Theme } from 'features/settingSlices';
-import { findColor, isDateWorkspace } from 'utils/document';
-import { SideBarItemList } from './SidebarItemList';
+import { findColor } from 'utils/document';
+import { SideBarItemList } from '../SidebarItemList';
 
 function getTitle() {
   let { title } = document;
@@ -92,27 +91,28 @@ function getTitle() {
 
 const useStyles = makeStyles()((theme) => ({
   listItemText: {
+    margin: 0,
     [`& .MuiTypography-root`]: {
       fontSize: '0.875rem',
-      paddingLeft: 8,
+      paddingLeft: 2,
       whiteSpace: 'nowrap',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
     },
   },
   sidebarItem: {
-    transitionProperty: 'background-color, color',
+    padding: theme.spacing(0.5, 1),
+    borderRadius: 6,
     [`&:hover .sidebar-item-more`]: {
       visibility: 'visible !important' as any,
     },
     [`&:hover`]: {
-      backgroundColor: theme.palette.mode === Theme.Dark ? theme.palette.primary.dark : theme.palette.primary.light,
-      color: theme.palette.primary.contrastText,
+      backgroundColor: theme.palette.mode === Theme.Dark ? `rgba(150, 150, 150, 0.25)` : `rgba(150, 150, 150, 0.25)`,
     },
   },
   sidebarItemSelected: {
-    backgroundColor: theme.palette.mode === Theme.Dark ? theme.palette.primary.dark : theme.palette.primary.light,
-    color: theme.palette.primary.contrastText,
+    backgroundColor: theme.palette.mode === Theme.Dark ? `rgba(25, 118, 210, 0.5)` : `rgba(25, 118, 210, 0.25)`,
+    color: theme.palette.mode === Theme.Dark ? 'white' : 'black',
   },
   level0: {
     paddingLeft: theme.spacing(0),
@@ -196,7 +196,7 @@ const useStyles = makeStyles()((theme) => ({
 
 function MoreIcon({ open, onClick }: { open: boolean; onClick: () => void }) {
   return open ? (
-    <ExpandMore
+    <ArrowDropDown
       fontSize="small"
       onClick={(e) => {
         e.stopPropagation();
@@ -205,7 +205,7 @@ function MoreIcon({ open, onClick }: { open: boolean; onClick: () => void }) {
       }}
     />
   ) : (
-    <ChevronRight
+    <ArrowRight
       fontSize="small"
       onClick={(e) => {
         e.stopPropagation();
@@ -336,11 +336,14 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
           onClose={handleClose}
           anchorOrigin={{
             vertical: 'top',
-            horizontal: 'left',
+            horizontal: 'right',
           }}
           transformOrigin={{
             vertical: 'top',
             horizontal: 'left',
+          }}
+          style={{
+            marginLeft: 10,
           }}
         >
           {options.map((option) =>
@@ -436,7 +439,7 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
   );
 }
 
-type LoopType = 'links' | 'favorite';
+type LoopType = 'links' | 'favorite' | 'date';
 
 interface SidebarItemProps {
   item: LinkItemType;
@@ -458,7 +461,7 @@ function MimeTypeIcon({ mimeType }: { mimeType: string | undefined }) {
     return undefined;
   }, [mimeType]);
 
-  return icon || <EventNote fontSize="small" />;
+  return icon || <DescriptionOutlined fontSize="small" />;
 }
 
 export function SidebarItem({ item, level, loopType }: SidebarItemProps) {
@@ -624,7 +627,7 @@ export function SidebarItem({ item, level, loopType }: SidebarItemProps) {
       }}
     >
       {moreIcon}
-      {isDateWorkspace(currentWorkspace) ? (
+      {loopType === 'date' ? (
         <Chip
           label={dayjs(item.createdAt, 'YYYYMMDDHHmm').format('HH:mm')}
           size="small"
@@ -635,9 +638,9 @@ export function SidebarItem({ item, level, loopType }: SidebarItemProps) {
             // textShadow: `0 0 2px ${invert(invert(`${item.color}`, true), true)}`,
           }}
         />
-      ) : (
-        <MimeTypeIcon mimeType={item.mimeType} />
-      )}
+      ) : undefined}
+
+      {loopType !== 'date' && !item.emoji ? <MimeTypeIcon mimeType={item.mimeType} /> : undefined}
 
       {isRename ? (
         <Input
@@ -661,7 +664,26 @@ export function SidebarItem({ item, level, loopType }: SidebarItemProps) {
         />
       ) : (
         <ListItemText
-          primary={item.name}
+          primary={
+            <>
+              {item.emoji ? (
+                <Typography
+                  style={{
+                    display: 'inline-block',
+                    verticalAlign: 'middle',
+                    marginRight: 10,
+                    fontSize: 18,
+                    // transform: 'scale(1.4)',
+                  }}
+                >
+                  {item.emoji}
+                </Typography>
+              ) : (
+                ''
+              )}
+              {item.name}
+            </>
+          }
           className={classes.listItemText}
           title={item.name}
           onClick={(e) => {

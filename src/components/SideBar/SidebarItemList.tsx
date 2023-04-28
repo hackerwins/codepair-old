@@ -3,10 +3,10 @@ import { Collapse, List } from '@mui/material';
 import { AppState } from 'app/rootReducer';
 import { ItemType } from 'features/linkSlices';
 import { useSelector } from 'react-redux';
-import { GroupItem } from './GroupView';
-import { SidebarItem } from './SidebarItem';
+import { GroupItem } from './CustomViewer/GroupView';
+import { SidebarItem } from './CustomViewer/SidebarItem';
 
-type LoopType = 'links' | 'favorite';
+type LoopType = 'links' | 'favorite' | 'date';
 
 interface SideBarItemListProps {
   links: ItemType[];

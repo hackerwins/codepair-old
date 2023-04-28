@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Button, Divider, ListItemIcon, ListItemText, ListSubheader, Menu, MenuItem, Typography } from '@mui/material';
-import AccountTree from '@mui/icons-material/AccountTree';
 import UnfoldMore from '@mui/icons-material/UnfoldMore';
 import Add from '@mui/icons-material/Add';
 import { useDispatch, useSelector } from 'react-redux';
@@ -8,40 +7,38 @@ import { AppState } from 'app/rootReducer';
 import { Theme } from 'features/settingSlices';
 import Check from '@mui/icons-material/Check';
 import { setCurrentWorkspace } from 'features/linkSlices';
+import { makeStyles } from 'styles/common';
 import { AddWorkspaceDialog } from './AddWorkspaceDialog';
+
+const useStyles = makeStyles<{ sidebarWidth: number }>()((theme, props) => ({
+  workspaceButton: {
+    color: theme.palette.text.primary,
+    backgroundColor: theme.palette.mode === Theme.Dark ? '#454545' : '#fff',
+    textTransform: 'none',
+    flex: '1 1 auto',
+    textAlign: 'left',
+    border: theme.palette.mode === Theme.Dark ? '1px solid #333333' : '1px solid #e9e9e9',
+  },
+  workspaceMenu: {
+    transform: 'translateY(4px)',
+    '& .MuiPaper-root': {
+      backgroundColor: theme.palette.background.paper,
+      minWidth: props.sidebarWidth - 34,
+    },
+  },
+}));
 
 export function WorkspaceButton() {
   const dispatch = useDispatch();
   const menu = useSelector((state: AppState) => state.settingState.menu);
+  const navState = useSelector((state: AppState) => state.navState);
+  const { classes } = useStyles({
+    sidebarWidth: navState.sidebarWidth,
+  });
 
-  const linkState = useSelector((state: AppState) => state.linkState);
-  let currentWorkspace = useSelector((state: AppState) =>
+  const currentWorkspace = useSelector((state: AppState) =>
     state.linkState.workspaceList.find((w) => w.id === state.linkState.workspace),
   );
-
-  if (!currentWorkspace) {
-    if (linkState.workspace === 'last day') {
-      currentWorkspace = {
-        id: 'last day',
-        name: 'Last day',
-      };
-    } else if (linkState.workspace === 'last week') {
-      currentWorkspace = {
-        id: 'last week',
-        name: 'Last week',
-      };
-    } else if (linkState.workspace === 'last month') {
-      currentWorkspace = {
-        id: 'last month',
-        name: 'Last month',
-      };
-    } else {
-      currentWorkspace = {
-        id: 'calendar',
-        name: 'Calendar',
-      };
-    }
-  }
 
   const workspaceList = useSelector((state: AppState) =>
     state.linkState.workspaceList?.length
@@ -80,31 +77,39 @@ export function WorkspaceButton() {
   return (
     <>
       <Button
-        disableElevation
-        style={{
-          color: menu.theme === Theme.Dark ? 'white' : 'black',
-          textTransform: 'none',
-        }}
-        size="small"
-        startIcon={<AccountTree fontSize="small" />}
+        className={classes.workspaceButton}
+        disableRipple
+        // size="small"
+        // startIcon={<AccountTree fontSize="small" />}
         endIcon={<UnfoldMore fontSize="small" />}
         onClick={handleOpenWorkspaceMenu}
       >
-        {currentWorkspace?.name}
+        <Typography
+          fontSize="small"
+          style={{
+            flex: '1 1 auto',
+          }}
+        >
+          {currentWorkspace?.name}
+        </Typography>
       </Button>
       {workspaceMenu ? (
         <Menu
           id="basic-menu"
+          className={classes.workspaceMenu}
           anchorEl={workspaceMenu}
           open
-          elevation={2}
+          elevation={3}
+          style={{
+            transform: 'translateY(4px)',
+          }}
           onClose={handleCloseWorkspaceMenu}
           MenuListProps={{
             'aria-labelledby': 'basic-button',
             dense: true,
           }}
         >
-          <MenuItem onClick={() => handleSetCurrentWorkspace('last day')}>
+          {/* <MenuItem onClick={() => handleSetCurrentWorkspace('last day')}>
             <ListItemIcon>{currentWorkspace?.id === 'last day' ? <Check fontSize="small" /> : undefined}</ListItemIcon>
             Last day
           </MenuItem>
@@ -122,10 +127,16 @@ export function WorkspaceButton() {
             <ListItemIcon>{currentWorkspace?.id === 'calendar' ? <Check fontSize="small" /> : undefined}</ListItemIcon>
             Calendar
           </MenuItem>
-          <Divider />
-          <ListSubheader>
+          <Divider /> */}
+          <ListSubheader
+            style={{
+              backgroundColor: menu.theme === Theme.Dark ? '#242424' : 'white',
+            }}
+          >
             <Typography
+              fontSize="small"
               style={{
+                paddingBottom: 4,
                 display: 'flex',
                 alignItems: 'center',
                 color: menu.theme === Theme.Dark ? 'rgba(255, 255, 255, 0.9)' : 'GrayText',

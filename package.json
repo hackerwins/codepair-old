@@ -13,6 +13,7 @@
   "dependencies": {
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
+    "@liradb2000/markdown-it-mermaid": "^0.4.4",
     "@marp-team/marpit": "^2.4.2",
     "@milkdown/core": "^7.1.1",
     "@milkdown/ctx": "^7.1.1",
@@ -85,7 +86,7 @@
     "rollup-plugin-node-polyfills": "^0.2.1",
     "sass": "^1.59.3",
     "typescript": "^4.9.3",
-    "vite": "^4.2.0",
+    "vite": "^4.3.0",
     "vite-plugin-eslint": "^1.8.1",
     "vite-plugin-node-polyfills": "^0.7.0",
     "vitest": "^0.29.7"

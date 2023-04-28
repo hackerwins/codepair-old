@@ -10,30 +10,28 @@ import { ConnectionStatus, Presence } from 'features/peerSlices';
 import { Theme as ThemeType } from 'features/settingSlices';
 import { Preview, updateHeadings, getTableOfContents } from 'features/docSlices';
 
-import { updateLinkNameWithHeading } from 'features/linkSlices';
 import { makeStyles } from 'styles/common';
-import { Button, IconButton, Popover, Theme, Tooltip } from '@mui/material';
-import Keyboard from '@mui/icons-material/Keyboard';
+import { debounce, Theme } from '@mui/material';
 import { NAVBAR_HEIGHT } from 'constants/editor';
 import { addRecentPage } from 'features/currentSlices';
+import { setActionStatus } from 'features/actionSlices';
 import 'easymde/dist/easymde.min.css';
 import 'codemirror/keymap/sublime';
 import 'codemirror/keymap/emacs';
 import 'codemirror/keymap/vim';
+import 'codemirror/addon/fold/foldcode';
+import 'codemirror/addon/fold/foldgutter';
+import 'codemirror/addon/fold/foldgutter.css';
 import './codemirror/shuffle';
+import './codemirror/markdown-fold';
 import Cursor from './Cursor';
 import SlideView from './slideView';
-import EditorSettings from './EditorSettings';
+import { CodeEditorMenu } from './Menu';
 
-const WIDGET_HEIGHT = 46;
-
-interface CodeEditorProps {
-  forwardedRef: React.MutableRefObject<CodeMirror.Editor | null>;
-}
+const WIDGET_HEIGHT = 40;
 
 const useStyles = makeStyles()((theme: Theme) => ({
   dark: {
-    height: `calc(100% - ${20}px)`,
     '& .CodeMirror': {
       color: theme.palette.common.white,
       borderColor: theme.palette.background.paper,
@@ -44,7 +42,7 @@ const useStyles = makeStyles()((theme: Theme) => ({
       color: theme.palette.common.white,
     },
     '& .editor-toolbar': {
-      backgroundColor: '#303030',
+      // backgroundColor: '#303030',
     },
     '& .editor-toolbar > *': {
       color: theme.palette.common.white,
@@ -75,20 +73,13 @@ const useStyles = makeStyles()((theme: Theme) => ({
     '& .CodeMirror-line span.cm-hr': { color: '#999' },
     '& .CodeMirror-line span.cm-link': { color: '#ff0000' },
   },
-  customToolbar: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    height: 48,
-    display: 'flex',
-    alignItems: 'center',
-    boxSizing: 'border-box',
-    padding: '0 8px',
-    justifyContent: 'center',
-  },
 }));
 
-export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
+const callback = debounce((callFunction) => {
+  callFunction();
+}, 500);
+
+export default function CodeEditor() {
   const { classes } = useStyles();
   const dispatch = useDispatch();
   const doc = useSelector((state: AppState) => state.docState.doc);
@@ -98,15 +89,6 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
   const peers = useSelector((state: AppState) => state.peerState.peers);
   const cursorMapRef = useRef<Map<ActorID, Cursor>>(new Map());
   const [editor, setEditor] = useState<CodeMirror.Editor | null>(null);
-
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | undefined>();
-  const handleSettingsClick = useCallback((event: MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  }, []);
-
-  const handleSettingsClose = useCallback(() => {
-    setAnchorEl(undefined);
-  }, []);
 
   const connectCursor = useCallback((clientID: ActorID, presence: Presence) => {
     cursorMapRef.current.set(clientID, new Cursor(clientID, presence));
@@ -120,6 +102,20 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
   }, []);
 
   const getCmInstanceCallback = useCallback((cm: CodeMirror.Editor) => {
+    cm.setOption('foldGutter', true);
+    cm.setOption('gutters', ['CodeMirror-foldgutter']);
+    cm.setOption('foldOptions', {
+      widget: () => {
+        const widget = document.createElement('span');
+        widget.className = 'CodeMirror-foldmarker';
+        widget.innerHTML = '...';
+        widget.style.cursor = 'pointer';
+        widget.style.fontSize = '1.8rem';
+        widget.style.lineHeight = '1rem';
+        return widget;
+      },
+    });
+
     setEditor(cm);
   }, []);
 
@@ -142,6 +138,27 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
     }
   }, []);
 
+  const updateActionStatus = useCallback(callback, []);
+
+  const uploadImage = (image: File, onSuccess: (imageUrl: string) => void, onError: (errorMessage: string) => void) => {
+    try {
+      if (image.type && !image.type.startsWith('image/')) {
+        throw new Error(`This File type is ${image.type}. Please upload an image file.`);
+      } else {
+        const reader = new FileReader();
+
+        reader.addEventListener('load', ({ target }) => {
+          if (target && typeof target.result === 'string') {
+            onSuccess(target.result);
+          }
+        });
+        reader.readAsDataURL(image);
+      }
+    } catch (error) {
+      onError(String(error));
+    }
+  };
+
   useEffect(() => {
     for (const [id, peer] of Object.entries(peers)) {
       if (cursorMapRef.current.has(id) && peer.status === ConnectionStatus.Disconnected) {
@@ -157,8 +174,10 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       return;
     }
 
+    console.log('CodeMirror instance is ready!');
+
     // eslint-disable-next-line no-param-reassign
-    forwardedRef.current = editor;
+    // forwardedRef.current = editor;
 
     const updateCursor = (clientID: ActorID, pos: CodeMirror.Position) => {
       const cursor = cursorMapRef.current.get(clientID);
@@ -225,7 +244,6 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
 
     editor.on('change', () => {
       dispatch(updateHeadings());
-      dispatch(updateLinkNameWithHeading({ docKey: doc.getKey() }));
       dispatch(
         addRecentPage({
           docKey: doc.getKey(),
@@ -235,6 +253,10 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
           },
         }),
       );
+      dispatch(setActionStatus({ isOver: true }));
+      updateActionStatus(() => {
+        dispatch(setActionStatus({ isOver: false }));
+      });
     });
 
     // local to remote
@@ -274,18 +296,21 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
     // link to heading
     goHeadingLink();
 
+    function ChangeToGoPage() {
+      goHeadingLink();
+    }
     // set table of contents event
     // When a hashchange event occurs, move inside the codemirror with location.hash.
-    window.addEventListener('hashchange', () => {
-      goHeadingLink();
-    });
-
-    window.addEventListener('popstate', () => {
-      goHeadingLink();
-    });
+    window.addEventListener('hashchange', ChangeToGoPage);
+    window.addEventListener('popstate', ChangeToGoPage);
 
     dispatch(updateHeadings());
-  }, [client, doc, editor, forwardedRef, menu, goHeadingLink, dispatch]);
+
+    return () => {
+      window.removeEventListener('hashchange', ChangeToGoPage);
+      window.removeEventListener('popstate', ChangeToGoPage);
+    };
+  }, [client, doc, editor, dispatch, goHeadingLink, menu.codeKeyMap, updateActionStatus]);
 
   const options = useMemo(() => {
     const opts = {
@@ -296,6 +321,10 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       toolbar: [
         'bold',
         'italic',
+        'strikethrough',
+        'code',
+        'horizontal-rule',
+        'quote',
         '|',
         'unordered-list',
         'ordered-list',
@@ -311,9 +340,42 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
       ],
       unorderedListStyle: '-',
       status: false,
+      // previewImagesInEditor: true,
+      // imagesPreviewHandler: (src: string) => {
+      //   // how to convert datauri to blob
+      //   // https://stackoverflow.com/questions/4998908/convert-data-uri-to-file-then-append-to-formdata
+      //   const dataURItoBlob = (dataURI: string) => {
+      //     var arr = dataURI.split(',');
+      //     var matches = (arr as any)[0].match(/:(.*?);/);
+
+      //     if (!matches || !matches[1]) {
+      //       throw new Error('invalid data URI');
+      //     }
+
+      //     var mime = matches[1],
+      //       bstr = atob(arr[1]),
+      //       n = bstr.length,
+      //       u8arr = new Uint8Array(n);
+      //     while (n--) {
+      //       u8arr[n] = bstr.charCodeAt(n);
+      //     }
+      //     return new Blob([u8arr], { type: mime });
+      //   };
+
+      //   try {
+      //     return URL.createObjectURL(dataURItoBlob(src));
+      //   } catch (err) {
+      //     console.error(err);
+      //   }
+      // },
+      uploadImage: true,
+      imageUploadFunction: uploadImage,
       shortcuts: {
         toggleUnorderedList: null,
       },
+      sideBySideFullscreen: false,
+      // lineNumbers: true,
+      // lineWrapping: true,
     } as SimpleMDE.Options;
 
     if (preview === Preview.Slide) {
@@ -346,32 +408,7 @@ export default function CodeEditor({ forwardedRef }: CodeEditorProps) {
         getCodemirrorInstance={getCmInstanceCallback as any}
         options={options}
       />
-      <div className={classes.customToolbar}>
-        <Button onClick={() => window.open('https://www.markdownguide.org/basic-syntax/')}>Markdown</Button>
-        <Tooltip title="Settings" arrow>
-          <IconButton aria-label="settings" onClick={handleSettingsClick}>
-            <Keyboard />
-          </IconButton>
-        </Tooltip>
-        {anchorEl && (
-          <Popover
-            open
-            elevation={2}
-            anchorEl={anchorEl}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right',
-            }}
-            onClose={handleSettingsClose}
-          >
-            <EditorSettings />
-          </Popover>
-        )}
-      </div>
+      <CodeEditorMenu />
     </>
   );
 }

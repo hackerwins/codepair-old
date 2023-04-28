@@ -28,6 +28,11 @@ const useStyles = makeStyles()((theme) => ({
       boxSizing: 'border-box',
     },
   },
+  defaultAvatar: {
+    width: 30,
+    height: 30,
+    border: `2px solid ${theme.palette.mode === 'dark' ? '#555555' : 'rgba(200, 200, 200, 1)'} !important`,
+  },
 }));
 
 const MAX_PEER_VIEW = 4;
@@ -72,7 +77,7 @@ export default function PeerGroup() {
             <Tooltip key={peer.id} title={peer.isMine ? `[ME] ${username}` : username} data-id={peer.id} arrow>
               <Avatar
                 alt="Peer Image"
-                className={peer.isMine ? classes.myAvatar : ''}
+                className={[peer.isMine ? classes.myAvatar : '', classes.defaultAvatar].join(' ')}
                 style={{ backgroundColor: color }}
                 src={anonymous.getImage(image)}
               />
@@ -81,9 +86,27 @@ export default function PeerGroup() {
         })}
       </AvatarGroup>
 
-      <Popover elevation={2} open={!!anchorEl} anchorEl={anchorEl} onClose={handleViewListClose}>
-        <PeerList />
-      </Popover>
+      {anchorEl ? (
+        <Popover
+          // elevation={2}
+          open={!!anchorEl}
+          anchorEl={anchorEl}
+          onClose={handleViewListClose}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'center',
+          }}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'center',
+          }}
+          style={{
+            marginTop: 10,
+          }}
+        >
+          <PeerList />
+        </Popover>
+      ) : undefined}
     </>
   );
 }

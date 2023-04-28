@@ -1,4 +1,19 @@
 import { Marpit, RenderResult } from '@marp-team/marpit';
+import { marpitPlugin } from '@marp-team/marpit/plugin';
+import markdownItMermaid from '@liradb2000/markdown-it-mermaid';
+
+const CustomMarkdownPlugin = marpitPlugin((md) => {
+  // Compatible with markdown-it plugin
+  md.use(markdownItMermaid, {
+    startOnLoad: false,
+    securityLevel: true,
+    theme: 'dark',
+    flowchart: {
+      htmlLabels: false,
+      useMaxWidth: true,
+    },
+  });
+});
 
 export default class SlideView {
   marpit: Marpit;
@@ -10,6 +25,8 @@ export default class SlideView {
       inlineSVG: true,
     });
     this.theme = theme;
+
+    this.marpit.use(CustomMarkdownPlugin);
 
     const slideTheme = `
     /* @theme example */
@@ -35,6 +52,8 @@ export default class SlideView {
   }
 
   public render(markdown: string): RenderResult {
+    console.log(markdown);
+
     return this.marpit.render(markdown);
   }
 }
