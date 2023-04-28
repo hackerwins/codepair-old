@@ -27,7 +27,7 @@ const useStyles = makeStyles()((theme) => ({
   day: {
     borderRadius: 8,
     '&:not(.MuiPickersDay-dayOutsideMonth)': {
-      border: theme.palette.mode === Theme.Dark ? '1px solid #595959' : '1px solid rgba(0, 0, 0, 0.12)',
+      // border: theme.palette.mode === Theme.Dark ? '1px solid #595959' : '1px solid rgba(0, 0, 0, 0.12)',
     },
 
     '&.MuiPickersDay-daySelected': {
@@ -37,6 +37,13 @@ const useStyles = makeStyles()((theme) => ({
     '&.MuiPickersDay-dayDisabled': {
       color: '#ccc',
     },
+  },
+  colorList: {
+    display: 'flex',
+    justifyContent: 'center',
+    transform: 'translateY(-50%)',
+
+    filter: theme.palette.mode === Theme.Dark ? 'drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.5))' : '',
   },
 }));
 
@@ -51,10 +58,8 @@ function ScheduleDay(props: PickersDayProps<Dayjs>) {
     <div key={day.toString()}>
       <PickersDay {...other} outsideCurrentMonth={outsideCurrentMonth} day={day} className={classes.day} />
       <div
+        className={classes.colorList}
         style={{
-          display: 'flex',
-          justifyContent: 'center',
-          marginTop: 2,
           marginLeft: Math.min(list.length - 1, 4) * -1,
         }}
       >

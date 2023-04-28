@@ -87,7 +87,7 @@ export function SideBar() {
     open: useLocation().pathname === '/calendar' ? true : open,
     sidebarWidth,
   });
-  const { mimeType } = currentItem;
+  const { mimeType } = currentItem || { mimeType: MimeType.MARKDOWN };
 
   const handleChange = (event: React.SyntheticEvent<Element, Event>, newValue: NavTabType) => {
     dispatch(toggleLinkTab(newValue));
