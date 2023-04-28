@@ -1,6 +1,6 @@
 {
   "index.css": {
-    "file": "assets/index-ed999779.css",
+    "file": "assets/index-100b4002.css",
     "src": "index.css"
   },
   "index.html": {
@@ -31,12 +31,12 @@
       "assets/source-sans-pro-latin-400-normal-c124c88c.woff2"
     ],
     "css": [
-      "assets/index-ed999779.css"
+      "assets/index-100b4002.css"
     ],
     "dynamicImports": [
       "src/components/Editor/mime/text/milkdown/Editor.tsx"
     ],
-    "file": "assets/index-231ede86.js",
+    "file": "assets/index-1adc0ec4.js",
     "isEntry": true,
     "src": "index.html"
   },
@@ -144,7 +144,7 @@
     "css": [
       "assets/Editor-6a0bf5f1.css"
     ],
-    "file": "assets/Editor-093a2dd8.js",
+    "file": "assets/Editor-24584e80.js",
     "imports": [
       "index.html"
     ],
