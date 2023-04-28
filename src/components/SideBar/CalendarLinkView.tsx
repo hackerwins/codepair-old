@@ -8,6 +8,7 @@ import { ListSubheader } from '@mui/material';
 import { makeStyles } from 'styles/common';
 import { Theme } from 'features/settingSlices';
 import { HeadingItem } from './CustomViewer/HeadingItem';
+
 import { CalendarListItem } from './CustomViewer/CalendarListItem';
 
 const useStyles = makeStyles()((theme) => ({
@@ -40,6 +41,7 @@ export function CalendarLinkView() {
               <ListSubheader className={classes.header}>
                 {dayjs(it.createdAt, 'YYYYMMDDHHmm').format('YYYY-MM-DD')}
               </ListSubheader>
+
               <CalendarListItem item={it as LinkItemType} loopType="date" />
             </Fragment>
           );

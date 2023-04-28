@@ -34,6 +34,7 @@ import './codemirror/markdown-fold';
 import Cursor from './Cursor';
 import SlideView from './slideView';
 import { CodeEditorMenu } from './Menu';
+
 import { MermaidView } from './MermaidView';
 
 const WIDGET_HEIGHT = 40;
@@ -386,6 +387,7 @@ export default function CodeEditor() {
         toggleUnorderedList: null,
       },
       sideBySideFullscreen: false,
+
       renderingConfig: {
         markedOptions: {},
       },

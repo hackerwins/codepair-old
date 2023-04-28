@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleRecents } from 'features/navSlices';
 import { removeCurrentPage } from 'features/currentSlices';
+
 import { Collapse, IconButton, List, ListItem, ListItemText, ListSubheader } from '@mui/material';
 import Delete from '@mui/icons-material/Delete';
 import ExpandMore from '@mui/icons-material/ExpandMore';
@@ -45,7 +46,6 @@ export function PagesView() {
   const { classes } = useStyles();
   const navState = useSelector((state: AppState) => state.navState);
   const recents = useSelector(recentsSelector());
-
   const { openRecents, openTabValue } = navState;
 
   const handleOpenRecents = () => {
@@ -116,6 +116,7 @@ export function PagesView() {
           })}
         </List>
       </Collapse>
+
       {openRecents ? <div style={{ height: 30, flex: 'none', backgroundColor: 'divider' }} /> : undefined}
       <ListSubheader className={classes.header}>
         <div

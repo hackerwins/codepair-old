@@ -35,10 +35,12 @@ const useStyles = makeStyles()((theme) => ({
       backgroundColor: blue[500],
       color: '#fff',
     },
+
     '&.MuiPickersDay-today': {
       border: 0,
       backgroundColor: theme.palette.mode === Theme.Dark ? '#555555' : '#fff',
     },
+
     '&.MuiPickersDay-dayDisabled': {
       color: '#ccc',
     },
