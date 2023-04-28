@@ -27,6 +27,7 @@ const useStyles = makeStyles()((theme) => ({
   day: {
     borderRadius: 8,
     '&:not(.MuiPickersDay-dayOutsideMonth)': {
+      fontWeight: 900,
       // border: theme.palette.mode === Theme.Dark ? '1px solid #595959' : '1px solid rgba(0, 0, 0, 0.12)',
     },
 
