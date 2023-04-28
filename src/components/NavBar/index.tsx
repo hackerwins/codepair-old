@@ -77,8 +77,6 @@ function MenuAppBar() {
           style={{
             gap: 4,
             paddingLeft: 10,
-            height: 48,
-            minHeight: 48,
           }}
         >
           <div

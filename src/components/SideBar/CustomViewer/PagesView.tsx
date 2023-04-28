@@ -12,13 +12,23 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import NavigateNext from '@mui/icons-material/NavigateNext';
 import { AppState } from 'app/rootReducer';
 import { recentsSelector } from 'features/linkSlices';
+import { makeStyles } from 'styles/common';
 import { LinkTreeView } from '../LinkTreeView';
 
 import { TabPanelHeader } from './TabPanelHeader';
 
+const useStyles = makeStyles()(() => ({
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: 'calc(100vh - 160px)',
+  },
+}));
+
 export function PagesView() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { classes } = useStyles();
   const navState = useSelector((state: AppState) => state.navState);
   const recents = useSelector(recentsSelector());
 
@@ -35,6 +45,7 @@ export function PagesView() {
   return (
     <TabPanel
       value="pages"
+      className={classes.root}
       style={{
         padding: 10,
       }}
