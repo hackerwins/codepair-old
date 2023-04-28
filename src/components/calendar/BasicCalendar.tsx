@@ -35,6 +35,10 @@ const useStyles = makeStyles()((theme) => ({
       backgroundColor: blue[500],
       color: '#fff',
     },
+    '&.MuiPickersDay-today': {
+      border: 0,
+      backgroundColor: theme.palette.mode === Theme.Dark ? '#555555' : '#fff',
+    },
     '&.MuiPickersDay-dayDisabled': {
       color: '#ccc',
     },
@@ -61,7 +65,7 @@ function ScheduleDay(props: PickersDayProps<Dayjs>) {
       <div
         className={classes.colorList}
         style={{
-          marginLeft: Math.min(list.length - 1, 4) * -1,
+          marginLeft: Math.min(list.length, 4) * -1,
         }}
       >
         {list
@@ -76,27 +80,12 @@ function ScheduleDay(props: PickersDayProps<Dayjs>) {
                   height: 6,
                   borderRadius: 4,
                   backgroundColor: color || blue[500],
-                  marginRight: 2,
+                  marginRight: 1,
                   boxSizing: 'border-box',
                 }}
               />
             );
           })}
-        {list.length > 3 ? (
-          <div
-            style={{
-              width: 4,
-              height: 4,
-              borderRadius: 2,
-              // backgroundColor: '#000',
-              marginRight: 1,
-              fontSize: 4,
-              lineHeight: 0.5,
-            }}
-          >
-            +
-          </div>
-        ) : undefined}
       </div>
     </div>
   );
@@ -125,9 +114,9 @@ export default function BasicCalendar() {
         onChange={(newValue: any) => {
           updateCalendarDate(newValue.format('YYYYMMDD'));
         }}
-        // onMonthChange={(newValue: any) => {
-        //   updateCalendarDate(newValue.format('YYYYMM01'));
-        // }}
+        onMonthChange={(newValue: any) => {
+          updateCalendarDate(newValue.format('YYYYMM01'));
+        }}
         slots={{
           day: ScheduleDay,
         }}

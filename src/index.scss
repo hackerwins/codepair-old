@@ -79,9 +79,24 @@ body {
 }
 
 .EasyMDEContainer {
+  [data-language] {
+    position: relative;
+
+    &::before {
+      position: absolute;
+      content: attr(data-language);
+      top: 0px;
+      right: 0px;
+      padding: 0px 5px;
+      display: inline-block;
+      border-radius: 4px;
+    }
+  }
+
   .CodeMirror {
     border: 1px solid #eee;
     height: auto;
+    padding: 10px 0px !important;
   }
   .CodeMirror-scroll {
     overflow-y: hidden;
@@ -328,6 +343,23 @@ body {
     .CodeMirror-line span.cm-image-marker {
       color: #00ff00 !important;
     }
+
+    .editor-preview-side {
+      border: 1px solid rgb(234, 234, 234);
+      background-color: #ffffff !important;
+    }
+    .editor-preview {
+      background-color: #fafbfc;
+    }
+
+    .editor-preview pre {
+      background-color: inherit !important;
+    }
+
+    [data-language]::before {
+      background-color: rgb(0, 162, 249);
+      color: white;
+    }
   }
 }
 
@@ -342,7 +374,6 @@ body {
   overflow: auto;
   height: 100%;
   box-sizing: border-box;
-  border: 1px solid #333 !important;
 }
 
 .editor-preview-side .marpit svg foreignObject section {
@@ -627,8 +658,23 @@ body {
       background-color: #333333 !important;
     }
 
+    .editor-preview-side {
+      border: 1px solid #333;
+      background-color: #333333 !important;
+    }
+
     .editor-preview-side .marpit > svg {
       border: 1px solid #333;
+    }
+
+    .editor-preview {
+      background-color: #000000 !important;
+    }
+
+    [data-language]::before {
+      content: attr(data-language);
+      background-color: #333;
+      color: #fff;
     }
   }
 }

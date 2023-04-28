@@ -1,9 +1,16 @@
+/* eslint-disable react/no-unstable-nested-components */
 import React, { useEffect, useMemo, useRef, useCallback, useState, MouseEvent } from 'react';
+import { createRoot } from 'react-dom/client';
 import { useDispatch, useSelector } from 'react-redux';
 import { ActorID, DocEvent, TextChange } from 'yorkie-js-sdk';
 import CodeMirror from 'codemirror';
 import SimpleMDE from 'easymde';
 import SimpleMDEReact from 'react-simplemde-editor';
+import ReactMarkdown from 'react-markdown';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+
+import oneLight from 'react-syntax-highlighter/dist/esm/styles/prism/one-light';
+import oneDark from 'react-syntax-highlighter/dist/esm/styles/prism/one-dark';
 
 import { AppState } from 'app/rootReducer';
 import { ConnectionStatus, Presence } from 'features/peerSlices';
@@ -27,8 +34,13 @@ import './codemirror/markdown-fold';
 import Cursor from './Cursor';
 import SlideView from './slideView';
 import { CodeEditorMenu } from './Menu';
+import { MermaidView } from './MermaidView';
 
 const WIDGET_HEIGHT = 40;
+
+const globalContainer = {
+  rootElement: null,
+};
 
 const useStyles = makeStyles()((theme: Theme) => ({
   dark: {
@@ -51,7 +63,7 @@ const useStyles = makeStyles()((theme: Theme) => ({
       backgroundColor: theme.palette.background.paper,
     },
     '& .editor-preview': {
-      backgroundColor: theme.palette.background.default,
+      backgroundColor: theme.palette.mode === ThemeType.Dark ? '#303030' : '#fff',
     },
 
     '& .CodeMirror-line span.cm-keyword': { color: '#f92672' },
@@ -374,6 +386,9 @@ export default function CodeEditor() {
         toggleUnorderedList: null,
       },
       sideBySideFullscreen: false,
+      renderingConfig: {
+        markedOptions: {},
+      },
       // lineNumbers: true,
       // lineWrapping: true,
     } as SimpleMDE.Options;
@@ -394,6 +409,55 @@ export default function CodeEditor() {
           // eslint-disable-next-line no-param-reassign
           previewElement.innerHTML = html;
         }, 20);
+
+        return null as any;
+      };
+    } else {
+      // eslint-disable-next-line func-names
+      opts.previewRender = function (markdown: string, previewElement: HTMLElement): string {
+        try {
+          if (globalContainer.rootElement) {
+            (globalContainer.rootElement as any).unmount();
+          }
+
+          globalContainer.rootElement = createRoot(previewElement) as any;
+
+          (globalContainer.rootElement as any).render(
+            <ReactMarkdown
+              components={{
+                code: ({ node, inline, className, children, ...props }) => {
+                  const match = /language-(\w+)/.exec(className || '');
+
+                  const text = children[0];
+
+                  if (className === 'language-mermaid') {
+                    return <MermaidView code={text as string} />;
+                  }
+
+                  return !inline && match ? (
+                    <SyntaxHighlighter
+                      {...props}
+                      data-language={match[1]}
+                      style={menu.theme === ThemeType.Dark ? oneDark : oneLight}
+                      language={match[1]}
+                      PreTag="div"
+                    >
+                      {String(children).replace(/\n$/, '')}
+                    </SyntaxHighlighter>
+                  ) : (
+                    <code {...props} className={className}>
+                      {children}
+                    </code>
+                  );
+                },
+              }}
+            >
+              {markdown}
+            </ReactMarkdown>,
+          );
+        } catch (err) {
+          console.error(err);
+        }
 
         return null as any;
       };

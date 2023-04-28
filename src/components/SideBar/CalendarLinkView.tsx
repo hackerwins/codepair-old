@@ -8,7 +8,7 @@ import { ListSubheader } from '@mui/material';
 import { makeStyles } from 'styles/common';
 import { Theme } from 'features/settingSlices';
 import { HeadingItem } from './CustomViewer/HeadingItem';
-import { SidebarItemView } from './CustomViewer/SidebarItem';
+import { CalendarListItem } from './CustomViewer/CalendarListItem';
 
 const useStyles = makeStyles()((theme) => ({
   header: {
@@ -40,12 +40,12 @@ export function CalendarLinkView() {
               <ListSubheader className={classes.header}>
                 {dayjs(it.createdAt, 'YYYYMMDDHHmm').format('YYYY-MM-DD')}
               </ListSubheader>
-              <SidebarItemView item={it as LinkItemType} loopType="date" />
+              <CalendarListItem item={it as LinkItemType} loopType="date" />
             </Fragment>
           );
         }
 
-        return <SidebarItemView key={`${it.id}${it.color}`} item={it as LinkItemType} loopType="date" />;
+        return <CalendarListItem key={`${it.id}${it.color}`} item={it as LinkItemType} loopType="date" />;
       })}
     </>
   );
