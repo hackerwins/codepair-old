@@ -473,5 +473,5 @@ interface CalendarListItemProps {
 }
 
 export function CalendarListItem({ item, loopType }: CalendarListItemProps) {
-  return <CalendarItem item={item} level={0} loopType={loopType} />;
+  return <CalendarItem item={item} loopType={loopType} />;
 }
