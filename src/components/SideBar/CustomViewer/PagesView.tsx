@@ -19,8 +19,8 @@ import { TabPanelHeader } from './TabPanelHeader';
 
 const useStyles = makeStyles()(() => ({
   root: {
-    display: 'flex',
-    flexDirection: 'column',
+    // display: 'flex',
+    // flexDirection: 'column',
     height: 'calc(100vh - 160px)',
   },
 }));
