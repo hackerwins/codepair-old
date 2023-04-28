@@ -172,159 +172,6 @@ export default function CodeEditor() {
     }
   };
 
-  useEffect(() => {
-    for (const [id, peer] of Object.entries(peers)) {
-      if (cursorMapRef.current.has(id) && peer.status === ConnectionStatus.Disconnected) {
-        disconnectCursor(id);
-      } else if (!cursorMapRef.current.has(id) && peer.status === ConnectionStatus.Connected) {
-        connectCursor(id, peer.presence);
-      }
-    }
-  }, [peers, connectCursor, disconnectCursor]);
-
-  useEffect(() => {
-    if (!client || !doc || !editor) {
-      return;
-    }
-
-    console.log('CodeMirror instance is ready!');
-
-    // eslint-disable-next-line no-param-reassign
-    // forwardedRef.current = editor;
-
-    const updateCursor = (clientID: ActorID, pos: CodeMirror.Position) => {
-      const cursor = cursorMapRef.current.get(clientID);
-      cursor?.updateCursor(editor, pos);
-    };
-
-    const updateLine = (clientID: ActorID, fromPos: CodeMirror.Position, toPos: CodeMirror.Position) => {
-      const cursor = cursorMapRef.current.get(clientID);
-      cursor?.updateLine(editor, fromPos, toPos);
-    };
-
-    // remote to local
-    const changeEventHandler = (changes: TextChange[]) => {
-      changes.forEach((change) => {
-        const { actor, from, to } = change;
-        if (change.type === 'content') {
-          const content = change.value?.content || '';
-          if (actor !== client.getID()) {
-            const fromPos = editor.posFromIndex(from);
-            const toPos = editor.posFromIndex(to);
-            editor.replaceRange(content, fromPos, toPos, 'yorkie');
-          }
-        } else if (change.type === 'selection') {
-          if (actor !== client.getID()) {
-            let fromPos = editor.posFromIndex(from);
-            let toPos = editor.posFromIndex(to);
-            updateCursor(actor, toPos);
-            if (from > to) {
-              [toPos, fromPos] = [fromPos, toPos];
-            }
-            updateLine(actor, fromPos, toPos);
-          }
-        }
-      });
-    };
-
-    // sync text of document and editor
-    const syncText = () => {
-      const text = doc.getRoot().content;
-
-      if (text) {
-        text.onChanges(changeEventHandler);
-        editor.setValue(text.toString());
-      }
-    };
-
-    doc.subscribe((event: DocEvent) => {
-      if (event.type === 'snapshot') {
-        // re-sync for the new text from the snapshot
-        syncText();
-      }
-    });
-
-    editor.on('mousedown', ((_: CodeMirror.Editor, event: MouseEvent) => {
-      if (event.metaKey) {
-        const pos = editor.coordsChar({ left: event.clientX, top: event.clientY });
-        const token = editor.getTokenAt(pos);
-
-        if (token.type?.includes('link')) {
-          window.open(token.string, token.string);
-        }
-      }
-    }) as any);
-
-    editor.on('change', () => {
-      dispatch(updateHeadings());
-      dispatch(
-        addRecentPage({
-          docKey: doc.getKey(),
-          page: {
-            name: `${getTableOfContents(1)[0]?.text}`,
-            fileLink: window.location.pathname,
-          },
-        }),
-      );
-      dispatch(setActionStatus({ isOver: true }));
-      updateActionStatus(() => {
-        dispatch(setActionStatus({ isOver: false }));
-      });
-    });
-
-    // local to remote
-    editor.on('beforeChange', (instance: CodeMirror.Editor, change: CodeMirror.EditorChange) => {
-      if (change.origin === 'yorkie' || change.origin === 'setValue') {
-        return;
-      }
-
-      const from = editor.indexFromPos(change.from);
-      const to = editor.indexFromPos(change.to);
-      const content = change.text.join('\n');
-
-      doc.update((root) => {
-        root.content.edit(from, to, content);
-      });
-    });
-
-    editor.on('beforeSelectionChange', (instance: CodeMirror.Editor, data: CodeMirror.EditorSelectionChange) => {
-      if (!data.origin) {
-        return;
-      }
-
-      const from = editor.indexFromPos(data.ranges[0].anchor);
-      const to = editor.indexFromPos(data.ranges[0].head);
-
-      doc.update((root) => {
-        root.content.select(from, to);
-      });
-    });
-
-    syncText();
-    editor.addKeyMap(menu.codeKeyMap);
-    editor.setOption('keyMap', menu.codeKeyMap);
-    editor.getDoc().clearHistory();
-    editor.focus();
-
-    // link to heading
-    goHeadingLink();
-
-    function ChangeToGoPage() {
-      goHeadingLink();
-    }
-    // set table of contents event
-    // When a hashchange event occurs, move inside the codemirror with location.hash.
-    window.addEventListener('hashchange', ChangeToGoPage);
-    window.addEventListener('popstate', ChangeToGoPage);
-
-    dispatch(updateHeadings());
-
-    return () => {
-      window.removeEventListener('hashchange', ChangeToGoPage);
-      window.removeEventListener('popstate', ChangeToGoPage);
-    };
-  }, [client, doc, editor, dispatch, goHeadingLink, menu.codeKeyMap, updateActionStatus]);
-
   const options = useMemo(() => {
     const opts = {
       spellChecker: false,
@@ -416,15 +263,20 @@ export default function CodeEditor() {
       };
     } else {
       // eslint-disable-next-line func-names
-      opts.previewRender = function (markdown: string, previewElement: HTMLElement): string {
+      opts.previewRender = function (markdown: string, previewElement: HTMLElement, origin: any = undefined): string {
         try {
-          if (globalContainer.rootElement) {
-            (globalContainer.rootElement as any).unmount();
+          if (origin !== 'yorkie') {
+            if (globalContainer.rootElement) {
+              (globalContainer.rootElement as any)?.unmount();
+              (globalContainer.rootElement as any) = undefined;
+            }
+
+            globalContainer.rootElement = createRoot(previewElement) as any;
+          } else if (!globalContainer.rootElement) {
+            globalContainer.rootElement = createRoot(previewElement) as any;
           }
 
-          globalContainer.rootElement = createRoot(previewElement) as any;
-
-          (globalContainer.rootElement as any).render(
+          (globalContainer.rootElement as any)?.render(
             <ReactMarkdown
               components={{
                 code: ({ node, inline, className, children, ...props }) => {
@@ -433,7 +285,7 @@ export default function CodeEditor() {
                   const text = children[0];
 
                   if (className === 'language-mermaid') {
-                    return <MermaidView code={text as string} />;
+                    return <MermaidView code={text as string} theme={menu.theme} />;
                   }
 
                   return !inline && match ? (
@@ -466,6 +318,178 @@ export default function CodeEditor() {
     }
     return opts;
   }, [preview, menu]);
+
+  useEffect(() => {
+    for (const [id, peer] of Object.entries(peers)) {
+      if (cursorMapRef.current.has(id) && peer.status === ConnectionStatus.Disconnected) {
+        disconnectCursor(id);
+      } else if (!cursorMapRef.current.has(id) && peer.status === ConnectionStatus.Connected) {
+        connectCursor(id, peer.presence);
+      }
+    }
+  }, [peers, connectCursor, disconnectCursor]);
+
+  useEffect(() => {
+    if (!client || !doc || !editor) {
+      return;
+    }
+
+    console.log('CodeMirror instance is ready!');
+
+    // eslint-disable-next-line no-param-reassign
+    // forwardedRef.current = editor;
+
+    const updateCursor = (clientID: ActorID, pos: CodeMirror.Position) => {
+      const cursor = cursorMapRef.current.get(clientID);
+      cursor?.updateCursor(editor, pos);
+    };
+
+    const updateLine = (clientID: ActorID, fromPos: CodeMirror.Position, toPos: CodeMirror.Position) => {
+      const cursor = cursorMapRef.current.get(clientID);
+      cursor?.updateLine(editor, fromPos, toPos);
+    };
+
+    // remote to local
+    const changeEventHandler = (changes: TextChange[]) => {
+      changes.forEach((change) => {
+        const { actor, from, to } = change;
+        if (change.type === 'content') {
+          const content = change.value?.content || '';
+          if (actor !== client.getID()) {
+            const fromPos = editor.posFromIndex(from);
+            const toPos = editor.posFromIndex(to);
+            editor.replaceRange(content, fromPos, toPos, 'yorkie');
+          }
+        } else if (change.type === 'selection') {
+          if (actor !== client.getID()) {
+            let fromPos = editor.posFromIndex(from);
+            let toPos = editor.posFromIndex(to);
+            updateCursor(actor, toPos);
+            if (from > to) {
+              [toPos, fromPos] = [fromPos, toPos];
+            }
+            updateLine(actor, fromPos, toPos);
+          }
+        }
+      });
+    };
+
+    // sync text of document and editor
+    const syncText = () => {
+      const text = doc.getRoot().content;
+
+      if (text) {
+        text.onChanges(changeEventHandler);
+        editor.setValue(text.toString());
+      }
+    };
+
+    doc.subscribe((event: DocEvent) => {
+      if (event.type === 'snapshot') {
+        // re-sync for the new text from the snapshot
+        syncText();
+      }
+    });
+
+    editor.on('mousedown', ((_: CodeMirror.Editor, event: MouseEvent) => {
+      if (event.metaKey) {
+        const pos = editor.coordsChar({ left: event.clientX, top: event.clientY });
+        const token = editor.getTokenAt(pos);
+
+        if (token.type?.includes('link')) {
+          window.open(token.string, token.string);
+        }
+      }
+    }) as any);
+
+    let timer: any;
+    function updateActivePreview() {
+      // render preview html when preview is active
+      // easymde is not support to render preview when preview is not active
+      if (timer) {
+        clearTimeout(timer);
+      }
+
+      timer = setTimeout(() => {
+        const previewElement = editor?.getWrapperElement().querySelector('.editor-preview-active');
+
+        if (previewElement) {
+          (options as any).previewRender(editor?.getValue(), previewElement, 'yorkie');
+        }
+      }, 100);
+    }
+
+    editor.on('change', () => {
+      dispatch(updateHeadings());
+      dispatch(
+        addRecentPage({
+          docKey: doc.getKey(),
+          page: {
+            name: `${getTableOfContents(1)[0]?.text}`,
+            fileLink: window.location.pathname,
+          },
+        }),
+      );
+      dispatch(setActionStatus({ isOver: true }));
+      updateActionStatus(() => {
+        dispatch(setActionStatus({ isOver: false }));
+      });
+
+      updateActivePreview();
+    });
+
+    // local to remote
+    editor.on('beforeChange', (instance: CodeMirror.Editor, change: CodeMirror.EditorChange) => {
+      if (change.origin === 'yorkie' || change.origin === 'setValue') {
+        return;
+      }
+
+      const from = editor.indexFromPos(change.from);
+      const to = editor.indexFromPos(change.to);
+      const content = change.text.join('\n');
+
+      doc.update((root) => {
+        root.content.edit(from, to, content);
+      });
+    });
+
+    editor.on('beforeSelectionChange', (instance: CodeMirror.Editor, data: CodeMirror.EditorSelectionChange) => {
+      if (!data.origin) {
+        return;
+      }
+
+      const from = editor.indexFromPos(data.ranges[0].anchor);
+      const to = editor.indexFromPos(data.ranges[0].head);
+
+      doc.update((root) => {
+        root.content.select(from, to);
+      });
+    });
+
+    syncText();
+    editor.addKeyMap(menu.codeKeyMap);
+    editor.setOption('keyMap', menu.codeKeyMap);
+    editor.getDoc().clearHistory();
+    editor.focus();
+
+    // link to heading
+    goHeadingLink();
+
+    function ChangeToGoPage() {
+      goHeadingLink();
+    }
+    // set table of contents event
+    // When a hashchange event occurs, move inside the codemirror with location.hash.
+    window.addEventListener('hashchange', ChangeToGoPage);
+    window.addEventListener('popstate', ChangeToGoPage);
+
+    dispatch(updateHeadings());
+
+    return () => {
+      window.removeEventListener('hashchange', ChangeToGoPage);
+      window.removeEventListener('popstate', ChangeToGoPage);
+    };
+  }, [client, doc, editor, dispatch, goHeadingLink, menu.codeKeyMap, updateActionStatus, options]);
 
   return (
     <>
