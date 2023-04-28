@@ -86,9 +86,27 @@ export default function PeerGroup() {
         })}
       </AvatarGroup>
 
-      <Popover elevation={2} open={!!anchorEl} anchorEl={anchorEl} onClose={handleViewListClose}>
-        <PeerList />
-      </Popover>
+      {anchorEl ? (
+        <Popover
+          // elevation={2}
+          open={!!anchorEl}
+          anchorEl={anchorEl}
+          onClose={handleViewListClose}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'center',
+          }}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'center',
+          }}
+          style={{
+            marginTop: 10,
+          }}
+        >
+          <PeerList />
+        </Popover>
+      ) : undefined}
     </>
   );
 }

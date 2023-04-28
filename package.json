@@ -13,6 +13,7 @@
   "dependencies": {
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
+    "@liradb2000/markdown-it-mermaid": "^0.4.4",
     "@marp-team/marpit": "^2.4.2",
     "@milkdown/core": "^7.1.1",
     "@milkdown/ctx": "^7.1.1",

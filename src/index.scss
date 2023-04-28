@@ -147,6 +147,10 @@ body {
   .EasyMDEContainer {
     padding: 0px 20px;
 
+    .CodeMirror-fullscreen {
+      background-color: #fff;
+    }
+
     .CodeMirror-line span.cm-keyword {
       color: #708;
     }
@@ -328,7 +332,7 @@ body {
 }
 
 .EasyMDEContainer.sided--no-fullscreen .editor-preview-active-side {
-  height: calc(100vh - 210px) !important;
+  height: calc(100vh - 110px) !important;
 }
 
 .editor-preview-side {
@@ -338,6 +342,7 @@ body {
   overflow: auto;
   height: 100%;
   box-sizing: border-box;
+  border: 1px solid #333 !important;
 }
 
 .editor-preview-side .marpit svg foreignObject section {
@@ -358,6 +363,11 @@ body {
 
 .editor-preview-side img {
   max-width: calc(100% - 10px);
+}
+
+.editor-preview-side .mermaid {
+  // background-color: #00c;
+  // text-align: center;
 }
 
 /**
@@ -407,6 +417,10 @@ body {
       // background-color: #333333 !important;
       color: #ffffff !important;
       // border-color: #555 !important;
+    }
+
+    .CodeMirror-fullscreen {
+      background-color: #111 !important;
     }
 
     .CodeMirror-foldmarker {
@@ -611,6 +625,10 @@ body {
 
     .editor-toolbar.fullscreen {
       background-color: #333333 !important;
+    }
+
+    .editor-preview-side .marpit > svg {
+      border: 1px solid #333;
     }
   }
 }

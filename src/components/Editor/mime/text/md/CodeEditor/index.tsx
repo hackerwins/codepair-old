@@ -11,11 +11,9 @@ import { Theme as ThemeType } from 'features/settingSlices';
 import { Preview, updateHeadings, getTableOfContents } from 'features/docSlices';
 
 import { makeStyles } from 'styles/common';
-import { debounce, IconButton, Popover, Theme, Tooltip } from '@mui/material';
-import Keyboard from '@mui/icons-material/Keyboard';
+import { debounce, Theme } from '@mui/material';
 import { NAVBAR_HEIGHT } from 'constants/editor';
 import { addRecentPage } from 'features/currentSlices';
-import Help from '@mui/icons-material/Help';
 import { setActionStatus } from 'features/actionSlices';
 import 'easymde/dist/easymde.min.css';
 import 'codemirror/keymap/sublime';
@@ -28,7 +26,7 @@ import './codemirror/shuffle';
 import './codemirror/markdown-fold';
 import Cursor from './Cursor';
 import SlideView from './slideView';
-import EditorSettings from './EditorSettings';
+import { CodeEditorMenu } from './Menu';
 
 const WIDGET_HEIGHT = 40;
 
@@ -75,17 +73,6 @@ const useStyles = makeStyles()((theme: Theme) => ({
     '& .CodeMirror-line span.cm-hr': { color: '#999' },
     '& .CodeMirror-line span.cm-link': { color: '#ff0000' },
   },
-  customToolbar: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    height: 48,
-    display: 'flex',
-    alignItems: 'center',
-    boxSizing: 'border-box',
-    padding: '0 8px',
-    justifyContent: 'center',
-  },
 }));
 
 const callback = debounce((callFunction) => {
@@ -102,15 +89,6 @@ export default function CodeEditor() {
   const peers = useSelector((state: AppState) => state.peerState.peers);
   const cursorMapRef = useRef<Map<ActorID, Cursor>>(new Map());
   const [editor, setEditor] = useState<CodeMirror.Editor | null>(null);
-
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | undefined>();
-  const handleSettingsClick = useCallback((event: MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  }, []);
-
-  const handleSettingsClose = useCallback(() => {
-    setAnchorEl(undefined);
-  }, []);
 
   const connectCursor = useCallback((clientID: ActorID, presence: Presence) => {
     cursorMapRef.current.set(clientID, new Cursor(clientID, presence));
@@ -430,34 +408,7 @@ export default function CodeEditor() {
         getCodemirrorInstance={getCmInstanceCallback as any}
         options={options}
       />
-      <div className={classes.customToolbar}>
-        <IconButton onClick={() => window.open('https://www.markdownguide.org/basic-syntax/')}>
-          <Help />
-        </IconButton>
-        <Tooltip title="Settings" arrow>
-          <IconButton aria-label="settings" onClick={handleSettingsClick}>
-            <Keyboard />
-          </IconButton>
-        </Tooltip>
-        {anchorEl && (
-          <Popover
-            open
-            elevation={2}
-            anchorEl={anchorEl}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right',
-            }}
-            onClose={handleSettingsClose}
-          >
-            <EditorSettings />
-          </Popover>
-        )}
-      </div>
+      <CodeEditorMenu />
     </>
   );
 }

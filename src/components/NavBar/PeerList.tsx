@@ -8,7 +8,11 @@ export default function PeerList() {
   const { activePeers } = usePeer();
 
   return (
-    <List>
+    <List
+      style={{
+        minWidth: 140,
+      }}
+    >
       <ListItem>
         <Typography>Total {activePeers.length}</Typography>
       </ListItem>
