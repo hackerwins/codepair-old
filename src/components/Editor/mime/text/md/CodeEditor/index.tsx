@@ -1,4 +1,5 @@
 /* eslint-disable react/no-unstable-nested-components */
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useMemo, useRef, useCallback, useState, MouseEvent } from 'react';
 import { createRoot } from 'react-dom/client';
 import { useDispatch, useSelector } from 'react-redux';
@@ -319,13 +320,7 @@ export default function CodeEditor() {
                     const text = children[0];
 
                     if (className === 'language-mermaid') {
-                      return (
-                        <MermaidView
-                          keyString={`${(text as string)?.substring(0, 30)}${Date.now()}`}
-                          code={text as string}
-                          theme={menu.theme}
-                        />
-                      );
+                      return <MermaidView code={text as string} theme={menu.theme} />;
                     }
 
                     return !inline && match ? (
