@@ -7,6 +7,7 @@ import {
   Button,
   Divider,
   List,
+  ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
@@ -20,7 +21,7 @@ import Home from '@mui/icons-material/Home';
 import { MimeType } from 'constants/editor';
 import BorderAll from '@mui/icons-material/BorderAll';
 import Gesture from '@mui/icons-material/Gesture';
-import { AccountTree, DescriptionOutlined } from '@mui/icons-material';
+import { AccountTree, DescriptionOutlined, Folder } from '@mui/icons-material';
 import { Theme } from 'features/settingSlices';
 import MoreHoriz from '@mui/icons-material/MoreHoriz';
 
@@ -118,8 +119,8 @@ export function LinkNavigation() {
             found = true;
             break;
           }
-          if ((data[i] as any).links) {
-            if (searchPath((data[i] as any).links, depth + 1, callback)) {
+          if ((data[i] as any)?.links) {
+            if (searchPath((data[i] as any)?.links || [], depth + 1, callback)) {
               found = true;
               break;
             }
@@ -248,8 +249,30 @@ export function LinkNavigation() {
                   </ListItemButton>
                 ) : undefined}
 
-                {currentItem.links?.map((item) => {
+                {currentItem?.links?.map((item) => {
                   const tempItem = item as LinkItemType;
+
+                  if (item.type === 'group') {
+                    return (
+                      <ListItem>
+                        <ListItemIcon
+                          style={{
+                            minWidth: 30,
+                          }}
+                        >
+                          <Folder fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText
+                          style={{
+                            textTransform: 'capitalize',
+                          }}
+                        >
+                          {tempItem.name}
+                        </ListItemText>
+                      </ListItem>
+                    );
+                  }
+
                   return (
                     <ListItemButton
                       dense

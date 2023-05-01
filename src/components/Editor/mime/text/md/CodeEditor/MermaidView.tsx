@@ -1,23 +1,51 @@
-import React, { useEffect, useState } from 'react';
+import React, { useId, useLayoutEffect } from 'react';
 import mermaid from 'mermaid';
+import { makeStyles } from 'styles/common';
+import { Theme } from 'features/settingSlices';
 
-export function MermaidView({ code, theme }: { code: string; theme: string }) {
-  const [svg, setSvg] = useState<string>('');
+const useStyles = makeStyles<{ theme: string }>()((_, { theme }) => {
+  return {
+    root: {
+      backgroundColor: theme === Theme.Dark ? '#282c34' : '#fff',
+      borderRadius: 8,
+      padding: 8,
+      border: theme === Theme.Dark ? '1px solid #555555' : '1px solid rgba(0, 0, 0, 0.12)',
+    },
+  };
+});
 
-  useEffect(() => {
-    if (!svg) {
-      mermaid.initialize({
-        theme,
-      });
+function MermaidView({ code, theme }: { code: string; theme: string }) {
+  const id = useId();
+  const { classes } = useStyles({
+    theme,
+  });
 
-      (async () => {
-        const result = await mermaid.render('demo', code);
+  useLayoutEffect(() => {
+    mermaid.initialize({
+      startOnLoad: false,
+      theme,
+    });
 
-        setSvg(result.svg);
-      })();
-    }
-  }, [svg, code, theme]);
+    (async () => {
+      const currentId = id.replaceAll(':', 'mermaid');
+      const element = document.querySelector(`#${currentId}`);
+
+      if (element) {
+        const graphDefinition = code.trim();
+
+        const { svg } = await mermaid.render(`${currentId}svg`, graphDefinition, element);
+
+        element.innerHTML = svg;
+      }
+    })();
+  }, [code, theme, id]);
 
   /* eslint-disable react/no-danger */
-  return <code dangerouslySetInnerHTML={{ __html: svg }} />;
+  return (
+    <div className={classes.root}>
+      <div id={id.replaceAll(':', 'mermaid')} />
+    </div>
+  );
 }
+
+export default MermaidView;

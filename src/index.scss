@@ -197,7 +197,12 @@ body {
     }
 
     .CodeMirror-line span.cm-property {
-      color: rgb(0, 120, 6);
+      color: rgb(0, 180, 9);
+    }
+
+    .CodeMirror-line span.cm-word {
+      color: rgb(164, 79, 0);
+      font-weight: bold;
     }
 
     .CodeMirror-line span.cm-list {
@@ -317,7 +322,8 @@ body {
 
     /* List level 3 = Cyan*/
     .CodeMirror-line span.cm-keyword {
-      color: #10b4b4;
+      color: #309696;
+      font-weight: bold;
     }
 
     /*Link text = orange*/

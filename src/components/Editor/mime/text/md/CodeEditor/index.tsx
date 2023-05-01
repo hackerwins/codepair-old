@@ -31,11 +31,12 @@ import 'codemirror/addon/fold/foldgutter';
 import 'codemirror/addon/fold/foldgutter.css';
 import './codemirror/shuffle';
 import './codemirror/markdown-fold';
+import './codemirror/mermaid-preview';
 import Cursor from './Cursor';
 import SlideView from './slideView';
 import { CodeEditorMenu } from './Menu';
 
-import { MermaidView } from './MermaidView';
+import MermaidView from './MermaidView';
 
 const WIDGET_HEIGHT = 40;
 
@@ -115,6 +116,8 @@ export default function CodeEditor() {
   }, []);
 
   const getCmInstanceCallback = useCallback((cm: CodeMirror.Editor) => {
+    // mermaid type check
+    (cm as any).setOption('mermaid', true);
     cm.setOption('foldGutter', true);
     cm.setOption('gutters', ['CodeMirror-foldgutter']);
     cm.setOption('foldOptions', {
@@ -172,6 +175,56 @@ export default function CodeEditor() {
     }
   };
 
+  const uploadImagePreviewFunction = (src: string) => {
+    // how to convert datauri to blob
+    // https://stackoverflow.com/questions/4998908/convert-data-uri-to-file-then-append-to-formdata
+    const dataURItoBlob = (data: string) => {
+      let dataURI = data;
+      if (dataURI.length < 50) {
+        const max = editor?.lineCount() || 0;
+        const target = dataURI.replace('...', '');
+
+        for (let i = 0; i < max; i += 1) {
+          const line = editor?.getLine(i);
+
+          const startIndex = line?.indexOf(target) || -1;
+
+          if (startIndex > -1) {
+            const endIndex = line?.indexOf(')', startIndex);
+
+            dataURI = line?.substring(startIndex, endIndex) || '';
+            break;
+          }
+        }
+      }
+
+      const arr = dataURI.split(',');
+      const matches = (arr as any)[0].match(/:(.*?);/);
+
+      if (!matches || !matches[1]) {
+        throw new Error('invalid data URI');
+      }
+
+      const mime = matches[1];
+      const bstr = atob(arr[1]);
+
+      let n = bstr.length;
+
+      const u8arr = new Uint8Array(n);
+      // eslint-disable-next-line no-plusplus
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      return new Blob([u8arr], { type: mime });
+    };
+
+    try {
+      return URL.createObjectURL(dataURItoBlob(src));
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
   const options = useMemo(() => {
     const opts = {
       spellChecker: false,
@@ -200,34 +253,8 @@ export default function CodeEditor() {
       ],
       unorderedListStyle: '-',
       status: false,
-      // previewImagesInEditor: true,
-      // imagesPreviewHandler: (src: string) => {
-      //   // how to convert datauri to blob
-      //   // https://stackoverflow.com/questions/4998908/convert-data-uri-to-file-then-append-to-formdata
-      //   const dataURItoBlob = (dataURI: string) => {
-      //     var arr = dataURI.split(',');
-      //     var matches = (arr as any)[0].match(/:(.*?);/);
-
-      //     if (!matches || !matches[1]) {
-      //       throw new Error('invalid data URI');
-      //     }
-
-      //     var mime = matches[1],
-      //       bstr = atob(arr[1]),
-      //       n = bstr.length,
-      //       u8arr = new Uint8Array(n);
-      //     while (n--) {
-      //       u8arr[n] = bstr.charCodeAt(n);
-      //     }
-      //     return new Blob([u8arr], { type: mime });
-      //   };
-
-      //   try {
-      //     return URL.createObjectURL(dataURItoBlob(src));
-      //   } catch (err) {
-      //     console.error(err);
-      //   }
-      // },
+      previewImagesInEditor: true,
+      imagesPreviewHandler: uploadImagePreviewFunction,
       uploadImage: true,
       imageUploadFunction: uploadImage,
       shortcuts: {
@@ -263,55 +290,69 @@ export default function CodeEditor() {
       };
     } else {
       // eslint-disable-next-line func-names
+      let previewRenderTimer: any;
       opts.previewRender = function (markdown: string, previewElement: HTMLElement, origin: any = undefined): string {
-        try {
-          if (origin !== 'yorkie') {
-            if (globalContainer.rootElement) {
-              (globalContainer.rootElement as any)?.unmount();
-              (globalContainer.rootElement as any) = undefined;
+        if (previewRenderTimer) {
+          clearTimeout(previewRenderTimer);
+        }
+
+        previewRenderTimer = setTimeout(() => {
+          try {
+            if (origin !== 'yorkie') {
+              if (globalContainer.rootElement) {
+                console.log('unmount');
+                (globalContainer.rootElement as any)?.unmount();
+                (globalContainer.rootElement as any) = undefined;
+              }
+
+              globalContainer.rootElement = createRoot(previewElement) as any;
+            } else if (!globalContainer.rootElement) {
+              globalContainer.rootElement = createRoot(previewElement) as any;
             }
 
-            globalContainer.rootElement = createRoot(previewElement) as any;
-          } else if (!globalContainer.rootElement) {
-            globalContainer.rootElement = createRoot(previewElement) as any;
+            (globalContainer.rootElement as any)?.render(
+              <ReactMarkdown
+                components={{
+                  code: ({ node, inline, className, children, ...props }) => {
+                    const match = /language-(\w+)/.exec(className || '');
+
+                    const text = children[0];
+
+                    if (className === 'language-mermaid') {
+                      return (
+                        <MermaidView
+                          keyString={`${(text as string)?.substring(0, 30)}${Date.now()}`}
+                          code={text as string}
+                          theme={menu.theme}
+                        />
+                      );
+                    }
+
+                    return !inline && match ? (
+                      <SyntaxHighlighter
+                        {...props}
+                        data-language={match[1]}
+                        style={menu.theme === ThemeType.Dark ? oneDark : oneLight}
+                        language={match[1]}
+                        PreTag="div"
+                      >
+                        {String(children).replace(/\n$/, '')}
+                      </SyntaxHighlighter>
+                    ) : (
+                      <code {...props} className={className}>
+                        {children}
+                      </code>
+                    );
+                  },
+                }}
+              >
+                {markdown}
+              </ReactMarkdown>,
+            );
+          } catch (err) {
+            console.error(err);
           }
-
-          (globalContainer.rootElement as any)?.render(
-            <ReactMarkdown
-              components={{
-                code: ({ node, inline, className, children, ...props }) => {
-                  const match = /language-(\w+)/.exec(className || '');
-
-                  const text = children[0];
-
-                  if (className === 'language-mermaid') {
-                    return <MermaidView code={text as string} theme={menu.theme} />;
-                  }
-
-                  return !inline && match ? (
-                    <SyntaxHighlighter
-                      {...props}
-                      data-language={match[1]}
-                      style={menu.theme === ThemeType.Dark ? oneDark : oneLight}
-                      language={match[1]}
-                      PreTag="div"
-                    >
-                      {String(children).replace(/\n$/, '')}
-                    </SyntaxHighlighter>
-                  ) : (
-                    <code {...props} className={className}>
-                      {children}
-                    </code>
-                  );
-                },
-              }}
-            >
-              {markdown}
-            </ReactMarkdown>,
-          );
-        } catch (err) {
-          console.error(err);
-        }
+        }, 500);
 
         return null as any;
       };
