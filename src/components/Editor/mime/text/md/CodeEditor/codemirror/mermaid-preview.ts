@@ -240,11 +240,15 @@ CodeMirror.defineMode('mermaid', function (config, parserConfig) {
   var operators = parserConfig.operators || {};
 
   function tokenBase(stream: CodeMirror.StringStream, state: unknown): string | null {
-    if (stream.match(/^(\[[^\]]+\]|\{[^\}]+\})/)) {
-      return 'string';
+    if (stream.match(/^(\[[^\]]+\]|\{[^\}]+\}|\([^\)]+\))/)) {
+      return 'tag';
     }
     if (stream.match(/^("[^"]+")/)) {
       return 'string';
+    }
+
+    if (stream.match(/^(\|[^\|]+\|)/)) {
+      return 'string-2';
     }
 
     if (stream.match(/^(flowchart|sequenceDiagram|gantt|classDiagram|node|edge|classDef)|($|\s)/)) {
@@ -252,14 +256,14 @@ CodeMirror.defineMode('mermaid', function (config, parserConfig) {
     }
     if (
       stream.match(
-        /^(def|for|LR|TD|TB|BT|RL|box|actor|participant|activate|deactivate|over|loop|end|subgraph|class|style|classDef|Note|alt|opt|par|critical|option|break|rect|right of)/i,
+        /^(def|for|box|actor|participant|activate|deactivate|over|loop|end|subgraph|class|style|classDef|Note|alt|opt|par|critical|option|break|rect|right of)/i,
       )
     ) {
       return 'keyword';
     }
-    if (stream.match(/^([+\-]([^ \(\)]+))/i)) {
-      return 'property';
-    }
+    // if (stream.match(/^([+\-]([^ \(\)]+))/i)) {
+    //   return 'property';
+    // }
     if (
       stream.match(
         /^(<\|--)|(\:\:\:)|(->>)|(-\))|(--\))|(---->)|(-->)|(--x)|(x--x)|(o--o)|(<-->)|(==>)|(==)|(\~\~\~)|(---)|(--)|(&)|(<--)|(\|)|(-\.->)|(-\.)|(\.-)/,

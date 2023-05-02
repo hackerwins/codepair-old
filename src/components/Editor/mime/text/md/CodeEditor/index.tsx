@@ -292,7 +292,22 @@ export default function CodeEditor() {
     } else {
       // eslint-disable-next-line func-names
       let previewRenderTimer: any;
+      (window as any).prevSelectionString = null;
       opts.previewRender = function (markdown: string, previewElement: HTMLElement, origin: any = undefined): string {
+        // skip if selection is not empty
+        const hasFullScreen = document.querySelector('.editor-preview-full.editor-preview-active');
+        const selection = (document.querySelector('.CodeMirror') as any).CodeMirror?.getSelection() || '';
+
+        if (selection === '' && (window as any).prevSelectionString !== '' && !hasFullScreen) {
+          (window as any).prevSelectionString = '';
+          return null as any;
+        }
+
+        (window as any).prevSelectionString = selection;
+
+        if (selection !== '' && !hasFullScreen) return null as any;
+        // skip if selection is not empty
+
         if (previewRenderTimer) {
           clearTimeout(previewRenderTimer);
         }

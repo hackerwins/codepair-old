@@ -81,6 +81,7 @@ body {
 .EasyMDEContainer {
   [data-language] {
     position: relative;
+    display: block;
 
     &::before {
       position: absolute;
@@ -161,6 +162,7 @@ body {
 [data-theme='light'] {
   .EasyMDEContainer {
     padding: 0px 20px;
+    padding-right: 0px;
 
     .CodeMirror-fullscreen {
       background-color: #fff;
@@ -175,12 +177,12 @@ body {
     }
     .CodeMirror-line span.cm-em {
       color: rgb(206, 73, 255);
-      font-weight: bold;
+      // font-weight: bold;
     }
 
     .CodeMirror-line span.cm-comment {
       color: #a11;
-      font-weight: bold;
+      // font-weight: bold;
       background-color: transparent !important;
     }
 
@@ -200,11 +202,6 @@ body {
       color: rgb(0, 180, 9);
     }
 
-    .CodeMirror-line span.cm-word {
-      color: rgb(164, 79, 0);
-      font-weight: bold;
-    }
-
     .CodeMirror-line span.cm-list {
       color: rgb(0, 120, 6);
     }
@@ -218,7 +215,7 @@ body {
     }
 
     .CodeMirror-line span.cm-string-2 {
-      color: #f50;
+      color: rgb(224, 108, 117);
     }
 
     .CodeMirror-line span.cm-meta {
@@ -241,9 +238,6 @@ body {
       color: #997;
     }
 
-    .CodeMirror-line span.cm-tag {
-      color: #170;
-    }
     .CodeMirror-line span.cm-tag {
       color: #170;
     }
@@ -283,13 +277,13 @@ body {
     .CodeMirror-line span.cm-formatting.cm-formatting-list.cm-formatting-list-ul,
     .CodeMirror-line span.cm-formatting.cm-formatting-list.cm-formatting-list-ul + * {
       color: rgb(0, 149, 255);
-      font-weight: bold;
+      // font-weight: bold;
     }
 
     .CodeMirror-line span.cm-formatting.cm-formatting-list.cm-formatting-list-ol,
     .CodeMirror-line span.cm-formatting.cm-formatting-list.cm-formatting-list-ol + * {
       color: rgb(0, 125, 84);
-      font-weight: bold;
+      // font-weight: bold;
     }
 
     .CodeMirror-line span.cm-formatting-link-string.cm-string.cm-url,
@@ -561,7 +555,7 @@ body {
     }
 
     .CodeMirror-line span.cm-string-2 {
-      color: #f50;
+      color: rgb(224, 108, 117);
     }
 
     .CodeMirror-line span.cm-meta {
@@ -585,7 +579,7 @@ body {
     }
 
     .CodeMirror-line span.cm-tag {
-      color: #170;
+      color: rgb(152, 195, 121);
     }
 
     .CodeMirror-line span.cm-attribute {
@@ -630,7 +624,7 @@ body {
 
     /* List level 3 = Cyan*/
     .CodeMirror-line span.cm-keyword {
-      color: #10b4b4;
+      color: rgb(198, 120, 221);
     }
 
     /*Link text = orange*/
