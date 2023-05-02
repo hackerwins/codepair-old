@@ -280,7 +280,7 @@ export default function PageLayout({ children }: PageLayoutProps) {
   }, [dispatch, docKey]);
 
   return (
-    <div className={classes.root} data-theme={menu.theme}>
+    <div className={classes.root} data-scroll="true" data-theme={menu.theme}>
       <div className={classes.layout}>
         <div
           className={classes.sidebarArea}
