@@ -540,7 +540,7 @@ export default function CodeEditor() {
       window.removeEventListener('hashchange', ChangeToGoPage);
       window.removeEventListener('popstate', ChangeToGoPage);
     };
-  }, [client, doc, editor, dispatch, goHeadingLink, menu.codeKeyMap, updateActionStatus, options]);
+  }, [client, doc, editor, dispatch, goHeadingLink, menu.codeKeyMap, options]);
 
   return (
     <>
