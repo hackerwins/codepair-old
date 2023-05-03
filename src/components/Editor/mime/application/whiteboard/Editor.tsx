@@ -40,7 +40,7 @@ export default function WhiteBoardEditor() {
         disableAssets
         showPages={false}
         showMultiplayerMenu={false}
-        showMenu={false}
+        // showMenu={false}
         {...fileSystemEvents}
         {...events}
         darkMode={menu.theme === Theme.Dark}

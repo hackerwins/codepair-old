@@ -1,5 +1,7 @@
 /* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable no-inner-declarations */
+/* eslint-disable react/jsx-no-bind */
 import React, { useEffect, useMemo, useRef, useCallback, useState, MouseEvent } from 'react';
 import { createRoot } from 'react-dom/client';
 import { useDispatch, useSelector } from 'react-redux';
@@ -33,11 +35,13 @@ import 'codemirror/addon/fold/foldgutter.css';
 import './codemirror/shuffle';
 import './codemirror/markdown-fold';
 import './codemirror/mermaid-preview';
+import './codemirror/tldraw-preview';
 import Cursor from './Cursor';
 import SlideView from './slideView';
 import { CodeEditorMenu } from './Menu';
 
 import MermaidView from './MermaidView';
+import MiniDraw from './MiniDraw';
 
 const WIDGET_HEIGHT = 40;
 
@@ -116,25 +120,62 @@ export default function CodeEditor() {
     }
   }, []);
 
-  const getCmInstanceCallback = useCallback((cm: CodeMirror.Editor) => {
-    // mermaid type check
-    (cm as any).setOption('mermaid', true);
-    cm.setOption('foldGutter', true);
-    cm.setOption('gutters', ['CodeMirror-foldgutter']);
-    cm.setOption('foldOptions', {
-      widget: () => {
-        const widget = document.createElement('span');
-        widget.className = 'CodeMirror-foldmarker';
-        widget.innerHTML = '...';
-        widget.style.cursor = 'pointer';
-        widget.style.fontSize = '1.8rem';
-        widget.style.lineHeight = '1rem';
-        return widget;
-      },
-    });
+  const getCmInstanceCallback = useCallback(
+    (cm: CodeMirror.Editor) => {
+      // mermaid type check
+      (cm as any).setOption('mermaid', true);
+      (cm as any).setOption('tldraw', {
+        emit: (event: string, message: any, trigger: (event: string, message: any) => void) => {
+          if (event === 'tldraw-preview-click') {
+            const container = document.getElementById('draw-panel');
 
-    setEditor(cm);
-  }, []);
+            if (container) {
+              const root = createRoot(container);
+
+              function onClose() {
+                root.unmount();
+              }
+
+              function onSave(content: any) {
+                trigger('tldraw-preview-save', {
+                  ...message,
+                  content,
+                });
+
+                onClose();
+              }
+
+              root.render(
+                <MiniDraw
+                  key={`tldraw-preview-${message.id}`}
+                  theme={menu.theme}
+                  content={message.content}
+                  onClose={onClose}
+                  onSave={onSave}
+                />,
+              );
+            }
+          }
+        },
+      });
+      cm.setOption('foldGutter', true);
+      cm.setOption('gutters', ['CodeMirror-foldgutter']);
+      cm.setOption('foldOptions', {
+        widget: () => {
+          const widget = document.createElement('span');
+          widget.className = 'CodeMirror-foldmarker';
+          widget.innerHTML = '...';
+          widget.style.cursor = 'pointer';
+          widget.style.fontSize = '1.8rem';
+          widget.style.lineHeight = '1rem';
+          return widget;
+        },
+      });
+
+      setEditor(cm);
+    },
+    [menu.theme],
+  );
 
   const goHeadingLink = useCallback(() => {
     const cm = document.querySelector('.CodeMirror');
@@ -340,6 +381,10 @@ export default function CodeEditor() {
 
                     if (className === 'language-mermaid') {
                       return <MermaidView code={text as string} theme={menu.theme} />;
+                    }
+
+                    if (className === 'language-tldraw') {
+                      return <MiniDraw content={JSON.parse(`${text}`)} theme={menu.theme} readOnly />;
                     }
 
                     return !inline && match ? (
@@ -554,6 +599,7 @@ export default function CodeEditor() {
         options={options}
       />
       <CodeEditorMenu />
+      <div id="draw-panel" />
     </>
   );
 }

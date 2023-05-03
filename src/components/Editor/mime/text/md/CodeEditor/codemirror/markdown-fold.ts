@@ -17,8 +17,15 @@ import CodeMirror from 'codemirror';
     return maxDepth;
   }
 
-  var firstLine = cm.getLine(start.line),
-    nextLine = cm.getLine(start.line + 1);
+  var firstLine = cm.getLine(start.line);
+  var nextLine = cm.getLine(start.line + 1);
+
+  if (firstLine.indexOf('```tldraw') > -1 && nextLine.indexOf('```') === -1) {
+    return {
+      from: CodeMirror.Pos(start.line + 1, 0),
+      to: CodeMirror.Pos(start.line + 1, nextLine.length),
+    };
+  }
 
   // datauri fold
   const dataOffset = firstLine.indexOf('(data:');
