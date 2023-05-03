@@ -384,6 +384,14 @@ body {
   box-sizing: border-box;
 }
 
+blockquote {
+  color: #666;
+  margin: 0;
+  padding-left: 3em;
+  border-left: 3px #9bc9ff solid;
+  padding: 0px 20px;
+}
+
 .editor-preview-side .marpit svg foreignObject section {
   border: none;
 }
