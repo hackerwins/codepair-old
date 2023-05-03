@@ -33,7 +33,7 @@ function MermaidView({ code, theme }: { code: string; theme: string }) {
           mode: theme === Theme.Dark ? 'dark' : 'light',
         },
       }),
-    [],
+    [theme],
   );
 
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {

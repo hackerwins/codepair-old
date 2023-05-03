@@ -251,7 +251,7 @@ CodeMirror.defineMode('mermaid', function (config, parserConfig) {
       return 'string-2';
     }
 
-    if (stream.match(/^(flowchart|sequenceDiagram|gantt|classDiagram|node|edge|classDef)|($|\s)/)) {
+    if (stream.match(/^(flowchart|sequenceDiagram|gantt|classDiagram|node|edge|classDef|journey|mindmap)|($|\s)/)) {
       return 'keyword';
     }
     if (

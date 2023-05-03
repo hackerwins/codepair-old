@@ -232,6 +232,7 @@ export default function CodeEditor() {
       placeholder: 'Write code here and share...',
       tabSize: Number(menu.tabSize),
       maxHeight: `calc(100vh - ${NAVBAR_HEIGHT + WIDGET_HEIGHT}px)`,
+      syncSideBySidePreviewScroll: false,
       toolbar: [
         'bold',
         'italic',
@@ -273,8 +274,11 @@ export default function CodeEditor() {
     if (preview === Preview.Slide) {
       const slideView = new SlideView(menu.theme);
       // eslint-disable-next-line func-names
-      opts.previewRender = function (markdown: string, previewElement: HTMLElement): string {
+      opts.previewRender = function (markdown: string): string {
         const { html, css } = slideView.render(markdown);
+
+        // console.log(html, css);
+
         const self = this as any;
         setTimeout(() => {
           if (!self.style) {
@@ -284,10 +288,10 @@ export default function CodeEditor() {
           self.style.innerHTML = css;
 
           // eslint-disable-next-line no-param-reassign
-          previewElement.innerHTML = html;
+          // previewElement.innerHTML = html;
         }, 20);
 
-        return null as any;
+        return html;
       };
     } else {
       // eslint-disable-next-line func-names
