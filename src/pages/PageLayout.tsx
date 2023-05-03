@@ -82,6 +82,7 @@ const useStyles = makeStyles<LayoutProps>()((theme, props) => ({
   },
   editorArea: {
     flex: '1 1 auto',
+    width: 1,
 
     // height: '100%',
     display: 'flex',
