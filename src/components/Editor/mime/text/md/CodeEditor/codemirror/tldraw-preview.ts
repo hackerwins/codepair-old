@@ -2,8 +2,11 @@
 import CodeMirror, { TextMarker } from 'codemirror';
 
 interface TldrawOptions {
+  theme: string;
   emit: (event: string, message: any, trigger?: (event: string, message: any) => void) => void;
 }
+
+let idCounter = 0;
 
 class TldrawPreview {
   cm: CodeMirror.Editor;
@@ -103,6 +106,8 @@ class TldrawPreview {
           { line: currentLineNo + 1, ch: 0 },
           { line: lastLineNo, ch: 0 },
         );
+
+        this.cm.foldCode({ line: currentLineNo, ch: 0 });
       });
     }
   }
@@ -154,19 +159,21 @@ class TldrawPreview {
     div.style.display = 'inline-block';
     div.style.position = 'relative';
     div.style.verticalAlign = 'middle';
-    div.textContent = 'M';
-    div.style.backgroundColor = 'yellow';
-    div.style.width = '1em';
-    div.style.height = '1em';
+    div.textContent = 'Edit';
+    div.style.backgroundColor = this.options.theme === 'dark' ? 'gray' : 'lightgray';
+    div.style.color = this.options.theme === 'dark' ? 'white' : 'black';
+    // div.style.width = '1em';
+    // div.style.height = '1em';
     div.style.borderRadius = '4px';
     div.style.textAlign = 'center';
     div.style.lineHeight = '1em';
     div.style.fontSize = '0.8em';
     div.style.fontWeight = 'bold';
+    div.style.padding = '0.2em';
     div.style.color = 'black';
     div.style.cursor = 'pointer';
     div.style.marginLeft = '0.5em';
-    div.id = `tldraw-id-${Date.now()}`;
+    div.id = `tldraw-id-${Date.now()}-${idCounter++}`;
 
     return div;
   }

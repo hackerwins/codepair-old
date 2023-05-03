@@ -25,6 +25,10 @@ import { debounce, Theme } from '@mui/material';
 import { NAVBAR_HEIGHT } from 'constants/editor';
 import { addRecentPage } from 'features/currentSlices';
 import { setActionStatus } from 'features/actionSlices';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+
+import 'katex/dist/katex.min.css'; // `rehype-katex` does not import the CSS for you
 import 'easymde/dist/easymde.min.css';
 import 'codemirror/keymap/sublime';
 import 'codemirror/keymap/emacs';
@@ -125,6 +129,7 @@ export default function CodeEditor() {
       // mermaid type check
       (cm as any).setOption('mermaid', true);
       (cm as any).setOption('tldraw', {
+        theme: menu.theme,
         emit: (event: string, message: any, trigger: (event: string, message: any) => void) => {
           if (event === 'tldraw-preview-click') {
             const container = document.getElementById('draw-panel');
@@ -149,7 +154,7 @@ export default function CodeEditor() {
                 <MiniDraw
                   key={`tldraw-preview-${message.id}`}
                   theme={menu.theme}
-                  content={message.content}
+                  content={JSON.stringify(message.content)}
                   onClose={onClose}
                   onSave={onSave}
                 />,
@@ -308,7 +313,7 @@ export default function CodeEditor() {
       renderingConfig: {
         markedOptions: {},
       },
-      // lineNumbers: true,
+      lineNumbers: true,
       // lineWrapping: true,
     } as SimpleMDE.Options;
 
@@ -373,6 +378,8 @@ export default function CodeEditor() {
 
             (globalContainer.rootElement as any)?.render(
               <ReactMarkdown
+                remarkPlugins={[remarkMath]}
+                rehypePlugins={[rehypeKatex]}
                 components={{
                   code: ({ node, inline, className, children, ...props }) => {
                     const match = /language-(\w+)/.exec(className || '');
@@ -384,7 +391,7 @@ export default function CodeEditor() {
                     }
 
                     if (className === 'language-tldraw') {
-                      return <MiniDraw content={JSON.parse(`${text}`)} theme={menu.theme} readOnly />;
+                      return <MiniDraw content={`${text}`} theme={menu.theme} readOnly />;
                     }
 
                     return !inline && match ? (
@@ -481,6 +488,14 @@ export default function CodeEditor() {
       if (text) {
         text.onChanges(changeEventHandler);
         editor.setValue(text.toString());
+
+        // fold tldraw code blocks
+        const last = editor.lineCount();
+        for (let i = 0; i < last; i += 1) {
+          if (editor.getLine(i).startsWith('```tldraw')) {
+            editor.foldCode({ line: i, ch: 0 });
+          }
+        }
       }
     };
 

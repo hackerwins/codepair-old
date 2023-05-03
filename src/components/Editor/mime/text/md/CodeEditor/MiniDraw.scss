@@ -7,8 +7,6 @@
   width: 500px;
   height: 400px;
   overflow: hidden;
-  background-color: white;
-  border: 1px solid #ececec;
   border-radius: 10px;
   z-index: 10;
   //   backdrop-filter: blur(10px);
@@ -59,8 +57,6 @@
     align-items: center;
     justify-content: space-between;
     box-sizing: border-box;
-    padding: 0 10px;
-    border-bottom: 1px solid #ececec;
 
     .mini-draw-tools {
       display: flex;
@@ -74,9 +70,5 @@
     left: 0;
     right: 0;
     bottom: 0;
-  }
-
-  .mini-draw-title {
-    color: black;
   }
 }
