@@ -79,9 +79,25 @@ body {
 }
 
 .EasyMDEContainer {
+  [data-language] {
+    position: relative;
+    display: block;
+
+    &::before {
+      position: absolute;
+      content: attr(data-language);
+      top: 0px;
+      right: 0px;
+      padding: 0px 5px;
+      display: inline-block;
+      border-radius: 4px;
+    }
+  }
+
   .CodeMirror {
     border: 1px solid #eee;
     height: auto;
+    padding: 10px 0px !important;
   }
   .CodeMirror-scroll {
     overflow-y: hidden;
@@ -144,8 +160,17 @@ body {
 }
 
 [data-theme='light'] {
+  &[data-scroll='true'] *::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  &[data-scroll='true'] *::-webkit-scrollbar-thumb {
+    background: rgb(189, 189, 189);
+  }
+
   .EasyMDEContainer {
     padding: 0px 20px;
+    padding-right: 0px;
 
     .CodeMirror-fullscreen {
       background-color: #fff;
@@ -160,12 +185,12 @@ body {
     }
     .CodeMirror-line span.cm-em {
       color: rgb(206, 73, 255);
-      font-weight: bold;
+      // font-weight: bold;
     }
 
     .CodeMirror-line span.cm-comment {
       color: #a11;
-      font-weight: bold;
+      // font-weight: bold;
       background-color: transparent !important;
     }
 
@@ -182,7 +207,7 @@ body {
     }
 
     .CodeMirror-line span.cm-property {
-      color: rgb(0, 120, 6);
+      color: rgb(0, 180, 9);
     }
 
     .CodeMirror-line span.cm-list {
@@ -198,7 +223,7 @@ body {
     }
 
     .CodeMirror-line span.cm-string-2 {
-      color: #f50;
+      color: rgb(224, 108, 117);
     }
 
     .CodeMirror-line span.cm-meta {
@@ -221,9 +246,6 @@ body {
       color: #997;
     }
 
-    .CodeMirror-line span.cm-tag {
-      color: #170;
-    }
     .CodeMirror-line span.cm-tag {
       color: #170;
     }
@@ -263,13 +285,13 @@ body {
     .CodeMirror-line span.cm-formatting.cm-formatting-list.cm-formatting-list-ul,
     .CodeMirror-line span.cm-formatting.cm-formatting-list.cm-formatting-list-ul + * {
       color: rgb(0, 149, 255);
-      font-weight: bold;
+      // font-weight: bold;
     }
 
     .CodeMirror-line span.cm-formatting.cm-formatting-list.cm-formatting-list-ol,
     .CodeMirror-line span.cm-formatting.cm-formatting-list.cm-formatting-list-ol + * {
       color: rgb(0, 125, 84);
-      font-weight: bold;
+      // font-weight: bold;
     }
 
     .CodeMirror-line span.cm-formatting-link-string.cm-string.cm-url,
@@ -302,7 +324,8 @@ body {
 
     /* List level 3 = Cyan*/
     .CodeMirror-line span.cm-keyword {
-      color: #10b4b4;
+      color: #309696;
+      font-weight: bold;
     }
 
     /*Link text = orange*/
@@ -328,6 +351,23 @@ body {
     .CodeMirror-line span.cm-image-marker {
       color: #00ff00 !important;
     }
+
+    .editor-preview-side {
+      border: 1px solid rgb(234, 234, 234);
+      background-color: #ffffff !important;
+    }
+    .editor-preview {
+      background-color: #fafbfc;
+    }
+
+    .editor-preview pre {
+      background-color: inherit !important;
+    }
+
+    [data-language]::before {
+      background-color: rgb(0, 162, 249);
+      color: white;
+    }
   }
 }
 
@@ -342,7 +382,14 @@ body {
   overflow: auto;
   height: 100%;
   box-sizing: border-box;
-  border: 1px solid #333 !important;
+}
+
+blockquote {
+  color: #666;
+  margin: 0;
+  padding-left: 3em;
+  border-left: 3px #9bc9ff solid;
+  padding: 0px 20px;
 }
 
 .editor-preview-side .marpit svg foreignObject section {
@@ -411,8 +458,18 @@ body {
 }
 
 [data-theme='dark'] {
+  &[data-scroll='true'] *::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  &[data-scroll='true'] *::-webkit-scrollbar-thumb {
+    background: #666;
+  }
+
   .EasyMDEContainer {
     padding: 0px 20px;
+    padding-right: 0px;
+
     .CodeMirror {
       // background-color: #333333 !important;
       color: #ffffff !important;
@@ -524,7 +581,7 @@ body {
     }
 
     .CodeMirror-line span.cm-string-2 {
-      color: #f50;
+      color: rgb(224, 108, 117);
     }
 
     .CodeMirror-line span.cm-meta {
@@ -548,7 +605,7 @@ body {
     }
 
     .CodeMirror-line span.cm-tag {
-      color: #170;
+      color: rgb(152, 195, 121);
     }
 
     .CodeMirror-line span.cm-attribute {
@@ -593,7 +650,7 @@ body {
 
     /* List level 3 = Cyan*/
     .CodeMirror-line span.cm-keyword {
-      color: #10b4b4;
+      color: rgb(198, 120, 221);
     }
 
     /*Link text = orange*/
@@ -627,8 +684,23 @@ body {
       background-color: #333333 !important;
     }
 
+    .editor-preview-side {
+      border: 1px solid #333;
+      background-color: #333333 !important;
+    }
+
     .editor-preview-side .marpit > svg {
       border: 1px solid #333;
+    }
+
+    .editor-preview {
+      background-color: #000000 !important;
+    }
+
+    [data-language]::before {
+      content: attr(data-language);
+      background-color: #333;
+      color: #fff;
     }
   }
 }

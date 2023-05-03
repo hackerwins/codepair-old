@@ -2,6 +2,9 @@ import React from 'react';
 import { TabPanel } from '@mui/lab';
 import { Box, List } from '@mui/material';
 
+import { useSelector } from 'react-redux';
+import { AppState } from 'app/rootReducer';
+
 import BasicCalendar from 'components/calendar/BasicCalendar';
 import { makeStyles } from 'styles/common';
 import { Theme } from 'features/settingSlices';
@@ -17,7 +20,8 @@ const useStyles = makeStyles()((theme) => ({
   list: {
     flex: '1 1 auto',
     overflow: 'auto',
-    padding: '0px 10px',
+
+    padding: '0px 20px',
     boxSizing: 'border-box',
   },
   timeline: {
@@ -78,8 +82,16 @@ const useStyles = makeStyles()((theme) => ({
 export function CalendarView() {
   const { classes } = useStyles();
 
+  const navState = useSelector((state: AppState) => state.navState);
+  const { openTabValue } = navState;
   return (
-    <TabPanel value="calendar" className={classes.root}>
+    <TabPanel
+      value="calendar"
+      className={classes.root}
+      style={{
+        display: openTabValue !== 'calendar' ? 'none' : '',
+      }}
+    >
       <div className={classes.timeline}>
         <div className={classes.calendarArea}>
           <BasicCalendar />

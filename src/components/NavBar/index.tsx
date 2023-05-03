@@ -129,26 +129,8 @@ function MenuAppBar() {
             <PeerGroup />
             <ShareButton />
             <ThemeButton />
+            <AccountMenu />
           </div>
-          {/* {import.meta.env.DEV && (
-            <IconButton
-              size="small"
-              onClick={() => {
-                dispatch(toggleInstant());
-              }}
-              className={menu.theme === ThemeType.Dark ? classes.instantIconButtonDark : classes.instantIconButton}
-            >
-              <SmartToy />
-            </IconButton>
-          )} */}
-          {/* <Divider
-            orientation="vertical"
-            style={{
-              height: 28,
-              margin: '4px 10px',
-            }}
-          /> */}
-          <AccountMenu />
         </Toolbar>
       </AppBar>
     </div>

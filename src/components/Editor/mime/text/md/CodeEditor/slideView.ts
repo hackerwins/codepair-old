@@ -52,8 +52,6 @@ export default class SlideView {
   }
 
   public render(markdown: string): RenderResult {
-    console.log(markdown);
-
     return this.marpit.render(markdown);
   }
 }

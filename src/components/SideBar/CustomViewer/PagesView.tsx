@@ -1,27 +1,42 @@
 import React from 'react';
 import { TabPanel } from '@mui/lab';
-import Mouse from '@mui/icons-material/Mouse';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleRecents } from 'features/navSlices';
 import { removeCurrentPage } from 'features/currentSlices';
-import { Box, Collapse, IconButton, List, ListItem, ListItemText } from '@mui/material';
+
+import { Collapse, IconButton, List, ListItem, ListItemText, ListSubheader } from '@mui/material';
 import Delete from '@mui/icons-material/Delete';
-import Star from '@mui/icons-material/Star';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import NavigateNext from '@mui/icons-material/NavigateNext';
 import { AppState } from 'app/rootReducer';
 import { recentsSelector } from 'features/linkSlices';
 import { makeStyles } from 'styles/common';
+
+import { Theme } from 'features/settingSlices';
+import { DescriptionOutlined, MouseOutlined } from '@mui/icons-material';
+
 import { LinkTreeView } from '../LinkTreeView';
 
-import { TabPanelHeader } from './TabPanelHeader';
-
-const useStyles = makeStyles()(() => ({
+const useStyles = makeStyles()((theme) => ({
   root: {
-    // display: 'flex',
-    // flexDirection: 'column',
-    height: 'calc(100vh - 160px)',
+    height: 'calc(100vh - 150px)',
+    overflow: 'auto',
+  },
+  header: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    fontWeight: 900,
+    cursor: 'pointer',
+    color: theme.palette.mode === Theme.Dark ? '#fff' : '#000',
+    backgroundColor: theme.palette.mode === Theme.Dark ? '#202020' : '#fafcfd',
+  },
+  recentItem: {
+    borderRadius: 4,
+    '&:hover': {
+      backgroundColor: theme.palette.mode === Theme.Dark ? '#333333' : '#f5f5f5',
+    },
   },
 }));
 
@@ -31,8 +46,7 @@ export function PagesView() {
   const { classes } = useStyles();
   const navState = useSelector((state: AppState) => state.navState);
   const recents = useSelector(recentsSelector());
-
-  const { openRecents } = navState;
+  const { openRecents, openTabValue } = navState;
 
   const handleOpenRecents = () => {
     dispatch(toggleRecents());
@@ -47,18 +61,25 @@ export function PagesView() {
       value="pages"
       className={classes.root}
       style={{
+        display: openTabValue !== 'pages' ? 'none' : 'flex',
+        flexDirection: 'column',
         padding: 10,
       }}
     >
-      <TabPanelHeader onClick={() => handleOpenRecents()} tools={openRecents ? <ExpandMore /> : <NavigateNext />}>
-        <Mouse
-          fontSize="small"
+      <ListSubheader className={classes.header} onClick={() => handleOpenRecents()}>
+        <div
           style={{
-            marginRight: 6,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
           }}
-        />
-        Recents
-      </TabPanelHeader>
+        >
+          <MouseOutlined fontSize="small" />
+          Recents
+        </div>
+        <div>{openRecents ? <ExpandMore fontSize="small" /> : <NavigateNext fontSize="small" />}</div>
+      </ListSubheader>
+
       <Collapse in={openRecents} timeout="auto" unmountOnExit>
         <List
           style={{
@@ -69,14 +90,14 @@ export function PagesView() {
         >
           {recents?.map((it) => {
             return (
-              <ListItem key={it.fileLink}>
+              <ListItem key={it.fileLink} className={classes.recentItem}>
                 <ListItemText
                   primary={it.name}
                   primaryTypographyProps={{
                     noWrap: true,
                     style: {
                       fontSize: '0.875rem',
-                      paddingLeft: 28,
+                      paddingLeft: 26,
                       whiteSpace: 'nowrap',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
@@ -95,13 +116,28 @@ export function PagesView() {
           })}
         </List>
       </Collapse>
-      <TabPanelHeader>
-        <Star fontSize="small" style={{ marginRight: 6 }} /> Links
-      </TabPanelHeader>
-      <List dense>
+
+      {openRecents ? <div style={{ height: 30, flex: 'none', backgroundColor: 'divider' }} /> : undefined}
+      <ListSubheader className={classes.header}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+          }}
+        >
+          <DescriptionOutlined fontSize="small" /> Links
+        </div>
+      </ListSubheader>
+      <List
+        dense
+        style={{
+          overflow: 'auto',
+          height: 'calc(100vh - 200px)',
+        }}
+      >
         <LinkTreeView />
       </List>
-      <Box height={100} />
     </TabPanel>
   );
 }

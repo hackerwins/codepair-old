@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import BrowserStorage from 'utils/storage';
 
-export type NavTabType = 'pages' | 'toc';
+export type NavTabType = 'pages' | 'calendar' | 'toc';
 
 export interface NavState {
   openTab: boolean;

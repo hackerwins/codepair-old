@@ -1,9 +1,17 @@
+/* eslint-disable react/no-unstable-nested-components */
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useMemo, useRef, useCallback, useState, MouseEvent } from 'react';
+import { createRoot } from 'react-dom/client';
 import { useDispatch, useSelector } from 'react-redux';
 import { ActorID, DocEvent, TextChange } from 'yorkie-js-sdk';
 import CodeMirror from 'codemirror';
 import SimpleMDE from 'easymde';
 import SimpleMDEReact from 'react-simplemde-editor';
+import ReactMarkdown from 'react-markdown';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+
+import oneLight from 'react-syntax-highlighter/dist/esm/styles/prism/one-light';
+import oneDark from 'react-syntax-highlighter/dist/esm/styles/prism/one-dark';
 
 import { AppState } from 'app/rootReducer';
 import { ConnectionStatus, Presence } from 'features/peerSlices';
@@ -24,11 +32,18 @@ import 'codemirror/addon/fold/foldgutter';
 import 'codemirror/addon/fold/foldgutter.css';
 import './codemirror/shuffle';
 import './codemirror/markdown-fold';
+import './codemirror/mermaid-preview';
 import Cursor from './Cursor';
 import SlideView from './slideView';
 import { CodeEditorMenu } from './Menu';
 
+import MermaidView from './MermaidView';
+
 const WIDGET_HEIGHT = 40;
+
+const globalContainer = {
+  rootElement: null,
+};
 
 const useStyles = makeStyles()((theme: Theme) => ({
   dark: {
@@ -51,7 +66,7 @@ const useStyles = makeStyles()((theme: Theme) => ({
       backgroundColor: theme.palette.background.paper,
     },
     '& .editor-preview': {
-      backgroundColor: theme.palette.background.default,
+      backgroundColor: theme.palette.mode === ThemeType.Dark ? '#303030' : '#fff',
     },
 
     '& .CodeMirror-line span.cm-keyword': { color: '#f92672' },
@@ -102,6 +117,8 @@ export default function CodeEditor() {
   }, []);
 
   const getCmInstanceCallback = useCallback((cm: CodeMirror.Editor) => {
+    // mermaid type check
+    (cm as any).setOption('mermaid', true);
     cm.setOption('foldGutter', true);
     cm.setOption('gutters', ['CodeMirror-foldgutter']);
     cm.setOption('foldOptions', {
@@ -158,6 +175,204 @@ export default function CodeEditor() {
       onError(String(error));
     }
   };
+
+  const uploadImagePreviewFunction = (src: string) => {
+    // how to convert datauri to blob
+    // https://stackoverflow.com/questions/4998908/convert-data-uri-to-file-then-append-to-formdata
+    const dataURItoBlob = (data: string) => {
+      let dataURI = data;
+      if (dataURI.length < 50) {
+        const max = editor?.lineCount() || 0;
+        const target = dataURI.replace('...', '');
+
+        for (let i = 0; i < max; i += 1) {
+          const line = editor?.getLine(i);
+
+          const startIndex = line?.indexOf(target) || -1;
+
+          if (startIndex > -1) {
+            const endIndex = line?.indexOf(')', startIndex);
+
+            dataURI = line?.substring(startIndex, endIndex) || '';
+            break;
+          }
+        }
+      }
+
+      const arr = dataURI.split(',');
+      const matches = (arr as any)[0].match(/:(.*?);/);
+
+      if (!matches || !matches[1]) {
+        throw new Error('invalid data URI');
+      }
+
+      const mime = matches[1];
+      const bstr = atob(arr[1]);
+
+      let n = bstr.length;
+
+      const u8arr = new Uint8Array(n);
+      // eslint-disable-next-line no-plusplus
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      return new Blob([u8arr], { type: mime });
+    };
+
+    try {
+      return URL.createObjectURL(dataURItoBlob(src));
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
+  const options = useMemo(() => {
+    const opts = {
+      spellChecker: false,
+      placeholder: 'Write code here and share...',
+      tabSize: Number(menu.tabSize),
+      maxHeight: `calc(100vh - ${NAVBAR_HEIGHT + WIDGET_HEIGHT}px)`,
+      syncSideBySidePreviewScroll: false,
+      toolbar: [
+        'bold',
+        'italic',
+        'strikethrough',
+        'code',
+        'horizontal-rule',
+        'quote',
+        '|',
+        'unordered-list',
+        'ordered-list',
+        '|',
+        'code',
+        'link',
+        'image',
+        'table',
+        '|',
+        'side-by-side',
+        'preview',
+        'fullscreen',
+      ],
+      unorderedListStyle: '-',
+      status: false,
+      previewImagesInEditor: true,
+      imagesPreviewHandler: uploadImagePreviewFunction,
+      uploadImage: true,
+      imageUploadFunction: uploadImage,
+      shortcuts: {
+        toggleUnorderedList: null,
+      },
+      sideBySideFullscreen: false,
+
+      renderingConfig: {
+        markedOptions: {},
+      },
+      // lineNumbers: true,
+      // lineWrapping: true,
+    } as SimpleMDE.Options;
+
+    if (preview === Preview.Slide) {
+      const slideView = new SlideView(menu.theme);
+      // eslint-disable-next-line func-names
+      opts.previewRender = function (markdown: string): string {
+        const { html, css } = slideView.render(markdown);
+
+        // console.log(html, css);
+
+        const self = this as any;
+        setTimeout(() => {
+          if (!self.style) {
+            self.style = document.createElement('style');
+            document.head.appendChild(self.style);
+          }
+          self.style.innerHTML = css;
+
+          // eslint-disable-next-line no-param-reassign
+          // previewElement.innerHTML = html;
+        }, 20);
+
+        return html;
+      };
+    } else {
+      // eslint-disable-next-line func-names
+      let previewRenderTimer: any;
+      (window as any).prevSelectionString = null;
+      opts.previewRender = function (markdown: string, previewElement: HTMLElement, origin: any = undefined): string {
+        // skip if selection is not empty
+        const hasFullScreen = document.querySelector('.editor-preview-full.editor-preview-active');
+        const selection = (document.querySelector('.CodeMirror') as any).CodeMirror?.getSelection() || '';
+
+        if (selection === '' && (window as any).prevSelectionString !== '' && !hasFullScreen) {
+          (window as any).prevSelectionString = '';
+          return null as any;
+        }
+
+        (window as any).prevSelectionString = selection;
+
+        if (selection !== '' && !hasFullScreen) return null as any;
+        // skip if selection is not empty
+
+        if (previewRenderTimer) {
+          clearTimeout(previewRenderTimer);
+        }
+
+        previewRenderTimer = setTimeout(() => {
+          try {
+            if (origin !== 'yorkie') {
+              if (globalContainer.rootElement) {
+                console.log('unmount');
+                (globalContainer.rootElement as any)?.unmount();
+                (globalContainer.rootElement as any) = undefined;
+              }
+
+              globalContainer.rootElement = createRoot(previewElement) as any;
+            } else if (!globalContainer.rootElement) {
+              globalContainer.rootElement = createRoot(previewElement) as any;
+            }
+
+            (globalContainer.rootElement as any)?.render(
+              <ReactMarkdown
+                components={{
+                  code: ({ node, inline, className, children, ...props }) => {
+                    const match = /language-(\w+)/.exec(className || '');
+
+                    const text = children[0];
+
+                    if (className === 'language-mermaid') {
+                      return <MermaidView code={text as string} theme={menu.theme} />;
+                    }
+
+                    return !inline && match ? (
+                      <SyntaxHighlighter
+                        {...props}
+                        data-language={match[1]}
+                        style={menu.theme === ThemeType.Dark ? oneDark : oneLight}
+                        language={match[1]}
+                        PreTag="div"
+                      >
+                        {String(children).replace(/\n$/, '')}
+                      </SyntaxHighlighter>
+                    ) : (
+                      <code {...props} className={className}>
+                        {children}
+                      </code>
+                    );
+                  },
+                }}
+              >
+                {markdown}
+              </ReactMarkdown>,
+            );
+          } catch (err) {
+            console.error(err);
+          }
+        }, 500);
+
+        return null as any;
+      };
+    }
+    return opts;
+  }, [preview, menu]);
 
   useEffect(() => {
     for (const [id, peer] of Object.entries(peers)) {
@@ -242,6 +457,23 @@ export default function CodeEditor() {
       }
     }) as any);
 
+    let timer: any;
+    function updateActivePreview() {
+      // render preview html when preview is active
+      // easymde is not support to render preview when preview is not active
+      if (timer) {
+        clearTimeout(timer);
+      }
+
+      timer = setTimeout(() => {
+        const previewElement = editor?.getWrapperElement().querySelector('.editor-preview-active');
+
+        if (previewElement) {
+          (options as any).previewRender(editor?.getValue(), previewElement, 'yorkie');
+        }
+      }, 100);
+    }
+
     editor.on('change', () => {
       dispatch(updateHeadings());
       dispatch(
@@ -257,6 +489,8 @@ export default function CodeEditor() {
       updateActionStatus(() => {
         dispatch(setActionStatus({ isOver: false }));
       });
+
+      updateActivePreview();
     });
 
     // local to remote
@@ -310,96 +544,7 @@ export default function CodeEditor() {
       window.removeEventListener('hashchange', ChangeToGoPage);
       window.removeEventListener('popstate', ChangeToGoPage);
     };
-  }, [client, doc, editor, dispatch, goHeadingLink, menu.codeKeyMap, updateActionStatus]);
-
-  const options = useMemo(() => {
-    const opts = {
-      spellChecker: false,
-      placeholder: 'Write code here and share...',
-      tabSize: Number(menu.tabSize),
-      maxHeight: `calc(100vh - ${NAVBAR_HEIGHT + WIDGET_HEIGHT}px)`,
-      toolbar: [
-        'bold',
-        'italic',
-        'strikethrough',
-        'code',
-        'horizontal-rule',
-        'quote',
-        '|',
-        'unordered-list',
-        'ordered-list',
-        '|',
-        'code',
-        'link',
-        'image',
-        'table',
-        '|',
-        'side-by-side',
-        'preview',
-        'fullscreen',
-      ],
-      unorderedListStyle: '-',
-      status: false,
-      // previewImagesInEditor: true,
-      // imagesPreviewHandler: (src: string) => {
-      //   // how to convert datauri to blob
-      //   // https://stackoverflow.com/questions/4998908/convert-data-uri-to-file-then-append-to-formdata
-      //   const dataURItoBlob = (dataURI: string) => {
-      //     var arr = dataURI.split(',');
-      //     var matches = (arr as any)[0].match(/:(.*?);/);
-
-      //     if (!matches || !matches[1]) {
-      //       throw new Error('invalid data URI');
-      //     }
-
-      //     var mime = matches[1],
-      //       bstr = atob(arr[1]),
-      //       n = bstr.length,
-      //       u8arr = new Uint8Array(n);
-      //     while (n--) {
-      //       u8arr[n] = bstr.charCodeAt(n);
-      //     }
-      //     return new Blob([u8arr], { type: mime });
-      //   };
-
-      //   try {
-      //     return URL.createObjectURL(dataURItoBlob(src));
-      //   } catch (err) {
-      //     console.error(err);
-      //   }
-      // },
-      uploadImage: true,
-      imageUploadFunction: uploadImage,
-      shortcuts: {
-        toggleUnorderedList: null,
-      },
-      sideBySideFullscreen: false,
-      // lineNumbers: true,
-      // lineWrapping: true,
-    } as SimpleMDE.Options;
-
-    if (preview === Preview.Slide) {
-      const slideView = new SlideView(menu.theme);
-      // eslint-disable-next-line func-names
-      opts.previewRender = function (markdown: string, previewElement: HTMLElement): string {
-        const { html, css } = slideView.render(markdown);
-        const self = this as any;
-        setTimeout(() => {
-          if (!self.style) {
-            self.style = document.createElement('style');
-            document.head.appendChild(self.style);
-          }
-          self.style.innerHTML = css;
-
-          // eslint-disable-next-line no-param-reassign
-          previewElement.innerHTML = html;
-        }, 20);
-
-        return null as any;
-      };
-    }
-    return opts;
-  }, [preview, menu]);
+  }, [client, doc, editor, dispatch, goHeadingLink, menu.codeKeyMap, options]);
 
   return (
     <>

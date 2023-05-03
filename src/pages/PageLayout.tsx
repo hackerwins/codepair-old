@@ -82,6 +82,7 @@ const useStyles = makeStyles<LayoutProps>()((theme, props) => ({
   },
   editorArea: {
     flex: '1 1 auto',
+    width: 1,
 
     // height: '100%',
     display: 'flex',
@@ -280,7 +281,7 @@ export default function PageLayout({ children }: PageLayoutProps) {
   }, [dispatch, docKey]);
 
   return (
-    <div className={classes.root} data-theme={menu.theme}>
+    <div className={classes.root} data-scroll="true" data-theme={menu.theme}>
       <div className={classes.layout}>
         <div
           className={classes.sidebarArea}

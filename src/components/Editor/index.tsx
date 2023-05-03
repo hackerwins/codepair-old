@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
 import { AppDispatch } from 'app/store';
@@ -24,7 +24,7 @@ import { Alert, Box, CircularProgress, Snackbar } from '@mui/material';
 import WhiteBoardEditor from './mime/application/whiteboard/Editor';
 import Editor from './mime/text/md/Editor';
 
-const MilkdownEditor = lazy(() => import('./mime/text/milkdown/Editor'));
+// const MilkdownEditor = lazy(() => import('./mime/text/milkdown/Editor'));
 
 const useStyles = makeStyles()(() => ({
   loading: {
@@ -166,12 +166,12 @@ export default function BaseEditor(props: { docKey: string }) {
           {errorMessage ? <ErrorView onClose={handleErrorMessageClose} message={errorMessage} /> : null}
         </>
       );
-    case 'text/milkdown':
-      return (
-        <Suspense fallback={<LoadingView />}>
-          <MilkdownEditor />
-        </Suspense>
-      );
+    // case 'text/milkdown':
+    //   return (
+    //     <Suspense fallback={<LoadingView />}>
+    //       <MilkdownEditor />
+    //     </Suspense>
+    //   );
     case 'application/json':
       return <Editor />;
     case 'text/markdown':

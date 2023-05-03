@@ -27,7 +27,7 @@ import CodeMirror from 'codemirror';
     const lastOffset = firstLine.indexOf(')', dataOffset);
 
     return {
-      from: CodeMirror.Pos(start.line, startOffset),
+      from: CodeMirror.Pos(start.line, startOffset + 30),
       to: CodeMirror.Pos(start.line, lastOffset),
     };
   }

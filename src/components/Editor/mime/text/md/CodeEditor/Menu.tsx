@@ -2,6 +2,7 @@ import React, { MouseEvent, useCallback, useState } from 'react';
 import Help from '@mui/icons-material/Help';
 import { IconButton, Popover, Tooltip } from '@mui/material';
 import Keyboard from '@mui/icons-material/Keyboard';
+import LineAxis from '@mui/icons-material/LineAxis';
 import { makeStyles } from 'styles/common';
 import EditorSettings from './EditorSettings';
 
@@ -32,9 +33,17 @@ export function CodeEditorMenu() {
 
   return (
     <div className={classes.customToolbar}>
-      <IconButton onClick={() => window.open('https://www.markdownguide.org/basic-syntax/')}>
-        <Help />
-      </IconButton>
+      <Tooltip title="Mermaid" arrow>
+        <IconButton onClick={() => window.open('https://mermaid.js.org/syntax/flowchart.html')}>
+          <LineAxis />
+        </IconButton>
+      </Tooltip>
+
+      <Tooltip title="Markdown" arrow>
+        <IconButton onClick={() => window.open('https://www.markdownguide.org/basic-syntax/')}>
+          <Help />
+        </IconButton>
+      </Tooltip>
       <Tooltip title="Settings" arrow>
         <IconButton aria-label="settings" onClick={handleSettingsClick}>
           <Keyboard />
