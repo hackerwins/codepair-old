@@ -170,9 +170,6 @@ export default function CodeEditor() {
           const widget = document.createElement('span');
           widget.className = 'CodeMirror-foldmarker';
           widget.innerHTML = '...';
-          widget.style.cursor = 'pointer';
-          widget.style.fontSize = '1.8rem';
-          widget.style.lineHeight = '1rem';
           return widget;
         },
       });
@@ -313,7 +310,7 @@ export default function CodeEditor() {
       renderingConfig: {
         markedOptions: {},
       },
-      lineNumbers: true,
+      lineNumbers: false,
       // lineWrapping: true,
     } as SimpleMDE.Options;
 
