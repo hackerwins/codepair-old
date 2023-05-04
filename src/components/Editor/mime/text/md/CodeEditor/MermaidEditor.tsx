@@ -1,8 +1,11 @@
-import React, { useId, useLayoutEffect, useMemo } from 'react';
+import React, { forwardRef, useId, useMemo, ForwardedRef, useEffect, useCallback } from 'react';
 import mermaid from 'mermaid';
 import { makeStyles } from 'styles/common';
 import { Theme } from 'features/settingSlices';
 import { ThemeProvider, createTheme } from '@mui/material';
+import SimpleMDE from 'easymde';
+import SimpleMDEReact from 'react-simplemde-editor';
+import CodeMirror from 'codemirror';
 
 const useStyles = makeStyles<{ theme: string }>()((_, { theme }) => {
   return {
@@ -10,16 +13,64 @@ const useStyles = makeStyles<{ theme: string }>()((_, { theme }) => {
       display: 'flex',
       height: '100%',
       gap: 10,
-      backgroundColor: theme === Theme.Dark ? '#282c34' : '#fff',
+      backgroundColor: theme === Theme.Dark ? '#121212' : '#fff',
       borderRadius: 8,
       padding: 8,
       border: theme === Theme.Dark ? '1px solid #555555' : '1px solid rgba(0, 0, 0, 0.12)',
+      borderTopLeftRadius: 0,
+      borderTopRightRadius: 0,
+    },
+    light: {
+      '& .EasyMDEContainer': {
+        paddingLeft: '0 !important',
+      },
+    },
+    dark: {
+      '& .CodeMirror': {
+        backgroundColor: '#121212',
+        color: '#fff',
+      },
+      '& .CodeMirror-gutters': {
+        backgroundColor: '#121212',
+      },
+      '& .CodeMirror-linenumber': {
+        color: '#fff',
+      },
+      '& .CodeMirror-cursor': {
+        borderLeft: 'solid thin #fff',
+      },
+      '& .CodeMirror-selected': {
+        backgroundColor: '#3e4451',
+      },
+      '& .CodeMirror-line::selection': {
+        backgroundColor: '#3e4451',
+      },
+      '& .CodeMirror-line::-moz-selection': {
+        backgroundColor: '#3e4451',
+      },
+      '& .CodeMirror-foldmarker': {
+        color: '#fff',
+      },
+      '& .CodeMirror-foldgutter-open': {
+        color: '#fff',
+      },
+      '& .CodeMirror-foldgutter-folded': {
+        color: '#fff',
+      },
     },
   };
 });
 
-function MermaidEditor({ code, theme }: { code: string; theme: string }) {
+const idCounter = Date.now();
+
+function getId(str: string) {
+  return str.replaceAll(':', `mermaid${idCounter}`);
+}
+
+function MermaidEditor({ code, theme }: { code: string; theme: string }, textRef: ForwardedRef<CodeMirror.Editor>) {
   const id = useId();
+  const [value, setValue] = React.useState(code);
+  const [editor, setEditor] = React.useState<CodeMirror.Editor | null>(null);
   const { classes } = useStyles({
     theme,
   });
@@ -33,29 +84,72 @@ function MermaidEditor({ code, theme }: { code: string; theme: string }) {
     [theme],
   );
 
-  // const handleChange = (event: React.SyntheticEvent, newValue: string) => {
-  //   setValue(newValue);
-  // };
+  const getCmInstanceCallback = useCallback((cm: CodeMirror.Editor) => {
+    cm.setOption('mode', 'mermaid');
+    cm.setOption('foldGutter', true);
+    cm.setOption('gutters', ['CodeMirror-foldgutter']);
+    cm.setOption('extraKeys', {
+      'Ctrl-/': 'toggleComment',
+      'Cmd-/': 'toggleComment',
+    });
 
-  useLayoutEffect(() => {
+    setEditor(cm);
+  }, []);
+
+  useEffect(() => {
     mermaid.initialize({
       startOnLoad: false,
       theme,
     });
 
     (async () => {
-      const currentId = id.replaceAll(':', 'mermaid');
+      const currentId = getId(id);
       const element = document.querySelector(`#${currentId}`);
 
       if (element) {
-        const graphDefinition = code.trim();
+        const graphDefinition = value.trim();
 
-        const { svg } = await mermaid.render(`${currentId}svg`, graphDefinition, element);
-
-        element.innerHTML = svg;
+        try {
+          const { svg } = await mermaid.render(`${currentId}svg2`, graphDefinition, element);
+          element.innerHTML = svg;
+        } catch (e) {
+          element.innerHTML = `<pre>${e}</pre>`;
+        }
       }
     })();
-  }, [code, theme, id]);
+  }, [value, theme, id]);
+
+  useEffect(() => {
+    if (editor) {
+      editor.setValue(code);
+
+      editor.on('change', () => {
+        setValue(`${editor?.getValue()}`.trim());
+      });
+
+      if (textRef) {
+        if (typeof textRef !== 'function') {
+          const tempTextRef = textRef;
+          tempTextRef.current = editor;
+        }
+      }
+    }
+  }, [editor, code, textRef]);
+
+  const options = useMemo(() => {
+    const opts = {
+      spellChecker: false,
+      placeholder: 'Write code here and share...',
+      tabSize: 4,
+      toolbar: false,
+      unorderedListStyle: '-',
+      status: false,
+      lineNumbers: true,
+      lineWrapping: true,
+    } as SimpleMDE.Options;
+
+    return opts;
+  }, []);
 
   /* eslint-disable react/no-danger */
   return (
@@ -66,11 +160,14 @@ function MermaidEditor({ code, theme }: { code: string; theme: string }) {
             flex: 'none',
             width: '50%',
             boxSizing: 'border-box',
-            padding: '20px 10px',
             borderRight: '1px solid #ececec',
           }}
         >
-          code area {code}
+          <SimpleMDEReact
+            className={theme === 'dark' ? classes.dark : classes.light}
+            getCodemirrorInstance={getCmInstanceCallback as any}
+            options={options}
+          />
         </div>
         <div
           style={{
@@ -79,7 +176,7 @@ function MermaidEditor({ code, theme }: { code: string; theme: string }) {
             boxSizing: 'border-box',
             padding: '20px 10px',
           }}
-          id={id.replaceAll(':', 'mermaid')}
+          id={getId(id)}
         >
           fdsafdsf
         </div>
@@ -88,4 +185,4 @@ function MermaidEditor({ code, theme }: { code: string; theme: string }) {
   );
 }
 
-export default MermaidEditor;
+export default forwardRef(MermaidEditor);

@@ -154,7 +154,7 @@ export default function CodeEditor() {
                 <MiniMermaid
                   key={`mermaid-preview-${message.id}`}
                   theme={menu.theme}
-                  content={JSON.stringify(message.content)}
+                  content={message.content}
                   onClose={onClose}
                   onSave={onSave}
                 />,

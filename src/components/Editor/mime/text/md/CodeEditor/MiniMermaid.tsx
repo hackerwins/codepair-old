@@ -3,6 +3,7 @@ import { AppBar, Button, createTheme, ThemeProvider, Toolbar } from '@mui/materi
 import './MiniMermaid.scss';
 import { Theme } from 'features/settingSlices';
 import { makeStyles } from 'styles/common';
+import CodeMirror from 'codemirror';
 import MermaidEditor from './MermaidEditor';
 
 const useStyles = makeStyles<{ theme: string }>()((_, { theme }) => {
@@ -36,6 +37,7 @@ export default function MiniMermaid({
   onClose?: () => void;
   readOnly?: boolean;
 }) {
+  const editorRef = React.useRef<CodeMirror.Editor>(null);
   const themeValue = useMemo(() => {
     return createTheme({
       palette: {
@@ -79,7 +81,8 @@ export default function MiniMermaid({
                 <Button
                   variant="contained"
                   onClick={() => {
-                    onSave?.(JSON.parse(JSON.stringify(app?.document)));
+                    const value = editorRef.current?.getValue().trim();
+                    onSave?.(`${value}`);
                   }}
                 >
                   Save
@@ -97,7 +100,7 @@ export default function MiniMermaid({
           </AppBar>
         </div>
         <div className="canvas-area">
-          <MermaidEditor theme={theme} code={content} />
+          <MermaidEditor theme={theme} code={content} ref={editorRef} />
         </div>
       </div>
     </ThemeProvider>

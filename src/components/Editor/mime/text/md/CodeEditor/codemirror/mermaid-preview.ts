@@ -97,7 +97,7 @@ class MermaidPreview {
 
       this.cm.operation(() => {
         this.cm.replaceRange(
-          '' + JSON.stringify(message.content) + '\n',
+          `${message.content.trim()}\n`,
           { line: currentLineNo + 1, ch: 0 },
           { line: lastLineNo, ch: 0 },
         );
