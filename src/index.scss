@@ -159,6 +159,54 @@ body {
   }
 }
 
+/* Override the default CodeMirror-hints CSS rules */
+.CodeMirror-hints {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 0px !important;
+  box-shadow: none !important;
+  font-size: 14px;
+  margin-top: 1px;
+  max-height: 250px;
+  min-height: 50px !important;
+  overflow-y: auto;
+  padding: 0 !important;
+  z-index: 10;
+  min-width: 300px;
+}
+
+/* Style the individual hint items */
+.CodeMirror-hints .CodeMirror-hint {
+  color: #333;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 0px !important;
+}
+
+/* Style the selected hint item */
+.CodeMirror-hints .CodeMirror-hint-active {
+  background-color: #bfd9ffa4;
+}
+
+/* Style the hint label */
+.CodeMirror-hints .CodeMirror-hint-label {
+  color: rgb(53, 53, 53);
+  font-size: 12px;
+  margin-right: 5px;
+}
+
+/* Style the hint description */
+.CodeMirror-hints .CodeMirror-hint-description {
+  font-size: 12px;
+  margin-left: 5px;
+}
+
+/* Style the hint types */
+.CodeMirror-hints .CodeMirror-hint-type {
+  font-weight: bold;
+  margin-right: 5px;
+}
+
 [data-theme='light'] {
   &[data-scroll='true'] *::-webkit-scrollbar {
     width: 5px;
@@ -507,7 +555,7 @@ blockquote {
     }
 
     .CodeMirror-line span.cm-atom {
-      color: #219;
+      color: rgb(75, 127, 218);
     }
 
     .CodeMirror-line span.cm-em {
@@ -516,8 +564,8 @@ blockquote {
     }
 
     .CodeMirror-line span.cm-comment {
-      color: rgb(220, 90, 90);
-      font-weight: bold;
+      color: rgb(7, 147, 0);
+      // font-weight: bold;
       background-color: transparent !important;
     }
 
@@ -577,7 +625,7 @@ blockquote {
     }
 
     .CodeMirror-line span.cm-string {
-      color: rgb(245, 88, 88);
+      color: rgb(255, 138, 138);
     }
 
     .CodeMirror-line span.cm-string-2 {
@@ -585,7 +633,7 @@ blockquote {
     }
 
     .CodeMirror-line span.cm-meta {
-      color: rgb(255, 116, 116);
+      color: rgb(241, 255, 116);
     }
 
     .CodeMirror-line span.cm-error {
@@ -702,5 +750,33 @@ blockquote {
       background-color: #333;
       color: #fff;
     }
+  }
+
+  .CodeMirror-hints {
+    background-color: #282a36 !important;
+    border: 1px solid #44475a;
+    color: #f8f8f2;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  .CodeMirror-hints .CodeMirror-hint {
+    color: #f8f8f2;
+  }
+
+  .CodeMirror-hints .CodeMirror-hint-active {
+    background-color: #44475a;
+  }
+
+  .CodeMirror-hints .CodeMirror-hint-label {
+    color: #6272a4;
+  }
+
+  .CodeMirror-hints .CodeMirror-hint-description {
+    color: #f8f8f2;
+  }
+
+  .CodeMirror-hints .CodeMirror-hint-type {
+    color: #8be9fd;
+    font-weight: bold;
   }
 }

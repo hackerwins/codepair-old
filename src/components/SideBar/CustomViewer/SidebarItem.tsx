@@ -101,7 +101,6 @@ const useStyles = makeStyles()((theme) => ({
     },
   },
   sidebarItem: {
-    padding: theme.spacing(0.5, 1),
     borderRadius: 6,
     [`&:hover .sidebar-item-more`]: {
       visibility: 'visible !important' as any,
@@ -507,10 +506,6 @@ export function SidebarItem({ item, level, loopType }: SidebarItemProps) {
   }, [loopType, favorite, item.id]);
 
   const className = useMemo(() => {
-    if (currentWorkspace === 'calendar') {
-      return classes.level0;
-    }
-
     switch (level) {
       case 0:
         return classes.level0;
@@ -537,7 +532,7 @@ export function SidebarItem({ item, level, loopType }: SidebarItemProps) {
       default:
         return classes.level0;
     }
-  }, [level, classes, currentWorkspace]);
+  }, [level, classes]);
 
   let moreIcon = null;
 
@@ -751,15 +746,16 @@ export function SidebarItem({ item, level, loopType }: SidebarItemProps) {
 interface SidebarItemViewProps {
   item: LinkItemType;
   loopType: LoopType;
+  level: number;
 }
 
-export function SidebarItemView({ item, loopType }: SidebarItemViewProps) {
+export function SidebarItemView({ item, level, loopType }: SidebarItemViewProps) {
   const opens = useSelector((state: AppState) => state.linkState.opens);
   return (
     <Box>
-      <SidebarItem item={item} level={0} loopType={loopType} />
+      <SidebarItem item={item} level={level} loopType={loopType} />
       <Collapse in={opens[item.id]} timeout="auto" unmountOnExit>
-        <SideBarItemList links={[...(item.links || [])]} level={1} loopType={loopType} />
+        <SideBarItemList links={[...(item.links || [])]} level={level + 1} loopType={loopType} />
       </Collapse>
     </Box>
   );

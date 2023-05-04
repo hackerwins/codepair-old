@@ -134,6 +134,7 @@ export function PagesView() {
         style={{
           overflow: 'auto',
           height: 'calc(100vh - 200px)',
+          paddingTop: 0,
         }}
       >
         <LinkTreeView />

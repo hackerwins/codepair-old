@@ -1,12 +1,10 @@
-import React, { Fragment, useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 
 import { useParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppState } from 'app/rootReducer';
-import { LinkItemType, setLinkOpens, toFlatScheduleForDate } from 'features/linkSlices';
+import { DEFAULT_WORKSPACE, setLinkOpens } from 'features/linkSlices';
 import { isDateWorkspace } from 'utils/document';
-import dayjs from 'dayjs';
-import { ListSubheader } from '@mui/material';
 import { HeadingItem } from './CustomViewer/HeadingItem';
 import { SidebarItemView } from './CustomViewer/SidebarItem';
 import { GroupView } from './CustomViewer/GroupView';
@@ -35,8 +33,6 @@ interface OpenState {
 export function LinkTreeView() {
   const dispatch = useDispatch();
   const linkState = useSelector((state: AppState) => state.linkState);
-  const selectedDate = useSelector((state: AppState) => state.calendarState.selectedDate);
-  const currentLinks = useSelector(toFlatScheduleForDate(selectedDate, 'all'));
 
   const linkRef = useRef<boolean>(false);
   const { docKey } = useParams<{ docKey: string }>();
@@ -98,39 +94,16 @@ export function LinkTreeView() {
     }
   }, [docKey, showTreeNode, linkState.links]);
 
+  let currentWorkspace = linkState.workspace;
   if (isDateWorkspace(linkState.workspace)) {
-    let lastDate = '';
-
-    return (
-      <>
-        {currentLinks.reverse().map((it) => {
-          if (it.type === 'link' && it.linkType === 'heading') {
-            return <HeadingItem key={`${it.id}${it.color}`} item={it as LinkItemType} level={0} loopType="favorite" />;
-          }
-
-          const currentDate = dayjs(it.createdAt, 'YYYYMMDDHHmm').format('YYYYMMDD');
-
-          if (lastDate !== currentDate) {
-            lastDate = currentDate;
-            return (
-              <Fragment key={`${it.id}${it.color}`}>
-                <ListSubheader>{dayjs(it.createdAt, 'YYYYMMDDHHmm').format('YYYY-MM-DD')}</ListSubheader>
-                <SidebarItemView item={it as LinkItemType} loopType="favorite" />
-              </Fragment>
-            );
-          }
-
-          return <SidebarItemView key={`${it.id}${it.color}`} item={it as LinkItemType} loopType="favorite" />;
-        })}
-      </>
-    );
+    currentWorkspace = DEFAULT_WORKSPACE;
   }
 
   return (
     <>
       {linkState.links
         .filter((it) => {
-          return (it as any).workspace === linkState.workspace;
+          return ((it as any).workspace || DEFAULT_WORKSPACE) === currentWorkspace;
         })
         .map((it) => {
           if (it.type === 'link' && it.linkType === 'heading') {
@@ -138,9 +111,9 @@ export function LinkTreeView() {
           }
 
           return it.type === 'group' ? (
-            <GroupView key={`${it.id}`} group={it} loopType="favorite" />
+            <GroupView key={`${it.id}`} group={it} level={0} loopType="favorite" />
           ) : (
-            <SidebarItemView key={`${it.id}${it.color}`} item={it} loopType="favorite" />
+            <SidebarItemView key={`${it.id}${it.color}`} level={0} item={it} loopType="favorite" />
           );
         })}
     </>

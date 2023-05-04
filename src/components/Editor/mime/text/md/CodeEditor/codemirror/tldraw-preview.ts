@@ -241,10 +241,31 @@ class TldrawPreview {
     const marker = this.cm.setBookmark({ line: line, ch: ch }, { widget: el, handleMouseEvents: true });
     (el as any).marker = marker;
   }
+
+  updateAllFold() {
+    // fold tldraw code blocks
+    const editor = this.cm;
+    const last = editor.lineCount();
+    for (let i = 0; i < last; i += 1) {
+      if (editor.getLine(i).startsWith('```tldraw')) {
+        editor.foldCode({ line: i, ch: 0 });
+      }
+    }
+  }
+
+  refreshFold() {
+    this.updateAllFold();
+  }
 }
 
 (CodeMirror as any).defineOption('tldraw', false, function (cm: CodeMirror.Editor, options: TldrawOptions) {
   if (options) {
     cm.state.tldrawView = new TldrawPreview(cm, options);
+  }
+});
+
+(CodeMirror as any).defineExtension('foldTldrawCode', function (this: { state: { tldrawView: TldrawPreview } }) {
+  if (this.state.tldrawView) {
+    this.state.tldrawView.refreshFold();
   }
 });

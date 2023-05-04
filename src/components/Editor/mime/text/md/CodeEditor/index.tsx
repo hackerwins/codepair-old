@@ -36,8 +36,12 @@ import 'codemirror/keymap/vim';
 import 'codemirror/addon/fold/foldcode';
 import 'codemirror/addon/fold/foldgutter';
 import 'codemirror/addon/fold/foldgutter.css';
+import 'codemirror/addon/hint/show-hint';
+import 'codemirror/addon/hint/show-hint.css';
+import 'codemirror/addon/comment/comment';
 import './codemirror/shuffle';
 import './codemirror/markdown-fold';
+import './codemirror/markdown-hint';
 import './codemirror/mermaid-preview';
 import './codemirror/tldraw-preview';
 import Cursor from './Cursor';
@@ -175,6 +179,61 @@ export default function CodeEditor() {
           widget.style.lineHeight = '1rem';
           return widget;
         },
+      });
+      cm.setOption('extraKeys', {
+        'Ctrl-/': 'toggleComment',
+        'Cmd-/': 'toggleComment',
+      });
+      cm.setOption('hintOptions', {
+        completeOnSingleClick: true,
+        completeSingle: false,
+        container: cm.getWrapperElement(),
+      });
+
+      cm.on('inputRead', function (cm2, event) {
+        if (event.text.length > 0 && /[a-zA-Z0-9]/.test(event.text[0])) {
+          cm2.showHint({
+            completeSingle: false,
+            alignWithWord: true,
+            closeCharacters: /[\s()\[\]{};:>,]/, // eslint-disable-line no-useless-escape
+            closeOnUnfocus: true,
+            list: () => {
+              return [
+                { text: 'function', displayText: '!function' },
+                { text: 'if', displayText: '!if' },
+                { text: 'else', displayText: '!else' },
+                { text: 'for', displayText: '!for' },
+                { text: 'while', displayText: '!while' },
+                { text: 'do', displayText: '!do' },
+                { text: 'switch', displayText: '!switch' },
+                { text: 'case', displayText: '!case' },
+                { text: 'try', displayText: '!try' },
+                { text: 'catch', displayText: '!catch' },
+                { text: 'finally', displayText: '!finally' },
+                { text: 'class', displayText: '!class' },
+                { text: 'interface', displayText: '!interface' },
+                { text: 'extends', displayText: '!extends' },
+                {
+                  text: 'implements',
+                  displayText: '!implements',
+                  // self customize hint
+                  hint: (cm3: CodeMirror.Editor, cur: any, data: any) => {
+                    cm3.replaceRange(
+                      `${data.displayText} self customize`,
+                      cur.from || data.from,
+                      cur.to || data.to,
+                      'complete',
+                    );
+                  },
+                  render: (element: HTMLLIElement, cur: any, data: any) => {
+                    const tempElement = element;
+                    tempElement.textContent = `${data.displayText} (self customize)`;
+                  },
+                },
+              ];
+            },
+          } as any);
+        }
       });
 
       setEditor(cm);
@@ -489,13 +548,8 @@ export default function CodeEditor() {
         text.onChanges(changeEventHandler);
         editor.setValue(text.toString());
 
-        // fold tldraw code blocks
-        const last = editor.lineCount();
-        for (let i = 0; i < last; i += 1) {
-          if (editor.getLine(i).startsWith('```tldraw')) {
-            editor.foldCode({ line: i, ch: 0 });
-          }
-        }
+        // fold tldraw code
+        (editor as any).foldTldrawCode();
       }
     };
 

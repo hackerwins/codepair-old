@@ -45,6 +45,7 @@ import {
 } from '@mui/material';
 import { PageButton } from 'components/NavBar/PageButton';
 import Description from '@mui/icons-material/Description';
+import { Theme } from 'features/settingSlices';
 import { SideBarItemList } from '../SidebarItemList';
 
 interface SideBarProps {
@@ -140,6 +141,7 @@ const useStyles = makeStyles<SideBarProps>()((theme, props) => ({
     },
   },
   listSubHeader: {
+    backgroundColor: theme.palette.mode === Theme.Dark ? '#202020' : '#fafafa',
     lineHeight: 1.5,
     [`&:hover .group-item-button`]: {
       visibility: 'visible !important' as any,
@@ -425,7 +427,7 @@ export function GroupItem({ group, level, loopType }: GroupItemProps) {
 
   return (
     <ListSubheader
-      className={[className, classes.listSubHeader].join(' ')}
+      className={[classes.listSubHeader, className].join(' ')}
       style={{
         display: isView ? 'flex' : 'none',
         // justifyContent: 'space-between',
@@ -512,15 +514,16 @@ type LoopType = 'links' | 'favorite' | 'date';
 interface GroupViewProps {
   group: GroupType;
   loopType: LoopType;
+  level: number;
 }
 
-export function GroupView({ group, loopType }: GroupViewProps) {
+export function GroupView({ group, level, loopType }: GroupViewProps) {
   const opens = useSelector((state: AppState) => state.linkState.opens);
   return (
     <Box>
-      <GroupItem group={group} level={0} loopType={loopType} />
+      <GroupItem group={group} level={level} loopType={loopType} />
       <Collapse in={opens[group.id]} timeout="auto" unmountOnExit>
-        <SideBarItemList links={[...group.links]} level={1} loopType={loopType} />
+        <SideBarItemList links={[...group.links]} level={level + 1} loopType={loopType} />
       </Collapse>
     </Box>
   );
