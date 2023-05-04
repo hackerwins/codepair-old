@@ -26,6 +26,10 @@ import { NAVBAR_HEIGHT } from 'constants/editor';
 import { addRecentPage } from 'features/currentSlices';
 import { setActionStatus } from 'features/actionSlices';
 import remarkMath from 'remark-math';
+import remarkGfm from 'remark-gfm';
+import remarkToc from 'remark-toc';
+import remarkEmoji from 'remark-emoji';
+
 import rehypeKatex from 'rehype-katex';
 
 import 'katex/dist/katex.min.css'; // `rehype-katex` does not import the CSS for you
@@ -465,7 +469,7 @@ export default function CodeEditor() {
 
             (globalContainer.rootElement as any)?.render(
               <ReactMarkdown
-                remarkPlugins={[remarkMath]}
+                remarkPlugins={[remarkMath, remarkGfm, remarkToc, remarkEmoji]}
                 rehypePlugins={[rehypeKatex]}
                 components={{
                   code: ({ node, inline, className, children, ...props }) => {

@@ -370,9 +370,7 @@ body {
     }
 
     /* List level 2 */
-    .CodeMirror-line span.cm-formatting-task + span.cm-variable-3,
-    .CodeMirror-line span.cm-formatting-task + span.cm-variable-3 + span.cm-variable-3,
-    .CodeMirror-line span.cm-formatting-task + span.cm-variable-3 + span.cm-variable-3 + span.cm-variable-3 {
+    .CodeMirror-line span.cm-formatting-task + span.cm-variable-3 {
       --color: #3c9dc9;
       color: var(--color);
       // font-weight: bold;
