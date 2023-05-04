@@ -372,7 +372,7 @@ export default function CodeEditor() {
       renderingConfig: {
         markedOptions: {},
       },
-      lineNumbers: true,
+      // lineNumbers: true,
       // lineWrapping: true,
     } as SimpleMDE.Options;
 
