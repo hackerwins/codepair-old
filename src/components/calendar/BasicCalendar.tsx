@@ -21,7 +21,7 @@ const useStyles = makeStyles()((theme) => ({
       marginTop: 0,
     },
     '& .MuiPickersSlideTransition-root': {
-      minHeight: 250,
+      minHeight: 260,
     },
   },
   day: {
