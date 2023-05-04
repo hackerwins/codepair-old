@@ -13,7 +13,7 @@ import { CalendarListItem } from './CustomViewer/CalendarListItem';
 
 const useStyles = makeStyles()((theme) => ({
   header: {
-    backgroundColor: theme.palette.mode === Theme.Dark ? '#202020' : '#fff',
+    backgroundColor: theme.palette.mode === Theme.Dark ? '#202020' : '#fafcfd',
   },
 }));
 

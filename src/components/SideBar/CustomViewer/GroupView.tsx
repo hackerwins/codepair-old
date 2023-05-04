@@ -198,7 +198,7 @@ const useStyles = makeStyles<SideBarProps>()((theme, props) => ({
   },
 }));
 
-const groupOptions = ['Favorite', '-', 'New subpage', 'Add current note', 'Rename', '-', 'Delete', '-', 'Copy'];
+const groupOptions = ['Favorite', '-', 'New subnote', 'Add current note', 'Rename', '-', 'Delete', '-', 'Copy'];
 
 interface GroupMoreMenuProps {
   group: GroupType;
@@ -228,7 +228,7 @@ function GroupMoreMenu({ group, startRename }: GroupMoreMenuProps) {
   };
 
   const handleCreateCurrentPage = useCallback(() => {
-    dispatch(newLinkByCurrentPage({ parentId: group.id, name: getTitle(), fileLink: `/${docKey}` }));
+    dispatch(newLinkByCurrentPage({ parentId: group.id, name: getTitle(), fileLink: `/${docKey}`, emoji: '😀' }));
   }, [group.id, docKey, dispatch]);
 
   const handleClose = (command: string) => {
@@ -246,7 +246,7 @@ function GroupMoreMenu({ group, startRename }: GroupMoreMenuProps) {
       }
 
       handleClickDialogOpen();
-    } else if (command === 'New subpage') {
+    } else if (command === 'New subnote') {
       // noop
       return;
     } else if (command === 'Add current note') {
@@ -304,7 +304,7 @@ function GroupMoreMenu({ group, startRename }: GroupMoreMenuProps) {
                 ) : undefined}
                 {option === 'Rename' ? <InsertDriveFile /> : undefined}
                 {option === 'Add current note' ? <SubdirectoryArrowLeft /> : undefined}
-                {option === 'New subpage' ? <Description /> : undefined}
+                {option === 'New subnote' ? <Description /> : undefined}
                 {option === 'Favorite' ? (
                   <Star
                     style={{
@@ -315,11 +315,11 @@ function GroupMoreMenu({ group, startRename }: GroupMoreMenuProps) {
                 {option === 'Copy' ? <FileCopy /> : undefined}
               </ListItemIcon>
               <ListItemText>
-                {option === 'New subpage' ? (
+                {option === 'New subnote' ? (
                   <PageButton
                     icon={null}
                     insertTarget={group}
-                    title="New subpage"
+                    title="New subnote"
                     transformOrigin={{ horizontal: 'left', vertical: 'center' }}
                     anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
                   />

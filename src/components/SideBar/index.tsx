@@ -93,6 +93,8 @@ export function SideBar() {
     dispatch(toggleLinkTab(newValue));
   };
 
+  const currentMimeType = mimeType || MimeType.MARKDOWN;
+
   return (
     <Drawer variant="permanent" className={classes.drawer} open={open}>
       <TabContext value={navState.openTabValue}>
@@ -123,7 +125,7 @@ export function SideBar() {
               }
               value="calendar"
             />
-            {mimeType === MimeType.MARKDOWN ? (
+            {currentMimeType === MimeType.MARKDOWN ? (
               <Tab
                 label={
                   <TabLabel>

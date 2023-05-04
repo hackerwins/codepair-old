@@ -9,7 +9,6 @@ import {
   moveLink,
   newLinkByCurrentPage,
   removeLink,
-  setLinkFileLink,
   setLinkName,
   toggleFavorite,
   toggleLinkOpen,
@@ -24,7 +23,6 @@ import SubdirectoryArrowLeft from '@mui/icons-material/SubdirectoryArrowLeft';
 import MoreHoriz from '@mui/icons-material/MoreHoriz';
 import Star from '@mui/icons-material/Star';
 import OpenInBrowser from '@mui/icons-material/OpenInBrowser';
-import Update from '@mui/icons-material/Update';
 
 import {
   Box,
@@ -218,11 +216,10 @@ function MoreIcon({ open, onClick }: { open: boolean; onClick: () => void }) {
 const options = [
   'Favorite',
   '-',
-  'New subpage',
+  'New subnote',
   'Add current note',
   'Rename',
   'Delete',
-  'Update link',
   '-',
   'Open in Browser',
   'Copy',
@@ -267,12 +264,8 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
     dispatch(removeLink({ id: item.id }));
   }, [dispatch, item.id]);
 
-  const handleUpdateLink = useCallback(() => {
-    dispatch(setLinkFileLink({ id: item.id, name: getTitle(), fileLink: `/${docKey}` }));
-  }, [item.id, dispatch, docKey]);
-
   const handleCreateCurrentPage = useCallback(() => {
-    dispatch(newLinkByCurrentPage({ parentId: item.id, name: getTitle(), fileLink: `/${docKey}` }));
+    dispatch(newLinkByCurrentPage({ parentId: item.id, name: getTitle(), fileLink: `/${docKey}`, emoji: '😀' }));
   }, [item.id, docKey, dispatch]);
 
   const handleClose = (command: string) => {
@@ -301,12 +294,10 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
       });
     } else if (command === 'Delete') {
       handleClickDialogOpen();
-    } else if (command === 'New subpage') {
+    } else if (command === 'New subnote') {
       return;
     } else if (command === 'Add current note') {
       handleCreateCurrentPage();
-    } else if (command === 'Update link') {
-      handleUpdateLink();
     }
 
     setAnchorEl(null);
@@ -368,12 +359,11 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
                       }}
                     />
                   ) : undefined}
-                  {option === 'New subpage' ? <Description /> : undefined}
+                  {option === 'New subnote' ? <Description /> : undefined}
                   {option === 'Add current note' ? <SubdirectoryArrowLeft /> : undefined}
                   {option === 'Rename' ? <Edit /> : undefined}
                   {option === 'Open in Browser' ? <OpenInBrowser /> : undefined}
                   {option === 'Copy' ? <FileCopy /> : undefined}
-                  {option === 'Update link' ? <Update /> : undefined}
                   {option === 'Favorite' ? (
                     <Star
                       style={{
@@ -383,11 +373,11 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
                   ) : undefined}
                 </ListItemIcon>
                 <ListItemText>
-                  {option === 'New subpage' ? (
+                  {option === 'New subnote' ? (
                     <PageButton
                       icon={null}
                       insertTarget={item}
-                      title="New subpage"
+                      title="New subnote"
                       onClose={() => handleClose('')}
                       transformOrigin={{ horizontal: 'left', vertical: 'center' }}
                       anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
