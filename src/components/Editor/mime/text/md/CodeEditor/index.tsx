@@ -131,7 +131,37 @@ export default function CodeEditor() {
   const getCmInstanceCallback = useCallback(
     (cm: CodeMirror.Editor) => {
       // mermaid type check
-      (cm as any).setOption('mermaid', true);
+      (cm as any).setOption('mermaid', {
+        theme: menu.theme,
+        emit: (event: string, message: any, trigger: (event: string, message: any) => void) => {
+          console.log(event, message, trigger);
+          // if (event === 'mermaid-preview-click') {
+          //   const container = document.getElementById('draw-panel');
+          //   if (container) {
+          //     const root = createRoot(container);
+          //     function onClose() {
+          //       root.unmount();
+          //     }
+          //     function onSave(content: any) {
+          //       trigger('tldraw-preview-save', {
+          //         ...message,
+          //         content,
+          //       });
+          //       onClose();
+          //     }
+          //     root.render(
+          //       <MiniDraw
+          //         key={`tldraw-preview-${message.id}`}
+          //         theme={menu.theme}
+          //         content={JSON.stringify(message.content)}
+          //         onClose={onClose}
+          //         onSave={onSave}
+          //       />,
+          //     );
+          //   }
+          // }
+        },
+      });
       (cm as any).setOption('tldraw', {
         theme: menu.theme,
         emit: (event: string, message: any, trigger: (event: string, message: any) => void) => {

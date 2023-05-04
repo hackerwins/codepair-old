@@ -1,23 +1,38 @@
 /* eslint-disable */
 import CodeMirror from 'codemirror';
+
+let idCounter = 0;
+
+interface MermaidOptions {
+  theme: string;
+  emit: (event: string, message: any, trigger?: (event: string, message: any) => void) => void;
+}
+
 class MermaidPreview {
   cm: CodeMirror.Editor;
   val: any;
   widget: any;
   markers: any;
-  constructor(cm: CodeMirror.Editor, val: boolean) {
+  options: MermaidOptions;
+  constructor(cm: CodeMirror.Editor, options: MermaidOptions) {
     this.cm = cm;
-    this.val = val;
+    this.options = options;
     this.widget = null;
     this.markers = {};
 
     this.initEvent();
   }
 
+  emit(event: string, message: any, trigger?: (event: string, message: any) => void) {
+    this.options.emit(event, message, trigger);
+  }
+
   initEvent() {
     this.cm.on('mousedown', this.onMousedown.bind(this));
     this.cm.on('change', this.change.bind(this));
     this.cm.on('refresh', this.refresh.bind(this));
+
+    this.emit('mermaid-preview-init', null);
   }
 
   onMousedown(cm: CodeMirror.Editor, evt: any) {
@@ -41,63 +56,55 @@ class MermaidPreview {
         }
       }
 
-      // how to show mermaid sample list ?
-      this.showMermaidSampleList(currentLineNo, lastLineNo);
-    } else {
-      document.querySelector('.mermaid-sample-list')?.remove();
+      const range = this.cm.getRange({ line: currentLineNo + 1, ch: 0 }, { line: lastLineNo, ch: 0 });
+
+      let content: any = range;
+
+      this.emit(
+        'mermaid-preview-click',
+        {
+          currentLineNo,
+          lastLineNo,
+          id: target.id,
+          content,
+        },
+        (event: string, message: any) => {
+          if (event === 'mermaid-preview-save') {
+            this.updateDraw(message);
+          }
+        },
+      );
     }
   }
 
-  showMermaidSampleList(currentLineNo: number, lastLineNo: number) {
-    // TODO: show mermaid sample list with sidebar
-    const mermaidSampleList = [
-      'flowchart TD\n\tA[Christmas] -->|Get money| B(Go shopping)\n\tB --> C{Let me think}\n\tC -->|One| D[Laptop]\n\tC -->|Two| E[iPhone]\n\tC -->|Three| F[fa:fa-car Car]',
-      'sequenceDiagram\n\tAlice->>John: Hello John, how are you?\n\tJohn-->>Alice: Great!',
-      'gantt\n\ttitle A Gantt Diagram\n\tsection Section\n\tA task           :a1, 2014-01-01, 30d\n\tAnother task     :after a1  , 20d\n\tsection Another\n\tTask in sec      :2014-01-12  , 12d\n\tanther task      : 24d',
-    ];
-
-    const sidebarDiv = document.createElement('div');
-    sidebarDiv.className = 'mermaid-sample-list';
-    sidebarDiv.style.position = 'absolute';
-    sidebarDiv.style.top = '0';
-    sidebarDiv.style.left = '0';
-    sidebarDiv.style.width = '300px';
-    sidebarDiv.style.height = '100%';
-    sidebarDiv.style.backgroundColor = '#fff';
-    sidebarDiv.style.zIndex = '9999';
-
-    const ul = document.createElement('ul');
-    ul.style.listStyle = 'none';
-    ul.style.padding = '0';
-    ul.style.margin = '0';
-
-    mermaidSampleList.forEach((mermaidSample) => {
-      const li = document.createElement('li');
-      li.style.padding = '10px';
-      li.style.borderBottom = '1px solid #eee';
-      li.style.cursor = 'pointer';
-      li.innerHTML = `<pre>${mermaidSample}</pre>`;
-      li.style.backgroundColor = '#ececec';
-      li.style.color = '#333';
-
-      li.addEventListener('click', () => {
-        this.cm.operation(() => {
-          this.cm.replaceRange(
-            '' + mermaidSample + '\n',
-            { line: currentLineNo + 1, ch: 0 },
-            { line: lastLineNo, ch: 0 },
-          );
-        });
-
-        sidebarDiv.remove();
-      });
-
-      ul.appendChild(li);
+  updateDraw(message: any) {
+    const currentMark = this.cm.getAllMarks().find((mark: any) => {
+      return mark.replacedWith.id === message.id;
     });
 
-    sidebarDiv.appendChild(ul);
+    if (currentMark) {
+      const currentLineNo = (currentMark as any).lines[0].lineNo();
+      const totalLineNo = this.cm.lineCount();
+      let lastLineNo = totalLineNo - 1;
 
-    document.body.appendChild(sidebarDiv);
+      // if current line is last line, then insert new line
+      for (var i = currentLineNo + 1; i < totalLineNo; i++) {
+        if (this.cm.getLine(i).startsWith('```')) {
+          lastLineNo = i;
+          break;
+        }
+      }
+
+      this.cm.operation(() => {
+        this.cm.replaceRange(
+          '' + JSON.stringify(message.content) + '\n',
+          { line: currentLineNo + 1, ch: 0 },
+          { line: lastLineNo, ch: 0 },
+        );
+
+        this.cm.foldCode({ line: currentLineNo, ch: 0 });
+      });
+    }
   }
 
   change(cm: CodeMirror.Editor, evt: any) {
@@ -122,10 +129,10 @@ class MermaidPreview {
 
     const tokens = this.cm.getLineTokens(lineNo);
 
-    if (tokens[0]?.string === '```mermaid') {
+    if (tokens[0]?.string.trim() === '```mermaid') {
       const target = {
         line: lineNo,
-        ch: tokens[0]?.end,
+        ch: 10,
       };
 
       const markers = this.cm.findMarksAt(target);
@@ -147,18 +154,21 @@ class MermaidPreview {
     div.style.display = 'inline-block';
     div.style.position = 'relative';
     div.style.verticalAlign = 'middle';
-    div.textContent = 'M';
-    div.style.backgroundColor = 'yellow';
-    div.style.width = '1em';
-    div.style.height = '1em';
+    div.textContent = 'Edit';
+    div.style.backgroundColor = this.options.theme === 'dark' ? 'gray' : 'lightgray';
+    div.style.color = this.options.theme === 'dark' ? 'white' : 'black';
+    // div.style.width = '1em';
+    // div.style.height = '1em';
     div.style.borderRadius = '4px';
     div.style.textAlign = 'center';
     div.style.lineHeight = '1em';
     div.style.fontSize = '0.8em';
     div.style.fontWeight = 'bold';
+    div.style.padding = '0.2em';
     div.style.color = 'black';
     div.style.cursor = 'pointer';
     div.style.marginLeft = '0.5em';
+    div.id = `tldraw-id-${Date.now()}-${idCounter++}`;
 
     return div;
   }
@@ -228,11 +238,11 @@ class MermaidPreview {
   }
 }
 
-// (CodeMirror as any).defineOption('mermaid', false, function (cm: CodeMirror.Editor, val: boolean) {
-//   if (val) {
-//     cm.state.mermaidView = new MermaidPreview(cm, val);
-//   }
-// });
+(CodeMirror as any).defineOption('mermaid', false, function (cm: CodeMirror.Editor, options: MermaidOptions) {
+  if (options) {
+    cm.state.mermaidView = new MermaidPreview(cm, options);
+  }
+});
 
 CodeMirror.defineMode('mermaid', function (config, parserConfig) {
   var mermaidMode = CodeMirror.getMode(config, 'text/plain');

@@ -134,10 +134,10 @@ class TldrawPreview {
 
     const tokens = this.cm.getLineTokens(lineNo);
 
-    if (tokens[0]?.string === '```tldraw') {
+    if (tokens[0]?.string.trim() === '```tldraw') {
       const target = {
         line: lineNo,
-        ch: tokens[0]?.end,
+        ch: 9,
       };
 
       const markers = this.cm.findMarksAt(target);
