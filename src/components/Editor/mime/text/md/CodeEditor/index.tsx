@@ -50,6 +50,7 @@ import { CodeEditorMenu } from './Menu';
 
 import MermaidView from './MermaidView';
 import MiniDraw from './MiniDraw';
+import MiniMermaid from './MiniMermaid';
 
 const WIDGET_HEIGHT = 40;
 
@@ -135,31 +136,31 @@ export default function CodeEditor() {
         theme: menu.theme,
         emit: (event: string, message: any, trigger: (event: string, message: any) => void) => {
           console.log(event, message, trigger);
-          // if (event === 'mermaid-preview-click') {
-          //   const container = document.getElementById('draw-panel');
-          //   if (container) {
-          //     const root = createRoot(container);
-          //     function onClose() {
-          //       root.unmount();
-          //     }
-          //     function onSave(content: any) {
-          //       trigger('tldraw-preview-save', {
-          //         ...message,
-          //         content,
-          //       });
-          //       onClose();
-          //     }
-          //     root.render(
-          //       <MiniDraw
-          //         key={`tldraw-preview-${message.id}`}
-          //         theme={menu.theme}
-          //         content={JSON.stringify(message.content)}
-          //         onClose={onClose}
-          //         onSave={onSave}
-          //       />,
-          //     );
-          //   }
-          // }
+          if (event === 'mermaid-preview-click') {
+            const container = document.getElementById('draw-panel');
+            if (container) {
+              const root = createRoot(container);
+              function onClose() {
+                root.unmount();
+              }
+              function onSave(content: any) {
+                trigger('mermaid-preview-save', {
+                  ...message,
+                  content,
+                });
+                onClose();
+              }
+              root.render(
+                <MiniMermaid
+                  key={`mermaid-preview-${message.id}`}
+                  theme={menu.theme}
+                  content={JSON.stringify(message.content)}
+                  onClose={onClose}
+                  onSave={onSave}
+                />,
+              );
+            }
+          }
         },
       });
       (cm as any).setOption('tldraw', {
