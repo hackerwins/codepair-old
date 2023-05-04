@@ -405,7 +405,7 @@ body {
       background-color: #ffffff !important;
     }
     .editor-preview {
-      background-color: #fafbfc;
+      background-color: #fff !important;
     }
 
     .editor-preview pre {
@@ -438,6 +438,13 @@ blockquote {
   padding-left: 3em;
   border-left: 3px #9bc9ff solid;
   padding: 0px 20px;
+  white-space: pre-wrap;
+  margin: 0px;
+  margin-bottom: 10px;
+
+  > * {
+    margin: 0;
+  }
 }
 
 .editor-preview-side .marpit svg foreignObject section {
