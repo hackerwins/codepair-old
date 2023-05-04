@@ -97,19 +97,19 @@ function AccountMenu() {
             <ListItemText primary="Yorkie QnA" />
           </MenuItem>
           <Divider />
-          <MenuItem onClick={() => navigate('https://github.com/yorkie-team/yorkie')}>
+          <MenuItem onClick={() => window.open('https://github.com/yorkie-team/yorkie')}>
             <ListItemIcon>
               <GitHub />
             </ListItemIcon>
             <ListItemText primary="Yorkie GitHub" />
           </MenuItem>
-          <MenuItem onClick={() => navigate('https://github.com/yorkie-team/yorkie-js-sdk')}>
+          <MenuItem onClick={() => window.open('https://github.com/yorkie-team/yorkie-js-sdk')}>
             <ListItemIcon>
               <GitHub />
             </ListItemIcon>
-            <ListItemText primary="Yorkie SDK" />
+            <ListItemText primary="Yorkie JS SDK" />
           </MenuItem>
-          <MenuItem onClick={() => navigate('https://github.com/yorkie-team/codepair')}>
+          <MenuItem onClick={() => window.open('https://github.com/yorkie-team/codepair')}>
             <ListItemIcon>
               <GitHub />
             </ListItemIcon>
