@@ -21,8 +21,18 @@ import { Theme as ThemeType } from 'features/settingSlices';
 import { Preview, updateHeadings, getTableOfContents } from 'features/docSlices';
 
 import { makeStyles } from 'styles/common';
-import { debounce, Theme } from '@mui/material';
-import { NAVBAR_HEIGHT } from 'constants/editor';
+import {
+  debounce,
+  Divider,
+  ListItemText,
+  ListSubheader,
+  MenuItem,
+  MenuList,
+  Popover,
+  Theme,
+  Typography,
+} from '@mui/material';
+import { MetaInfo, NAVBAR_HEIGHT } from 'constants/editor';
 import { addRecentPage } from 'features/currentSlices';
 import { setActionStatus } from 'features/actionSlices';
 import remarkMath from 'remark-math';
@@ -31,6 +41,7 @@ import remarkToc from 'remark-toc';
 import remarkEmoji from 'remark-emoji';
 
 import rehypeKatex from 'rehype-katex';
+import fenceparser from 'fenceparser';
 
 import 'katex/dist/katex.min.css'; // `rehype-katex` does not import the CSS for you
 import 'easymde/dist/easymde.min.css';
@@ -46,6 +57,7 @@ import 'codemirror/addon/comment/comment';
 import './codemirror/shuffle';
 import './codemirror/markdown-fold';
 import './codemirror/markdown-hint';
+import './codemirror/emoji-hint';
 import './codemirror/mermaid-preview';
 import './codemirror/tldraw-preview';
 import Cursor from './Cursor';
@@ -55,6 +67,11 @@ import { CodeEditorMenu } from './Menu';
 import MermaidView from './MermaidView';
 import MiniDraw from './MiniDraw';
 import MiniMermaid from './MiniMermaid';
+import { MermaidSampleType, samples } from './mermaid-samples';
+
+type StyleObject = {
+  [key: string]: string;
+};
 
 const WIDGET_HEIGHT = 40;
 
@@ -139,21 +156,25 @@ export default function CodeEditor() {
       (cm as any).setOption('mermaid', {
         theme: menu.theme,
         emit: (event: string, message: any, trigger: (event: string, message: any) => void) => {
-          console.log(event, message, trigger);
+          const container = document.getElementById('draw-panel');
+          let root: any;
+
+          function onClose() {
+            root?.unmount();
+          }
+
+          function onSave(content: any) {
+            trigger('mermaid-preview-save', {
+              ...message,
+              content,
+            });
+            onClose();
+          }
+
           if (event === 'mermaid-preview-click') {
-            const container = document.getElementById('draw-panel');
             if (container) {
-              const root = createRoot(container);
-              function onClose() {
-                root.unmount();
-              }
-              function onSave(content: any) {
-                trigger('mermaid-preview-save', {
-                  ...message,
-                  content,
-                });
-                onClose();
-              }
+              root = createRoot(container);
+
               root.render(
                 <MiniMermaid
                   key={`mermaid-preview-${message.id}`}
@@ -162,6 +183,48 @@ export default function CodeEditor() {
                   onClose={onClose}
                   onSave={onSave}
                 />,
+              );
+            }
+          } else if (event === 'mermaid-preview-menu-click') {
+            if (container) {
+              root = createRoot(container);
+              root.render(
+                <Popover
+                  anchorEl={document.getElementById(message.id)}
+                  open
+                  key={`mermaid-preview-${message.id}`}
+                  onClose={onClose}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'left',
+                  }}
+                >
+                  <MenuList>
+                    <ListSubheader
+                      style={{
+                        padding: '10px 16px',
+                        paddingTop: 0,
+                      }}
+                    >
+                      <Typography variant="body2">Mermaid Samples</Typography>
+                    </ListSubheader>
+                    <Divider />
+                    {Object.keys(samples).map((key) => {
+                      const tempKey = key as MermaidSampleType;
+                      return (
+                        <MenuItem key={key} onClick={() => onSave(samples[tempKey])}>
+                          <ListItemText>
+                            <Typography variant="body2">{key}</Typography>
+                          </ListItemText>
+                        </MenuItem>
+                      );
+                    })}
+                  </MenuList>
+                </Popover>,
               );
             }
           }
@@ -223,7 +286,20 @@ export default function CodeEditor() {
       });
 
       cm.on('inputRead', function (cm2, event) {
-        if (event.text.length > 0 && /[a-zA-Z0-9]/.test(event.text[0])) {
+        const localCur = cm2.getCursor();
+        const wordRange = cm2.findWordAt(localCur);
+        const from = wordRange.from();
+        const to = wordRange.to();
+        const emojiString = cm2.getRange({ line: from.line, ch: from.ch - 1 }, to);
+
+        // check emoji hint
+        if (event.text.length > 0 && emojiString[0] === ':') {
+          cm2.showHint({
+            hint: (CodeMirror as any).hint.emoji,
+          } as any);
+        }
+        // check keyword hint with normal text
+        else if (event.text.length > 0 && /[a-zA-Z0-9]/.test(event.text[0])) {
           cm2.showHint({
             completeSingle: false,
             alignWithWord: true,
@@ -477,20 +553,62 @@ export default function CodeEditor() {
 
                     const text = children[0];
 
+                    const tempMetaInfo = fenceparser(`${node.data?.meta}`);
+
+                    const metaInfo: MetaInfo = {};
+                    Object.keys(tempMetaInfo).reduce((acc: any, key) => {
+                      if (!key || key === 'undefined') {
+                        return acc;
+                      }
+
+                      acc[key] = tempMetaInfo[key];
+
+                      return acc;
+                    }, metaInfo);
+
+                    // if (className === 'language-chart') {
+                    //   return <ChartView code={text as string} theme={menu.theme} />;
+                    // }
+
                     if (className === 'language-mermaid') {
                       return <MermaidView code={text as string} theme={menu.theme} />;
                     }
 
                     if (className === 'language-tldraw') {
-                      return <MiniDraw content={`${text}`} theme={menu.theme} readOnly />;
+                      return <MiniDraw content={`${text}`} theme={menu.theme} readOnly meta={metaInfo} />;
                     }
 
                     return !inline && match ? (
                       <SyntaxHighlighter
                         {...props}
+                        showLineNumbers={metaInfo.showlinenumbers}
+                        showInlineLineNumbers={metaInfo.showinlinelinenumbers}
                         data-language={match[1]}
                         style={menu.theme === ThemeType.Dark ? oneDark : oneLight}
                         language={match[1]}
+                        wrapLines
+                        lineProps={(lineNumber) => {
+                          console.log(lineNumber, metaInfo.highlight);
+                          const style: StyleObject = { display: 'block' };
+
+                          // check line numbers
+                          const hasHighlightedLineNumbers = Object.keys(metaInfo.highlight as any).some((key) => {
+                            const lines = key.split('-');
+
+                            if (lines.length === 1) {
+                              if (key === `${lineNumber}`) {
+                                return true;
+                              }
+                            } else if (lineNumber >= Number(lines[0]) && lineNumber <= Number(lines[1])) {
+                              return true;
+                            }
+                            return false;
+                          });
+                          if (hasHighlightedLineNumbers) {
+                            style.backgroundColor = '#ffe7a4';
+                          }
+                          return { style };
+                        }}
                         PreTag="div"
                       >
                         {String(children).replace(/\n$/, '')}

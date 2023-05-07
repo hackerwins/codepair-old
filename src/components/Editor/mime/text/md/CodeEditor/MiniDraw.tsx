@@ -4,6 +4,7 @@ import { AppBar, Button, createTheme, ThemeProvider, Toolbar } from '@mui/materi
 import './MiniDraw.scss';
 import { Theme } from 'features/settingSlices';
 import { makeStyles } from 'styles/common';
+import { MetaInfo } from 'constants/editor';
 
 const useStyles = makeStyles<{ theme: string }>()((_, { theme }) => {
   return {
@@ -23,19 +24,16 @@ const useStyles = makeStyles<{ theme: string }>()((_, { theme }) => {
   };
 });
 
-export default function MiniDraw({
-  theme,
-  onSave,
-  onClose,
-  content,
-  readOnly,
-}: {
+interface MiniDrawProps {
   theme: string;
   content: string;
   onSave?: (json: any) => void;
   onClose?: () => void;
   readOnly?: boolean;
-}) {
+  meta?: MetaInfo;
+}
+
+export default function MiniDraw({ theme, onSave, onClose, content, readOnly }: MiniDrawProps) {
   const [app, setApp] = useState<TldrawApp>();
   const fileSystemEvents = useFileSystem();
   const themeValue = useMemo(() => {

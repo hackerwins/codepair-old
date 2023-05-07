@@ -11,6 +11,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@emoji-mart/data": "^1.1.2",
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
     "@liradb2000/markdown-it-mermaid": "^0.4.4",
@@ -44,6 +45,7 @@
     "dayjs": "^1.11.7",
     "easymde": "hackerwins/easy-markdown-editor#master",
     "emoji-picker-react": "^4.4.8",
+    "fenceparser": "^2.2.0",
     "fit-curve": "^0.2.0",
     "history": "^5.3.0",
     "invert-color": "^2.0.0",

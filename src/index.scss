@@ -69,18 +69,20 @@ body {
 
 .CodeMirror-foldmarker {
   color: rgb(0, 120, 6);
-  background-color: transparent !important;
+  background-color: #ececec !important;
   text-shadow: none !important;
 
   margin-left: 5px;
-  border: 1px solid gray;
+  border: 1px solid #ccc;
   border-radius: 4px;
-  line-height: 1;
-  height: 13px;
+  line-height: 0.3 !important;
+  height: 16px;
   display: inline-flex;
   align-items: top;
   vertical-align: middle;
-  transform: translateY(-3px);
+  // transform: translateY(-3px);
+  box-sizing: border-box;
+  padding: 0px 5px;
 }
 
 .CodeMirror-foldgutter-folded {
@@ -214,6 +216,19 @@ body {
 .CodeMirror-hints .CodeMirror-hint-type {
   font-weight: bold;
   margin-right: 5px;
+}
+
+.CodeMirror-gutter-elt {
+  bottom: 0px;
+  top: 0px;
+}
+
+.CodeMirror-guttermarker-subtle {
+  // height: 100%;
+
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 [data-theme='light'] {
@@ -519,7 +534,53 @@ blockquote {
   left: 0px;
 }
 
+.inline-menu {
+  display: inline-flex;
+  position: relative;
+  align-items: center;
+  // border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  margin-left: 0.5em;
+}
+
+.inline-menu button {
+  box-sizing: border-box;
+  height: 18px;
+
+  &:first-child {
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+  }
+
+  &:last-child {
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+  }
+}
+
+.inline-menu button {
+  border: 1px solid #ccc;
+  cursor: pointer;
+  font-size: 12px;
+  color: #333;
+  outline: none;
+
+  &:not(:last-child):first-child {
+    border-right: none;
+  }
+}
+
 [data-theme='dark'] {
+  .inline-menu button {
+    border: 1px solid rgb(113, 113, 113);
+    background-color: #121212;
+    cursor: pointer;
+    font-size: 12px;
+    color: white;
+    outline: none;
+  }
+
   &[data-scroll='true'] *::-webkit-scrollbar {
     width: 5px;
   }

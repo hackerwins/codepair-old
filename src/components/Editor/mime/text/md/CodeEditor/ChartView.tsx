@@ -20,13 +20,7 @@ const useStyles = makeStyles<{ theme: string }>()((_, { theme }) => {
   };
 });
 
-interface MermaidViewProps {
-  code: string;
-  theme: string;
-  // meta?: MetaInfo;
-}
-
-function MermaidView({ code, theme }: MermaidViewProps) {
+function ChartView({ code, theme }: { code: string; theme: string }) {
   const id = useId();
   const { classes } = useStyles({
     theme,
@@ -98,4 +92,4 @@ function MermaidView({ code, theme }: MermaidViewProps) {
   );
 }
 
-export default MermaidView;
+export default ChartView;

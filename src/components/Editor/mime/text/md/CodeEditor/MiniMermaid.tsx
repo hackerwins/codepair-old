@@ -80,6 +80,7 @@ export default function MiniMermaid({
               >
                 <Button
                   variant="contained"
+                  size="small"
                   onClick={() => {
                     const value = editorRef.current?.getValue().trim();
                     onSave?.(`${value}`);
@@ -89,6 +90,7 @@ export default function MiniMermaid({
                 </Button>
                 <Button
                   variant="outlined"
+                  size="small"
                   onClick={() => {
                     onClose?.();
                   }}

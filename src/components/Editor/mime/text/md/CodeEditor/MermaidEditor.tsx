@@ -2,10 +2,21 @@ import React, { forwardRef, useId, useMemo, ForwardedRef, useEffect, useCallback
 import mermaid from 'mermaid';
 import { makeStyles } from 'styles/common';
 import { Theme } from 'features/settingSlices';
-import { ThemeProvider, createTheme } from '@mui/material';
+import {
+  ThemeProvider,
+  createTheme,
+  MenuList,
+  MenuItem,
+  Toolbar,
+  Button,
+  Popover,
+  ListItemText,
+  Typography,
+} from '@mui/material';
 import SimpleMDE from 'easymde';
 import SimpleMDEReact from 'react-simplemde-editor';
 import CodeMirror from 'codemirror';
+import { MermaidSampleType, samples } from './mermaid-samples';
 
 const useStyles = makeStyles<{ theme: string }>()((_, { theme }) => {
   return {
@@ -58,6 +69,9 @@ const useStyles = makeStyles<{ theme: string }>()((_, { theme }) => {
         color: '#fff',
       },
     },
+    menuItem: {
+      fontSize: 12,
+    },
   };
 });
 
@@ -74,6 +88,17 @@ function MermaidEditor({ code, theme }: { code: string; theme: string }, textRef
   const { classes } = useStyles({
     theme,
   });
+
+  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
   const themeValue = useMemo(
     () =>
       createTheme({
@@ -151,6 +176,20 @@ function MermaidEditor({ code, theme }: { code: string; theme: string }, textRef
     return opts;
   }, []);
 
+  const handleMenuItemClick = (event: React.MouseEvent<HTMLLIElement, MouseEvent>) => {
+    const { value: newValue } = event.currentTarget.dataset;
+
+    if (newValue) {
+      const sampleCode = samples[newValue as MermaidSampleType];
+      if (sampleCode) {
+        editor?.setValue(sampleCode);
+        setValue(sampleCode);
+
+        handleClose();
+      }
+    }
+  };
+
   /* eslint-disable react/no-danger */
   return (
     <ThemeProvider theme={themeValue}>
@@ -161,8 +200,82 @@ function MermaidEditor({ code, theme }: { code: string; theme: string }, textRef
             width: '50%',
             boxSizing: 'border-box',
             borderRight: '1px solid #ececec',
+            display: 'flex',
+            flexDirection: 'column',
           }}
         >
+          <Toolbar
+            style={{
+              gap: 4,
+              paddingLeft: 10,
+              paddingRight: 10,
+              justifyContent: 'space-between',
+              height: 50,
+            }}
+          >
+            <div
+              className="mini-draw-tools"
+              style={{
+                display: 'flex',
+                gap: 10,
+                flex: 'none',
+              }}
+            >
+              <Button size="small" variant="contained" onClick={handleClick} disableRipple disableElevation>
+                Samples
+              </Button>
+              {anchorEl ? (
+                <Popover
+                  anchorEl={anchorEl}
+                  open
+                  onClose={handleClose}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                  }}
+                >
+                  <MenuList
+                    style={{
+                      minWidth: 200,
+                    }}
+                  >
+                    {Object.keys(samples).map((key) => {
+                      return (
+                        <MenuItem
+                          dense
+                          key={key}
+                          className={classes.menuItem}
+                          onClick={handleMenuItemClick}
+                          data-value={key}
+                        >
+                          <ListItemText>
+                            <Typography variant="body2">{key}</Typography>
+                          </ListItemText>
+                        </MenuItem>
+                      );
+                    })}
+                  </MenuList>
+                </Popover>
+              ) : undefined}
+              <Button
+                // variant="contained"
+                disableRipple
+                disableElevation
+                onClick={() => window.open('https://mermaid.js.org/syntax/flowchart.html')}
+              >
+                Mermaid Document
+              </Button>
+            </div>
+          </Toolbar>
+
+          <div
+            style={{
+              flex: 'none',
+              // width: 50,
+              paddingRight: 10,
+              borderRight: '1px solid #ececec',
+            }}
+          />
           <SimpleMDEReact
             className={theme === 'dark' ? classes.dark : classes.light}
             getCodemirrorInstance={getCmInstanceCallback as any}

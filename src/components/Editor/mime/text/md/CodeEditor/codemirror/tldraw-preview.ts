@@ -1,5 +1,5 @@
 /* eslint-disable */
-import CodeMirror, { TextMarker } from 'codemirror';
+import CodeMirror from 'codemirror';
 
 interface TldrawOptions {
   theme: string;
@@ -31,54 +31,58 @@ class TldrawPreview {
     this.cm.on('change', this.change.bind(this));
     this.cm.on('refresh', this.refresh.bind(this));
 
-    this.emit('tldraw-preview-init', null);
+    // this.emit('tldraw-preview-init', null);
+  }
+
+  getCodeInfo(evt: any) {
+    var target = evt.target || evt.srcElement;
+    var pos = this.cm.coordsChar({ left: evt.clientX, top: evt.clientY });
+
+    // Find any markers at the clicked position
+    var marks = this.cm.findMarksAt(pos);
+
+    const currentLineNo = (marks[0] as any).lines[0].lineNo();
+    const totalLineNo = this.cm.lineCount();
+    let lastLineNo = totalLineNo - 1;
+
+    // if current line is last line, then insert new line
+    for (var i = currentLineNo + 1; i < totalLineNo; i++) {
+      if (this.cm.getLine(i).startsWith('```')) {
+        lastLineNo = i;
+        break;
+      }
+    }
+
+    const range = this.cm.getRange({ line: currentLineNo + 1, ch: 0 }, { line: lastLineNo, ch: 0 });
+
+    let content: any = range;
+
+    try {
+      content = JSON.parse(range);
+    } catch (e) {
+      console.log(e);
+    }
+
+    return {
+      currentLineNo,
+      lastLineNo,
+      id: target.closest('.inline-menu').id,
+      content,
+    };
   }
 
   onMousedown(cm: CodeMirror.Editor, evt: any) {
     var target = evt.target || evt.srcElement;
-    if (target.className === 'tldraw-preview') {
+    if (target.className === 'tldraw-preview-edit') {
       evt.preventDefault();
-      var pos = this.cm.coordsChar({ left: evt.clientX, top: evt.clientY });
 
-      // Find any markers at the clicked position
-      var marks = this.cm.findMarksAt(pos);
+      const info = this.getCodeInfo(evt);
 
-      const currentLineNo = (marks[0] as any).lines[0].lineNo();
-      const totalLineNo = this.cm.lineCount();
-      let lastLineNo = totalLineNo - 1;
-
-      // if current line is last line, then insert new line
-      for (var i = currentLineNo + 1; i < totalLineNo; i++) {
-        if (this.cm.getLine(i).startsWith('```')) {
-          lastLineNo = i;
-          break;
+      this.emit('tldraw-preview-click', info, (event: string, message: any) => {
+        if (event === 'tldraw-preview-save') {
+          this.updateDraw(message);
         }
-      }
-
-      const range = this.cm.getRange({ line: currentLineNo + 1, ch: 0 }, { line: lastLineNo, ch: 0 });
-
-      let content: any = undefined;
-
-      try {
-        content = JSON.parse(range);
-      } catch (e) {
-        console.log(e);
-      }
-
-      this.emit(
-        'tldraw-preview-click',
-        {
-          currentLineNo,
-          lastLineNo,
-          id: target.id,
-          content,
-        },
-        (event: string, message: any) => {
-          if (event === 'tldraw-preview-save') {
-            this.updateDraw(message);
-          }
-        },
-      );
+      });
     }
   }
 
@@ -154,26 +158,12 @@ class TldrawPreview {
 
   make_element() {
     const div = document.createElement('div');
-    div.className = 'tldraw-preview';
-    // div.innerHTML = content;
-    div.style.display = 'inline-block';
-    div.style.position = 'relative';
-    div.style.verticalAlign = 'middle';
-    div.textContent = 'Edit';
-    div.style.backgroundColor = this.options.theme === 'dark' ? 'gray' : 'lightgray';
-    div.style.color = this.options.theme === 'dark' ? 'white' : 'black';
-    // div.style.width = '1em';
-    // div.style.height = '1em';
-    div.style.borderRadius = '4px';
-    div.style.textAlign = 'center';
-    div.style.lineHeight = '1em';
-    div.style.fontSize = '0.8em';
-    div.style.fontWeight = 'bold';
-    div.style.padding = '0.2em';
-    div.style.color = 'black';
-    div.style.cursor = 'pointer';
-    div.style.marginLeft = '0.5em';
+    div.className = 'tldraw-preview inline-menu';
     div.id = `tldraw-id-${Date.now()}-${idCounter++}`;
+
+    div.innerHTML = `
+      <button type="button" class="tldraw-preview-edit">Edit</button>
+    `;
 
     return div;
   }
