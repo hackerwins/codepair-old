@@ -16,6 +16,7 @@ import { setSidebarWidth } from 'features/navSlices';
 import { WorkspaceButton } from 'components/SideBar/WorkspaceButton';
 import { LogoMenu } from 'components/application/LogoMenu';
 import { Guide } from 'components/commons/Guide';
+import { InstantBoard } from 'components/application/InstantBoard';
 
 type DocPageProps = {
   docKey: string;
@@ -327,7 +328,9 @@ export default function PageLayout({ children }: PageLayoutProps) {
           </div>
           <div className={classes.editorContentArea}>{children}</div>
         </div>
-        <div className={classes.instantArea}>test</div>
+        <div className={classes.instantArea}>
+          <InstantBoard />
+        </div>
         <div className={classes.guideArea}>
           <Guide />
         </div>

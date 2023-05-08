@@ -1,0 +1,74 @@
+.mini-mermaid-root {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 500px;
+  height: 400px;
+  overflow: hidden;
+  border-radius: 10px;
+  z-index: 10;
+  //   backdrop-filter: blur(10px);
+
+  &[data-readonly='true'] {
+    position: relative;
+    width: 100% !important;
+    min-height: calc(100vh / 2) !important;
+    height: auto;
+    top: auto;
+    left: auto;
+    transform: none;
+    z-index: 0;
+
+    .header-area {
+      display: none;
+    }
+
+    .canvas-area {
+      top: 0px;
+    }
+  }
+
+  &.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: transparent;
+  }
+
+  & .tl-container {
+    // background-color: transparent;
+  }
+
+  .header-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+
+    .mini-draw-tools {
+      display: flex;
+      gap: 10px;
+    }
+  }
+
+  .canvas-area {
+    position: absolute;
+    top: 50px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+}
