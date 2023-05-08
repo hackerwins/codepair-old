@@ -9,10 +9,11 @@ import ListAlt from '@mui/icons-material/ListAlt';
 import { useLocation } from 'react-router-dom';
 import { Box, Drawer, Tab } from '@mui/material';
 
-import { TabContext, TabList } from '@mui/lab';
+import TabContext from '@mui/lab/TabContext';
+import TabList from '@mui/lab/TabList';
 import { MimeType } from 'constants/editor';
 import CalendarMonth from '@mui/icons-material/CalendarMonth';
-import { DescriptionOutlined } from '@mui/icons-material';
+import DescriptionOutlined from '@mui/icons-material/DescriptionOutlined';
 import { findCurrentPageLink } from 'features/linkSlices';
 import { CustomViewer } from './CustomViewer';
 import { PagesView } from './CustomViewer/PagesView';

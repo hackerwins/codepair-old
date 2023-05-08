@@ -4,7 +4,7 @@ import { LyingDown } from 'components/icon/LyingDown';
 import { StandUp } from 'components/icon/StandUp';
 import { toggleInstant } from 'features/navSlices';
 import { useDispatch, useSelector } from 'react-redux';
-import { Badge } from '@mui/material';
+import Badge from '@mui/material/Badge';
 
 export function Guide() {
   const dispatch = useDispatch();

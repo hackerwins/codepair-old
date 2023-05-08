@@ -21,7 +21,9 @@ import Home from '@mui/icons-material/Home';
 import { MimeType } from 'constants/editor';
 import BorderAll from '@mui/icons-material/BorderAll';
 import Gesture from '@mui/icons-material/Gesture';
-import { AccountTree, DescriptionOutlined, Folder } from '@mui/icons-material';
+import AccountTree from '@mui/icons-material/AccountTree';
+import DescriptionOutlined from '@mui/icons-material/DescriptionOutlined';
+import Folder from '@mui/icons-material/Folder';
 import { Theme } from 'features/settingSlices';
 import MoreHoriz from '@mui/icons-material/MoreHoriz';
 

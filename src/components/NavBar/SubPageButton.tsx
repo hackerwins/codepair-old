@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ArrowDropDown, DescriptionOutlined } from '@mui/icons-material';
+import ArrowDropDown from '@mui/icons-material/ArrowDropDown';
+import DescriptionOutlined from '@mui/icons-material/DescriptionOutlined';
 import { Button, List, ListItemButton, ListItemIcon, ListItemText, Popover } from '@mui/material';
 import { findCurrentPageLink, LinkItemType } from 'features/linkSlices';
 import { useSelector } from 'react-redux';
