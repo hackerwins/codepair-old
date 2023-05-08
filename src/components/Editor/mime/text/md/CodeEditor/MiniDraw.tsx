@@ -49,8 +49,12 @@ export default function MiniDraw({ theme, onSave, onClose, content, readOnly }: 
 
   useEffect(() => {
     if (app && content) {
-      app.loadDocument(JSON.parse(content));
-      app.selectNone();
+      const tempContent = JSON.parse(content);
+
+      if (typeof tempContent === 'object') {
+        app.loadDocument(tempContent);
+        app.selectNone();
+      }
 
       setTimeout(() => {
         app.zoomToFit();
@@ -83,7 +87,9 @@ export default function MiniDraw({ theme, onSave, onClose, content, readOnly }: 
                 justifyContent: 'space-between',
               }}
             >
-              <div className="mini-draw-title">Mini Draw</div>
+              <div className="mini-draw-title">
+                Mini <strong>tldraw</strong>
+              </div>
               <div
                 className="mini-draw-tools"
                 style={{

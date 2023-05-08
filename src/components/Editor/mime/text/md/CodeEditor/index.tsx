@@ -575,7 +575,7 @@ export default function CodeEditor() {
                     }
 
                     if (className === 'language-tldraw') {
-                      return <MiniDraw content={`${text}`} theme={menu.theme} readOnly meta={metaInfo} />;
+                      return <MiniDraw content={`${text}`.trim()} theme={menu.theme} readOnly meta={metaInfo} />;
                     }
 
                     return !inline && match ? (

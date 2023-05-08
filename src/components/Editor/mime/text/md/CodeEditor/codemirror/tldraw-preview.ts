@@ -60,7 +60,7 @@ class TldrawPreview {
     try {
       content = JSON.parse(range);
     } catch (e) {
-      console.log(e);
+      content = '';
     }
 
     return {
