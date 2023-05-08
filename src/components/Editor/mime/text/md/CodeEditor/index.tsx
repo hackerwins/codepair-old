@@ -35,6 +35,7 @@ import {
 import { MetaInfo, NAVBAR_HEIGHT } from 'constants/editor';
 import { addRecentPage } from 'features/currentSlices';
 import { setActionStatus } from 'features/actionSlices';
+import { updateLinkNameWithHeading } from 'features/linkSlices';
 import remarkMath from 'remark-math';
 import remarkGfm from 'remark-gfm';
 import remarkToc from 'remark-toc';
@@ -740,6 +741,7 @@ export default function CodeEditor() {
 
     editor.on('change', () => {
       dispatch(updateHeadings());
+      dispatch(updateLinkNameWithHeading({ docKey: doc.getKey() }));
       dispatch(
         addRecentPage({
           docKey: doc.getKey(),
