@@ -8,3 +8,11 @@ export enum MimeType {
   CELL = 'application/cell',
   JSON = 'application/json',
 }
+
+export type MetaInfo = {
+  showlinenumbers?: boolean;
+  showinlinelinenumbers?: boolean;
+  highlight?: {
+    [key: string]: boolean;
+  };
+};

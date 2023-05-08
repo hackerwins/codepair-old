@@ -241,16 +241,6 @@ const linkSlice = createSlice({
 
       SettingModel.setValue(state);
     },
-    setLinkFileLink(state, action: PayloadAction<{ id: string; name: string; fileLink: string }>) {
-      const { id, name, fileLink } = action.payload;
-      const foundItem = findOne(state.links, (item) => item.id === id);
-      if (foundItem) {
-        foundItem.fileLink = fileLink;
-        foundItem.name = name;
-      }
-
-      SettingModel.setValue(state);
-    },
     newLink(
       state,
       action: PayloadAction<{
@@ -363,8 +353,11 @@ const linkSlice = createSlice({
       SettingModel.setValue(state);
     },
 
-    newLinkByCurrentPage(state, action: PayloadAction<{ parentId: string; name: string; fileLink: string }>) {
-      const { parentId, name, fileLink } = action.payload;
+    newLinkByCurrentPage(
+      state,
+      action: PayloadAction<{ parentId: string; name: string; fileLink: string; emoji: string }>,
+    ) {
+      const { parentId, name, fileLink, emoji } = action.payload;
 
       const foundItem = findOne(state.links, (item) => item.id === parentId);
 
@@ -380,6 +373,7 @@ const linkSlice = createSlice({
             linkType: 'pairy',
             links: [],
             tags: [],
+            emoji,
             createdAt: dayjs().format('YYYYMMDDHHmm'),
             color: foundItem.color || createRandomColor().background,
             workspace: state.workspace,
@@ -574,7 +568,6 @@ export const {
   setLinkEmoji,
   updateLinkNameWithHeading,
   newLinkByCurrentPage,
-  setLinkFileLink,
   removeLink,
   newLink,
   moveLink,

@@ -1,10 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Tldraw, TldrawApp, useFileSystem } from '@tldraw/tldraw';
+import React, { useMemo } from 'react';
 import { AppBar, Button, createTheme, ThemeProvider, Toolbar } from '@mui/material';
-import './MiniDraw.scss';
+import './MiniMermaid.scss';
 import { Theme } from 'features/settingSlices';
 import { makeStyles } from 'styles/common';
-import { MetaInfo } from 'constants/editor';
+import CodeMirror from 'codemirror';
+import MermaidEditor from './MermaidEditor';
 
 const useStyles = makeStyles<{ theme: string }>()((_, { theme }) => {
   return {
@@ -24,18 +24,20 @@ const useStyles = makeStyles<{ theme: string }>()((_, { theme }) => {
   };
 });
 
-interface MiniDrawProps {
+export default function MiniMermaid({
+  theme,
+  onSave,
+  onClose,
+  content,
+  readOnly,
+}: {
   theme: string;
   content: string;
   onSave?: (json: any) => void;
   onClose?: () => void;
   readOnly?: boolean;
-  meta?: MetaInfo;
-}
-
-export default function MiniDraw({ theme, onSave, onClose, content, readOnly }: MiniDrawProps) {
-  const [app, setApp] = useState<TldrawApp>();
-  const fileSystemEvents = useFileSystem();
+}) {
+  const editorRef = React.useRef<CodeMirror.Editor>(null);
   const themeValue = useMemo(() => {
     return createTheme({
       palette: {
@@ -47,30 +49,10 @@ export default function MiniDraw({ theme, onSave, onClose, content, readOnly }: 
     theme,
   });
 
-  useEffect(() => {
-    if (app && content) {
-      const tempContent = JSON.parse(content);
-
-      if (typeof tempContent === 'object') {
-        app.loadDocument(tempContent);
-        app.selectNone();
-      }
-
-      setTimeout(() => {
-        app.zoomToFit();
-      }, 10);
-    }
-
-    return () => {
-      // app?.resetDocument();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content, app]);
-
   return (
     <ThemeProvider theme={themeValue}>
       <div
-        className={['mini-draw-root', classes.root].join(' ')}
+        className={['mini-mermaid-root', classes.root].join(' ')}
         data-readonly={readOnly}
         style={{
           width: '80%',
@@ -87,9 +69,7 @@ export default function MiniDraw({ theme, onSave, onClose, content, readOnly }: 
                 justifyContent: 'space-between',
               }}
             >
-              <div className="mini-draw-title">
-                Mini <strong>tldraw</strong>
-              </div>
+              <div className="mini-draw-title">Mini Mermaid</div>
               <div
                 className="mini-draw-tools"
                 style={{
@@ -100,14 +80,17 @@ export default function MiniDraw({ theme, onSave, onClose, content, readOnly }: 
               >
                 <Button
                   variant="contained"
+                  size="small"
                   onClick={() => {
-                    onSave?.(JSON.parse(JSON.stringify(app?.document)));
+                    const value = editorRef.current?.getValue().trim();
+                    onSave?.(`${value}`);
                   }}
                 >
                   Save
                 </Button>
                 <Button
                   variant="outlined"
+                  size="small"
                   onClick={() => {
                     onClose?.();
                   }}
@@ -119,21 +102,7 @@ export default function MiniDraw({ theme, onSave, onClose, content, readOnly }: 
           </AppBar>
         </div>
         <div className="canvas-area">
-          <Tldraw
-            autofocus={false}
-            disableAssets
-            showPages={false}
-            showMultiplayerMenu={false}
-            showMenu={!readOnly}
-            showTools={!readOnly}
-            showStyles={!readOnly}
-            {...fileSystemEvents}
-            onMount={(tldraw) => {
-              setApp(tldraw);
-            }}
-            // readOnly={readOnly}
-            darkMode={theme === 'dark'}
-          />
+          <MermaidEditor theme={theme} code={content} ref={editorRef} />
         </div>
       </div>
     </ThemeProvider>

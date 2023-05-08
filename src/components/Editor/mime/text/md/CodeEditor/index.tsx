@@ -21,12 +21,28 @@ import { Theme as ThemeType } from 'features/settingSlices';
 import { Preview, updateHeadings, getTableOfContents } from 'features/docSlices';
 
 import { makeStyles } from 'styles/common';
-import { debounce, Theme } from '@mui/material';
-import { NAVBAR_HEIGHT } from 'constants/editor';
+import {
+  debounce,
+  Divider,
+  ListItemText,
+  ListSubheader,
+  MenuItem,
+  MenuList,
+  Popover,
+  Theme,
+  Typography,
+} from '@mui/material';
+import { MetaInfo, NAVBAR_HEIGHT } from 'constants/editor';
 import { addRecentPage } from 'features/currentSlices';
 import { setActionStatus } from 'features/actionSlices';
+import { updateLinkNameWithHeading } from 'features/linkSlices';
 import remarkMath from 'remark-math';
+import remarkGfm from 'remark-gfm';
+import remarkToc from 'remark-toc';
+import remarkEmoji from 'remark-emoji';
+
 import rehypeKatex from 'rehype-katex';
+import fenceparser from 'fenceparser';
 
 import 'katex/dist/katex.min.css'; // `rehype-katex` does not import the CSS for you
 import 'easymde/dist/easymde.min.css';
@@ -36,8 +52,13 @@ import 'codemirror/keymap/vim';
 import 'codemirror/addon/fold/foldcode';
 import 'codemirror/addon/fold/foldgutter';
 import 'codemirror/addon/fold/foldgutter.css';
+import 'codemirror/addon/hint/show-hint';
+import 'codemirror/addon/hint/show-hint.css';
+import 'codemirror/addon/comment/comment';
 import './codemirror/shuffle';
 import './codemirror/markdown-fold';
+import './codemirror/markdown-hint';
+import './codemirror/emoji-hint';
 import './codemirror/mermaid-preview';
 import './codemirror/tldraw-preview';
 import Cursor from './Cursor';
@@ -46,6 +67,12 @@ import { CodeEditorMenu } from './Menu';
 
 import MermaidView from './MermaidView';
 import MiniDraw from './MiniDraw';
+import MiniMermaid from './MiniMermaid';
+import { MermaidSampleType, samples } from './mermaid-samples';
+
+type StyleObject = {
+  [key: string]: string;
+};
 
 const WIDGET_HEIGHT = 40;
 
@@ -127,7 +154,83 @@ export default function CodeEditor() {
   const getCmInstanceCallback = useCallback(
     (cm: CodeMirror.Editor) => {
       // mermaid type check
-      (cm as any).setOption('mermaid', true);
+      (cm as any).setOption('mermaid', {
+        theme: menu.theme,
+        emit: (event: string, message: any, trigger: (event: string, message: any) => void) => {
+          const container = document.getElementById('draw-panel');
+          let root: any;
+
+          function onClose() {
+            root?.unmount();
+          }
+
+          function onSave(content: any) {
+            trigger('mermaid-preview-save', {
+              ...message,
+              content,
+            });
+            onClose();
+          }
+
+          if (event === 'mermaid-preview-click') {
+            if (container) {
+              root = createRoot(container);
+
+              root.render(
+                <MiniMermaid
+                  key={`mermaid-preview-${message.id}`}
+                  theme={menu.theme}
+                  content={message.content}
+                  onClose={onClose}
+                  onSave={onSave}
+                />,
+              );
+            }
+          } else if (event === 'mermaid-preview-menu-click') {
+            if (container) {
+              root = createRoot(container);
+              root.render(
+                <Popover
+                  anchorEl={document.getElementById(message.id)}
+                  open
+                  key={`mermaid-preview-${message.id}`}
+                  onClose={onClose}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'left',
+                  }}
+                >
+                  <MenuList>
+                    <ListSubheader
+                      style={{
+                        padding: '10px 16px',
+                        paddingTop: 0,
+                      }}
+                    >
+                      <Typography variant="body2">Mermaid Samples</Typography>
+                    </ListSubheader>
+                    <Divider />
+                    {Object.keys(samples).map((key) => {
+                      const tempKey = key as MermaidSampleType;
+                      return (
+                        <MenuItem key={key} onClick={() => onSave(samples[tempKey])}>
+                          <ListItemText>
+                            <Typography variant="body2">{key}</Typography>
+                          </ListItemText>
+                        </MenuItem>
+                      );
+                    })}
+                  </MenuList>
+                </Popover>,
+              );
+            }
+          }
+        },
+      });
       (cm as any).setOption('tldraw', {
         theme: menu.theme,
         emit: (event: string, message: any, trigger: (event: string, message: any) => void) => {
@@ -172,6 +275,74 @@ export default function CodeEditor() {
           widget.innerHTML = '...';
           return widget;
         },
+      });
+      cm.setOption('extraKeys', {
+        'Ctrl-/': 'toggleComment',
+        'Cmd-/': 'toggleComment',
+      });
+      cm.setOption('hintOptions', {
+        completeOnSingleClick: true,
+        completeSingle: false,
+        container: cm.getWrapperElement(),
+      });
+
+      cm.on('inputRead', function (cm2, event) {
+        const localCur = cm2.getCursor();
+        const wordRange = cm2.findWordAt(localCur);
+        const from = wordRange.from();
+        const to = wordRange.to();
+        const emojiString = cm2.getRange({ line: from.line, ch: from.ch - 1 }, to);
+
+        // check emoji hint
+        if (event.text.length > 0 && emojiString[0] === ':') {
+          cm2.showHint({
+            hint: (CodeMirror as any).hint.emoji,
+          } as any);
+        }
+        // check keyword hint with normal text
+        else if (event.text.length > 0 && /[a-zA-Z0-9]/.test(event.text[0])) {
+          cm2.showHint({
+            completeSingle: false,
+            alignWithWord: true,
+            closeCharacters: /[\s()\[\]{};:>,]/, // eslint-disable-line no-useless-escape
+            closeOnUnfocus: true,
+            list: () => {
+              return [
+                { text: 'function', displayText: '!function' },
+                { text: 'if', displayText: '!if' },
+                { text: 'else', displayText: '!else' },
+                { text: 'for', displayText: '!for' },
+                { text: 'while', displayText: '!while' },
+                { text: 'do', displayText: '!do' },
+                { text: 'switch', displayText: '!switch' },
+                { text: 'case', displayText: '!case' },
+                { text: 'try', displayText: '!try' },
+                { text: 'catch', displayText: '!catch' },
+                { text: 'finally', displayText: '!finally' },
+                { text: 'class', displayText: '!class' },
+                { text: 'interface', displayText: '!interface' },
+                { text: 'extends', displayText: '!extends' },
+                {
+                  text: 'implements',
+                  displayText: '!implements',
+                  // self customize hint
+                  hint: (cm3: CodeMirror.Editor, cur: any, data: any) => {
+                    cm3.replaceRange(
+                      `${data.displayText} self customize`,
+                      cur.from || data.from,
+                      cur.to || data.to,
+                      'complete',
+                    );
+                  },
+                  render: (element: HTMLLIElement, cur: any, data: any) => {
+                    const tempElement = element;
+                    tempElement.textContent = `${data.displayText} (self customize)`;
+                  },
+                },
+              ];
+            },
+          } as any);
+        }
       });
 
       setEditor(cm);
@@ -310,7 +481,7 @@ export default function CodeEditor() {
       renderingConfig: {
         markedOptions: {},
       },
-      lineNumbers: false,
+      // lineNumbers: true,
       // lineWrapping: true,
     } as SimpleMDE.Options;
 
@@ -375,7 +546,7 @@ export default function CodeEditor() {
 
             (globalContainer.rootElement as any)?.render(
               <ReactMarkdown
-                remarkPlugins={[remarkMath]}
+                remarkPlugins={[remarkMath, remarkGfm, remarkToc, remarkEmoji]}
                 rehypePlugins={[rehypeKatex]}
                 components={{
                   code: ({ node, inline, className, children, ...props }) => {
@@ -383,20 +554,62 @@ export default function CodeEditor() {
 
                     const text = children[0];
 
+                    const tempMetaInfo = fenceparser(`${node.data?.meta}`);
+
+                    const metaInfo: MetaInfo = {};
+                    Object.keys(tempMetaInfo).reduce((acc: any, key) => {
+                      if (!key || key === 'undefined') {
+                        return acc;
+                      }
+
+                      acc[key] = tempMetaInfo[key];
+
+                      return acc;
+                    }, metaInfo);
+
+                    // if (className === 'language-chart') {
+                    //   return <ChartView code={text as string} theme={menu.theme} />;
+                    // }
+
                     if (className === 'language-mermaid') {
                       return <MermaidView code={text as string} theme={menu.theme} />;
                     }
 
                     if (className === 'language-tldraw') {
-                      return <MiniDraw content={`${text}`} theme={menu.theme} readOnly />;
+                      return <MiniDraw content={`${text}`.trim()} theme={menu.theme} readOnly meta={metaInfo} />;
                     }
 
                     return !inline && match ? (
                       <SyntaxHighlighter
                         {...props}
+                        showLineNumbers={metaInfo.showlinenumbers}
+                        showInlineLineNumbers={metaInfo.showinlinelinenumbers}
                         data-language={match[1]}
                         style={menu.theme === ThemeType.Dark ? oneDark : oneLight}
                         language={match[1]}
+                        wrapLines
+                        lineProps={(lineNumber) => {
+                          console.log(lineNumber, metaInfo.highlight);
+                          const style: StyleObject = { display: 'block' };
+
+                          // check line numbers
+                          const hasHighlightedLineNumbers = Object.keys(metaInfo.highlight as any).some((key) => {
+                            const lines = key.split('-');
+
+                            if (lines.length === 1) {
+                              if (key === `${lineNumber}`) {
+                                return true;
+                              }
+                            } else if (lineNumber >= Number(lines[0]) && lineNumber <= Number(lines[1])) {
+                              return true;
+                            }
+                            return false;
+                          });
+                          if (hasHighlightedLineNumbers) {
+                            style.backgroundColor = '#ffe7a4';
+                          }
+                          return { style };
+                        }}
                         PreTag="div"
                       >
                         {String(children).replace(/\n$/, '')}
@@ -486,13 +699,8 @@ export default function CodeEditor() {
         text.onChanges(changeEventHandler);
         editor.setValue(text.toString());
 
-        // fold tldraw code blocks
-        const last = editor.lineCount();
-        for (let i = 0; i < last; i += 1) {
-          if (editor.getLine(i).startsWith('```tldraw')) {
-            editor.foldCode({ line: i, ch: 0 });
-          }
-        }
+        // fold tldraw code
+        (editor as any).foldTldrawCode();
       }
     };
 
@@ -533,6 +741,7 @@ export default function CodeEditor() {
 
     editor.on('change', () => {
       dispatch(updateHeadings());
+      dispatch(updateLinkNameWithHeading({ docKey: doc.getKey() }));
       dispatch(
         addRecentPage({
           docKey: doc.getKey(),

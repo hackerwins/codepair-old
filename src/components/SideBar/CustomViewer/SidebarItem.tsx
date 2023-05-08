@@ -9,9 +9,7 @@ import {
   moveLink,
   newLinkByCurrentPage,
   removeLink,
-  setLinkFileLink,
   setLinkName,
-  toggleFavorite,
   toggleLinkOpen,
 } from 'features/linkSlices';
 import { makeStyles } from 'styles/common';
@@ -22,9 +20,7 @@ import FileCopy from '@mui/icons-material/FileCopy';
 import Gesture from '@mui/icons-material/Gesture';
 import SubdirectoryArrowLeft from '@mui/icons-material/SubdirectoryArrowLeft';
 import MoreHoriz from '@mui/icons-material/MoreHoriz';
-import Star from '@mui/icons-material/Star';
 import OpenInBrowser from '@mui/icons-material/OpenInBrowser';
-import Update from '@mui/icons-material/Update';
 
 import {
   Box,
@@ -101,7 +97,6 @@ const useStyles = makeStyles()((theme) => ({
     },
   },
   sidebarItem: {
-    padding: theme.spacing(0.5, 1),
     borderRadius: 6,
     [`&:hover .sidebar-item-more`]: {
       visibility: 'visible !important' as any,
@@ -216,18 +211,7 @@ function MoreIcon({ open, onClick }: { open: boolean; onClick: () => void }) {
   );
 }
 
-const options = [
-  'Favorite',
-  '-',
-  'New subpage',
-  'Add current note',
-  'Rename',
-  'Delete',
-  'Update link',
-  '-',
-  'Open in Browser',
-  'Copy',
-];
+const options = ['New subnote', 'Add current note', 'Rename', 'Delete', '-', 'Open in Browser', 'Copy'];
 
 interface MoreMenuProps {
   item: LinkItemType;
@@ -235,7 +219,6 @@ interface MoreMenuProps {
 }
 function MoreMenu({ item, startRename }: MoreMenuProps) {
   const dispatch = useDispatch<AppDispatch>();
-  const favorite = useSelector((state: AppState) => state.linkState.favorite);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const { docKey } = useParams<{ docKey: string }>();
   const open = Boolean(anchorEl);
@@ -268,18 +251,12 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
     dispatch(removeLink({ id: item.id }));
   }, [dispatch, item.id]);
 
-  const handleUpdateLink = useCallback(() => {
-    dispatch(setLinkFileLink({ id: item.id, name: getTitle(), fileLink: `/${docKey}` }));
-  }, [item.id, dispatch, docKey]);
-
   const handleCreateCurrentPage = useCallback(() => {
-    dispatch(newLinkByCurrentPage({ parentId: item.id, name: getTitle(), fileLink: `/${docKey}` }));
+    dispatch(newLinkByCurrentPage({ parentId: item.id, name: getTitle(), fileLink: `/${docKey}`, emoji: '😀' }));
   }, [item.id, docKey, dispatch]);
 
   const handleClose = (command: string) => {
-    if (command === 'Favorite') {
-      dispatch(toggleFavorite(item.id));
-    } else if (command === 'Open in Browser') {
+    if (command === 'Open in Browser') {
       if (item.fileLink) {
         switch (item.linkType) {
           case 'pairy':
@@ -302,12 +279,10 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
       });
     } else if (command === 'Delete') {
       handleClickDialogOpen();
-    } else if (command === 'New subpage') {
+    } else if (command === 'New subnote') {
       return;
     } else if (command === 'Add current note') {
       handleCreateCurrentPage();
-    } else if (command === 'Update link') {
-      handleUpdateLink();
     }
 
     setAnchorEl(null);
@@ -369,26 +344,18 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
                       }}
                     />
                   ) : undefined}
-                  {option === 'New subpage' ? <Description /> : undefined}
+                  {option === 'New subnote' ? <Description /> : undefined}
                   {option === 'Add current note' ? <SubdirectoryArrowLeft /> : undefined}
                   {option === 'Rename' ? <Edit /> : undefined}
                   {option === 'Open in Browser' ? <OpenInBrowser /> : undefined}
                   {option === 'Copy' ? <FileCopy /> : undefined}
-                  {option === 'Update link' ? <Update /> : undefined}
-                  {option === 'Favorite' ? (
-                    <Star
-                      style={{
-                        color: favorite.includes(item.id) ? 'blue' : undefined,
-                      }}
-                    />
-                  ) : undefined}
                 </ListItemIcon>
                 <ListItemText>
-                  {option === 'New subpage' ? (
+                  {option === 'New subnote' ? (
                     <PageButton
                       icon={null}
                       insertTarget={item}
-                      title="New subpage"
+                      title="New subnote"
                       onClose={() => handleClose('')}
                       transformOrigin={{ horizontal: 'left', vertical: 'center' }}
                       anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
@@ -507,10 +474,6 @@ export function SidebarItem({ item, level, loopType }: SidebarItemProps) {
   }, [loopType, favorite, item.id]);
 
   const className = useMemo(() => {
-    if (currentWorkspace === 'calendar') {
-      return classes.level0;
-    }
-
     switch (level) {
       case 0:
         return classes.level0;
@@ -537,7 +500,7 @@ export function SidebarItem({ item, level, loopType }: SidebarItemProps) {
       default:
         return classes.level0;
     }
-  }, [level, classes, currentWorkspace]);
+  }, [level, classes]);
 
   let moreIcon = null;
 
@@ -751,15 +714,16 @@ export function SidebarItem({ item, level, loopType }: SidebarItemProps) {
 interface SidebarItemViewProps {
   item: LinkItemType;
   loopType: LoopType;
+  level: number;
 }
 
-export function SidebarItemView({ item, loopType }: SidebarItemViewProps) {
+export function SidebarItemView({ item, level, loopType }: SidebarItemViewProps) {
   const opens = useSelector((state: AppState) => state.linkState.opens);
   return (
     <Box>
-      <SidebarItem item={item} level={0} loopType={loopType} />
+      <SidebarItem item={item} level={level} loopType={loopType} />
       <Collapse in={opens[item.id]} timeout="auto" unmountOnExit>
-        <SideBarItemList links={[...(item.links || [])]} level={1} loopType={loopType} />
+        <SideBarItemList links={[...(item.links || [])]} level={level + 1} loopType={loopType} />
       </Collapse>
     </Box>
   );
