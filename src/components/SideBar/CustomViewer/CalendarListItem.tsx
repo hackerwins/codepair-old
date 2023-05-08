@@ -1,10 +1,9 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 
 import { useNavigate, useParams } from 'react-router';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { AppDispatch } from 'app/store';
-import { AppState } from 'app/rootReducer';
-import { LinkItemType, removeLink, setLinkName, toggleFavorite } from 'features/linkSlices';
+import { LinkItemType, removeLink, setLinkName } from 'features/linkSlices';
 import { makeStyles } from 'styles/common';
 import BorderAll from '@mui/icons-material/BorderAll';
 import Delete from '@mui/icons-material/Delete';
@@ -13,7 +12,6 @@ import FileCopy from '@mui/icons-material/FileCopy';
 import Gesture from '@mui/icons-material/Gesture';
 import SubdirectoryArrowLeft from '@mui/icons-material/SubdirectoryArrowLeft';
 import MoreHoriz from '@mui/icons-material/MoreHoriz';
-import Star from '@mui/icons-material/Star';
 import OpenInBrowser from '@mui/icons-material/OpenInBrowser';
 
 import {
@@ -77,7 +75,7 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
-const options = ['Favorite', '-', 'New subnote', 'Rename', 'Delete', '-', 'Open in Browser', 'Copy Link'];
+const options = ['New subnote', 'Rename', 'Delete', '-', 'Open in Browser', 'Copy Link'];
 
 interface MoreMenuProps {
   item: LinkItemType;
@@ -85,7 +83,6 @@ interface MoreMenuProps {
 }
 function MoreMenu({ item, startRename }: MoreMenuProps) {
   const dispatch = useDispatch<AppDispatch>();
-  const favorite = useSelector((state: AppState) => state.linkState.favorite);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -118,9 +115,7 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
   }, [dispatch, item.id]);
 
   const handleClose = (command: string) => {
-    if (command === 'Favorite') {
-      dispatch(toggleFavorite(item.id));
-    } else if (command === 'Open in Browser') {
+    if (command === 'Open in Browser') {
       if (item.fileLink) {
         switch (item.linkType) {
           case 'pairy':
@@ -209,13 +204,6 @@ function MoreMenu({ item, startRename }: MoreMenuProps) {
                   {option === 'Rename' ? <Edit /> : undefined}
                   {option === 'Open in Browser' ? <OpenInBrowser /> : undefined}
                   {option === 'Copy' ? <FileCopy /> : undefined}
-                  {option === 'Favorite' ? (
-                    <Star
-                      style={{
-                        color: favorite.includes(item.id) ? 'blue' : undefined,
-                      }}
-                    />
-                  ) : undefined}
                 </ListItemIcon>
                 <ListItemText>
                   {option === 'New subnote' ? (
