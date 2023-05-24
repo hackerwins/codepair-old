@@ -9,16 +9,12 @@ import { ActorID, DocEvent, TextChange } from 'yorkie-js-sdk';
 import CodeMirror from 'codemirror';
 import SimpleMDE from 'easymde';
 import SimpleMDEReact from 'react-simplemde-editor';
-import ReactMarkdown from 'react-markdown';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-
-import oneLight from 'react-syntax-highlighter/dist/esm/styles/prism/one-light';
-import oneDark from 'react-syntax-highlighter/dist/esm/styles/prism/one-dark';
 
 import { AppState } from 'app/rootReducer';
 import { ConnectionStatus, Presence } from 'features/peerSlices';
 import { Theme as ThemeType } from 'features/settingSlices';
 import { Preview, updateHeadings, getTableOfContents } from 'features/docSlices';
+import { MarkdownViewer } from 'components/commons/MarkdownViewer';
 
 import { makeStyles } from 'styles/common';
 import {
@@ -32,19 +28,11 @@ import {
   Theme,
   Typography,
 } from '@mui/material';
-import { MetaInfo, NAVBAR_HEIGHT } from 'constants/editor';
+import { NAVBAR_HEIGHT } from 'constants/editor';
 import { addRecentPage } from 'features/currentSlices';
 import { setActionStatus } from 'features/actionSlices';
 import { updateLinkNameWithHeading } from 'features/linkSlices';
-import remarkMath from 'remark-math';
-import remarkGfm from 'remark-gfm';
-import remarkToc from 'remark-toc';
-import remarkEmoji from 'remark-emoji';
 
-import rehypeKatex from 'rehype-katex';
-import fenceparser from 'fenceparser';
-
-import 'katex/dist/katex.min.css'; // `rehype-katex` does not import the CSS for you
 import 'easymde/dist/easymde.min.css';
 import 'codemirror/keymap/sublime';
 import 'codemirror/keymap/emacs';
@@ -65,14 +53,9 @@ import Cursor from './Cursor';
 import SlideView from './slideView';
 import { CodeEditorMenu } from './Menu';
 
-import MermaidView from './MermaidView';
 import MiniDraw from './MiniDraw';
 import MiniMermaid from './MiniMermaid';
 import { MermaidSampleType, samples } from './mermaid-samples';
-
-type StyleObject = {
-  [key: string]: string;
-};
 
 const WIDGET_HEIGHT = 40;
 
@@ -285,10 +268,6 @@ export default function CodeEditor() {
         completeSingle: true,
         container: cm.getWrapperElement(),
       });
-
-      cm.showHint({
-        hint: (CodeMirror as any).hint.emoji,
-      } as any);
 
       cm.on('inputRead', function (cm2, event) {
         const localCur = cm2.getCursor();
@@ -548,87 +527,7 @@ export default function CodeEditor() {
               globalContainer.rootElement = createRoot(previewElement) as any;
             }
 
-            (globalContainer.rootElement as any)?.render(
-              <ReactMarkdown
-                remarkPlugins={[remarkMath, remarkGfm, remarkToc, remarkEmoji]}
-                rehypePlugins={[rehypeKatex]}
-                components={{
-                  code: ({ node, inline, className, children, ...props }) => {
-                    const match = /language-(\w+)/.exec(className || '');
-
-                    const text = children[0];
-
-                    const tempMetaInfo = fenceparser(`${node.data?.meta}`);
-
-                    const metaInfo: MetaInfo = {};
-                    Object.keys(tempMetaInfo).reduce((acc: any, key) => {
-                      if (!key || key === 'undefined') {
-                        return acc;
-                      }
-
-                      acc[key] = tempMetaInfo[key];
-
-                      return acc;
-                    }, metaInfo);
-
-                    // if (className === 'language-chart') {
-                    //   return <ChartView code={text as string} theme={menu.theme} />;
-                    // }
-
-                    if (className === 'language-mermaid') {
-                      return <MermaidView code={text as string} theme={menu.theme} />;
-                    }
-
-                    if (className === 'language-tldraw') {
-                      return <MiniDraw content={`${text}`.trim()} theme={menu.theme} readOnly meta={metaInfo} />;
-                    }
-
-                    return !inline && match ? (
-                      <SyntaxHighlighter
-                        {...props}
-                        showLineNumbers={metaInfo.showlinenumbers}
-                        showInlineLineNumbers={metaInfo.showinlinelinenumbers}
-                        data-language={match[1]}
-                        style={menu.theme === ThemeType.Dark ? oneDark : oneLight}
-                        language={match[1]}
-                        wrapLines
-                        lineProps={(lineNumber) => {
-                          console.log(lineNumber, metaInfo.highlight);
-                          const style: StyleObject = { display: 'block' };
-
-                          // check line numbers
-                          const hasHighlightedLineNumbers = Object.keys(metaInfo.highlight as any).some((key) => {
-                            const lines = key.split('-');
-
-                            if (lines.length === 1) {
-                              if (key === `${lineNumber}`) {
-                                return true;
-                              }
-                            } else if (lineNumber >= Number(lines[0]) && lineNumber <= Number(lines[1])) {
-                              return true;
-                            }
-                            return false;
-                          });
-                          if (hasHighlightedLineNumbers) {
-                            style.backgroundColor = '#ffe7a4';
-                          }
-                          return { style };
-                        }}
-                        PreTag="div"
-                      >
-                        {String(children).replace(/\n$/, '')}
-                      </SyntaxHighlighter>
-                    ) : (
-                      <code {...props} className={className}>
-                        {children}
-                      </code>
-                    );
-                  },
-                }}
-              >
-                {markdown}
-              </ReactMarkdown>,
-            );
+            (globalContainer.rootElement as any)?.render(<MarkdownViewer markdown={markdown} theme={menu.theme} />);
           } catch (err) {
             console.error(err);
           }

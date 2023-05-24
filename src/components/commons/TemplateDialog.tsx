@@ -1,47 +1,33 @@
 import { Button, Dialog, DialogContent, DialogTitle, List, ListItemButton, ListItemText } from '@mui/material';
+import { AppState } from 'app/rootReducer';
+import { MimeType } from 'constants/editor';
+import { createDoc } from 'features/docSlices';
+import { newLink } from 'features/linkSlices';
 import React, { useCallback } from 'react';
-import { MarkdownViewser } from './MarkdownViewser';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { createDocumentKey, createRandomColor } from 'utils/document';
+import yorkie from 'yorkie-js-sdk';
+import { MarkdownViewer } from './MarkdownViewer';
+
+import dailySyncTemplate from '../../assets/templates/daily-sync.md?raw';
+import performanceReviewTemplate from '../../assets/templates/performance-review.md?raw';
 
 interface TemplateDialogProps {
   onClose: () => void;
+  parentId?: string;
 }
 
 const templateList = [
   {
-    name: 'Template 1',
-    content: `# {date:YY-MM-DD} 데일리 싱크
-
-## Name 🏠
-어제
-- 
-오늘
-- 
-토론        
-
-## Name 🏢
-어제
-- 
-- 
-오늘
-- 
-토론
-## Name 🏠
-어제
-- 
-오늘
-- 
-토론
-
-## 프로젝트 현황
-23년 2Q
-- [x] 1. 
-
-23년 1Q
-- [x] 1. 
-
-23년 목표
-- 
-        `,
+    name: 'Daily Sync',
+    title: '{date:YY-MM-DD} 데일리 싱크',
+    content: dailySyncTemplate,
+  },
+  {
+    name: 'Performance review',
+    title: 'Performance review',
+    content: performanceReviewTemplate,
   },
 ];
 
@@ -50,20 +36,42 @@ function convertMarkdownText(markdown: string) {
 }
 
 export function TemplateDialog(props: TemplateDialogProps) {
-  const { onClose } = props;
+  const { onClose, parentId = '' } = props;
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const client = useSelector((state: AppState) => state.docState.client);
+  const menu = useSelector((state: AppState) => state.settingState.menu);
+
   const [selectedTemplate, setSelectedTemplate] = React.useState(0);
 
-  const handleInsertTemplate = useCallback(() => {
-    const cm = document.querySelector('.CodeMirror');
+  const handleInsertTemplate = useCallback(async () => {
+    const newDocKey = `${createDocumentKey()}`;
+    const fileLink = `/${newDocKey}`;
+    const mimeType = MimeType.MARKDOWN;
+    const name = convertMarkdownText(templateList[selectedTemplate].title);
 
-    if (cm) {
-      const { CodeMirror: CodeMirrorInstance } = cm as any;
+    if (client) {
+      await dispatch(
+        createDoc({
+          client,
+          docKey: `codepairs-${newDocKey}`,
+          init: (root: any) => {
+            const newRoot = root;
 
-      CodeMirrorInstance.setValue(convertMarkdownText(templateList[selectedTemplate].content));
+            newRoot.content = new yorkie.Text();
 
-      onClose();
+            newRoot.content.edit(0, 0, convertMarkdownText(templateList[selectedTemplate].content));
+          },
+        }) as any,
+      );
+
+      setTimeout(() => {
+        dispatch(newLink({ parentId, name, mimeType, fileLink, color: createRandomColor().background, emoji: '📅' }));
+        setTimeout(() => navigate(fileLink), 100);
+        onClose();
+      }, 1000);
     }
-  }, [onClose, selectedTemplate]);
+  }, [dispatch, client, parentId, navigate, onClose, selectedTemplate]);
 
   return (
     <Dialog open onClose={onClose} fullWidth maxWidth="lg">
@@ -93,6 +101,7 @@ export function TemplateDialog(props: TemplateDialogProps) {
                     onClick={() => {
                       setSelectedTemplate(index);
                     }}
+                    selected={selectedTemplate === index}
                   >
                     <ListItemText primary={template.name} />
                   </ListItemButton>
@@ -109,8 +118,13 @@ export function TemplateDialog(props: TemplateDialogProps) {
               border: '1px solid #ccc',
             }}
           >
-            <div className="markdown-viewer">
-              <MarkdownViewser markdown={templateList[selectedTemplate].content} />
+            <div
+              className="markdown-viewer"
+              style={{
+                padding: 16,
+              }}
+            >
+              <MarkdownViewer markdown={templateList[selectedTemplate].content} theme={menu.theme} />
             </div>
           </div>
         </div>

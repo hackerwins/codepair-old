@@ -44,14 +44,6 @@ export function CreateButton() {
 
   const [templateOpen, setTemplateOpen] = useState(false);
 
-  const handleCloseTemplate = useCallback(() => {
-    setTemplateOpen(false);
-  }, []);
-
-  const handleOpenTemplate = useCallback(() => {
-    setTemplateOpen(true);
-  }, []);
-
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -59,6 +51,15 @@ export function CreateButton() {
   const handleMenuClose = useCallback(() => {
     setAnchorEl(null);
   }, []);
+
+  const handleCloseTemplate = useCallback(() => {
+    setTemplateOpen(false);
+  }, []);
+
+  const handleOpenTemplate = useCallback(() => {
+    setTemplateOpen(true);
+    handleMenuClose();
+  }, [handleMenuClose]);
 
   const open = Boolean(anchorEl);
 
