@@ -42,7 +42,7 @@ export function CreateButton() {
 
   const parentId = '';
 
-  const [templateOpen, setTemplateOpen] = useState(true);
+  const [templateOpen, setTemplateOpen] = useState(false);
 
   const handleCloseTemplate = useCallback(() => {
     setTemplateOpen(false);
