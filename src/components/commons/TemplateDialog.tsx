@@ -9,7 +9,7 @@ interface TemplateDialogProps {
 const templateList = [
   {
     name: 'Template 1',
-    content: `# {date:YY-MM-DD} 실시간 협업 플랫폼 데일리 싱크
+    content: `# {date:YY-MM-DD} 데일리 싱크
 
 ## Name 🏠
 어제
