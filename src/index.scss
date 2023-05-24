@@ -193,6 +193,7 @@ body {
   cursor: pointer;
   padding: 5px 10px;
   border-radius: 0px !important;
+  font-size: 16px;
 }
 
 /* Style the selected hint item */
@@ -203,13 +204,13 @@ body {
 /* Style the hint label */
 .CodeMirror-hints .CodeMirror-hint-label {
   color: rgb(53, 53, 53);
-  font-size: 12px;
+  font-size: 20px !important;
   margin-right: 5px;
 }
 
 /* Style the hint description */
 .CodeMirror-hints .CodeMirror-hint-description {
-  font-size: 12px;
+  font-size: 16px;
   margin-left: 5px;
 }
 

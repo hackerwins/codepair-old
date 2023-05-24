@@ -5,8 +5,9 @@ import data, { EmojiMartData } from '@emoji-mart/data';
 const emojiList = Object.keys((data as EmojiMartData).emojis).map((key) => {
   const obj = (data as EmojiMartData).emojis[key];
   return {
-    text: `:${key}:`,
-    displayText: `${obj.skins[0].native} :${key}:`,
+    text: obj.skins[0].native,
+    displayText: `${obj.skins[0].native} ${key}`,
+    keyText: `:${key}:`,
     className: 'emoji-hint',
     keywords: obj.keywords,
     name: obj.name,
@@ -25,9 +26,8 @@ const emojiList = Object.keys((data as EmojiMartData).emojis).map((key) => {
 
   // Format the list of emojis as CodeMirror hints
   const hints = emojiList.filter((it) => {
-    // console.log(it.text, prefix);
     return (
-      it.text.includes(query) ||
+      it.keyText.includes(query) ||
       it.keywords.some((keyword) => {
         return keyword.includes(query);
       })

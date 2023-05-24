@@ -282,9 +282,13 @@ export default function CodeEditor() {
       });
       cm.setOption('hintOptions', {
         completeOnSingleClick: true,
-        completeSingle: false,
+        completeSingle: true,
         container: cm.getWrapperElement(),
       });
+
+      cm.showHint({
+        hint: (CodeMirror as any).hint.emoji,
+      } as any);
 
       cm.on('inputRead', function (cm2, event) {
         const localCur = cm2.getCursor();
@@ -301,47 +305,47 @@ export default function CodeEditor() {
         }
         // check keyword hint with normal text
         else if (event.text.length > 0 && /[a-zA-Z0-9]/.test(event.text[0])) {
-          cm2.showHint({
-            completeSingle: false,
-            alignWithWord: true,
-            closeCharacters: /[\s()\[\]{};:>,]/, // eslint-disable-line no-useless-escape
-            closeOnUnfocus: true,
-            list: () => {
-              return [
-                { text: 'function', displayText: '!function' },
-                { text: 'if', displayText: '!if' },
-                { text: 'else', displayText: '!else' },
-                { text: 'for', displayText: '!for' },
-                { text: 'while', displayText: '!while' },
-                { text: 'do', displayText: '!do' },
-                { text: 'switch', displayText: '!switch' },
-                { text: 'case', displayText: '!case' },
-                { text: 'try', displayText: '!try' },
-                { text: 'catch', displayText: '!catch' },
-                { text: 'finally', displayText: '!finally' },
-                { text: 'class', displayText: '!class' },
-                { text: 'interface', displayText: '!interface' },
-                { text: 'extends', displayText: '!extends' },
-                {
-                  text: 'implements',
-                  displayText: '!implements',
-                  // self customize hint
-                  hint: (cm3: CodeMirror.Editor, cur: any, data: any) => {
-                    cm3.replaceRange(
-                      `${data.displayText} self customize`,
-                      cur.from || data.from,
-                      cur.to || data.to,
-                      'complete',
-                    );
-                  },
-                  render: (element: HTMLLIElement, cur: any, data: any) => {
-                    const tempElement = element;
-                    tempElement.textContent = `${data.displayText} (self customize)`;
-                  },
-                },
-              ];
-            },
-          } as any);
+          // cm2.showHint({
+          //   completeSingle: false,
+          //   alignWithWord: true,
+          //   closeCharacters: /[\s()\[\]{};:>,]/, // eslint-disable-line no-useless-escape
+          //   closeOnUnfocus: true,
+          //   list: () => {
+          //     return [
+          //       { text: 'function', displayText: '!function' },
+          //       { text: 'if', displayText: '!if' },
+          //       { text: 'else', displayText: '!else' },
+          //       { text: 'for', displayText: '!for' },
+          //       { text: 'while', displayText: '!while' },
+          //       { text: 'do', displayText: '!do' },
+          //       { text: 'switch', displayText: '!switch' },
+          //       { text: 'case', displayText: '!case' },
+          //       { text: 'try', displayText: '!try' },
+          //       { text: 'catch', displayText: '!catch' },
+          //       { text: 'finally', displayText: '!finally' },
+          //       { text: 'class', displayText: '!class' },
+          //       { text: 'interface', displayText: '!interface' },
+          //       { text: 'extends', displayText: '!extends' },
+          //       {
+          //         text: 'implements',
+          //         displayText: '!implements',
+          //         // self customize hint
+          //         hint: (cm3: CodeMirror.Editor, cur: any, data: any) => {
+          //           cm3.replaceRange(
+          //             `${data.displayText} self customize`,
+          //             cur.from || data.from,
+          //             cur.to || data.to,
+          //             'complete',
+          //           );
+          //         },
+          //         render: (element: HTMLLIElement, cur: any, data: any) => {
+          //           const tempElement = element;
+          //           tempElement.textContent = `${data.displayText} (self customize)`;
+          //         },
+          //       },
+          //     ];
+          //   },
+          // } as any);
         }
       });
 
