@@ -5,7 +5,7 @@
 import React, { useEffect, useMemo, useRef, useCallback, useState, MouseEvent } from 'react';
 import { createRoot } from 'react-dom/client';
 import { useDispatch, useSelector } from 'react-redux';
-import { ActorID, DocEvent, TextChange } from 'yorkie-js-sdk';
+import { ActorID, DocEvent, OperationInfo } from 'yorkie-js-sdk';
 import CodeMirror from 'codemirror';
 import SimpleMDE from 'easymde';
 import SimpleMDEReact from 'react-simplemde-editor';
@@ -667,17 +667,18 @@ export default function CodeEditor() {
     };
 
     // remote to local
-    const changeEventHandler = (changes: TextChange[]) => {
-      changes.forEach((change) => {
-        const { actor, from, to } = change;
-        if (change.type === 'content') {
-          const content = change.value?.content || '';
+    const handleOperations = (ops: Array<OperationInfo>, actor: ActorID) => {
+      ops.forEach((op) => {
+        if (op.type === 'edit') {
+          const { from, to } = op;
+          const content = op.value?.content || '';
           if (actor !== client.getID()) {
             const fromPos = editor.posFromIndex(from);
             const toPos = editor.posFromIndex(to);
             editor.replaceRange(content, fromPos, toPos, 'yorkie');
           }
-        } else if (change.type === 'selection') {
+        } else if (op.type === 'select') {
+          const { from, to } = op;
           if (actor !== client.getID()) {
             let fromPos = editor.posFromIndex(from);
             let toPos = editor.posFromIndex(to);
@@ -691,23 +692,12 @@ export default function CodeEditor() {
       });
     };
 
-    // sync text of document and editor
-    const syncText = () => {
-      const text = doc.getRoot().content;
-
-      if (text) {
-        text.onChanges(changeEventHandler);
-        editor.setValue(text.toString());
-
-        // fold tldraw code
-        (editor as any).foldTldrawCode();
-      }
-    };
-
     doc.subscribe((event: DocEvent) => {
       if (event.type === 'snapshot') {
         // re-sync for the new text from the snapshot
-        syncText();
+        editor.setValue(doc.getRoot().content.toString());
+        // fold tldraw code
+        (editor as any).foldTldrawCode();
       }
     });
 
@@ -787,7 +777,14 @@ export default function CodeEditor() {
       });
     });
 
-    syncText();
+    // remote to local
+    doc.subscribe('$.content', (event) => {
+      if (event.type === 'remote-change') {
+        const { actor, operations } = event.value;
+        handleOperations(operations, actor!);
+      }
+    });
+
     editor.addKeyMap(menu.codeKeyMap);
     editor.setOption('keyMap', menu.codeKeyMap);
     editor.getDoc().clearHistory();
