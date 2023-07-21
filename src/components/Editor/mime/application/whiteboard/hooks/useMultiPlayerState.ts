@@ -18,7 +18,7 @@ import {
 import { useThrottleCallback } from '@react-hook/throttle';
 import randomColor from 'randomcolor';
 import { uniqueNamesGenerator, names } from 'unique-names-generator';
-import { Unsubscribe } from 'yorkie-js-sdk';
+import { Unsubscribe, DocEventType } from 'yorkie-js-sdk';
 import { debounce } from '@mui/material';
 import { setActionStatus } from 'features/actionSlices';
 
@@ -225,6 +225,15 @@ export function useMultiplayerState(roomId: string) {
     [roomId, client, menu],
   );
 
+  const displayRemoteCursors = useCallback(() => {
+    if (!doc) return;
+    const allPeers = doc
+      .getPresences()
+      .map((peer) => peer.presence.whiteboardUser)
+      .filter(Boolean) as TDUser[];
+    app?.updateUsers(allPeers);
+  }, [app, doc]);
+
   // Update Yorkie doc when the app's shapes change.
   // Prevent overloading yorkie update api call by throttle
   const onChangePage = useThrottleCallback(
@@ -298,19 +307,23 @@ export function useMultiplayerState(roomId: string) {
   // Handle presence updates when the user's pointer / selection changes
   const onChangePresence = useThrottleCallback(
     (tldrawApp: TldrawApp, user: TDUser) => {
-      if (!tldrawApp || client === undefined || !client.isActive()) return;
+      if (!tldrawApp || client === undefined || doc === undefined) return;
 
-      client.updatePresence('whiteboardUser', {
-        ...{
-          id: `${client.getID()}`,
-          point: [-100, -100],
-          color: menu?.userColor || randomColor(),
-          status: TDUserStatus.Connected,
-          activeShapes: [],
-          selectedIds: [],
-          metadata: { name: menu?.userName }, // <-- custom metadata
-        },
-        ...user,
+      doc.update((root, presence) => {
+        presence.set({
+          whiteboardUser: {
+            ...{
+              id: `${client.getID()}`,
+              point: [-100, -100],
+              color: menu?.userColor || randomColor(),
+              status: TDUserStatus.Connected,
+              activeShapes: [],
+              selectedIds: [],
+              metadata: { name: menu?.userName }, // <-- custom metadata
+            },
+            ...user,
+          },
+        });
       });
 
       dispatch(setActionStatus({ isOver: true }));
@@ -327,8 +340,8 @@ export function useMultiplayerState(roomId: string) {
     let stillAlive = true;
     let unsubscribe: Unsubscribe;
 
-    // Subscribe to changes
-    function handleChanges() {
+    // Subscribe to change in the document
+    function handleChange() {
       const root = doc!.getRoot();
 
       // Parse proxy object to record
@@ -344,41 +357,16 @@ export function useMultiplayerState(roomId: string) {
     async function setupDocument() {
       try {
         // 01-1. Subscribe peers-changed event and update tldraw users state
-        unsubscribe = client!.subscribe((event) => {
-          if (event.type === 'peers-changed') {
-            const peers = event.value.peers[doc!.getKey()];
-            // Compare with local user list and get leaved user list
-            // Then remove leaved users
-            const localUsers = Object.values(app!.room!.users).filter(Boolean);
-
-            const remoteUsers = Object.values(peers || {})
-              .map((peer) => {
-                if (!peer.presence.whiteboardUser) return null;
-                return {
-                  ...{
-                    point: [0, 0],
-                    activeShapes: [],
-                    selectedIds: [],
-                    id: `${peer?.clientID}`,
-                    status: TDUserStatus.Connected,
-                    color: peer.presence.color,
-                    metadata: {
-                      name: peer.presence.username,
-                    },
-                  },
-                  ...(peer.presence.whiteboardUser || {}),
-                };
-              })
-              .filter(Boolean);
-            const leavedUsers = localUsers.filter(({ id: id1 }) => !remoteUsers.some((user) => user?.id === id1));
-
-            leavedUsers.forEach((user) => {
-              app?.removeUser(user.id);
-            });
-
-            // Then update users
-            app?.updateUsers(remoteUsers as any);
+        if (!doc) return;
+        unsubscribe = doc.subscribe('others', (event) => {
+          // remove leaved users
+          if (event.type === DocEventType.Unwatched) {
+            // TODO(chacha912): We don't know presence of unwatched client now.
+            // app?.removeUser(event.value.presence.tdUser.id);
           }
+
+          // update users
+          displayRemoteCursors();
         });
 
         // 03. Initialize document if document not exists.
@@ -406,7 +394,7 @@ export function useMultiplayerState(roomId: string) {
         // 04. Subscribe document event and handle changes.
         doc!.subscribe((event) => {
           if (event.type === 'remote-change') {
-            handleChanges();
+            handleChange();
           }
         });
 
@@ -415,8 +403,7 @@ export function useMultiplayerState(roomId: string) {
 
         if (stillAlive) {
           // Update the document with initial content
-          handleChanges();
-          handleChanges();
+          handleChange();
 
           // Zoom to fit the content & finish loading
           if (app) {
@@ -435,13 +422,14 @@ export function useMultiplayerState(roomId: string) {
     }
 
     setupDocument();
+    displayRemoteCursors();
 
     return () => {
       stillAlive = false;
 
       unsubscribe?.();
     };
-  }, [app, client, doc, roomId]);
+  }, [app, client, doc, roomId, displayRemoteCursors]);
 
   return {
     onMount,

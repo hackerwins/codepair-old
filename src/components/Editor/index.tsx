@@ -84,9 +84,28 @@ export default function BaseEditor(props: { docKey: string }) {
       return;
     }
 
-    const unsubscribe = client.subscribe((event) => {
-      if (event.type === 'peers-changed') {
-        const changedPeers = client.getPeersByDocKey(doc.getKey()).reduce((acc, peer) => {
+    const unsubscribeClient = client.subscribe((event) => {
+      if (
+        status === DocStatus.Connect &&
+        ((event.type === 'status-changed' && event.value === 'deactivated') ||
+          (event.type === 'stream-connection-status-changed' && event.value === 'disconnected') ||
+          (event.type === 'document-synced' && event.value === 'sync-failed'))
+      ) {
+        dispatch(setStatus(DocStatus.Disconnect));
+      } else if (
+        status === DocStatus.Disconnect &&
+        (event.type === 'documents-changed' ||
+          (event.type === 'status-changed' && event.value === 'activated') ||
+          (event.type === 'stream-connection-status-changed' && event.value === 'connected') ||
+          (event.type === 'document-synced' && event.value === 'synced'))
+      ) {
+        dispatch(setStatus(DocStatus.Connect));
+      }
+    });
+
+    const unsubscribeDoc = doc.subscribe('presence', (event) => {
+      if (event.type !== 'presence-changed') {
+        const changedPeers = doc.getPresences().reduce((acc, peer) => {
           acc[peer.clientID] = peer.presence;
           return acc;
         }, {} as Record<string, Presence>);
@@ -97,28 +116,11 @@ export default function BaseEditor(props: { docKey: string }) {
           }),
         );
       }
-
-      if (
-        status === DocStatus.Connect &&
-        ((event.type === 'status-changed' && event.value === 'deactivated') ||
-          (event.type === 'stream-connection-status-changed' && event.value === 'disconnected') ||
-          (event.type === 'document-synced' && event.value === 'sync-failed'))
-      ) {
-        dispatch(setStatus(DocStatus.Disconnect));
-      } else if (
-        status === DocStatus.Disconnect &&
-        (event.type === 'peers-changed' ||
-          event.type === 'documents-changed' ||
-          (event.type === 'status-changed' && event.value === 'activated') ||
-          (event.type === 'stream-connection-status-changed' && event.value === 'connected') ||
-          (event.type === 'document-synced' && event.value === 'synced'))
-      ) {
-        dispatch(setStatus(DocStatus.Connect));
-      }
     });
 
     return () => {
-      unsubscribe();
+      unsubscribeClient();
+      unsubscribeDoc();
     };
   }, [client, doc, status, dispatch]);
 

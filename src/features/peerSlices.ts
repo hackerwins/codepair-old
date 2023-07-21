@@ -9,6 +9,7 @@ export interface Presence {
   image: string; // Currently all anonymous images
   board: string;
   whiteboardUser?: TDUser;
+  selection: any; // TODO(chacha912): Import type from yorkie-js-sdk
 }
 
 export enum ConnectionStatus {
@@ -77,10 +78,12 @@ export const updatePresenceColor = createAsyncThunk<undefined, string, { rejectV
     try {
       const state = thunkApi.getState() as any;
       const { docState }: { docState: DocState } = state;
-      const { client } = docState;
+      const { doc } = docState;
 
       const userColor = newColor;
-      client?.updatePresence('color', userColor);
+      doc?.update((root, presence) => {
+        presence.set({ color: userColor });
+      });
 
       return undefined;
     } catch (err) {
