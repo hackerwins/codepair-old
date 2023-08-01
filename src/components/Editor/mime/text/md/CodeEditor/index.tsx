@@ -717,7 +717,8 @@ export default function CodeEditor() {
         const token = editor.getTokenAt(pos);
 
         if (token.type?.includes('link')) {
-          window.open(token.string, token.string);
+          const link = (event.target as HTMLElement).textContent ?? token.string;
+          window.open(link, link);
         }
       }
     }) as any);
