@@ -94,7 +94,7 @@ export default function BaseEditor(props: { docKey: string }) {
         dispatch(setStatus(DocStatus.Disconnect));
       } else if (
         status === DocStatus.Disconnect &&
-        (event.type === 'documents-changed' ||
+        (event.type === 'document-changed' ||
           (event.type === 'status-changed' && event.value === 'activated') ||
           (event.type === 'stream-connection-status-changed' && event.value === 'connected') ||
           (event.type === 'document-synced' && event.value === 'synced'))
