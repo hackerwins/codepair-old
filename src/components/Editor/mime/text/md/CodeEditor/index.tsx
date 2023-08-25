@@ -667,27 +667,14 @@ export default function CodeEditor() {
     };
 
     // remote to local
-    const handleOperations = (ops: Array<OperationInfo>, actor: ActorID) => {
+    const handleOperations = (ops: Array<OperationInfo>) => {
       ops.forEach((op) => {
         if (op.type === 'edit') {
           const { from, to } = op;
           const content = op.value?.content || '';
-          if (actor !== client.getID()) {
-            const fromPos = editor.posFromIndex(from);
-            const toPos = editor.posFromIndex(to);
-            editor.replaceRange(content, fromPos, toPos, 'yorkie');
-          }
-        } else if (op.type === 'select') {
-          const { from, to } = op;
-          if (actor !== client.getID()) {
-            let fromPos = editor.posFromIndex(from);
-            let toPos = editor.posFromIndex(to);
-            updateCursor(actor, toPos);
-            if (from > to) {
-              [toPos, fromPos] = [fromPos, toPos];
-            }
-            updateLine(actor, fromPos, toPos);
-          }
+          const fromPos = editor.posFromIndex(from);
+          const toPos = editor.posFromIndex(to);
+          editor.replaceRange(content, fromPos, toPos, 'yorkie');
         }
       });
     };
@@ -770,8 +757,13 @@ export default function CodeEditor() {
       const to = editor.indexFromPos(change.to);
       const content = change.text.join('\n');
 
-      doc.update((root) => {
-        root.content.edit(from, to, content);
+      doc.update((root, presence) => {
+        const updatedIndexRange = root.content.edit(from, to, content);
+        if (updatedIndexRange) {
+          presence.set({
+            selection: root.content.indexRangeToPosRange(updatedIndexRange),
+          });
+        }
       });
     });
 
@@ -783,16 +775,32 @@ export default function CodeEditor() {
       const from = editor.indexFromPos(data.ranges[0].anchor);
       const to = editor.indexFromPos(data.ranges[0].head);
 
-      doc.update((root) => {
-        root.content.select(from, to);
+      doc.update((root, presence) => {
+        presence.set({
+          selection: root.content.indexRangeToPosRange([from, to]),
+        });
       });
     });
 
     // remote to local
     doc.subscribe('$.content', (event) => {
       if (event.type === 'remote-change') {
-        const { actor, operations } = event.value;
-        handleOperations(operations, actor!);
+        handleOperations(event.value.operations);
+      }
+    });
+
+    doc.subscribe('others', (event) => {
+      if (event.type === 'presence-changed') {
+        const { clientID, presence } = event.value;
+        const [from, to] = doc.getRoot().content.posRangeToIndexRange(presence.selection);
+
+        let fromPos = editor.posFromIndex(from);
+        let toPos = editor.posFromIndex(to);
+        updateCursor(clientID, toPos);
+        if (from > to) {
+          [toPos, fromPos] = [fromPos, toPos];
+        }
+        updateLine(clientID, fromPos, toPos);
       }
     });
 

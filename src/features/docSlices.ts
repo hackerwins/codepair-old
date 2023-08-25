@@ -106,8 +106,8 @@ export enum DocStatus {
 }
 
 export interface DocState {
-  client?: Client<Presence>;
-  doc?: Document<CodePairDoc>;
+  client?: Client;
+  doc?: Document<CodePairDoc, Presence>;
   mode: CodeMode;
   preview: Preview;
   loading: boolean;
@@ -213,17 +213,8 @@ export const activateClient = createAsyncThunk<ActivateClientResult, undefined, 
   'doc/activate',
   async (_: undefined, thunkApi) => {
     try {
-      const { name, animal } = anonymous.generate();
-      const state: SettingState = (thunkApi.getState() as any).settingState;
-      const { userName, userColor } = state.menu;
       const options = {
         apiKey: '',
-        presence: {
-          username: userName || name,
-          image: animal,
-          color: userColor || randomColor(),
-          board: '',
-        },
       };
 
       if (`${import.meta.env.VITE_APP_YORKIE_API_KEY}`) {
@@ -244,7 +235,19 @@ export const attachDoc = createAsyncThunk<AttachDocResult, AttachDocArgs, { reje
   'doc/attach',
   async ({ client, doc }, thunkApi) => {
     try {
-      await client.attach(doc);
+      const { name, animal } = anonymous.generate();
+      const state: SettingState = (thunkApi.getState() as any).settingState;
+      const { userName, userColor } = state.menu;
+
+      await client.attach(doc, {
+        initialPresence: {
+          username: userName || name,
+          image: animal,
+          color: userColor || randomColor(),
+          board: '',
+          selection: null,
+        },
+      });
 
       doc.update((root) => {
         // codeEditor
@@ -269,8 +272,20 @@ export const createDoc = createAsyncThunk<boolean, CreateDocArgs, { rejectValue:
   'doc/create',
   async ({ client, docKey, init }, thunkApi) => {
     try {
-      const doc = new yorkie.Document<CodePairDoc>(docKey);
-      await client.attach(doc);
+      const { name, animal } = anonymous.generate();
+      const state: SettingState = (thunkApi.getState() as any).settingState;
+      const { userName, userColor } = state.menu;
+
+      const doc = new yorkie.Document<CodePairDoc, Presence>(docKey);
+      await client.attach(doc, {
+        initialPresence: {
+          username: userName || name,
+          image: animal,
+          color: userColor || randomColor(),
+          board: '',
+          selection: null,
+        },
+      });
 
       if (init) {
         await doc.update(init);
@@ -298,14 +313,14 @@ const docSlice = createSlice({
       const { doc } = state;
 
       if (doc) {
-        state.client?.detach(doc as Document<CodePairDoc>);
+        state.client?.detach(doc as Document<CodePairDoc, Presence>);
       }
 
-      state.doc = new yorkie.Document<CodePairDoc>(`codepairs-${action.payload}`);
+      state.doc = new yorkie.Document<CodePairDoc, Presence>(`codepairs-${action.payload}`);
     },
     detachDocument(state) {
       const { doc, client } = state;
-      client?.detach(doc as Document<CodePairDoc>);
+      client?.detach(doc as Document<CodePairDoc, Presence>);
       state.doc = undefined;
     },
     attachDocLoading(state, action: PayloadAction<boolean>) {
@@ -381,7 +396,7 @@ export const {
 } = docSlice.actions;
 export default docSlice.reducer;
 
-type ActivateClientResult = { client: Client<Presence> };
-type AttachDocArgs = { doc: Document<CodePairDoc>; client: Client<Presence> };
-type CreateDocArgs = { docKey: string; client: Client<Presence>; init?: (root: CodePairDoc) => void };
-type AttachDocResult = { doc: Document<CodePairDoc>; client: Client<Presence> };
+type ActivateClientResult = { client: Client };
+type AttachDocArgs = { doc: Document<CodePairDoc, Presence>; client: Client };
+type CreateDocArgs = { docKey: string; client: Client; init?: (root: CodePairDoc) => void };
+type AttachDocResult = { doc: Document<CodePairDoc, Presence>; client: Client };
