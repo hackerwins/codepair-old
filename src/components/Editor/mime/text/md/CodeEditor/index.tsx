@@ -451,7 +451,6 @@ export default function CodeEditor() {
         'bold',
         'italic',
         'strikethrough',
-        'code',
         'horizontal-rule',
         'quote',
         '|',
