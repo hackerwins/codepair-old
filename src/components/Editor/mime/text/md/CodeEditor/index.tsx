@@ -728,9 +728,13 @@ export default function CodeEditor() {
 
     editor.on('change', () => {
       dispatch(updateHeadings());
+      // TODO(hackerwins): Remove ignore after fixing the type.
+      // @ts-ignore
       dispatch(updateLinkNameWithHeading({ docKey: doc.getKey() }));
       dispatch(
         addRecentPage({
+          // TODO(hackerwins): Remove ignore after fixing the type.
+          // @ts-ignore
           docKey: doc.getKey(),
           page: {
             name: `${getTableOfContents(1)[0]?.text}`,

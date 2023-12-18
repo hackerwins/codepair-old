@@ -69,7 +69,7 @@
     "remark-toc": "^8.0.1",
     "tss-react": "^4.8.2",
     "unique-names-generator": "^4.7.1",
-    "yorkie-js-sdk": "yorkie-team/yorkie-js-sdk#main"
+    "yorkie-js-sdk": "^0.4.11"
   },
   "devDependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
