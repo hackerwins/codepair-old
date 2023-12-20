@@ -7,7 +7,7 @@ Real-time markdown editor for interviews, meetings & more...
 ## Developing CodePair
 For building CodePair, You'll first need Node.js installed(Node.js version 16+ and npm version 7.10+ are required).
 
-CodePair requires local applications such as Envoy, Yorkie and MongoDB. To start them:
+CodePair requires local applications such as Yorkie and MongoDB. To start them:
 
 ```
 docker-compose -f docker/docker-compose.yml up --build -d

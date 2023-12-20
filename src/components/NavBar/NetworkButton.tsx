@@ -126,6 +126,8 @@ function NetworkConnect() {
 export default function NetworkButton() {
   const status = useSelector((state: AppState) => state.docState.status);
   const hasLocalChanges = useSelector((state: AppState) => {
+    // TODO(hackerwins): Remove ignore after fixing the type.
+    // @ts-ignore
     return state.docState.doc ? state.docState.doc.hasLocalChanges() : false;
   });
 
