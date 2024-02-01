@@ -97,6 +97,7 @@ const useStyles = makeStyles()((theme) => ({
     },
   },
   sidebarItem: {
+    paddingRight: 2,
     borderRadius: 6,
     [`&:hover .sidebar-item-more`]: {
       visibility: 'visible !important' as any,

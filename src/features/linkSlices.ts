@@ -244,7 +244,7 @@ const linkSlice = createSlice({
     newLink(
       state,
       action: PayloadAction<{
-        parentId: string;
+        parentId?: string;
         name: string;
         mimeType?: string;
         fileLink?: string;
@@ -252,7 +252,7 @@ const linkSlice = createSlice({
         emoji?: string;
       }>,
     ) {
-      const { parentId, name, fileLink, mimeType = 'text/markdown', color, emoji } = action.payload;
+      const { parentId = '', name, fileLink, mimeType = 'text/markdown', color, emoji } = action.payload;
 
       const newLinkInfo = {
         type: 'link',

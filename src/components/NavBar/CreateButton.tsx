@@ -1,10 +1,9 @@
 import React, { useCallback, useState } from 'react';
-import { Button, ListItemIcon, ListItemText, Menu, MenuItem, Typography } from '@mui/material';
+import { Button, Divider, ListItemIcon, ListItemText, Menu, MenuItem, Typography } from '@mui/material';
 import Add from '@mui/icons-material/Add';
 import { useDispatch, useSelector } from 'react-redux';
 import Gesture from '@mui/icons-material/Gesture';
 import { createDoc } from 'features/docSlices';
-import yorkie from 'yorkie-js-sdk';
 import { AppState } from 'app/rootReducer';
 import { newLink } from 'features/linkSlices';
 import { makeStyles } from 'styles/common';
@@ -13,6 +12,8 @@ import { useNavigate } from 'react-router-dom';
 import { createDocumentKey, createRandomColor } from 'utils/document';
 import DescriptionOutlined from '@mui/icons-material/DescriptionOutlined';
 import { Theme } from 'features/settingSlices';
+import { ContentCopyOutlined } from '@mui/icons-material';
+import { TemplateDialog } from 'components/commons/TemplateDialog';
 
 const useStyles = makeStyles()((theme) => ({
   menu: {
@@ -41,6 +42,8 @@ export function CreateButton() {
 
   const parentId = '';
 
+  const [templateOpen, setTemplateOpen] = useState(false);
+
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -48,6 +51,15 @@ export function CreateButton() {
   const handleMenuClose = useCallback(() => {
     setAnchorEl(null);
   }, []);
+
+  const handleCloseTemplate = useCallback(() => {
+    setTemplateOpen(false);
+  }, []);
+
+  const handleOpenTemplate = useCallback(() => {
+    setTemplateOpen(true);
+    handleMenuClose();
+  }, [handleMenuClose]);
 
   const open = Boolean(anchorEl);
 
@@ -87,39 +99,39 @@ export function CreateButton() {
     [dispatch, client, parentId, navigate, handleMenuClose],
   );
 
-  const handleCreateMilkdown = useCallback(
-    async (name: string) => {
-      const newDocKey = `${createDocumentKey()}`;
-      const fileLink = `/${newDocKey}`;
-      const mimeType = MimeType.MILKDOWN;
+  // const handleCreateMilkdown = useCallback(
+  //   async (name: string) => {
+  //     const newDocKey = `${createDocumentKey()}`;
+  //     const fileLink = `/${newDocKey}`;
+  //     const mimeType = MimeType.MILKDOWN;
 
-      if (client) {
-        dispatch(
-          createDoc({
-            client,
-            docKey: `codepairs-${newDocKey}`,
-            init: (root: any) => {
-              const newRoot = root;
-              if (!newRoot.mimeType) {
-                newRoot.mimeType = mimeType;
-              }
+  //     if (client) {
+  //       dispatch(
+  //         createDoc({
+  //           client,
+  //           docKey: `codepairs-${newDocKey}`,
+  //           init: (root: any) => {
+  //             const newRoot = root;
+  //             if (!newRoot.mimeType) {
+  //               newRoot.mimeType = mimeType;
+  //             }
 
-              if (!newRoot.content) {
-                newRoot.content = new yorkie.Text();
-              }
-            },
-          }) as any,
-        );
+  //             if (!newRoot.content) {
+  //               newRoot.content = new yorkie.Text();
+  //             }
+  //           },
+  //         }) as any,
+  //       );
 
-        setTimeout(() => {
-          dispatch(newLink({ parentId, name, mimeType, fileLink, color: createRandomColor().background, emoji: '📅' }));
-          setTimeout(() => navigate(fileLink), 100);
-          handleMenuClose();
-        }, 1000);
-      }
-    },
-    [dispatch, client, parentId, navigate, handleMenuClose],
-  );
+  //       setTimeout(() => {
+  //         dispatch(newLink({ parentId, name, mimeType, fileLink, color: createRandomColor().background, emoji: '📅' }));
+  //         setTimeout(() => navigate(fileLink), 100);
+  //         handleMenuClose();
+  //       }, 1000);
+  //     }
+  //   },
+  //   [dispatch, client, parentId, navigate, handleMenuClose],
+  // );
 
   const handleCreateLink = useCallback(
     (name: string) => {
@@ -178,17 +190,19 @@ export function CreateButton() {
               2
             </Typography>
           </MenuItem>
-          <MenuItem onClick={() => handleCreateMilkdown('Untitled milkdown')}>
+          <Divider />
+          <MenuItem onClick={() => handleOpenTemplate()}>
             <ListItemIcon>
-              <DescriptionOutlined fontSize="small" />
+              <ContentCopyOutlined fontSize="small" />
             </ListItemIcon>
-            <ListItemText>Milkdown</ListItemText>
+            <ListItemText>Template</ListItemText>
             <Typography variant="body2" color="text.secondary">
               3
             </Typography>
           </MenuItem>
         </Menu>
       ) : undefined}
+      {templateOpen ? <TemplateDialog onClose={handleCloseTemplate} /> : undefined}
     </div>
   );
 }

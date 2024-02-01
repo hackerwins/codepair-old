@@ -193,6 +193,7 @@ body {
   cursor: pointer;
   padding: 5px 10px;
   border-radius: 0px !important;
+  font-size: 16px;
 }
 
 /* Style the selected hint item */
@@ -203,13 +204,13 @@ body {
 /* Style the hint label */
 .CodeMirror-hints .CodeMirror-hint-label {
   color: rgb(53, 53, 53);
-  font-size: 12px;
+  font-size: 20px !important;
   margin-right: 5px;
 }
 
 /* Style the hint description */
 .CodeMirror-hints .CodeMirror-hint-description {
-  font-size: 12px;
+  font-size: 16px;
   margin-left: 5px;
 }
 
@@ -230,6 +231,62 @@ body {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
+}
+
+.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+  padding: 10px;
+  > p:first-child {
+    margin-top: 0px;
+  }
+  > p:last-child {
+    margin-bottom: 0px;
+  }
+}
+
+.info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+  padding: 10px;
+  > p:first-child {
+    margin-top: 0px;
+  }
+  > p:last-child {
+    margin-bottom: 0px;
+  }
+}
+
+.danger {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  padding: 10px;
+  > p:first-child {
+    margin-top: 0px;
+  }
+  > p:last-child {
+    margin-bottom: 0px;
+  }
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  border: 1px solid black;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: gray;
+  color: white;
 }
 
 [data-theme='light'] {
@@ -573,6 +630,13 @@ blockquote {
 }
 
 [data-theme='dark'] {
+  .success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    padding: 10px;
+  }
+
   .inline-menu button {
     border: 1px solid rgb(113, 113, 113);
     background-color: #121212;
@@ -665,6 +729,10 @@ blockquote {
       color: rgb(56, 234, 175);
     }
 
+    .CodeMirror-line span.cm-formatting-emoji {
+      color: rgb(206, 73, 255) !important;
+    }
+
     .CodeMirror-line span.cm-formatting-header {
       color: rgb(102, 102, 102);
     }
@@ -733,7 +801,7 @@ blockquote {
     }
 
     .CodeMirror-line span.cm-attribute {
-      color: #00c;
+      color: rgb(92, 92, 235);
     }
 
     .CodeMirror-line span.cm-hr {
