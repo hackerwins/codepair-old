@@ -606,6 +606,8 @@ blockquote {
 
     .CodeMirror-foldmarker {
       color: #ffffff !important;
+      background-color: #111 !important;
+      border: 1px solid rgb(113, 113, 113) !important;
     }
 
     .CodeMirror-dialog {
@@ -721,7 +723,7 @@ blockquote {
     }
 
     .CodeMirror-line span.cm-builtin {
-      color: #30a;
+      color: #66d9ef;
     }
 
     .CodeMirror-line span.cm-bracket {

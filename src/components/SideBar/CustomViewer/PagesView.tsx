@@ -1,11 +1,16 @@
 import React from 'react';
-import { TabPanel } from '@mui/lab';
+import TabPanel from '@mui/lab/TabPanel';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleRecents } from 'features/navSlices';
 import { removeCurrentPage } from 'features/currentSlices';
 
-import { Collapse, IconButton, List, ListItem, ListItemText, ListSubheader } from '@mui/material';
+import Collapse from '@mui/material/Collapse';
+import IconButton from '@mui/material/IconButton';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import ListSubheader from '@mui/material/ListSubheader';
 import Delete from '@mui/icons-material/Delete';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import NavigateNext from '@mui/icons-material/NavigateNext';
@@ -14,7 +19,8 @@ import { recentsSelector } from 'features/linkSlices';
 import { makeStyles } from 'styles/common';
 
 import { Theme } from 'features/settingSlices';
-import { DescriptionOutlined, MouseOutlined } from '@mui/icons-material';
+import DescriptionOutlined from '@mui/icons-material/DescriptionOutlined';
+import MouseOutlined from '@mui/icons-material/MouseOutlined';
 
 import { LinkTreeView } from '../LinkTreeView';
 

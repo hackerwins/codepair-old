@@ -20,7 +20,11 @@ import {
 } from 'features/docSlices';
 import { makeStyles } from 'styles/common';
 import { Presence, syncPeer } from 'features/peerSlices';
-import { Alert, Box, CircularProgress, Snackbar } from '@mui/material';
+import Alert from '@mui/material/Alert';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import Snackbar from '@mui/material/Snackbar';
+
 import WhiteBoardEditor from './mime/application/whiteboard/Editor';
 import Editor from './mime/text/md/Editor';
 

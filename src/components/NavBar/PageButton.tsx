@@ -11,7 +11,7 @@ import { makeStyles } from 'styles/common';
 import { MimeType } from 'constants/editor';
 import { useNavigate } from 'react-router-dom';
 import { createDocumentKey, createRandomColor } from 'utils/document';
-import { DescriptionOutlined } from '@mui/icons-material';
+import DescriptionOutlined from '@mui/icons-material/DescriptionOutlined';
 
 const useStyles = makeStyles()(() => ({
   menu: {

@@ -39,7 +39,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
 import { addRecentPage } from 'features/currentSlices';
-import { DescriptionOutlined } from '@mui/icons-material';
+import DescriptionOutlined from '@mui/icons-material/DescriptionOutlined';
 import { Theme } from 'features/settingSlices';
 import { findColor } from 'utils/document';
 

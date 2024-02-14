@@ -1,18 +1,17 @@
 import React from 'react';
-import {
-  Divider,
-  IconButton,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Popover,
-  Typography,
-} from '@mui/material';
+import Divider from '@mui/material/Divider';
+import IconButton from '@mui/material/IconButton';
+import List from '@mui/material/List';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+
 import { makeStyles } from 'styles/common';
 import { Theme } from 'features/settingSlices';
 import { CreateButton } from 'components/NavBar/CreateButton';
-import { PetsOutlined } from '@mui/icons-material';
+import PetsOutlined from '@mui/icons-material/PetsOutlined';
+import Popover from '@mui/material/Popover';
+import Typography from '@mui/material/Typography';
 
 const useStyles = makeStyles()((theme) => ({
   iconButton: {

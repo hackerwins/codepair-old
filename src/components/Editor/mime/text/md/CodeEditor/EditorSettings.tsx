@@ -8,7 +8,8 @@ import { CodeKeyMap, TabSize, setCodeKeyMap, setTabSize } from 'features/setting
 import { AppDispatch } from 'app/store';
 import { AppState } from 'app/rootReducer';
 import { makeStyles } from 'styles/common';
-import { FormControl, NativeSelect } from '@mui/material';
+import FormControl from '@mui/material/FormControl';
+import NativeSelect from '@mui/material/NativeSelect';
 
 const useStyles = makeStyles()((theme) => ({
   root: {

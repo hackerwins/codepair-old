@@ -21,7 +21,8 @@ import {
   Snackbar,
 } from '@mui/material';
 import { Theme } from 'features/settingSlices';
-import { LaunchOutlined, LinkOutlined } from '@mui/icons-material';
+import LaunchOutlined from '@mui/icons-material/LaunchOutlined';
+import LinkOutlined from '@mui/icons-material/LinkOutlined';
 
 const useStyles = makeStyles()((theme) => ({
   title: {

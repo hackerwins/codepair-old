@@ -1,6 +1,7 @@
 import React from 'react';
-import { TabPanel } from '@mui/lab';
-import { Box, List } from '@mui/material';
+import TabPanel from '@mui/lab/TabPanel';
+import Box from '@mui/material/Box';
+import List from '@mui/material/List';
 
 import { useSelector } from 'react-redux';
 import { AppState } from 'app/rootReducer';
