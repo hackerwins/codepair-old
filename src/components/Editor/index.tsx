@@ -21,6 +21,7 @@ import {
 import { makeStyles } from 'styles/common';
 import { Presence, syncPeer } from 'features/peerSlices';
 import { Alert, Box, CircularProgress, Snackbar } from '@mui/material';
+import { StreamConnectionStatus } from 'yorkie-js-sdk';
 import WhiteBoardEditor from './mime/application/whiteboard/Editor';
 import Editor from './mime/text/md/Editor';
 
@@ -84,21 +85,10 @@ export default function BaseEditor(props: { docKey: string }) {
       return;
     }
 
-    const unsubscribeClient = client.subscribe((event) => {
-      if (
-        status === DocStatus.Connect &&
-        ((event.type === 'status-changed' && event.value === 'deactivated') ||
-          (event.type === 'stream-connection-status-changed' && event.value === 'disconnected') ||
-          (event.type === 'document-synced' && event.value === 'sync-failed'))
-      ) {
+    const unsubscribeClient = doc.subscribe('connection', (event) => {
+      if (status === DocStatus.Connect && event.value === StreamConnectionStatus.Disconnected) {
         dispatch(setStatus(DocStatus.Disconnect));
-      } else if (
-        status === DocStatus.Disconnect &&
-        (event.type === 'document-changed' ||
-          (event.type === 'status-changed' && event.value === 'activated') ||
-          (event.type === 'stream-connection-status-changed' && event.value === 'connected') ||
-          (event.type === 'document-synced' && event.value === 'synced'))
-      ) {
+      } else if (status === DocStatus.Disconnect && event.value === StreamConnectionStatus.Connected) {
         dispatch(setStatus(DocStatus.Connect));
       }
     });
