@@ -10,6 +10,7 @@ export interface Presence {
   board: string;
   whiteboardUser?: TDUser;
   selection: any; // TODO(chacha912): Import type from yorkie-js-sdk
+  [key: string]: any; // NOTE(hackerwins): Quick fix for Indexable.
 }
 
 export enum ConnectionStatus {
