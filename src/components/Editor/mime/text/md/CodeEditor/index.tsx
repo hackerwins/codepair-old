@@ -5,7 +5,7 @@
 import React, { useEffect, useMemo, useRef, useCallback, useState, MouseEvent } from 'react';
 import { createRoot } from 'react-dom/client';
 import { useDispatch, useSelector } from 'react-redux';
-import { ActorID, DocEvent, OperationInfo } from 'yorkie-js-sdk';
+import { ActorID, OperationInfo } from 'yorkie-js-sdk';
 import CodeMirror from 'codemirror';
 import SimpleMDE from 'easymde';
 import SimpleMDEReact from 'react-simplemde-editor';
@@ -690,7 +690,7 @@ export default function CodeEditor() {
       }
     };
 
-    doc.subscribe((event: DocEvent) => {
+    doc.subscribe((event) => {
       if (event.type === 'snapshot') {
         // re-sync for the new text from the snapshot
         setText();
