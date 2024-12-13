@@ -328,7 +328,7 @@ export default function PageLayout({ children }: PageLayoutProps) {
           </div>
           <div className={classes.editorContentArea}>{children}</div>
         </div>
-        <div className={classes.instantArea}>
+        <div className={classes.instantArea} style={{ display: 'block' }}>
           <InstantBoard />
         </div>
         <div className={classes.guideArea}>
