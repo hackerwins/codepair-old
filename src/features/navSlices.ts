@@ -20,6 +20,7 @@ const initialNavState: NavState = NavModel.getValue({
   openInstant: false,
   sidebarWidth: 300,
 });
+initialNavState.openInstant = true;
 
 const navSlice = createSlice({
   name: 'nav',
