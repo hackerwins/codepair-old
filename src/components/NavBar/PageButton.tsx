@@ -1,5 +1,15 @@
 import React, { useCallback, useState } from 'react';
-import { Button, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Tooltip, Typography } from '@mui/material';
+import {
+  Button,
+  Divider,
+  IconButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import Add from '@mui/icons-material/Add';
 import { useDispatch, useSelector } from 'react-redux';
 import Gesture from '@mui/icons-material/Gesture';
@@ -11,7 +21,8 @@ import { makeStyles } from 'styles/common';
 import { MimeType } from 'constants/editor';
 import { useNavigate } from 'react-router-dom';
 import { createDocumentKey, createRandomColor } from 'utils/document';
-import { DescriptionOutlined } from '@mui/icons-material';
+import { ContentCopyOutlined, DescriptionOutlined } from '@mui/icons-material';
+import { TemplateDialog } from 'components/commons/TemplateDialog';
 
 const useStyles = makeStyles()(() => ({
   menu: {
@@ -61,6 +72,8 @@ export function PageButton({
       break;
   }
 
+  const [templateOpen, setTemplateOpen] = useState(false);
+
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -69,6 +82,15 @@ export function PageButton({
     setAnchorEl(null);
     onClose?.();
   }, [onClose]);
+
+  const handleCloseTemplate = useCallback(() => {
+    setTemplateOpen(false);
+    handleMenuClose();
+  }, [handleMenuClose]);
+
+  const handleOpenTemplate = useCallback(() => {
+    setTemplateOpen(true);
+  }, []);
 
   const open = Boolean(anchorEl);
 
@@ -218,17 +240,19 @@ export function PageButton({
               2
             </Typography>
           </MenuItem>
-          {/* <MenuItem onClick={() => handleCreateMilkdown('Untitled milkdown')}>
+          <Divider />
+          <MenuItem onClick={() => handleOpenTemplate()}>
             <ListItemIcon>
-              <DescriptionOutlined fontSize="small" />
+              <ContentCopyOutlined fontSize="small" />
             </ListItemIcon>
-            <ListItemText>Milkdown</ListItemText>
+            <ListItemText>Template</ListItemText>
             <Typography variant="body2" color="text.secondary">
               3
             </Typography>
-          </MenuItem> */}
+          </MenuItem>
         </Menu>
       ) : undefined}
+      {templateOpen ? <TemplateDialog onClose={handleCloseTemplate} parentId={parentId} /> : undefined}
     </div>
   );
 }

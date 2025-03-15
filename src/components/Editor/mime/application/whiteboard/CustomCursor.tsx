@@ -5,15 +5,16 @@ import { CursorComponent } from '@tldraw/core';
 // Component overrides for the tldraw renderer
 const CustomCursor: CursorComponent = ({
   color,
-  metadata = {
-    name: 'Anonymous',
-  },
+  metadata,
 }: {
   color: string;
   metadata?: {
     name: string;
   };
 }) => {
+  if (!metadata) {
+    return null;
+  }
   return (
     <div
       style={{
@@ -33,7 +34,7 @@ const CustomCursor: CursorComponent = ({
       />
       <div
         style={{
-          background: 'white',
+          // background: 'white',
           padding: '4px 8px',
           borderRadius: 4,
           whiteSpace: 'nowrap',
